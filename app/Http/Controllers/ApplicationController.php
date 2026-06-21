@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Application;
+use App\Models\Scholarship;
+use App\Models\Document;
+use Illuminate\Support\Facades\Auth;
+
+class ApplicationController extends Controller
+{
+    // 1. Load the Student Dashboard (Pizza Tracker)
+    // Change the name from index() to dashboard() right here!
+    public function dashboard()
+    {
+        $userId = auth()->id() ?? 1; // Fallback to user 1 for testing
+        $application = Application::with('document.aiResult')
+            ->where('user_id', $userId)
+            ->latest()
+            ->first();
+
+        return view('student.dashboard', compact('application'));
+    }
+
+    // 1. Load the Application Form
+    public function create()
+    {
+        $userId = auth()->id() ?? 1;
+
+        // THE FIX: Check only the MOST RECENT application!
+        $latestApplication = \App\Models\Application::where('user_id', $userId)->latest()->first();
+
+        // If their latest application is pending, block them.
+        if ($latestApplication && $latestApplication->status === 'Pending') {
+            return redirect()->route('student.dashboard')
+                ->with('error', 'Action Denied: Your most recent application (APP-'.$latestApplication->id.') is still pending review. Please wait for the OSA to evaluate it.');
+        }
+
+        $scholarships = \App\Models\Scholarship::where('status', 'Active')->get();
+        return view('student.apply', compact('scholarships'));
+    }
+
+    // 2. Save the Submitted Data
+    public function store(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'scholarship_id' => 'required',
+            'gwa' => 'required|numeric|min:1.00|max:5.00',
+            'document' => 'required|image|mimes:jpeg,png|max:5120', 
+        ]);
+
+        $userId = auth()->id() ?? 1;
+
+        // THE FIX: Backend protection checking only the latest app
+        $latestApplication = \App\Models\Application::where('user_id', $userId)->latest()->first();
+        if ($latestApplication && $latestApplication->status === 'Pending') {
+            return back()->withErrors(['duplicate' => 'Your most recent application is still pending!']);
+        }
+
+        $scholarship = \App\Models\Scholarship::findOrFail($request->scholarship_id);
+
+        if ($request->gwa > $scholarship->min_gwa_required) {
+            return back()
+                ->withErrors(['gwa' => 'Application Blocked: Your declared GWA of ' . $request->gwa . ' does not meet the minimum requirement (' . $scholarship->min_gwa_required . ') for the ' . $scholarship->name . '.'])
+                ->withInput(); 
+        }
+
+        $application = \App\Models\Application::create([
+            'user_id' => $userId,
+            'scholarship_id' => $request->scholarship_id,
+            'program_name' => $scholarship->name, 
+            'gwa' => $request->gwa,
+            'status' => 'Pending'
+        ]);
+
+        if ($request->hasFile('document')) {
+            $file = $request->file('document');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads'), $filename);
+
+            \App\Models\Document::create([
+                'application_id' => $application->id,
+                'file_path' => 'uploads/' . $filename,
+                'original_name' => $file->getClientOriginalName(),
+            ]);
+        }
+
+        return redirect()->route('student.dashboard')
+            ->with('success', 'Your application has been submitted successfully to the OSA pipeline!');
+    }
+}
