@@ -242,7 +242,7 @@ class AdminController extends Controller
 
         // 4. Send automated email notification
         try {
-            $application->load('user');
+            $application->load(['user.profile', 'document.aiResult', 'evaluator']);
             if ($application->user && $application->user->email) {
                 $mailSubject = "[A.E.G.I.S.] Official Update: Application " . strtoupper($application->status);
                 Mail::to($application->user->email)->send(new ApplicationStatusMail($application));

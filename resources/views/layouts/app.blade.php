@@ -620,6 +620,12 @@
                     <span class="sidebar-icon"><i class="fa-solid fa-list-check"></i></span>
                     <span class="sidebar-text">Scholarship Programs</span>
                 </a>
+                <a href="{{ route('superadmin.staff') }}" 
+                   class="sidebar-link {{ request()->routeIs('superadmin.staff') ? 'active' : '' }}"
+                   data-tooltip="Staff">
+                    <span class="sidebar-icon"><i class="fa-solid fa-users-gear"></i></span>
+                    <span class="sidebar-text">Staff Accounts</span>
+                </a>
             @endif
         </nav>
 
@@ -710,6 +716,10 @@
                     <a href="{{ route('student.apply') }}" 
                        class="nav-link-custom {{ request()->routeIs('student.apply') ? 'active' : '' }}">
                         <i class="fa-solid fa-plus me-1"></i> Apply
+                    </a>
+                    <a href="{{ route('student.profile') }}" 
+                       class="nav-link-custom {{ request()->routeIs('student.profile') ? 'active' : '' }}">
+                        <i class="fa-solid fa-user me-1"></i> My Profile
                     </a>
                     <span style="width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;"></span>
                     <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);font-size:0.72rem;border:1px solid rgba(255,255,255,0.15);">

@@ -17,8 +17,9 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->insert([
             'name' => 'Juan Dela Cruz',
             'email' => 'student@clsu.edu.ph',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('password'),
             'role' => 'student',
+            'email_verified_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -27,8 +28,20 @@ class DatabaseSeeder extends Seeder
         DB::table('users')->insert([
             'name' => 'OSA Admin',
             'email' => 'admin@clsu.edu.ph',
-            'password' => Hash::make('password123'),
+            'password' => Hash::make('password'),
             'role' => 'admin',
+            'email_verified_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Create User ID 3 (Dummy Super Admin)
+        DB::table('users')->insert([
+            'name' => 'Super Admin',
+            'email' => 'superadmin@clsu.edu.ph',
+            'password' => Hash::make('password'),
+            'role' => 'superadmin',
+            'email_verified_at' => now(),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -36,9 +49,10 @@ class DatabaseSeeder extends Seeder
         // 3. Create Scholarship ID 1
         DB::table('scholarships')->insert([
             'name' => 'CHED Tulong Dunong',
-            'funding_agency' => 'CHED',
-            'min_gwa' => '2.50',
-            'active_period' => '2025-2026',
+            'description' => 'CHED Tulong Dunong Scholarship Program',
+            'min_gwa_required' => 2.50,
+            'deadline' => '2026-12-31',
+            'status' => 'Active',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

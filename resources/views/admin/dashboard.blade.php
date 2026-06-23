@@ -202,7 +202,7 @@
                             <div class="student-avatar">{{ strtoupper(substr($app->user->name ?? 'U', 0, 2)) }}</div>
                             <div>
                                 <div class="fw-semibold text-dark" style="font-size:0.875rem;">{{ $app->user->name ?? 'Unknown' }}</div>
-                                <div class="text-muted" style="font-size:0.72rem;">{{ $app->user->profile->clsu_id_number ?? 'N/A' }}</div>
+                                <div class="text-muted" style="font-size:0.72rem;">{{ $app->user->profile?->clsu_id_number ?? 'N/A' }}</div>
                             </div>
                         </div>
                     </td>

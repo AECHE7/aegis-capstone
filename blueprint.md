@@ -149,9 +149,53 @@ To transition the project from its current MVP setup to a robust, production-rea
   2. **Execution:** Launch `train_model.py` using the Python 3.11 virtual environment under `$env:PYTHONIOENCODING="utf-8"` (completed).
   3. **Monitoring:** Verify training progresses across 10 epochs and achieves the target metric scores (Accuracy >= 90%, Precision/Recall >= 85%) (completed).
   4. **Verification:** Confirm that the output model `aegis_resnet50_v1.keras` is successfully generated, loadable, and evaluate it on the test partition (completed).
+
 ### Phase 12: Automatic AI Scan Triggering on Admin Review - [COMPLETED]
 - **Goal:** Improve user experience by automatically running the AI forensics scan when an admin opens a student application for evaluation.
 - **Steps:**
   1. **Update Controller:** Modify `AdminController@review` to detect if the student application has an uploaded document and has not yet been processed by the AI classifier.
   2. **Trigger Scan:** Auto-create the placeholder `AIResult` with `scanning` classification and dispatch the `ScanDocumentJob` in the background immediately.
   3. **Verification:** Wrote integration test `test_reviewing_unscanned_application_auto_triggers_scan` in `DocumentScanTest.php` and verified that the queue worker correctly dispatches the scan automatically on page load.
+
+### Phase 13: Student Registration & Staff Management - [COMPLETED]
+- **Goal:** Implement secure student self-registration with institutional email verification, and a Superadmin staff invitation/account activation flow.
+- **Steps:**
+  1. **Configure Model:** Enable `MustVerifyEmail` in the `User` model, configure mass assignability for `email_verified_at`, and set up relationships for invitations.
+  2. **Student Signup:** Create registration page (`/register`), verification notice prompt view, and routing. Enforce `@clsu.edu.ph` / `@clsu2.edu.ph` email domain validation in registration request.
+  3. **Superadmin Staff Inviting:** Create a migration for `user_invitations`, build the staff list/invite interface (`/superadmin/staff`) on the Superadmin dashboard, and add token-based activation routes (`/activate-account`).
+  4. **Email Delivery & Audit Logs:** Dispatch verification links and invitation links using Laravel notifications (`CustomVerifyEmailNotification` and `StaffInvitationNotification`), and record all outgoing emails inside the `email_logs` table (making the `application_id` column nullable to support standalone accounts verification/invitations logging).
+  5. **Secure Middleware:** Secure student portal routes using the `verified` middleware. Also, explicitly check and redirect unverified student login attempts directly to the verification notice from the `AuthController@login` controller.
+  6. **Testing:** Write feature test suites `tests/Feature/UserRegistrationTest.php` and `tests/Feature/StaffInvitationTest.php`, verifying unverified student redirect locks and successful verified student access.
+
+
+### Phase 14: Brevo Integration
+- **Goal:** Configure the Laravel application to send real emails to CLSU domains using Brevo's free transactional mail SMTP service.
+- **Steps:**
+  1. Retrieve SMTP credentials from the Brevo dashboard (under SMTP & API).
+  2. Update the `.env` file with Brevo SMTP credentials.
+  3. Clear Laravel configuration cache via `php artisan config:clear`.
+  4. Perform an end-to-end test of email delivery.
+
+### Phase 15: Verification Auto-Redirection
+- **Goal:** Enable the email verification prompt page to automatically redirect the student once they click the verification link in a new tab.
+- **Steps:**
+  1. Define a JSON endpoint `/email/verification-status` in `routes/web.php` that returns the logged-in user's verification state.
+  2. Implement Javascript polling in `resources/views/auth/verify-email.blade.php` to fetch this endpoint periodically (every 2 seconds) and trigger a redirect to `student.dashboard` once verified.
+
+### Phase 16: PDF Application Form Attachment on Approval
+- **Goal:** Dynamically generate a PDF scholarship application form upon approval, and automatically attach it to the student's status update email.
+- **Steps:**
+  1. Create the PDF Blade layout (`resources/views/emails/application_form_pdf.blade.php`) representing the student's scholarship application form with personal, academic, and forensics verification metadata.
+  2. Optimize database preloading in `AdminController@updateStatus` to eager-load `user.profile`, `document.aiResult`, and `evaluator` relations.
+  3. Modify the mailable class `ApplicationStatusMail` to render, output, and attach the PDF memory buffer dynamically when the status is updated to "Approved".
+  4. Write integration test assertions to verify that the PDF is correctly compiled and attached.
+
+### Phase 17: Student Profile Management
+- **Goal:** Allow student applicants to edit their basic personal and academic details, and propagate updates to scholarship forms and approved PDF attachments.
+- **Steps:**
+  1. Define profile edit routes (`GET /student/profile` and `POST /student/profile`) in `routes/web.php`.
+  2. Implement `editProfile()` and `updateProfile()` methods in `ApplicationController.php` with institutional validations (formatted CLSU ID and Philippine contact number).
+  3. Create a styled, responsive `profile.blade.php` student dashboard view matching CLSU green/gold HSL aesthetic guidelines.
+  4. Null-safe student profile properties in PDF templates and dashboard view tables to prevent property access errors on unpopulated user profile entities.
+  5. Add test assertions inside `UserProfileTest.php` validating rendering, validations, database persistence, and profile AES-256 database encryption casts.
+

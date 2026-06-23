@@ -57,7 +57,7 @@ def generate_ela(img_path, output_path, quality=95):
 def get_gradcam_heatmap(img_array, model, last_conv_layer_name):
     """Generates a Grad-CAM heatmap highlighting tampered regions."""
     grad_model = tf.keras.models.Model(
-        [model.inputs], [model.get_layer(last_conv_layer_name).output, model.output]
+        model.inputs, [model.get_layer(last_conv_layer_name).output, model.output]
     )
 
     with tf.GradientTape() as tape:
@@ -115,7 +115,7 @@ def run_cnn_inference_and_gradcam(original_path, ela_path, heatmap_output_path):
     img_array = preprocess_input(np.expand_dims(ela_resized, axis=0).astype(np.float32))
 
     # 1. Real Inference
-    prediction = model.predict(img_array)[0][0]
+    prediction = model.predict(img_array, verbose=0)[0][0]
     # Keras typically outputs probability of class 1.
     # Assuming class 0 = Authentic, class 1 = Tampered (alphabetical order in flow_from_directory)
     fraud_probability = round(float(prediction) * 100, 2)

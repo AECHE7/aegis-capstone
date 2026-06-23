@@ -69,9 +69,9 @@ class ReportController extends Controller
                 $row = [
                     'APP-' . $app->id,
                     $app->user->name ?? 'Unknown',
-                    $app->user->profile->clsu_id_number ?? 'N/A',
-                    $app->user->profile->course ?? 'N/A',
-                    $app->user->profile->year_level ?? 'N/A',
+                    $app->user->profile?->clsu_id_number ?? 'N/A',
+                    $app->user->profile?->course ?? 'N/A',
+                    $app->user->profile?->year_level ?? 'N/A',
                     $app->program_name,
                     $app->gwa,
                     $app->status,

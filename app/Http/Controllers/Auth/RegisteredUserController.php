@@ -32,7 +32,20 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => [
+                'required', 
+                'string', 
+                'lowercase', 
+                'email', 
+                'max:255', 
+                'unique:'.User::class,
+                function ($attribute, $value, $fail) {
+                    $domain = substr(strrchr($value, "@"), 1);
+                    if (!in_array($domain, ['clsu.edu.ph', 'clsu2.edu.ph'])) {
+                        $fail('Registration is restricted to CLSU student emails (@clsu.edu.ph or @clsu2.edu.ph).');
+                    }
+                }
+            ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -40,12 +53,13 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'student',
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('verification.notice'));
     }
 }

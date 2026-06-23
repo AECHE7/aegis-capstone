@@ -138,4 +138,61 @@ class SuperAdminController extends Controller
             'monthlyTrend'
         ));
     }
+
+    // 6. List all staff (Admin role)
+    public function listStaff()
+    {
+        $staffList = \App\Models\User::where('role', 'admin')
+            ->with('invitation')
+            ->latest()
+            ->get();
+
+        return view('superadmin.staff', compact('staffList'));
+    }
+
+    // 7. Invite a new staff member
+    public function inviteStaff(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                'unique:users',
+                function ($attribute, $value, $fail) {
+                    $domain = substr(strrchr($value, "@"), 1);
+                    if (!in_array($domain, ['clsu.edu.ph', 'clsu2.edu.ph'])) {
+                        $fail('Staff email must be a CLSU institutional email (@clsu.edu.ph or @clsu2.edu.ph).');
+                    }
+                }
+            ],
+        ]);
+
+        // Create the user without a password (set random placeholder)
+        $user = \App\Models\User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
+            'role' => 'admin',
+            'email_verified_at' => null, // must set password first to activate
+        ]);
+
+        // Generate invitation token
+        $token = \Illuminate\Support\Str::random(40);
+
+        // Store invitation
+        \App\Models\UserInvitation::create([
+            'user_id' => $user->id,
+            'token' => $token,
+            'expires_at' => now()->addDays(3),
+        ]);
+
+        // Send invitation notification
+        $user->notify(new \App\Notifications\StaffInvitationNotification($token));
+
+        return back()->with('success', 'Staff member successfully invited! An activation link has been sent to their email.');
+    }
 }

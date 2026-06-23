@@ -105,4 +105,46 @@ class ApplicationController extends Controller
         return redirect()->route('student.dashboard')
             ->with('success', 'Your application has been submitted successfully to the OSA pipeline!');
     }
+
+    // 3. Render Profile Page
+    public function editProfile()
+    {
+        $user = auth()->user()->load('profile');
+        return view('student.profile', compact('user'));
+    }
+
+    // 4. Update Profile Info
+    public function updateProfile(\Illuminate\Http\Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'clsu_id_number' => ['required', 'string', 'max:50', 'regex:/^\d{4}-\d{4}$/'],
+            'college' => 'required|string|max:255',
+            'course' => 'required|string|max:255',
+            'year_level' => 'required|string|max:50',
+            'contact_number' => ['required', 'string', 'regex:/^(09|\+639)\d{9}$/'],
+        ], [
+            'clsu_id_number.regex' => 'The CLSU ID number format must be YYYY-XXXX (e.g. 2023-4567).',
+            'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+        ]);
+
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'clsu_id_number' => $request->clsu_id_number,
+                'college' => $request->college,
+                'course' => $request->course,
+                'year_level' => $request->year_level,
+                'contact_number' => $request->contact_number,
+            ]
+        );
+
+        return redirect()->route('student.profile')->with('success', 'Profile updated successfully!');
+    }
 }

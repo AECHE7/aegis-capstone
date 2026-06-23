@@ -10,7 +10,36 @@ class AuthController extends Controller
     // 1. Show the Login Page
     public function showLogin()
     {
-        return view('auth.login'); // We will create this view next!
+        if (Auth::check()) {
+            $role = Auth::user()->role;
+            if ($role === 'superadmin') {
+                return redirect()->route('superadmin.scholarships');
+            } elseif ($role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            } else {
+                if (Auth::user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !Auth::user()->hasVerifiedEmail()) {
+                    return redirect()->route('verification.notice');
+                }
+                return redirect()->route('student.dashboard');
+            }
+        }
+
+        $demoStudent = null;
+        $demoAdmin = null;
+        $demoSuperAdmin = null;
+        $latestInvitation = null;
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+            $demoStudent = \App\Models\User::where('role', 'student')->first();
+            $demoAdmin = \App\Models\User::where('role', 'admin')->first();
+            $demoSuperAdmin = \App\Models\User::where('role', 'superadmin')->first();
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('user_invitations')) {
+            $latestInvitation = \App\Models\UserInvitation::latest()->first();
+        }
+
+        return view('auth.login', compact('demoStudent', 'demoAdmin', 'demoSuperAdmin', 'latestInvitation'));
     }
 
     // 2. Process the Login Request
@@ -25,13 +54,17 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // ROLE-BASED REDIRECTION
-            $role = Auth::user()->role;
+            $user = Auth::user();
+            $role = $user->role;
             
             if ($role === 'superadmin') {
                 return redirect()->route('superadmin.scholarships');
             } elseif ($role === 'admin') {
                 return redirect()->route('admin.dashboard');
             } else {
+                if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
+                    return redirect()->route('verification.notice');
+                }
                 return redirect()->route('student.dashboard');
             }
         }

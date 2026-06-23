@@ -40,7 +40,8 @@ class AdminReportTest extends TestCase
             'name' => 'Juan Dela Cruz',
             'email' => 'studenttest@clsu.edu.ph',
             'password' => bcrypt('password'),
-            'role' => 'student'
+            'role' => 'student',
+            'email_verified_at' => now()
         ]);
 
         // Create Scholarships
@@ -142,9 +143,21 @@ class AdminReportTest extends TestCase
 
         $response->assertRedirect(route('admin.dashboard'));
         
-        // Assert email was sent
+        // Assert email was sent with the PDF attachment
         Mail::assertSent(ApplicationStatusMail::class, function ($mail) {
-            return $mail->hasTo($this->student->email) && $mail->application->status === 'Approved';
+            $mail->build();
+            
+            $hasPdfAttachment = false;
+            foreach ($mail->rawAttachments as $attachment) {
+                if (strpos($attachment['name'], "APP-{$this->app1->id}_Approved_Form.pdf") !== false) {
+                    $hasPdfAttachment = true;
+                    break;
+                }
+            }
+
+            return $mail->hasTo($this->student->email) 
+                && $mail->application->status === 'Approved'
+                && $hasPdfAttachment;
         });
     }
 
@@ -155,7 +168,8 @@ class AdminReportTest extends TestCase
             'name' => 'Fresh Student',
             'email' => 'freshstudent@clsu.edu.ph',
             'password' => bcrypt('password'),
-            'role' => 'student'
+            'role' => 'student',
+            'email_verified_at' => now()
         ]);
 
         // 1. Create active academic term

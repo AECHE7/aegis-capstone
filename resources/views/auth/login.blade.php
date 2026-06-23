@@ -259,7 +259,7 @@
                 </div>
 
                 <!-- Floating Password Input with Show/Hide -->
-                <div class="form-floating mb-4" style="position: relative;">
+                <div class="form-floating mb-2" style="position: relative;">
                     <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Password" required style="padding-right: 48px;">
                     <label for="passwordInput"><i class="fa-solid fa-lock me-2 text-muted"></i>Password</label>
                     <button type="button" id="togglePassword" onclick="togglePwd()"
@@ -268,40 +268,75 @@
                     </button>
                 </div>
 
+                <div class="d-flex justify-content-end mb-4">
+                    <a href="{{ route('password.request') }}" class="text-primary small fw-semibold text-decoration-none">
+                        Forgot password?
+                    </a>
+                </div>
+
                 <button type="submit" class="btn btn-login w-100 d-flex justify-content-center align-items-center gap-2" id="loginBtn" onclick="showLoginSpinner()">
                     <span id="loginBtnText">Secure Login</span>
                     <span id="loginSpinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
                     <i class="fa-solid fa-arrow-right-to-bracket" id="loginArrow"></i>
                 </button>
+
+                <div class="text-center mt-3">
+                    <p class="text-muted small mb-0">
+                        New student? <a href="{{ route('register') }}" class="text-primary fw-bold text-decoration-none">Create an account</a>
+                    </p>
+                </div>
             </form>
 
             <!-- Quick Access Demo Profiles -->
             <div class="demo-divider text-uppercase tracking-wide">Or Quick Access</div>
             
             <div class="row g-2">
+                @if($demoStudent)
                 <div class="col-4">
-                    <div class="demo-chip" onclick="fillDemo('student@clsu.edu.ph')">
+                    <div class="demo-chip" onclick="fillDemo('{{ $demoStudent->email }}')">
                         <i class="fa-solid fa-user-graduate fs-5 text-primary mb-1"></i>
                         Student
                     </div>
                 </div>
+                @endif
+                @if($demoAdmin)
                 <div class="col-4">
-                    <div class="demo-chip" onclick="fillDemo('admin@clsu.edu.ph')">
+                    <div class="demo-chip" onclick="fillDemo('{{ $demoAdmin->email }}')">
                         <i class="fa-solid fa-user-shield fs-5 text-success mb-1"></i>
                         Admin
                     </div>
                 </div>
+                @endif
+                @if($demoSuperAdmin)
                 <div class="col-4">
-                    <div class="demo-chip" onclick="fillDemo('director@clsu.edu.ph')">
+                    <div class="demo-chip" onclick="fillDemo('{{ $demoSuperAdmin->email }}')">
                         <i class="fa-solid fa-crown fs-5 text-warning mb-1"></i>
                         Director
                     </div>
                 </div>
+                @endif
             </div>
             
-            <div class="text-center mt-4">
-                <small class="text-muted"><i class="fa-solid fa-circle-info me-1"></i> Tip: Click a profile above to auto-fill credentials for the demo.</small>
+            <div class="text-center mt-3">
+                <small class="text-muted"><i class="fa-solid fa-circle-info me-1"></i> Tip: Click a profile above to auto-fill credentials.</small>
             </div>
+
+            <!-- Developer Quick Links -->
+            @if(app()->environment('local', 'testing'))
+            <div class="text-center mt-4 pt-3 border-top" style="border-color: #f1f5f9 !important;">
+                <div class="small fw-semibold text-muted mb-2"><i class="fa-solid fa-wand-magic-sparkles me-1 text-warning"></i> Developer Quick Links</div>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{{ route('register') }}" class="btn btn-sm btn-outline-secondary px-3" style="border-radius: 8px; font-size: 0.75rem; border-color: #cbd5e1; color: #475569;">
+                        <i class="fa-solid fa-user-plus me-1"></i> Register Student
+                    </a>
+                    @if($latestInvitation)
+                    <a href="{{ route('activate.form', ['token' => $latestInvitation->token]) }}" class="btn btn-sm btn-outline-secondary px-3" style="border-radius: 8px; font-size: 0.75rem; border-color: #cbd5e1; color: #475569;">
+                        <i class="fa-solid fa-key me-1"></i> Activate Staff
+                    </a>
+                    @endif
+                </div>
+            </div>
+            @endif
 
         </div>
     </div>

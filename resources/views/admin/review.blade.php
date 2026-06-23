@@ -165,8 +165,8 @@
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <span class="info-chip"><i class="fa-solid fa-user text-primary"></i> {{ $application->user->name ?? 'Unknown' }}</span>
-                <span class="info-chip"><i class="fa-solid fa-id-card text-primary"></i> {{ $application->user->profile->clsu_id_number ?? 'N/A' }}</span>
-                <span class="info-chip"><i class="fa-solid fa-graduation-cap text-primary"></i> {{ $application->user->profile->course ?? 'N/A' }} — {{ $application->user->profile->year_level ?? 'N/A' }}</span>
+                <span class="info-chip"><i class="fa-solid fa-id-card text-primary"></i> {{ $application->user->profile?->clsu_id_number ?? 'N/A' }}</span>
+                <span class="info-chip"><i class="fa-solid fa-graduation-cap text-primary"></i> {{ $application->user->profile?->course ?? 'N/A' }} — {{ $application->user->profile?->year_level ?? 'N/A' }}</span>
                 <span class="info-chip"><i class="fa-solid fa-star text-warning"></i> GWA: <strong>{{ $application->gwa }}</strong></span>
             </div>
         </div>

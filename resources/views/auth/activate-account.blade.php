@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.E.G.I.S. | Student Registration</title>
+    <title>A.E.G.I.S. | Staff Activation</title>
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -99,72 +99,84 @@
         .btn-register {
             background-color: var(--clsu-green);
             color: white;
-            border-radius: 12px;
-            padding: 14px;
-            font-weight: 600;
-            font-size: 1.05rem;
             border: none;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(15, 89, 52, 0.2);
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(15, 89, 52, 0.15);
+            transition: all 0.3s ease;
         }
         .btn-register:hover {
             background-color: var(--clsu-green-dark);
+            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(15, 89, 52, 0.3);
-            color: var(--clsu-gold);
+            box-shadow: 0 6px 20px rgba(15, 89, 52, 0.25);
         }
 
         @keyframes fadeUp {
-            to { opacity: 1; transform: translateY(0); }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* Responsive Breakpoints */
         @media (min-width: 992px) {
-            .hero-section { width: 55%; }
-            .form-section { width: 45%; }
+            .hero-section {
+                flex: 1 0 50%;
+                min-height: 100vh;
+            }
+            .form-section {
+                flex: 1 0 50%;
+                min-height: 100vh;
+            }
         }
-        @media (max-width: 991px) {
-            .hero-section { width: 100%; min-height: 40vh; padding: 2rem; text-align: center; align-items: center; }
-            .form-section { width: 100%; padding: 2rem 1rem; }
-            .brand-badge { margin: 0 auto 1.5rem; }
+
+        @media (max-width: 991.98px) {
+            .hero-section {
+                flex: 1 0 100%;
+                padding: 3rem 2rem;
+            }
+            .form-section {
+                flex: 1 0 100%;
+                padding: 3rem 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="login-wrapper">
-    
-    <!-- LEFT HALF: The Landing Hero -->
+
+    <!-- LEFT HALF: Hero Slogan / Graphic -->
     <div class="hero-section">
         <div>
-            <div class="brand-badge text-warning">
-                <i class="fa-solid fa-building-columns me-2"></i> CLSU OFFICE OF STUDENT AFFAIRS
+            <div class="brand-badge">
+                <i class="fa-solid fa-circle-nodes text-warning me-2"></i> STAFF ACTIVATION
             </div>
-            <h1 class="display-4 fw-bold mb-3" style="line-height: 1.2;">
-                Create Your Account<br>
-                <span style="color: var(--clsu-gold);">Start Your Application.</span>
-            </h1>
-            <p class="lead opacity-75 mb-4" style="max-width: 500px; font-size: 1.1rem;">
-                Student self-registration is secure and restricted to Central Luzon State University institutional accounts to maintain application integrity.
+            
+            <h1 class="display-5 fw-bold text-white mb-3">Welcome to the Team</h1>
+            <p class="lead opacity-90 mb-4" style="max-width: 500px; font-weight: 300;">
+                Set up your administrator profile to begin validating student records and managing scholarship lists.
             </p>
 
             <div class="d-flex flex-column gap-3 mt-4">
                 <div class="d-flex align-items-center text-white">
                     <div class="bg-white bg-opacity-10 p-2 rounded-3 me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                        <i class="fa-solid fa-envelope-circle-check text-warning fs-5"></i>
+                        <i class="fa-solid fa-lock text-warning fs-5"></i>
                     </div>
                     <div>
-                        <h6 class="mb-0 fw-bold">Institutional Email Check</h6>
-                        <small class="opacity-75">Registers exclusively with CLSU student domains.</small>
+                        <h6 class="mb-0 fw-bold">Secure Account Setup</h6>
+                        <small class="opacity-75">Configure your unique password to activate access.</small>
                     </div>
                 </div>
                 <div class="d-flex align-items-center text-white">
                     <div class="bg-white bg-opacity-10 p-2 rounded-3 me-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                        <i class="fa-solid fa-envelope text-warning fs-5"></i>
+                        <i class="fa-solid fa-shield-halved text-warning fs-5"></i>
                     </div>
                     <div>
-                        <h6 class="mb-0 fw-bold">Email Verification Required</h6>
-                        <small class="opacity-75">Verifies email ownership to block unauthorized accounts.</small>
+                        <h6 class="mb-0 fw-bold">Auditable Actions</h6>
+                        <small class="opacity-75">Your reviews will be signed and recorded in our security log.</small>
                     </div>
                 </div>
             </div>
@@ -183,13 +195,20 @@
         </div>
     </div>
 
-    <!-- RIGHT HALF: The Registration Form -->
+    <!-- RIGHT HALF: The Activation Form -->
     <div class="form-section">
         <div class="form-container">
             
             <div class="text-center mb-4">
-                <h3 class="fw-bold text-dark">Get Started</h3>
-                <p class="text-muted">Enter your details to register as a student.</p>
+                <h3 class="fw-bold text-dark">Activate Account</h3>
+                <p class="text-muted">Fill out the form below to configure your credentials.</p>
+            </div>
+
+            <!-- User Info Summary -->
+            <div class="card bg-light border-0 p-3 mb-4" style="border-radius: 12px;">
+                <div class="small text-muted mb-1">Invited User Info</div>
+                <div class="fw-bold text-dark">{{ $user->name }}</div>
+                <div class="small text-secondary"><i class="fa-solid fa-envelope me-1"></i>{{ $user->email }}</div>
             </div>
 
             <!-- Error Alerts -->
@@ -199,44 +218,32 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ route('activate.submit') }}">
                 @csrf
 
-                <!-- Name -->
-                <div class="form-floating mb-3">
-                    <input type="text" name="name" class="form-control" id="name" placeholder="Juan Dela Cruz" value="{{ old('name') }}" required autofocus>
-                    <label for="name"><i class="fa-solid fa-user me-2"></i>Full Name</label>
-                </div>
-
-                <!-- Email -->
-                <div class="form-floating mb-3">
-                    <input type="email" name="email" class="form-control" id="email" placeholder="student@clsu2.edu.ph" value="{{ old('email') }}" required>
-                    <label for="email"><i class="fa-solid fa-envelope me-2"></i>CLSU Student Email</label>
-                    <div class="form-text text-muted small mt-1 ps-2">
-                        Must end in <strong class="text-dark">@clsu.edu.ph</strong> or <strong class="text-dark">@clsu2.edu.ph</strong>
-                    </div>
-                </div>
+                <!-- Invitation Token -->
+                <input type="hidden" name="token" value="{{ $token }}">
 
                 <!-- Password -->
                 <div class="form-floating mb-3">
-                    <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
-                    <label for="password"><i class="fa-solid fa-lock me-2"></i>Password</label>
+                    <input type="password" name="password" class="form-control" id="password" placeholder="Password" required autofocus autocomplete="new-password">
+                    <label for="password"><i class="fa-solid fa-lock me-2"></i>New Password</label>
                 </div>
 
                 <!-- Confirm Password -->
                 <div class="form-floating mb-4">
-                    <input type="password" name="password_confirmation" class="form-control" id="password_confirmation" placeholder="Confirm Password" required>
+                    <input type="password" name="password_confirmation" class="form-control" id="password_confirmation" placeholder="Confirm Password" required autocomplete="new-password">
                     <label for="password_confirmation"><i class="fa-solid fa-lock me-2"></i>Confirm Password</label>
                 </div>
 
                 <!-- Submit Button -->
                 <button type="submit" class="btn btn-register w-100 mb-3">
-                    <i class="fa-solid fa-user-plus me-2"></i>Register Account
+                    <i class="fa-solid fa-circle-check me-2"></i>Activate & Login
                 </button>
 
                 <div class="text-center">
                     <p class="text-muted small">
-                        Already registered? <a href="{{ route('login') }}" class="text-primary fw-bold text-decoration-none">Log in instead</a>
+                        Need help? <a href="mailto:admin-support@clsu.edu.ph" class="text-primary fw-bold text-decoration-none">Contact IT Support</a>
                     </p>
                 </div>
             </form>

@@ -83,7 +83,7 @@
             <tr>
                 <td>APP-{{ $app->id }}</td>
                 <td>{{ $app->user->name ?? 'Unknown' }}</td>
-                <td>{{ $app->user->profile->clsu_id_number ?? 'N/A' }}</td>
+                <td>{{ $app->user->profile?->clsu_id_number ?? 'N/A' }}</td>
                 <td>{{ $app->program_name }}</td>
                 <td>{{ $app->gwa }}</td>
                 <td>{{ $app->status }}</td>
