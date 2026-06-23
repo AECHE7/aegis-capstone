@@ -102,6 +102,21 @@ class AdminController extends Controller
             ]);
         }
 
+        // Auto-trigger AI scan if a document exists and no AI result exists yet
+        if ($application->document && !$application->document->aiResult) {
+            \App\Models\AIResult::create([
+                'document_id' => $application->document->id,
+                'fraud_probability' => 0.00,
+                'classification' => 'scanning',
+                'heatmap_path' => null
+            ]);
+
+            \App\Jobs\ScanDocumentJob::dispatch($application->id);
+
+            // Reload relation to reflect the scanning state in the view
+            $application->load('document.aiResult');
+        }
+
         return view('admin.review', compact('application'));
     }
 
