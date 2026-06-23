@@ -22,16 +22,21 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
-aegis-ai/venv/
-*.h5
-aegis-ai/venv/
-*.h5
-aegis-ai/__pycache__/
-aegis-ai/venv/
+
+# Python / Flask microservice
 aegis-ai/venv/
 aegis-ai/__pycache__/
 aegis-ai/temp_uploads/
 aegis-ai/heatmaps/
+aegis-ai/heatmap_outputs/
+aegis-ai/ela_outputs/
+aegis-ai/dataset/
+aegis-ai/dataset_advanced/
+
+# Trained model (large binary — stored separately or use Git LFS)
 *.h5
-vendor/
-node_modules/
+
+# Scratch/temp files
+form_content.txt
+form_tables.txt
+thesis_content.txt

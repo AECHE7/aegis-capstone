@@ -65,10 +65,9 @@ class ScanDocumentJob implements ShouldQueue
         }
 
         try {
-            // Trigger Python Flask microservice ELA & Grad-CAM pipeline
             $response = Http::timeout(60)->attach(
                 'file', file_get_contents($actualPath), $document->original_name
-            )->post('http://127.0.0.1:5000/analyze-document');
+            )->post(env('AEGIS_AI_URL', 'http://127.0.0.1:5000') . '/analyze-document');
 
             if ($response->successful()) {
                 $result = $response->json();
