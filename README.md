@@ -1,59 +1,121 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# A.E.G.I.S. (Academic Evaluation & Grade Integrity System)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A.E.G.I.S. is a modern, full-stack capstone web application integrated with a deep learning python microservice. It is designed to secure, streamline, and automate the student scholarship application and evaluation process for Central Luzon State University (CLSU).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Core Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Double-Layer Forensics Grade Verification:** 
+  - **Error Level Analysis (ELA):** Preprocesses Certificates of Grades (COGs) to isolate digital compression mismatches.
+  - **ResNet-50 CNN:** Classifies processed ELA images to compute fraud probabilities.
+  - **Grad-CAM Heatmaps:** Generates visual activation heatmaps showing administrators exactly where grades have been altered.
+- **Normalized Scholarship Management:** Admins can configure minimum General Weighted Average (GWA) thresholds, monitor real-time queue volumes, and generate compliance reports (CSV/PDF).
+- **Institutional Email Security:** Restricts student registration to verified CLSU email domains (`@clsu.edu.ph` / `@clsu2.edu.ph`) with active polling redirect support.
+- **Ethical Privacy Standards:** Enforces AES-256 database column encryption on student identifiers and contact numbers, alongside SHA-256 UUID filename renaming to guarantee student anonymity at-rest.
+- **Staff Lifecycle Invitations:** Allows the Super Admin to dispatch token-based invites to personnel with secure expiration setups.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ System Architecture
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```mermaid
+graph TB
+    subgraph Laravel Portal (Port 8000)
+        router[web.php Router] --> auth[Auth Middleware]
+        auth --> student[Student Dashboard]
+        auth --> admin[Admin Review Console]
+        auth --> super[SuperAdmin Analytics]
+        db[(SQLite Database)] <--> ORM[Eloquent Models]
+    end
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    subgraph Python Forensics Microservice (Port 5000)
+        flask[app.py API] --> ela[ELA Engine]
+        ela --> resnet[ResNet-50 Model]
+        resnet --> gradcam[Grad-CAM Generator]
+    end
 
-## Laravel Sponsors
+    admin -->|Queued Job Scan| flask
+    flask -->|Forensics Scores & Heatmaps| admin
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 💻 Technical Stack
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- **Backend:** Laravel 12.0, PHP 8.2+
+- **Frontend:** Blade Templating, Tailwind CSS, Alpine.js, Bootstrap 5
+- **Database:** SQLite (local development) / MySQL 8.0 (production-ready)
+- **AI Microservice:** Python 3.11, TensorFlow 2.16.1, Keras 3.3.3, OpenCV, Pillow
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## ⚙️ Setup & Installation
 
-## Code of Conduct
+### 1. Clone & Install PHP Dependencies
+```bash
+git clone https://github.com/AECHE7/aegis-capstone.git
+cd aegis-capstone
+composer install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 2. Configure Environment Suffixes
+Duplicate `.env.example` as `.env` and configure:
+- DB configurations (`DB_CONNECTION=sqlite`)
+- Mail server SMTP settings (e.g. Brevo SMTP host and keys)
+- Run key generation:
+```bash
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+### 3. Setup SQLite Database
+Create `database/database.sqlite` (if using SQLite) and run migrations:
+```bash
+php artisan migrate:fresh --seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 4. Setup Python AI Forensics Environment
+```bash
+cd aegis-ai
+# Create a virtual environment using Python 3.11
+C:\Python311\python.exe -m venv venv
+# Activate environment (Windows PowerShell)
+.\venv\Scripts\Activate.ps1
+# Install packages
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-## License
+### 5. Train & Run the AI Microservice
+Generate synthetic datasets and train the ResNet-50 network:
+```bash
+python train_model.py
+# Start the Flask service
+python app.py
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 6. Start the Web Portal & Queue Worker
+In separate terminals from the project root:
+```bash
+# Laravel server
+php artisan serve
+# Queue worker
+php artisan queue:work
+# Vite hot reload
+npm install
+npm run dev
+```
+Alternatively, execute `start-all.bat` on Windows to launch all services concurrently.
+
+---
+
+## 🧪 Automated Testing
+Run the complete testing suite to verify system integrity across 37 features (145 assertions):
+```bash
+php artisan test
+```
+
+---
+
+## 📄 License
+This system is developed for academic purposes as a Capstone project for Central Luzon State University (CLSU).
