@@ -1,126 +1,345 @@
 @extends('layouts.app')
 
-@section('title', 'Student Dashboard | A.E.G.I.S.')
+@section('title', 'My Application | A.E.G.I.S.')
+
+@push('styles')
+<style>
+    /* Status Hero Banner */
+    .status-hero {
+        border-radius: 20px;
+        padding: 2rem 2.5rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+
+    .status-hero::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+    }
+
+    .status-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -60px; right: 80px;
+        width: 280px; height: 280px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+    }
+
+    .status-hero.pending  { background: linear-gradient(135deg, #b45309, #d97706); }
+    .status-hero.review   { background: linear-gradient(135deg, #0369a1, #0284c7); }
+    .status-hero.approved { background: linear-gradient(135deg, #15803d, #16a34a); }
+    .status-hero.rejected { background: linear-gradient(135deg, #b91c1c, #dc2626); }
+    .status-hero.empty    { background: linear-gradient(135deg, #334155, #475569); }
+
+    .status-hero-icon {
+        width: 64px; height: 64px;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.75rem;
+        flex-shrink: 0;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* Steps */
+    .step-track {
+        display: flex;
+        align-items: center;
+        gap: 0;
+    }
+
+    .step-node {
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border: 3px solid white;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        flex-shrink: 0;
+    }
+
+    .step-connector {
+        flex: 1;
+        height: 3px;
+        background: rgba(255,255,255,0.2);
+        position: relative;
+    }
+
+    .step-connector.done { background: rgba(255,255,255,0.7); }
+
+    /* Pulse animation on active step */
+    @keyframes pulse-ring {
+        0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+        70%  { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+        100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+
+    .step-node.active-pulse { animation: pulse-ring 2s infinite; }
+
+    /* Timeline */
+    .timeline-item { display: flex; gap: 16px; margin-bottom: 24px; position: relative; }
+    .timeline-icon {
+        width: 38px; height: 38px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.85rem;
+        z-index: 2;
+    }
+
+    .timeline-connector {
+        position: absolute;
+        left: 19px; top: 38px; bottom: -24px;
+        width: 2px;
+        background: linear-gradient(to bottom, #e2e8f0, transparent);
+    }
+
+    .timeline-content {
+        flex: 1;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    /* Confetti */
+    .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+
+    /* Empty state */
+    .empty-card {
+        background: white;
+        border-radius: 20px;
+        border: 2px dashed #e2e8f0;
+        padding: 4rem 2rem;
+        text-align: center;
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="container-fluid px-md-5 mb-5">
-    
+<div class="container-fluid px-0" style="max-width: 920px; margin: 0 auto; padding: 1.5rem 1rem 3rem;">
+
+    @if($application)
+        @php
+            $statusClass = match($application->status) {
+                'Pending'      => 'pending',
+                'Under Review' => 'review',
+                'Approved'     => 'approved',
+                'Rejected'     => 'rejected',
+                default        => 'pending'
+            };
+            $statusIcon = match($application->status) {
+                'Pending'      => 'fa-hourglass-half',
+                'Under Review' => 'fa-magnifying-glass-chart',
+                'Approved'     => 'fa-award',
+                'Rejected'     => 'fa-circle-xmark',
+                default        => 'fa-hourglass-half'
+            };
+        @endphp
+
+        {{-- STATUS HERO BANNER --}}
+        <div class="status-hero {{ $statusClass }}">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3" style="position:relative;z-index:3;">
+                <div class="d-flex align-items-center gap-4">
+                    <div class="status-hero-icon {{ $application->status === 'Approved' ? 'approved-pulse' : '' }}">
+                        <i class="fa-solid {{ $statusIcon }}"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:0.7;" class="mb-1">
+                            {{ $application->program_name }}
+                        </div>
+                        <h4 class="fw-bold mb-0" style="font-family:'Poppins',sans-serif;">
+                            @if($application->status === 'Approved') 🎉 Congratulations! You are Approved!
+                            @elseif($application->status === 'Rejected') Application Not Approved
+                            @elseif($application->status === 'Under Review') Your Application is Under Review
+                            @else Your Application is Pending Review
+                            @endif
+                        </h4>
+                        @if($application->remarks && $application->status !== 'Pending')
+                        <p class="mb-0 mt-1" style="opacity:0.8;font-size:0.875rem;">
+                            <i class="fa-solid fa-quote-left me-1" style="font-size:0.65rem;opacity:0.6;"></i>
+                            {{ $application->remarks }}
+                        </p>
+                        @endif
+                    </div>
+                </div>
+                <div class="text-end" style="opacity:0.75;font-size:0.8rem;">
+                    <div>APP-{{ $application->id }}</div>
+                    <div>{{ $application->created_at->format('M d, Y') }}</div>
+                </div>
+            </div>
+
+            {{-- STEP PROGRESS --}}
+            <div class="mt-4" style="position:relative;z-index:3;">
+                <div class="step-track">
+                    {{-- Submitted --}}
+                    <div class="step-node" style="background:#22c55e;color:white;" title="Submitted">
+                        <i class="fa-solid fa-check" style="font-size:0.75rem;"></i>
+                    </div>
+                    <div class="step-connector {{ in_array($application->status, ['Under Review','Approved','Rejected']) ? 'done' : '' }}"></div>
+                    {{-- Under Review --}}
+                    @php
+                        $reviewDone = in_array($application->status, ['Under Review','Approved','Rejected']);
+                        $reviewActive = $application->status === 'Under Review';
+                    @endphp
+                    <div class="step-node {{ $reviewDone ? ($reviewActive ? 'active-pulse' : '') : '' }}"
+                         style="background: {{ $reviewDone ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.15)' }}; color: {{ $reviewDone ? '#0369a1' : 'rgba(255,255,255,0.4)' }};"
+                         title="Under Review">
+                        <i class="fa-solid {{ $reviewActive ? 'fa-magnifying-glass' : ($reviewDone ? 'fa-check' : 'fa-magnifying-glass') }}" style="font-size:0.75rem;"></i>
+                    </div>
+                    <div class="step-connector {{ in_array($application->status, ['Approved','Rejected']) ? 'done' : '' }}"></div>
+                    {{-- Decision --}}
+                    @php $decided = in_array($application->status, ['Approved','Rejected']); @endphp
+                    <div class="step-node"
+                         style="background: {{ $decided ? ($application->status === 'Approved' ? 'rgba(255,255,255,0.9)' : 'rgba(255,100,100,0.8)') : 'rgba(255,255,255,0.15)' }}; color: {{ $decided ? ($application->status === 'Approved' ? '#15803d' : 'white') : 'rgba(255,255,255,0.3)' }};"
+                         title="Decision">
+                        <i class="fa-solid {{ $decided ? ($application->status === 'Approved' ? 'fa-award' : 'fa-times') : 'fa-lock' }}" style="font-size:0.75rem;"></i>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-1" style="font-size:0.68rem;font-weight:600;opacity:0.65;letter-spacing:0.3px;">
+                    <span>Submitted</span>
+                    <span style="flex:1;text-align:center;">OSA Review</span>
+                    <span>Decision</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- AUDIT TIMELINE --}}
+        <div class="card p-4" style="border-radius:20px;">
+            <h6 class="fw-bold text-dark mb-4">
+                <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Verification History & Audit Trail
+            </h6>
+
+            <div style="padding-left: 4px;">
+                @forelse($application->statusLogs as $log)
+                    @php
+                        $logColor = match($log->status) {
+                            'Approved'     => ['bg' => '#22c55e', 'light' => '#dcfce7', 'text' => '#15803d', 'icon' => 'fa-award'],
+                            'Rejected'     => ['bg' => '#ef4444', 'light' => '#fee2e2', 'text' => '#b91c1c', 'icon' => 'fa-circle-xmark'],
+                            'Under Review' => ['bg' => '#0284c7', 'light' => '#e0f2fe', 'text' => '#0369a1', 'icon' => 'fa-magnifying-glass-chart'],
+                            default        => ['bg' => '#f59e0b', 'light' => '#fef9c3', 'text' => '#a16207', 'icon' => 'fa-hourglass-half'],
+                        };
+                    @endphp
+                    <div class="timeline-item">
+                        @if(!$loop->last)
+                            <div class="timeline-connector"></div>
+                        @endif
+                        <div class="timeline-icon" style="background: {{ $logColor['light'] }}; color: {{ $logColor['text'] }}; border: 2px solid {{ $logColor['bg'] }}30;">
+                            <i class="fa-solid {{ $logColor['icon'] }}" style="font-size:0.8rem;"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:{{ $logColor['light'] }};color:{{ $logColor['text'] }};font-size:0.72rem;font-weight:700;letter-spacing:0.3px;">
+                                    {{ strtoupper($log->status) }}
+                                </span>
+                                <span class="text-muted" style="font-size:0.75rem;">
+                                    <i class="fa-regular fa-clock me-1"></i>
+                                    {{ $log->created_at->format('M d, Y · h:i A') }}
+                                </span>
+                            </div>
+                            @if($log->remarks)
+                            <p class="mb-0 mt-2 text-muted" style="font-size:0.82rem;line-height:1.5;">{{ $log->remarks }}</p>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-4 text-muted small">No audit trail history available yet.</div>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- Confetti for approved --}}
+        @if($application->status === 'Approved')
+        <canvas id="confettiCanvas" class="confetti-container"></canvas>
+        @endif
+
+    @else
+
+    {{-- EMPTY STATE --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-1">Welcome back, {{ auth()->user()->name }}!</h4>
+            <h4 class="fw-bold mb-1">Welcome, {{ auth()->user()->name }}! 👋</h4>
             <p class="text-muted small mb-0">Track your scholarship applications and requirements here.</p>
         </div>
-        <a href="{{ route('student.apply') }}" class="btn fw-bold shadow-sm" style="background-color: var(--clsu-gold); color: #0f172a; border-radius: 8px;">
+        <a href="{{ route('student.apply') }}" class="btn fw-bold shadow-sm px-4 py-2"
+           style="background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; border-radius: 10px;">
             <i class="fa-solid fa-plus me-1"></i> New Application
         </a>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-            <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="empty-card">
+        <div style="width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+            <i class="fa-solid fa-folder-open fa-2x" style="color:#94a3b8;"></i>
         </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-            <i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            
-            @if($application)
-                <div class="card shadow-sm border-0 rounded-4 p-0 overflow-hidden">
-                    <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="badge bg-secondary mb-2">Ref: APP-{{ $application->id }}</span>
-                            <h5 class="fw-bold text-dark mb-0">{{ $application->program_name }}</h5>
-                        </div>
-                        <div class="text-end text-muted small">
-                            <i class="fa-solid fa-calendar me-1"></i> Submitted on<br>
-                            <strong class="text-dark">{{ $application->created_at->format('M d, Y - h:i A') }}</strong>
-                        </div>
-                    </div>
-                    
-                    <div class="card-body p-5 bg-light">
-                        <div class="text-center mb-5">
-                            <h6 class="fw-bold text-uppercase tracking-wide text-muted mb-4">Application Status Tracker</h6>
-                            
-                            <div class="position-relative m-auto" style="max-width: 600px;">
-                                <div class="progress" style="height: 4px; position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); z-index: 1;">
-                                    <div class="progress-bar" role="progressbar" 
-                                        style="background-color: var(--clsu-green); width: {{ $application->status == 'Pending' ? '50%' : '100%' }};">
-                                    </div>
-                                </div>
-                                
-                                <div class="d-flex justify-content-between position-relative" style="z-index: 2;">
-                                    <div class="text-center">
-                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto mb-2" style="width: 40px; height: 40px;">
-                                            <i class="fa-solid fa-check"></i>
-                                        </div>
-                                        <div class="small fw-bold text-success">Submitted</div>
-                                    </div>
-                                    
-                                    <div class="text-center">
-                                        <div class="bg-{{ $application->status == 'Pending' ? 'warning text-dark' : 'success text-white' }} rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto mb-2" style="width: 40px; height: 40px; border: 3px solid white;">
-                                            <i class="fa-solid fa-{{ $application->status == 'Pending' ? 'hourglass-half fa-spin' : 'check' }}"></i>
-                                        </div>
-                                        <div class="small fw-bold text-{{ $application->status == 'Pending' ? 'warning' : 'success' }}">OSA Review</div>
-                                    </div>
-                                    
-                                    <div class="text-center">
-                                        @if($application->status == 'Pending')
-                                            <div class="bg-white text-muted rounded-circle d-flex align-items-center justify-content-center shadow-sm mx-auto mb-2" style="width: 40px; height: 40px; border: 3px solid #e2e8f0;">
-                                                <i class="fa-solid fa-lock"></i>
-                                            </div>
-                                            <div class="small fw-bold text-muted">Decision</div>
-                                        @elseif($application->status == 'Approved')
-                                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-lg mx-auto mb-2" style="width: 45px; height: 45px; border: 3px solid white;">
-                                                <i class="fa-solid fa-award"></i>
-                                            </div>
-                                            <div class="small fw-bold text-success fs-6">Approved!</div>
-                                        @else
-                                            <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center shadow-lg mx-auto mb-2" style="width: 45px; height: 45px; border: 3px solid white;">
-                                                <i class="fa-solid fa-times"></i>
-                                            </div>
-                                            <div class="small fw-bold text-danger fs-6">Rejected</div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if($application->status != 'Pending')
-                            <div class="alert alert-{{ $application->status == 'Approved' ? 'success' : 'danger' }} border-0 shadow-sm mt-4">
-                                <h6 class="fw-bold mb-2"><i class="fa-solid fa-comment-dots me-2"></i> Evaluator Remarks:</h6>
-                                <p class="mb-0 text-dark">{{ $application->remarks ?? 'Your application has been processed by the Office of Student Affairs.' }}</p>
-                            </div>
-                        @else
-                            <div class="alert alert-warning border-0 shadow-sm mt-4 text-dark text-center">
-                                <i class="fa-solid fa-circle-info me-2"></i> Your application is currently in the evaluation queue. Please check back later.
-                            </div>
-                        @endif
-
-                    </div>
-                </div>
-            @else
-                <div class="card shadow-sm border-0 rounded-4 p-5 text-center">
-                    <div class="mb-4">
-                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center p-4 mb-3" style="width: 100px; height: 100px;">
-                            <i class="fa-solid fa-folder-open fa-3x text-muted opacity-50"></i>
-                        </div>
-                        <h4 class="fw-bold">No Active Applications</h4>
-                        <p class="text-muted mx-auto" style="max-width: 400px;">You haven't submitted any scholarship applications yet. Check out the available grants and start your journey!</p>
-                    </div>
-                    <a href="{{ route('student.apply') }}" class="btn btn-lg fw-bold shadow-sm px-4" style="background-color: var(--clsu-green); color: white; border-radius: 12px;">
-                        <i class="fa-solid fa-paper-plane me-2"></i> Submit an Application
-                    </a>
-                </div>
-            @endif
-
-        </div>
+        <h4 class="fw-bold mb-2">No Active Applications</h4>
+        <p class="text-muted mx-auto mb-4" style="max-width: 380px; font-size: 0.9rem;">
+            You haven't submitted any scholarship applications yet. Check out the available grants and start your journey!
+        </p>
+        <a href="{{ route('student.apply') }}" class="btn fw-bold px-5 py-3 rounded-pill"
+           style="background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; font-size: 1rem;">
+            <i class="fa-solid fa-paper-plane me-2"></i> Submit an Application
+        </a>
     </div>
+    @endif
+
 </div>
 @endsection
+
+@push('scripts')
+<script>
+@if(isset($application) && $application->status === 'Approved')
+    // Simple confetti effect
+    (function(){
+        const canvas = document.getElementById('confettiCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const colors = ['#F2A900','#0F5934','#22c55e','#fbbf24','#34d399','#60a5fa'];
+        const pieces = Array.from({length: 120}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            w: Math.random() * 10 + 5,
+            h: Math.random() * 6 + 3,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            r: Math.random() * Math.PI * 2,
+            rx: Math.random() * 0.3 - 0.15,
+            vy: Math.random() * 3 + 2,
+            vx: Math.random() * 2 - 1,
+        }));
+
+        let frame = 0;
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pieces.forEach(p => {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.r);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+                ctx.restore();
+                p.x += p.vx; p.y += p.vy; p.r += p.rx;
+                if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
+            });
+            frame++;
+            if (frame < 180) requestAnimationFrame(draw);
+            else ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        draw();
+    })();
+@endif
+</script>
+@endpush

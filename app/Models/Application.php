@@ -13,6 +13,7 @@ class Application extends Model
     protected $fillable = [
         'user_id', 
         'scholarship_id', 
+        'academic_term_id',
         'program_name', 
         'gwa', 
         'status',
@@ -34,6 +35,38 @@ class Application extends Model
     public function document()
     {
         return $this->hasOne(Document::class);
+    }
+
+    /**
+     * Relationship: An application belongs to a scholarship.
+     */
+    public function scholarship()
+    {
+        return $this->belongsTo(Scholarship::class);
+    }
+
+    /**
+     * Relationship: An application belongs to an academic term.
+     */
+    public function academicTerm()
+    {
+        return $this->belongsTo(AcademicTerm::class);
+    }
+
+    /**
+     * Relationship: An application has many status logs.
+     */
+    public function statusLogs()
+    {
+        return $this->hasMany(StatusLog::class);
+    }
+
+    /**
+     * Relationship: An application has many email notification logs.
+     */
+    public function emailLogs()
+    {
+        return $this->hasMany(EmailLog::class);
     }
 
     /**

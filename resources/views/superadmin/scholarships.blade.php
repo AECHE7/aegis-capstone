@@ -1,110 +1,131 @@
 @extends('layouts.app')
 
 @section('title', 'Program Manager | A.E.G.I.S.')
+@section('page-title', 'Scholarship Manager')
+@section('page-subtitle', 'Create grants and manage program availability for students')
 
 @section('content')
-<div class="container-fluid px-md-5 mb-5">
-    
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h4 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-list-check text-primary me-2"></i> Scholarship Manager</h4>
-            <p class="text-muted small mb-0">Create new grants and toggle their availability to students.</p>
-        </div>
-        <button class="btn fw-bold shadow-sm" style="background-color: var(--clsu-green); color: white; border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#newProgramModal">
-            <i class="fa-solid fa-plus me-1"></i> New Program
-        </button>
-    </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-            <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light text-muted small text-uppercase">
-                    <tr>
-                        <th class="ps-4 py-3">Program Name</th>
-                        <th class="py-3">Description</th>
-                        <th class="py-3 text-center">GWA Requirement</th>
-                        <th class="py-3 text-center">Current Status</th>
-                        <th class="pe-4 py-3 text-end">Quick Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($scholarships as $scholarship)
-                    <tr>
-                        <td class="ps-4 fw-bold text-dark">{{ $scholarship->name }}</td>
-                        <td class="small text-muted" style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            {{ $scholarship->description }}
-                        </td>
-                        <td class="text-center">
-                            <span class="badge bg-light text-dark border px-2 py-1"><i class="fa-solid fa-star text-warning me-1"></i> {{ $scholarship->min_gwa_required }} or lower</span>
-                        </td>
-                        <td class="text-center">
-                            @if($scholarship->status == 'Active')
-                                <span class="badge bg-success px-3 py-2 rounded-pill">Open / Active</span>
-                            @else
-                                <span class="badge bg-secondary px-3 py-2 rounded-pill">Closed</span>
-                            @endif
-                        </td>
-                        <td class="pe-4 text-end">
-                            <form action="{{ route('superadmin.scholarships.toggle', $scholarship->id) }}" method="POST">
-                                @csrf
-                                @if($scholarship->status == 'Active')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3">Close Program</button>
-                                @else
-                                    <button type="submit" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3">Open Program</button>
-                                @endif
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        @if($scholarships->isEmpty())
-            <div class="text-center py-5">
-                <p class="text-muted">No scholarship programs exist yet.</p>
-            </div>
-        @endif
-    </div>
-
+<div class="d-flex justify-content-end mb-4">
+    <button class="btn fw-bold px-4" 
+            style="background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(15,89,52,0.25);"
+            data-bs-toggle="modal" data-bs-target="#newProgramModal">
+        <i class="fa-solid fa-plus me-1"></i> New Program
+    </button>
 </div>
 
+<div class="card" style="border-radius: 20px; overflow: hidden;">
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Program Name</th>
+                    <th>Description</th>
+                    <th class="text-center">Max GWA</th>
+                    <th class="text-center">Status</th>
+                    <th class="pe-4 text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($scholarships as $scholarship)
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-semibold text-dark">{{ $scholarship->name }}</div>
+                    </td>
+                    <td>
+                        <span class="text-muted small">{{ Str::limit($scholarship->description, 60) }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span style="background:#fef9c3;color:#a16207;border:1px solid #fde047;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
+                            <i class="fa-solid fa-star me-1" style="font-size:0.6rem;"></i> ≤ {{ $scholarship->min_gwa_required }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        @if($scholarship->status == 'Active')
+                            <span class="status-badge approved">
+                                <i class="fa-solid fa-circle-dot" style="font-size:0.5rem;"></i> Open
+                            </span>
+                        @else
+                            <span class="status-badge rejected">
+                                <i class="fa-solid fa-circle-dot" style="font-size:0.5rem;"></i> Closed
+                            </span>
+                        @endif
+                    </td>
+                    <td class="pe-4 text-end">
+                        <form action="{{ route('superadmin.scholarships.toggle', $scholarship->id) }}" method="POST">
+                            @csrf
+                            @if($scholarship->status == 'Active')
+                                <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
+                                        style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.78rem;">
+                                    <i class="fa-solid fa-lock me-1"></i> Close
+                                </button>
+                            @else
+                                <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
+                                        style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.78rem;">
+                                    <i class="fa-solid fa-lock-open me-1"></i> Open
+                                </button>
+                            @endif
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    @if($scholarships->isEmpty())
+    <div class="text-center py-5">
+        <div style="width:72px;height:72px;border-radius:18px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+            <i class="fa-solid fa-folder-open fa-2x" style="color:#cbd5e1;"></i>
+        </div>
+        <h6 class="fw-bold text-muted">No Programs Yet</h6>
+        <p class="text-muted small">Click "New Program" to create the first scholarship grant.</p>
+    </div>
+    @endif
+</div>
+
+{{-- New Program Modal --}}
 <div class="modal fade" id="newProgramModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header bg-light border-bottom-0">
-                <h5 class="modal-title fw-bold"><i class="fa-solid fa-plus-circle text-success me-2"></i> Create Scholarship</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #0f1f12, #0F5934); padding: 1.5rem;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0">
+                        <i class="fa-solid fa-plus-circle text-warning me-2"></i> Create Scholarship Program
+                    </h5>
+                    <small class="text-white-50">Define a new grant for eligible students</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('superadmin.scholarships.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">Program Name</label>
-                        <input type="text" name="name" class="form-control bg-light" required placeholder="e.g., DOST-SEI Merit">
+                        <label class="form-label fw-semibold small text-muted">Program Name</label>
+                        <input type="text" name="name" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">GWA Requirement (Maximum allowed)</label>
-                        <input type="number" step="0.01" name="min_gwa_required" class="form-control bg-light" required placeholder="e.g., 1.75">
-                        <div class="form-text small">Students with grades higher than this number will be auto-blocked.</div>
+                        <label class="form-label fw-semibold small text-muted">Maximum GWA Requirement</label>
+                        <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" class="form-control" required placeholder="e.g., 1.75">
+                        <div class="form-text small">Students with a GWA higher than this value will be blocked from applying.</div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label text-muted small fw-bold">Description</label>
-                        <textarea name="description" class="form-control bg-light" rows="3" required placeholder="Brief description of the grant..."></textarea>
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold small text-muted">Program Description</label>
+                        <textarea name="description" class="form-control" rows="3" required
+                                  placeholder="Brief overview of grant requirements and benefits..."
+                                  style="resize:none;"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer border-top-0">
-                    <button type="button" class="btn text-muted" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn fw-bold px-4" style="background-color: var(--clsu-green); color: white;">Save Program</button>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <button type="button" class="btn btn-light fw-semibold rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn fw-bold rounded-pill px-5"
+                            style="background: linear-gradient(135deg, var(--clsu-gold), #e09500); color: #1a1a00;">
+                        <i class="fa-solid fa-save me-1"></i> Save Program
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
 @endsection

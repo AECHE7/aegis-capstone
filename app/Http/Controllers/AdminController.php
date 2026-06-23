@@ -11,28 +11,77 @@ use App\Mail\ApplicationStatusMail;
 class AdminController extends Controller
 {
     // SPRINT 4: Load Admin Dashboard
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        // 1. Fetch the queue of applications (with pagination)
-        $applications = \App\Models\Application::with(['user.profile', 'document.aiResult'])
-                            ->orderBy('created_at', 'desc')
-                            ->paginate(15);
+        // 1. Fetch search and filtering parameters
+        $query = \App\Models\Application::with(['user.profile', 'document.aiResult', 'academicTerm']);
+
+        if ($request->filled('scholarship_id')) {
+            $query->where('scholarship_id', $request->scholarship_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('academic_term_id')) {
+            $query->where('academic_term_id', $request->academic_term_id);
+        } elseif ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('program_name', 'like', "%{$search}%")
+                  ->orWhere('id', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('profile', function ($pq) use ($search) {
+                            $pq->where('clsu_id_number', 'like', "%{$search}%");
+                        });
+                  });
+            });
+        }
+
+        $applications = $query->orderBy('created_at', 'desc')
+                            ->paginate(15)
+                            ->withQueryString();
 
         // 2. NEW: Calculate the real-time analytics for the top cards
         $pendingCount = \App\Models\Application::where('status', 'Pending')->count();
+        $underReviewCount = \App\Models\Application::where('status', 'Under Review')->count();
         $approvedCount = \App\Models\Application::where('status', 'Approved')->count();
         $rejectedCount = \App\Models\Application::where('status', 'Rejected')->count();
         
         $avgFraudScore = \App\Models\AIResult::avg('fraud_probability') ?? 0;
         $avgFraudScore = round($avgFraudScore, 1); // Round to 1 decimal place
 
+        // Fetch all scholarships, academic terms, and years for filters
+        $scholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
+        
+        $academicTerms = \App\Models\AcademicTerm::orderBy('academic_year', 'desc')
+            ->orderBy('semester', 'desc')
+            ->get();
+
+        $years = \App\Models\Application::orderBy('created_at', 'desc')
+            ->pluck('created_at')
+            ->map(fn($date) => $date ? $date->format('Y') : null)
+            ->filter()
+            ->unique()
+            ->values();
+
         // 3. Send EVERYTHING to the dashboard
         return view('admin.dashboard', compact(
             'applications', 
-            'pendingCount', 
+            'pendingCount',
+            'underReviewCount',
             'approvedCount', 
             'rejectedCount', 
-            'avgFraudScore'
+            'avgFraudScore',
+            'scholarships',
+            'years',
+            'academicTerms'
         ));
     }
 
@@ -40,11 +89,17 @@ class AdminController extends Controller
     public function review($id)
     {
         $application = Application::with(['document.aiResult', 'evaluator', 'user.profile'])->findOrFail($id);
-        return view('admin.review', compact('application'));
         
         // Auto-update status to "Under Review" if it is Pending
         if ($application->status === 'Pending') {
             $application->update(['status' => 'Under Review']);
+
+            \App\Models\StatusLog::create([
+                'application_id' => $application->id,
+                'status' => 'Under Review',
+                'remarks' => 'Application opened for verification review.',
+                'changed_by' => auth()->id() ?? 2
+            ]);
         }
 
         return view('admin.review', compact('application'));
@@ -56,54 +111,46 @@ class AdminController extends Controller
         $application = \App\Models\Application::with('document')->findOrFail($id);
         $document = $application->document;
 
-        // SMART PATH LOCATOR: Cloud Workstations sometimes shift file paths. 
-        // We will securely check all possible locations to guarantee we find the image.
-        $pathsToTry = [
-            public_path($document->file_path),
-            storage_path('app/public/' . $document->file_path),
-            base_path('public/' . $document->file_path)
-        ];
-
-        $actualPath = null;
-        foreach ($pathsToTry as $path) {
-            if ($path && file_exists($path)) {
-                $actualPath = $path;
-                break;
-            }
+        if (!$document) {
+            return back()->with('error', 'AI Scan Failed: Document not found.');
         }
 
-        // Failsafe if the file truly didn't upload
-        if (!$actualPath) {
-            return back()->with('error', 'AI Scan Failed: File is missing from the server disk. Please ask the student to submit a fresh application.');
+        // 1. Create a placeholder scanning result
+        \App\Models\AIResult::updateOrCreate(
+            ['document_id' => $document->id],
+            [
+                'fraud_probability' => 0.00,
+                'classification' => 'scanning',
+                'heatmap_path' => null
+            ]
+        );
+
+        // 2. Dispatch the background job
+        \App\Jobs\ScanDocumentJob::dispatch($application->id);
+
+        return back()->with('success', 'Document verification scan started in the background.');
+    }
+
+    // SECURE DOCUMENT DOWNLOAD FOR ADMIN REVIEW
+    public function downloadDocument($id)
+    {
+        $document = \App\Models\Document::findOrFail($id);
+
+        // Make sure the file actually exists in storage
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($document->file_path)) {
+            return back()->with('error', 'Document file not found in storage.');
         }
 
-        try {
-            // Send the securely located file to your REAL Python AI Pipeline!
-            // Note: We changed 'document' to 'file' and updated the URL to '/analyze-document'
-            $response = \Illuminate\Support\Facades\Http::timeout(60)->attach(
-                'file', file_get_contents($actualPath), $document->original_name
-            )->post('http://127.0.0.1:5000/analyze-document');
+        $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($document->file_path);
+        $extension = pathinfo($document->file_path, PATHINFO_EXTENSION);
 
-            if ($response->successful()) {
-                $result = $response->json();
-                
-                \App\Models\AIResult::updateOrCreate(
-                    ['document_id' => $document->id],
-                    [
-                        'fraud_probability' => $result['fraud_probability'] ?? 10,
-                        'classification' => $result['classification'] ?? 'authentic',
-                        // Extracting the nested heatmap path from your real AI's response
-                        'heatmap_path' => $result['paths']['heatmap_path'] ?? '', 
-                    ]
-                );
+        // Construct a human-readable download filename using Application ID
+        $application = \App\Models\Application::where('document_id', $document->id)->first()
+                      ?? \App\Models\Application::whereHas('document', fn($q) => $q->where('id', $document->id))->first();
 
-                return back()->with('success', 'Deep Learning analysis complete.');
-            } else {
-                return back()->with('error', 'Python API Error: ' . $response->body());
-            }
-        } catch (\Exception $e) {
-            return back()->with('error', 'Microservice Offline: Ensure your Python Flask server (app.py) is running! (' . $e->getMessage() . ')');
-        }
+        $downloadName = 'APP-' . ($application->id ?? 'unknown') . '_COG.' . $extension;
+
+        return response()->download($fullPath, $downloadName);
     }
 
     // GENERATE EXCEL/CSV REPORT OF APPROVED SCHOLARS
@@ -161,14 +208,43 @@ class AdminController extends Controller
         // 2. Find the application in the database
         $application = \App\Models\Application::findOrFail($id);
         
+        $evaluatorId = auth()->id() ?? 2; // Default to admin user 2 if none logged in
+
         // 3. Update the status and attach the Audit Trail data!
         $application->update([
             'status' => $request->status,
             'remarks' => $request->remarks,
-            'evaluated_by' => auth()->id() ?? 1 // Automatically logs WHICH admin made the decision
+            'evaluated_by' => $evaluatorId
         ]);
 
-        // 4. SECURE REDIRECT: Kick the user back to the dashboard immediately 
+        // Log to StatusLog
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => $request->status,
+            'remarks' => $request->remarks,
+            'changed_by' => $evaluatorId
+        ]);
+
+        // 4. Send automated email notification
+        try {
+            $application->load('user');
+            if ($application->user && $application->user->email) {
+                $mailSubject = "[A.E.G.I.S.] Official Update: Application " . strtoupper($application->status);
+                Mail::to($application->user->email)->send(new ApplicationStatusMail($application));
+
+                // Log email in EmailLog
+                \App\Models\EmailLog::create([
+                    'application_id' => $application->id,
+                    'recipient' => $application->user->email,
+                    'subject' => $mailSubject,
+                    'content' => "Status updated to: {$application->status}. Remarks: " . ($application->remarks ?? 'None')
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send application status email: ' . $e->getMessage());
+        }
+
+        // 5. SECURE REDIRECT: Kick the user back to the dashboard immediately 
         // so they don't get stuck on this POST route and trigger a GET error!
         return redirect()->route('admin.dashboard')
             ->with('success', 'Application APP-' . $application->id . ' has been successfully ' . $request->status . '.');

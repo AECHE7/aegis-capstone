@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('application_id')->constrained()->onDelete('cascade');
             $table->string('file_path');
             $table->string('original_name');
+            $table->string('document_type')->default('COG');
             $table->timestamps();
         });
     }

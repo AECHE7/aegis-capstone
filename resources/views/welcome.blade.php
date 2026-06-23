@@ -69,7 +69,16 @@
                 <li class="nav-item"><a class="nav-link px-3" href="#categories">Programs</a></li>
                 <li class="nav-item"><a class="nav-link px-3" href="#process">How to Apply</a></li>
                 <li class="nav-item ms-lg-3">
-                    <a href="{{ route('student.apply') }}" class="btn btn-primary-custom btn-sm px-4 py-2">Apply / Login</a>
+                    @auth
+                        @php
+                            $dashRoute = auth()->user()->role === 'admin' ? route('admin.dashboard') : (auth()->user()->role === 'superadmin' ? route('superadmin.analytics') : route('student.dashboard'));
+                        @endphp
+                        <a href="{{ $dashRoute }}" class="btn btn-primary-custom btn-sm px-4 py-2">
+                            <i class="fa-solid fa-gauge-high me-1"></i> My Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-primary-custom btn-sm px-4 py-2">Login / Apply</a>
+                    @endauth
                 </li>
             </ul>
         </div>
@@ -92,12 +101,26 @@
                     The Office of Student Affairs (OSA) is dedicated to assisting deserving students through various institutional, government, and private scholarship programs. Apply online securely and track your grant status instantly.
                 </p>
                 <div class="d-flex flex-column flex-sm-row gap-3">
-                    <a href="{{ route('student.apply') }}" class="btn btn-primary-custom text-decoration-none text-center">
-                        Submit Application <i class="fa-solid fa-arrow-right ms-2"></i>
-                    </a>
-                    <a href="{{ route('student.dashboard') }}" class="btn btn-secondary-custom text-decoration-none text-center">
-                        <i class="fa-solid fa-magnifying-glass me-2"></i> Track My Status
-                    </a>
+                    @auth
+                        @php
+                            $dashRoute = auth()->user()->role === 'admin' ? route('admin.dashboard') : (auth()->user()->role === 'superadmin' ? route('superadmin.analytics') : route('student.dashboard'));
+                        @endphp
+                        <a href="{{ $dashRoute }}" class="btn btn-primary-custom text-decoration-none text-center">
+                            <i class="fa-solid fa-gauge-high me-2"></i> Go to My Dashboard
+                        </a>
+                        <a href="{{ route('logout') }}" class="btn btn-secondary-custom text-decoration-none text-center"
+                           onclick="event.preventDefault(); document.getElementById('welcome-logout').submit();">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                        </a>
+                        <form id="welcome-logout" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-primary-custom text-decoration-none text-center">
+                            Login to Apply <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </a>
+                        <a href="#process" class="btn btn-secondary-custom text-decoration-none text-center">
+                            <i class="fa-solid fa-magnifying-glass me-2"></i> How It Works
+                        </a>
+                    @endauth
                 </div>
                 <div class="mt-4 pt-3 d-flex align-items-center text-muted small fw-medium">
                     <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 me-2"><i class="fa-solid fa-shield-halved me-1"></i> A.E.G.I.S. Secured</span>

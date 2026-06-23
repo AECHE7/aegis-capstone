@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('status_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('application_id')->constrained()->cascadeOnDelete();
+            $table->string('status');
+            $table->text('remarks')->nullable();
+            $table->unsignedBigInteger('changed_by')->nullable();
+            $table->foreign('changed_by')->references('id')->on('users')->onDelete('set null');
             $table->timestamps();
         });
     }

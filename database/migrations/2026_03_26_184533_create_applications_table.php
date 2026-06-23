@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('scholarship_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('academic_term_id')->nullable()->constrained()->onDelete('set null');
             $table->string('program_name');
             $table->string('gwa');
             $table->string('status')->default('Pending');

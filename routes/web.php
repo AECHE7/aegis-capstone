@@ -33,7 +33,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/review/{id}', [AdminController::class, 'review'])->name('admin.review');
         Route::post('/review/{id}/scan', [AdminController::class, 'runScan'])->name('admin.scan');
         Route::post('/review/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.updateStatus');
-        Route::get('/export-csv', [AdminController::class, 'exportCsv'])->name('admin.export');
+        Route::get('/document/{id}/download', [AdminController::class, 'downloadDocument'])->name('admin.document.download');
+        Route::get('/export-csv', [\App\Http\Controllers\ReportController::class, 'exportCsv'])->name('admin.export');
+        Route::get('/export-pdf', [\App\Http\Controllers\ReportController::class, 'exportPdf'])->name('admin.exportPdf');
     });
 
     // SUPER ADMIN (Scholarship Management)
@@ -57,5 +59,8 @@ Route::middleware(['auth'])->group(function () {
         if (!file_exists($path)) { abort(404); }
         return response()->file($path);
     })->name('document.heatmap');
+
+    // UAT FEEDBACK SUBMISSION
+    Route::post('/uat-feedback', [\App\Http\Controllers\UatFeedbackController::class, 'store'])->name('uat.store');
 
 });

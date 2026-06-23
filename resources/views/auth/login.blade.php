@@ -258,14 +258,20 @@
                     <label for="emailInput"><i class="fa-solid fa-envelope me-2 text-muted"></i>Email Address</label>
                 </div>
 
-                <!-- Floating Password Input -->
-                <div class="form-floating mb-4">
-                    <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Password" required>
+                <!-- Floating Password Input with Show/Hide -->
+                <div class="form-floating mb-4" style="position: relative;">
+                    <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Password" required style="padding-right: 48px;">
                     <label for="passwordInput"><i class="fa-solid fa-lock me-2 text-muted"></i>Password</label>
+                    <button type="button" id="togglePassword" onclick="togglePwd()"
+                            style="position:absolute;top:50%;right:14px;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;z-index:10;padding:4px;">
+                        <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                    </button>
                 </div>
 
-                <button type="submit" class="btn btn-login w-100 d-flex justify-content-center align-items-center gap-2">
-                    Secure Login <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                <button type="submit" class="btn btn-login w-100 d-flex justify-content-center align-items-center gap-2" id="loginBtn" onclick="showLoginSpinner()">
+                    <span id="loginBtnText">Secure Login</span>
+                    <span id="loginSpinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
+                    <i class="fa-solid fa-arrow-right-to-bracket" id="loginArrow"></i>
                 </button>
             </form>
 
@@ -302,23 +308,39 @@
 
 </div>
 
-<!-- Auto-fill Script -->
+<!-- Auto-fill + Password Toggle + Loading Script -->
 <script>
     function fillDemo(email) {
-        // Auto-fill the inputs
         const emailInput = document.getElementById('emailInput');
         const passInput = document.getElementById('passwordInput');
-        
         emailInput.value = email;
-        passInput.value = 'password'; // Password from your UAT Seeder
-        
-        // Add a tiny animation to show it worked
+        passInput.value = 'password';
         emailInput.style.transform = "scale(1.02)";
         passInput.style.transform = "scale(1.02)";
         setTimeout(() => {
             emailInput.style.transform = "scale(1)";
             passInput.style.transform = "scale(1)";
         }, 150);
+    }
+
+    function togglePwd() {
+        const input = document.getElementById('passwordInput');
+        const icon = document.getElementById('eyeIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+
+    function showLoginSpinner() {
+        setTimeout(() => {
+            document.getElementById('loginBtnText').textContent = 'Authenticating...';
+            document.getElementById('loginSpinner').style.display = 'inline-block';
+            document.getElementById('loginArrow').style.display = 'none';
+        }, 10);
     }
 </script>
 

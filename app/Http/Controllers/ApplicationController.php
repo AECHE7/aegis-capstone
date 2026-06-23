@@ -15,7 +15,9 @@ class ApplicationController extends Controller
     public function dashboard()
     {
         $userId = auth()->id() ?? 1; // Fallback to user 1 for testing
-        $application = Application::with('document.aiResult')
+        $application = Application::with(['document.aiResult', 'statusLogs' => function($q) {
+            $q->orderBy('created_at', 'asc');
+        }])
             ->where('user_id', $userId)
             ->latest()
             ->first();
@@ -66,23 +68,37 @@ class ApplicationController extends Controller
                 ->withInput(); 
         }
 
+        $activeTerm = \App\Models\AcademicTerm::where('is_active', true)->first();
+
         $application = \App\Models\Application::create([
             'user_id' => $userId,
             'scholarship_id' => $request->scholarship_id,
+            'academic_term_id' => $activeTerm ? $activeTerm->id : null,
             'program_name' => $scholarship->name, 
             'gwa' => $request->gwa,
             'status' => 'Pending'
         ]);
 
+        // Log the initial status transition
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => 'Pending',
+            'remarks' => 'Application submitted and entered the verification pipeline.',
+            'changed_by' => $userId
+        ]);
+
         if ($request->hasFile('document')) {
             $file = $request->file('document');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $extension = $file->getClientOriginalExtension();
+            $uuid = (string) \Illuminate\Support\Str::uuid();
+            $filename = hash('sha256', $uuid) . '.' . $extension;
             $file->move(public_path('uploads'), $filename);
 
             \App\Models\Document::create([
                 'application_id' => $application->id,
                 'file_path' => 'uploads/' . $filename,
                 'original_name' => $file->getClientOriginalName(),
+                'document_type' => 'COG'
             ]);
         }
 

@@ -45,6 +45,19 @@ class UatSeeder extends Seeder
             Scholarship::create(['name' => 'CHED Tulong Dunong Program', 'min_gwa_required' => 2.50, 'status' => 'Active']),
         ];
 
+        // 4b. Seed Academic Terms
+        $term1 = \App\Models\AcademicTerm::create([
+            'semester' => '1st Semester',
+            'academic_year' => '2025-2026',
+            'is_active' => false
+        ]);
+        $term2 = \App\Models\AcademicTerm::create([
+            'semester' => '2nd Semester',
+            'academic_year' => '2025-2026',
+            'is_active' => true
+        ]);
+        $terms = [$term1, $term2];
+
         // 5. Generate 30 fake applications linked to the real scholarships
         $statuses = ['Pending', 'Approved', 'Rejected'];
 
@@ -52,20 +65,25 @@ class UatSeeder extends Seeder
             $isForged = rand(1, 100) > 60; // 40% chance of being forged
             $status = $statuses[array_rand($statuses)];
             $selectedScholarship = $scholarships[array_rand($scholarships)];
+            $selectedTerm = $terms[array_rand($terms)];
+            $appDate = now()->subDays(rand(1, 30));
 
             $app = Application::create([
                 'user_id' => $student->id,
                 'scholarship_id' => $selectedScholarship->id,
+                'academic_term_id' => $selectedTerm->id,
                 'program_name' => $selectedScholarship->name,
                 'gwa' => number_format(rand(100, 250) / 100, 2),
                 'status' => $status,
-                'created_at' => now()->subDays(rand(1, 30))
+                'created_at' => $appDate,
+                'updated_at' => $appDate
             ]);
 
             $doc = Document::create([
                 'application_id' => $app->id,
                 'file_path' => 'mock/path/doc.jpg',
-                'original_name' => 'certificate_of_grades.jpg'
+                'original_name' => 'certificate_of_grades.jpg',
+                'document_type' => 'COG'
             ]);
 
             AIResult::create([
@@ -74,6 +92,53 @@ class UatSeeder extends Seeder
                 'classification' => $isForged ? 'tampered' : 'authentic',
                 'heatmap_path' => 'mock/path/heatmap.jpg'
             ]);
+
+            // Seed status and email logs audit history
+            \App\Models\StatusLog::create([
+                'application_id' => $app->id,
+                'status' => 'Pending',
+                'remarks' => 'Application submitted and entered the verification pipeline.',
+                'changed_by' => $student->id,
+                'created_at' => $appDate,
+                'updated_at' => $appDate
+            ]);
+
+            if ($status === 'Under Review' || $status === 'Approved' || $status === 'Rejected') {
+                $reviewDate = $appDate->copy()->addHours(rand(1, 24));
+                \App\Models\StatusLog::create([
+                    'application_id' => $app->id,
+                    'status' => 'Under Review',
+                    'remarks' => 'Application opened for verification review.',
+                    'changed_by' => 2, // Admin user ID
+                    'created_at' => $reviewDate,
+                    'updated_at' => $reviewDate
+                ]);
+
+                if ($status === 'Approved' || $status === 'Rejected') {
+                    $decisionDate = $reviewDate->copy()->addHours(rand(1, 12));
+                    $remarks = $status === 'Approved' 
+                        ? 'Academic document verified. Approved.' 
+                        : 'Grade requirements not met or forensic scan flagged document.';
+
+                    \App\Models\StatusLog::create([
+                        'application_id' => $app->id,
+                        'status' => $status,
+                        'remarks' => $remarks,
+                        'changed_by' => 2,
+                        'created_at' => $decisionDate,
+                        'updated_at' => $decisionDate
+                    ]);
+
+                    \App\Models\EmailLog::create([
+                        'application_id' => $app->id,
+                        'recipient' => $student->email,
+                        'subject' => "[A.E.G.I.S.] Official Update: Application " . strtoupper($status),
+                        'content' => "Status updated to: {$status}. Remarks: {$remarks}",
+                        'created_at' => $decisionDate,
+                        'updated_at' => $decisionDate
+                    ]);
+                }
+            }
         }
 
         $this->command->info('UAT Batch generation complete! Fully normalized ERD active.');

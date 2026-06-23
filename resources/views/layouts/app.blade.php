@@ -8,50 +8,539 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
+        /* ══════════════════════════════════════════
+           DESIGN SYSTEM TOKENS
+        ══════════════════════════════════════════ */
         :root {
             --clsu-green: #0F5934;
             --clsu-green-dark: #0a4025;
+            --clsu-green-light: #16703f;
             --clsu-gold: #F2A900;
-            --clsu-dark: #0f172a; /* Executive Dark Mode */
-            --clsu-bg: #f8fafc;   /* Standard Surface Background */
+            --clsu-gold-light: #ffd966;
+            --clsu-dark: #0f172a;
+            --clsu-bg: #f1f5f9;
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 72px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        /* ══════════════════════════════════════════
+           GLOBAL BASE
+        ══════════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; }
 
         body {
             background-color: var(--clsu-bg);
             font-family: 'Inter', sans-serif;
             color: #334155;
+            margin: 0;
+            overflow-x: hidden;
         }
 
-        /* Headings use Poppins for a modern, geometric look */
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Poppins', sans-serif;
             color: #0f172a;
         }
 
-        /* The Master Navbar */
+        /* ══════════════════════════════════════════
+           CARD SYSTEM
+        ══════════════════════════════════════════ */
+        .card {
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            background: #ffffff;
+        }
+
+        .card-hover:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        /* ══════════════════════════════════════════
+           FORM CONTROLS
+        ══════════════════════════════════════════ */
+        .form-control, .form-select {
+            border-radius: var(--radius-sm);
+            border: 1.5px solid #e2e8f0;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--clsu-green);
+            box-shadow: 0 0 0 3px rgba(15, 89, 52, 0.12);
+            outline: none;
+        }
+
+        /* ══════════════════════════════════════════
+           SIDEBAR — ADMIN & SUPERADMIN
+        ══════════════════════════════════════════ */
+        @auth
+        @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'superadmin']))
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #0f1f12 0%, #0F5934 100%);
+            z-index: 1030;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            min-height: 72px;
+            text-decoration: none;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sidebar-brand-icon {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            background: linear-gradient(135deg, var(--clsu-gold), #e09500);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(242, 169, 0, 0.35);
+        }
+
+        .sidebar-brand-text {
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0.2s;
+        }
+
+        .sidebar.collapsed .sidebar-brand-text { opacity: 0; pointer-events: none; }
+
+        .sidebar-brand-name { color: white; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: 0.5px; line-height: 1.2; }
+        .sidebar-brand-sub { color: rgba(255,255,255,0.5); font-size: 0.65rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* Role badge in sidebar */
+        .sidebar-role {
+            padding: 0.75rem 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .sidebar-role { padding: 0.75rem; }
+
+        .sidebar-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar.collapsed .sidebar-role-badge .role-text { display: none; }
+
+        /* Navigation */
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 1rem 0.75rem;
+        }
+
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .sidebar-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            padding: 0.5rem 0.75rem 0.3rem;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: opacity 0.2s;
+        }
+
+        .sidebar.collapsed .sidebar-label { opacity: 0; }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: var(--transition);
+            white-space: nowrap;
+            overflow: hidden;
+            margin-bottom: 3px;
+            position: relative;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-link.active {
+            background: rgba(242, 169, 0, 0.15);
+            color: var(--clsu-gold-light);
+            border: 1px solid rgba(242, 169, 0, 0.2);
+        }
+
+        .sidebar-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: var(--clsu-gold);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .sidebar-icon {
+            width: 20px;
+            min-width: 20px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-text {
+            transition: opacity 0.2s;
+            flex: 1;
+        }
+
+        .sidebar.collapsed .sidebar-text { opacity: 0; width: 0; }
+
+        /* Sidebar footer */
+        .sidebar-footer {
+            padding: 0.75rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar-logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: white;
+        }
+
+        /* Toggle button */
+        .sidebar-toggle {
+            position: fixed;
+            top: 1rem;
+            left: calc(var(--sidebar-width) - 16px);
+            width: 32px;
+            height: 32px;
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1035;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+            color: #64748b;
+        }
+
+        .sidebar-toggle:hover { background: var(--clsu-green); color: white; border-color: var(--clsu-green); }
+        .sidebar-toggle.collapsed { left: calc(var(--sidebar-collapsed) - 16px); }
+
+        /* Main content with sidebar offset */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .main-wrapper.collapsed { margin-left: var(--sidebar-collapsed); }
+
+        /* Top header bar inside main area */
+        .topbar {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .topbar-title { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; color: #0f172a; margin: 0; }
+        .topbar-subtitle { font-size: 0.75rem; color: #94a3b8; margin: 0; }
+
+        .page-content {
+            padding: 1.75rem 2rem 3rem;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @endif
+        @endauth
+
+        /* ══════════════════════════════════════════
+           STUDENT TOP NAVBAR
+        ══════════════════════════════════════════ */
+        .student-navbar {
+            background: var(--clsu-dark);
+            border-bottom: 3px solid var(--clsu-gold);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .student-navbar .nav-link-custom {
+            color: rgba(255,255,255,0.75);
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .student-navbar .nav-link-custom:hover,
+        .student-navbar .nav-link-custom.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* ══════════════════════════════════════════
+           OLD NAVBAR (fallback for authenticated navbar-custom)
+        ══════════════════════════════════════════ */
         .navbar-custom {
             background-color: var(--clsu-dark);
             border-bottom: 4px solid var(--clsu-gold);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* Master Card Rules: Soft borders, floating shadows */
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            transition: all 0.2s ease-in-out;
+        /* ══════════════════════════════════════════
+           STAT CARDS
+        ══════════════════════════════════════════ */
+        .stat-card {
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            background: white;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Master Input Rules: Clean focus rings */
-        .form-control:focus, .form-select:focus {
-            border-color: var(--clsu-green);
-            box-shadow: 0 0 0 0.25rem rgba(15, 89, 52, 0.25);
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card.warning::after  { background: #fbbf24; }
+        .stat-card.info::after     { background: #38bdf8; }
+        .stat-card.success::after  { background: #22c55e; }
+        .stat-card.danger::after   { background: #ef4444; }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        /* ══════════════════════════════════════════
+           BADGES
+        ══════════════════════════════════════════ */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .status-badge.pending  { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+        .status-badge.review   { background: #e0f2fe; color: #0c4a6e; border: 1px solid #7dd3fc; }
+        .status-badge.approved { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+        .status-badge.rejected { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+
+        /* ══════════════════════════════════════════
+           TOOLTIPS (sidebar collapsed state)
+        ══════════════════════════════════════════ */
+        .sidebar.collapsed .sidebar-link {
+            position: relative;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .sidebar-link::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 2000;
+        }
+
+        .sidebar.collapsed .sidebar-link:hover::after { opacity: 1; }
+
+        /* ══════════════════════════════════════════
+           UAT FLOATING BUTTON
+        ══════════════════════════════════════════ */
+        .uat-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--clsu-gold), #e09500);
+            border: none;
+            cursor: pointer;
+            z-index: 1040;
+            box-shadow: 0 4px 20px rgba(242, 169, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: #1a1a00;
+        }
+
+        .uat-fab:hover {
+            transform: scale(1.12) rotate(-5deg);
+            box-shadow: 0 8px 28px rgba(242, 169, 0, 0.55);
+        }
+
+        /* ══════════════════════════════════════════
+           PAGE ANIMATIONS
+        ══════════════════════════════════════════ */
+        .fade-in {
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        /* ══════════════════════════════════════════
+           ALERT IMPROVEMENTS
+        ══════════════════════════════════════════ */
+        .alert {
+            border-radius: var(--radius-md);
+            border: none;
+        }
+
+        /* ══════════════════════════════════════════
+           TABLE IMPROVEMENTS
+        ══════════════════════════════════════════ */
+        .table > :not(caption) > * > * {
+            padding: 0.85rem 1rem;
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: #64748b;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table tbody tr {
+            border-color: #f1f5f9;
+            transition: var(--transition);
+        }
+
+        .table tbody tr:hover {
+            background: #f8fafc;
         }
     </style>
     
@@ -59,57 +548,337 @@
 </head>
 <body>
 
-    @auth
-    <nav class="navbar navbar-expand-lg navbar-custom py-3 mb-4 sticky-top">
+@auth
+    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin')
+    
+    {{-- ═══════════════════════════════════════════
+         SIDEBAR LAYOUT (ADMIN / SUPERADMIN)
+    ═══════════════════════════════════════════ --}}
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="mainSidebar">
+        <!-- Brand -->
+        <a href="#" class="sidebar-brand text-decoration-none">
+            <div class="sidebar-brand-icon">
+                <i class="fa-solid fa-shield-halved text-dark fs-5"></i>
+            </div>
+            <div class="sidebar-brand-text">
+                <span class="sidebar-brand-name">A.E.G.I.S.</span>
+                <span class="sidebar-brand-sub">OSA Portal</span>
+            </div>
+        </a>
+
+        <!-- Role Badge -->
+        <div class="sidebar-role">
+            <div class="sidebar-role-badge">
+                @if(auth()->user()->role === 'superadmin')
+                    <i class="fa-solid fa-crown text-warning" style="min-width: 14px;"></i>
+                    <span class="role-text fw-bold text-warning" style="overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</span>
+                @else
+                    <i class="fa-solid fa-user-shield text-info" style="min-width: 14px;"></i>
+                    <span class="role-text" style="overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</span>
+                @endif
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            @if(auth()->user()->role === 'admin')
+                <div class="sidebar-label">Main Menu</div>
+                <a href="{{ route('admin.dashboard') }}" 
+                   class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                   data-tooltip="Queue">
+                    <span class="sidebar-icon"><i class="fa-solid fa-layer-group"></i></span>
+                    <span class="sidebar-text">Application Queue</span>
+                </a>
+
+                <div class="sidebar-label mt-2">Reports</div>
+                <a href="{{ route('admin.export') }}" 
+                   class="sidebar-link"
+                   data-tooltip="CSV">
+                    <span class="sidebar-icon"><i class="fa-solid fa-file-csv text-success"></i></span>
+                    <span class="sidebar-text">Export CSV</span>
+                </a>
+                <a href="{{ route('admin.exportPdf') }}" 
+                   class="sidebar-link"
+                   data-tooltip="PDF">
+                    <span class="sidebar-icon"><i class="fa-solid fa-file-pdf text-danger"></i></span>
+                    <span class="sidebar-text">Export PDF</span>
+                </a>
+
+            @elseif(auth()->user()->role === 'superadmin')
+                <div class="sidebar-label">Director</div>
+                <a href="{{ route('superadmin.analytics') }}" 
+                   class="sidebar-link {{ request()->routeIs('superadmin.analytics') ? 'active' : '' }}"
+                   data-tooltip="Analytics">
+                    <span class="sidebar-icon"><i class="fa-solid fa-chart-line"></i></span>
+                    <span class="sidebar-text">Analytics</span>
+                </a>
+                <a href="{{ route('superadmin.scholarships') }}" 
+                   class="sidebar-link {{ request()->routeIs('superadmin.scholarships') ? 'active' : '' }}"
+                   data-tooltip="Programs">
+                    <span class="sidebar-icon"><i class="fa-solid fa-list-check"></i></span>
+                    <span class="sidebar-text">Scholarship Programs</span>
+                </a>
+            @endif
+        </nav>
+
+        <!-- Logout -->
+        <div class="sidebar-footer">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="sidebar-logout-btn">
+                    <i class="fa-solid fa-right-from-bracket" style="min-width: 16px;"></i>
+                    <span class="sidebar-text">Logout</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+        <i class="fa-solid fa-chevron-left" id="toggleIcon" style="font-size: 0.7rem;"></i>
+    </button>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper" id="mainWrapper">
+        <!-- Top bar -->
+        <div class="topbar">
+            <div>
+                <p class="topbar-title">@yield('page-title', 'Dashboard')</p>
+                <p class="topbar-subtitle">@yield('page-subtitle', 'A.E.G.I.S. Portal')</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                @if(auth()->user()->role === 'admin')
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: #dcfce7; color: #14532d; font-size: 0.75rem;">
+                        <i class="fa-solid fa-user-shield me-1"></i> OSA Administrator
+                    </span>
+                @else
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: #fef9c3; color: #854d0e; font-size: 0.75rem;">
+                        <i class="fa-solid fa-crown me-1"></i> Director
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert"
+                     style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important; border-left-style: solid !important;">
+                    <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert"
+                     style="background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444 !important; border-left-style: solid !important;">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            @yield('content')
+        </div>
+    </div>
+
+    @else
+
+    {{-- ═══════════════════════════════════════════
+         STUDENT TOP NAVBAR LAYOUT
+    ═══════════════════════════════════════════ --}}
+    <nav class="student-navbar">
         <div class="container-fluid px-md-5">
-            <a class="navbar-brand d-flex align-items-center text-white" href="#">
-                <i class="fa-solid fa-shield-halved text-warning me-2 fs-4"></i>
-                <span class="fw-bold tracking-wide">A.E.G.I.S. Portal</span>
-            </a>
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Brand -->
+                <a href="{{ route('student.dashboard') }}" class="text-decoration-none d-flex align-items-center gap-2">
+                    <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--clsu-gold),#e09500);border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(242,169,0,0.35);">
+                        <i class="fa-solid fa-shield-halved text-dark" style="font-size:0.9rem;"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-white" style="font-size:0.95rem;font-family:'Poppins',sans-serif;line-height:1.1;">A.E.G.I.S.</div>
+                        <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);letter-spacing:0.8px;text-transform:uppercase;">Student Portal</div>
+                    </div>
+                </a>
 
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-toggle="target="#mainNav">
-                <i class="fa-solid fa-bars text-white"></i>
-            </button>
-
-            <div class="collapse navbar-collapse justify-content-end" id="mainNav">
-                <ul class="navbar-nav align-items-center gap-3">
-                    
-                    @if(auth()->user()->role === 'superadmin')
-                        <li class="nav-item"><a class="nav-link text-white" href="{{ route('superadmin.analytics') }}"><i class="fa-solid fa-chart-line me-1"></i> Analytics</a></li>
-                        <li class="nav-item"><a class="nav-link text-white" href="{{ route('superadmin.scholarships') }}"><i class="fa-solid fa-list-check me-1"></i> Programs</a></li>
-                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 ms-2"><i class="fa-solid fa-crown me-1"></i> Director</span>
-                    
-                    @elseif(auth()->user()->role === 'admin')
-                        <li class="nav-item"><a class="nav-link text-white" href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-layer-group me-1"></i> Queue</a></li>
-                        <li class="nav-item"><a class="nav-link text-white" href="{{ route('admin.export') }}"><i class="fa-solid fa-file-csv me-1"></i> Export Report</a></li>
-                        <span class="badge bg-success rounded-pill px-3 py-2 ms-2"><i class="fa-solid fa-user-shield me-1"></i> OSA Admin</span>
-                    
-                    @else
-                        <li class="nav-item"><a class="nav-link text-white" href="{{ route('student.dashboard') }}"><i class="fa-solid fa-house me-1"></i> Tracker</a></li>
-                        <li class="nav-item"><a class="nav-link text-white" href="{{ route('student.apply') }}"><i class="fa-solid fa-plus me-1"></i> New Application</a></li>
-                        <span class="badge bg-primary rounded-pill px-3 py-2 ms-2"><i class="fa-solid fa-user-graduate me-1"></i> Applicant</span>
-                    @endif
-
-                    <li class="nav-item ms-md-3 mt-2 mt-md-0">
-                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-danger btn-sm fw-bold rounded-pill px-3 shadow-sm">
-                                <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
+                <!-- Navigation links -->
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{{ route('student.dashboard') }}" 
+                       class="nav-link-custom {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
+                        <i class="fa-solid fa-house me-1"></i> My Application
+                    </a>
+                    <a href="{{ route('student.apply') }}" 
+                       class="nav-link-custom {{ request()->routeIs('student.apply') ? 'active' : '' }}">
+                        <i class="fa-solid fa-plus me-1"></i> Apply
+                    </a>
+                    <span style="width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;"></span>
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);font-size:0.72rem;border:1px solid rgba(255,255,255,0.15);">
+                        <i class="fa-solid fa-user-graduate me-1"></i> {{ auth()->user()->name }}
+                    </span>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline m-0">
+                        @csrf
+                        <button type="submit" class="btn btn-sm fw-semibold ms-1"
+                                style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.25);border-radius:8px;font-size:0.8rem;padding:5px 12px;">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
-    @endauth
 
-    <main>
+    <!-- Student page content -->
+    <div style="animation: fadeInUp 0.4s ease-out;">
+        @if(session('success'))
+            <div class="container-fluid px-md-5 pt-3">
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert"
+                     style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important; border-left-style: solid !important;">
+                    <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="container-fluid px-md-5 pt-3">
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert"
+                     style="background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444 !important; border-left-style: solid !important;">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        @endif
+
         @yield('content')
-    </main>
+    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-    @stack('scripts')
+    @endif
+
+    {{-- ═══════════════════════════════════════════
+         UAT FEEDBACK BUTTON & MODAL (ALL ROLES)
+    ═══════════════════════════════════════════ --}}
+    <button class="uat-fab" data-bs-toggle="modal" data-bs-target="#uatFeedbackModal" title="Submit UAT Evaluation">
+        <i class="fa-solid fa-star fs-5"></i>
+    </button>
+
+    <!-- UAT Feedback Modal -->
+    <div class="modal fade" id="uatFeedbackModal" tabindex="-1" aria-labelledby="uatFeedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #0f1f12, #0F5934); padding: 1.5rem 1.5rem 1rem;">
+                    <div>
+                        <h5 class="modal-title fw-bold text-white mb-0" id="uatFeedbackModalLabel">
+                            <i class="fa-solid fa-star text-warning me-2"></i> System Evaluation (ISO/IEC 25010)
+                        </h5>
+                        <small class="text-white-50">Rate from 1 (Strongly Disagree) to 5 (Strongly Agree)</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('uat.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        @foreach([
+                            ['name' => 'functional_suitability', 'label' => 'Functional Suitability', 'desc' => 'The system correctly processes and records scholarship applications without omitting information.'],
+                            ['name' => 'usability', 'label' => 'Usability', 'desc' => 'The navigation from the application queue to review pages is clean and straightforward.'],
+                            ['name' => 'reliability', 'label' => 'Reliability', 'desc' => 'The system triggers background AI scans and dispatches automated status emails promptly.'],
+                            ['name' => 'security', 'label' => 'Security', 'desc' => 'Student private profile records are protected and access control is strictly enforced.'],
+                        ] as $q)
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-dark mb-1 small">{{ $q['label'] }}</label>
+                            <p class="text-muted mb-2" style="font-size: 0.78rem; line-height: 1.4;">{{ $q['desc'] }}</p>
+                            <div class="d-flex gap-2">
+                                @for($i = 1; $i <= 5; $i++)
+                                <label class="d-flex flex-column align-items-center gap-1 cursor-pointer" style="cursor:pointer;">
+                                    <input type="radio" name="{{ $q['name'] }}" value="{{ $i }}" 
+                                           class="d-none" {{ $i === 5 ? 'checked' : '' }}
+                                           onchange="highlightStars(this, '{{ $q['name'] }}', {{ $i }})">
+                                    <span class="uat-star" data-group="{{ $q['name'] }}" data-val="{{ $i }}"
+                                          style="font-size:1.4rem;color:#e2e8f0;transition:color 0.15s;cursor:pointer;"
+                                          onclick="this.previousElementSibling.click()">★</span>
+                                    <span style="font-size:0.7rem;color:#94a3b8;">{{ $i }}</span>
+                                </label>
+                                @endfor
+                            </div>
+                        </div>
+                        @endforeach
+
+                        <div class="mb-0">
+                            <label class="form-label fw-semibold text-dark small">General Comments & Suggestions</label>
+                            <textarea class="form-control" name="comments" rows="3" 
+                                      placeholder="Enter suggestions for further system improvements..." 
+                                      style="font-size:0.875rem;resize:none;"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                        <button type="button" class="btn btn-light fw-semibold rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn fw-bold rounded-pill px-5" 
+                                style="background: linear-gradient(135deg, var(--clsu-gold), #e09500); color: #1a1a00;">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+@endauth
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // ── Sidebar Toggle ──────────────────────────────────────
+    const sidebar = document.getElementById('mainSidebar');
+    const mainWrapper = document.getElementById('mainWrapper');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const toggleIcon = document.getElementById('toggleIcon');
+
+    let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+    function applySidebarState() {
+        if (!sidebar) return;
+        if (sidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+            mainWrapper?.classList.add('collapsed');
+            sidebarToggle?.classList.add('collapsed');
+            if (toggleIcon) {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            }
+        } else {
+            sidebar.classList.remove('collapsed');
+            mainWrapper?.classList.remove('collapsed');
+            sidebarToggle?.classList.remove('collapsed');
+            if (toggleIcon) {
+                toggleIcon.classList.add('fa-chevron-left');
+                toggleIcon.classList.remove('fa-chevron-right');
+            }
+        }
+    }
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebarCollapsed = !sidebarCollapsed;
+            localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+            applySidebarState();
+        });
+    }
+
+    applySidebarState();
+
+    // ── UAT Star Highlighting ────────────────────────────────
+    function highlightStars(input, group, val) {
+        document.querySelectorAll(`.uat-star[data-group="${group}"]`).forEach(star => {
+            star.style.color = parseInt(star.dataset.val) <= val ? '#F2A900' : '#e2e8f0';
+        });
+    }
+
+    // Initialize stars at their default value (5)
+    document.querySelectorAll('.uat-star').forEach(star => {
+        if (parseInt(star.dataset.val) <= 5) {
+            star.style.color = '#F2A900';
+        }
+    });
+</script>
+
+@stack('scripts')
 </body>
 </html>

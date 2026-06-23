@@ -5,24 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class StudentProfile extends Model
+class UatFeedback extends Model
 {
     use HasFactory;
 
+    protected $table = 'uat_feedbacks';
+
     protected $fillable = [
         'user_id',
-        'clsu_id_number',
-        'college',
-        'course',
-        'year_level',
-        'contact_number'
+        'role',
+        'functional_suitability',
+        'usability',
+        'reliability',
+        'security',
+        'comments'
     ];
 
-    protected $casts = [
-        'clsu_id_number' => 'encrypted',
-        'contact_number' => 'encrypted',
-    ];
-
+    /**
+     * Relationship: Feedback belongs to a user
+     */
     public function user()
     {
         return $this->belongsTo(User::class);

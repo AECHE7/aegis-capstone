@@ -1,154 +1,368 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Application | A.E.G.I.S.</title>
-    <!-- Custom Favicon -->
-    <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- SweetAlert for Error Popups -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        :root { --clsu-green: #0F5934; --clsu-gold: #F2A900; }
-        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
-        .navbar-custom { background-color: var(--clsu-green); }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .form-control, .form-select { padding: 12px 15px; border-radius: 8px; border: 1px solid #cbd5e1; }
-        .form-control:focus, .form-select:focus { border-color: var(--clsu-green); box-shadow: 0 0 0 0.25rem rgba(15, 89, 52, 0.25); }
-        .btn-submit { background-color: var(--clsu-green); color: white; padding: 12px; font-weight: 600; border-radius: 8px; transition: all 0.3s; }
-        .btn-submit:hover { background-color: #0b4026; color: var(--clsu-gold); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15, 89, 52, 0.2); }
-        
-        /* Image Preview Box */
-        .preview-container { width: 100%; height: 350px; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; background-color: #f8fafc; overflow: hidden; position: relative; }
-        .preview-container img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
-        .preview-placeholder { text-align: center; color: #94a3b8; }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
 
-<nav class="navbar navbar-expand-lg navbar-custom py-3 mb-5">
-    <div class="container">
-        <div class="d-flex align-items-center">
-            <!-- Custom Logo -->
-            <img src="{{ asset('logo.png') }}" alt="A.E.G.I.S. Logo" height="35" class="me-2" style="filter: brightness(0) invert(1);">
-            <h5 class="mb-0 fw-bold text-white">A.E.G.I.S. Portal</h5>
+@section('title', 'Submit Application | A.E.G.I.S.')
+
+@push('styles')
+<style>
+    /* Scholarship selector cards */
+    .scholarship-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+
+    .scholarship-card-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+        position: relative;
+    }
+
+    .scholarship-card-select:hover {
+        border-color: var(--clsu-green);
+        background: #f0fdf4;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15,89,52,0.1);
+    }
+
+    .scholarship-card-select.selected {
+        border-color: var(--clsu-green);
+        background: #f0fdf4;
+        box-shadow: 0 4px 16px rgba(15,89,52,0.15);
+    }
+
+    .scholarship-card-select.selected::after {
+        content: '✓';
+        position: absolute;
+        top: 10px; right: 12px;
+        width: 22px; height: 22px;
+        background: var(--clsu-green);
+        color: white;
+        border-radius: 50%;
+        font-size: 0.7rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 22px;
+        text-align: center;
+    }
+
+    /* Drag-and-drop upload zone */
+    .upload-zone {
+        border: 2.5px dashed #cbd5e1;
+        border-radius: 16px;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.25s;
+        background: #f8fafc;
+        position: relative;
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+        border-color: var(--clsu-green);
+        background: #f0fdf4;
+    }
+
+    .upload-zone.has-file {
+        border-color: var(--clsu-green);
+        background: #f0fdf4;
+        padding: 1rem;
+    }
+
+    .upload-zone input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    /* Preview image */
+    #previewImg {
+        max-height: 280px;
+        max-width: 100%;
+        border-radius: 10px;
+        object-fit: contain;
+        display: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    /* Eligibility badge */
+    .eligibility-badge { display: none; }
+
+    /* Submit button */
+    .btn-submit-app {
+        background: linear-gradient(135deg, var(--clsu-green), #16703f);
+        color: white; border: none;
+        padding: 14px; border-radius: 12px;
+        font-weight: 700; font-size: 1rem;
+        transition: all 0.3s;
+        box-shadow: 0 4px 16px rgba(15,89,52,0.25);
+    }
+    .btn-submit-app:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(15,89,52,0.35);
+        color: white;
+    }
+    .btn-submit-app:disabled { opacity: 0.6; transform: none; box-shadow: none; cursor: not-allowed; }
+
+    /* Tips panel */
+    .tips-panel { background: #f8fafc; border-radius: 14px; padding: 1.25rem; border: 1px solid #e2e8f0; }
+    .tip-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .tip-item:last-child { margin-bottom: 0; }
+</style>
+@endpush
+
+@section('content')
+<div class="container" style="max-width: 900px; padding: 1.5rem 1rem 3rem;">
+
+    <div class="text-center mb-5">
+        <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--clsu-green),#16703f);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 20px rgba(15,89,52,0.25);">
+            <i class="fa-solid fa-file-signature text-white fs-4"></i>
         </div>
-        <div class="text-white">
-            <a href="{{ route('student.dashboard') }}" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard</a>
-        </div>
-    </div>
-</nav>
-
-<div class="container mb-5" style="max-width: 900px;">
-    
-    <div class="text-center mb-4">
-        <h3 class="fw-bold text-dark mb-2">Submit New Application</h3>
-        <p class="text-muted">Fill out the required details and upload a clear copy of your Certificate of Grades.</p>
+        <h3 class="fw-bold text-dark mb-1">Submit a New Application</h3>
+        <p class="text-muted" style="font-size:0.9rem;">Select your scholarship, enter your GWA, and upload your Certificate of Grades.</p>
     </div>
 
-    <div class="card p-0 overflow-hidden">
-        <div class="row g-0">
-            
-            <!-- Form Section -->
-            <div class="col-md-6 p-5">
+    <div class="row g-4">
+        {{-- LEFT: Form --}}
+        <div class="col-lg-7">
+            <div class="card p-4" style="border-radius: 20px;">
                 <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" id="applicationForm">
                     @csrf
-                    
-                    <!-- DYNAMIC SCHOLARSHIP DROPDOWN -->
+                    <input type="hidden" name="program_name" id="programNameInput">
+                    <input type="hidden" name="scholarship_id" id="scholarshipIdInput">
+
+                    {{-- Step 1: Scholarship --}}
                     <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold"><i class="fa-solid fa-graduation-cap me-1"></i> Select Scholarship Program</label>
-                        <select name="scholarship_id" class="form-select bg-light border-0 py-2" required onchange="document.getElementById('programNameInput').value = this.options[this.selectedIndex].text.split(' (')[0].trim();">
-                            <option value="" selected disabled>-- Select Active Program --</option>
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">1</span>
+                            Select Scholarship Program
+                        </label>
+                        <div class="scholarship-grid" id="scholarshipGrid">
                             @foreach($scholarships as $scholarship)
-                                <option value="{{ $scholarship->id }}">
-                                    {{ $scholarship->name }} (Min GWA: {{ $scholarship->min_gwa_required }})
-                                </option>
+                            <div class="scholarship-card-select"
+                                 data-id="{{ $scholarship->id }}"
+                                 data-name="{{ $scholarship->name }}"
+                                 data-gwa="{{ $scholarship->min_gwa_required }}"
+                                 onclick="selectScholarship(this)">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="fw-semibold text-dark" style="font-size:0.9rem;">{{ $scholarship->name }}</div>
+                                        <div class="text-muted small mt-1">{{ $scholarship->description }}</div>
+                                    </div>
+                                    <span style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;font-size:0.72rem;font-weight:700;padding:3px 10px;white-space:nowrap;margin-left:10px;">
+                                        Max GWA: {{ $scholarship->min_gwa_required }}
+                                    </span>
+                                </div>
+                            </div>
                             @endforeach
-                        </select>
-                        <!-- Hidden input safely passes the name -->
-                        <input type="hidden" name="program_name" id="programNameInput" required>
+                        </div>
                     </div>
 
-                    <!-- GWA INPUT -->
+                    {{-- Step 2: GWA --}}
                     <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold"><i class="fa-solid fa-star me-1"></i> Declared GWA</label>
-                        <input type="number" step="0.01" min="1.00" max="5.00" name="gwa" class="form-control bg-light border-0" placeholder="e.g. 1.25" required>
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
+                            Declared GWA
+                        </label>
+                        <input type="number" step="0.01" min="1.00" max="5.00"
+                               name="gwa" id="gwaInput"
+                               class="form-control"
+                               placeholder="e.g. 1.25"
+                               required oninput="checkEligibility()">
+                        <div class="eligibility-badge mt-2" id="eligibilityBadge"></div>
                     </div>
 
-                    <!-- FILE UPLOAD -->
+                    {{-- Step 3: Upload --}}
                     <div class="mb-4">
-                        <label class="form-label text-muted small fw-bold"><i class="fa-solid fa-file-arrow-up me-1"></i> Upload Certificate of Grades</label>
-                        <input class="form-control" type="file" name="document" id="documentUpload" accept="image/jpeg, image/png" required onchange="previewImage(event)">
-                        <div class="form-text small mt-2"><i class="fa-solid fa-circle-info text-primary me-1"></i> Accepted formats: JPEG, PNG.</div>
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">3</span>
+                            Upload Certificate of Grades (COG)
+                        </label>
+
+                        <div class="upload-zone" id="uploadZone">
+                            <input type="file" name="document" id="documentUpload"
+                                   accept="image/jpeg, image/png" required
+                                   onchange="handleFile(this)">
+                            <div id="uploadPlaceholder">
+                                <i class="fa-solid fa-cloud-arrow-up fs-1 mb-2 d-block" style="color:#94a3b8;"></i>
+                                <div class="fw-semibold text-dark mb-1">Drag & drop your COG here</div>
+                                <div class="text-muted small">or <span style="color:var(--clsu-green);text-decoration:underline;cursor:pointer;">browse files</span></div>
+                                <div class="text-muted mt-2" style="font-size:0.72rem;">JPEG, PNG · Max 10MB</div>
+                            </div>
+                            <div id="uploadPreview" style="display:none;">
+                                <img id="previewImg" src="#" alt="Preview" style="display:block;">
+                                <div class="mt-2 text-muted small" id="fileName"></div>
+                                <button type="button" class="btn btn-sm btn-light mt-2 rounded-pill" onclick="clearFile(event)" style="font-size:0.75rem;">
+                                    <i class="fa-solid fa-xmark me-1"></i> Remove
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <hr class="my-4">
-
-                    <button type="submit" class="btn btn-submit w-100" id="submitBtn" onclick="showLoading()">
+                    {{-- Submit --}}
+                    <button type="submit" class="btn-submit-app w-100" id="submitBtn" onclick="showLoading()">
                         <i class="fa-solid fa-paper-plane me-2"></i> Submit Application to OSA
                     </button>
                 </form>
             </div>
+        </div>
 
-            <!-- Image Preview Section -->
-            <div class="col-md-6 bg-light p-5 d-flex flex-column justify-content-center border-start">
-                <h6 class="fw-bold mb-3 text-muted"><i class="fa-regular fa-image me-2"></i> Document Preview</h6>
-                <div class="preview-container shadow-sm bg-white">
-                    <div class="preview-placeholder" id="placeholderText">
-                        <i class="fa-solid fa-cloud-arrow-up fs-1 mb-2 text-secondary"></i>
-                        <p class="mb-0 small fw-medium">Image preview will appear here</p>
+        {{-- RIGHT: Tips Panel --}}
+        <div class="col-lg-5">
+            <div class="tips-panel mb-3">
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i> Submission Tips</h6>
+                <div class="tip-item">
+                    <div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fa-solid fa-image" style="color:#16a34a;font-size:0.8rem;"></i>
                     </div>
-                    <img id="imagePreview" src="#" alt="Document Preview">
+                    <div class="small text-muted">Use a <strong class="text-dark">clear, unedited</strong> scan or photo of your official COG. Blurry images may fail verification.</div>
+                </div>
+                <div class="tip-item">
+                    <div style="width:32px;height:32px;border-radius:8px;background:#e0f2fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fa-solid fa-star" style="color:#0284c7;font-size:0.8rem;"></i>
+                    </div>
+                    <div class="small text-muted">Your declared GWA must match the grades on your COG. The AI system checks for consistency.</div>
+                </div>
+                <div class="tip-item">
+                    <div style="width:32px;height:32px;border-radius:8px;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fa-solid fa-shield-halved" style="color:#ca8a04;font-size:0.8rem;"></i>
+                    </div>
+                    <div class="small text-muted">Your file is <strong class="text-dark">anonymized and encrypted</strong> upon upload using SHA-256 hashing to protect your identity.</div>
                 </div>
             </div>
 
+            {{-- What happens next --}}
+            <div class="card p-4" style="border-radius:16px;">
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-route text-primary me-2"></i> What Happens Next?</h6>
+                @foreach([
+                    ['icon' => 'fa-paper-plane', 'color' => '#0284c7', 'bg' => '#e0f2fe', 'title' => 'Submission', 'desc' => 'Your application is submitted to the OSA queue.'],
+                    ['icon' => 'fa-robot', 'color' => '#7c3aed', 'bg' => '#ede9fe', 'title' => 'AI Scan', 'desc' => 'Our ResNet-50 CNN analyzes your COG for authenticity.'],
+                    ['icon' => 'fa-user-shield', 'color' => '#0F5934', 'bg' => '#dcfce7', 'title' => 'OSA Evaluation', 'desc' => 'An OSA administrator reviews the AI report and your GWA.'],
+                    ['icon' => 'fa-envelope', 'color' => '#d97706', 'bg' => '#fef9c3', 'title' => 'Notification', 'desc' => 'You receive an email with the final decision.'],
+                ] as $step)
+                <div class="d-flex gap-3 mb-3 {{ $loop->last ? 'mb-0' : '' }}">
+                    <div style="width:34px;height:34px;border-radius:9px;background:{{ $step['bg'] }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fa-solid {{ $step['icon'] }}" style="color:{{ $step['color'] }};font-size:0.8rem;"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-dark small">{{ $step['title'] }}</div>
+                        <div class="text-muted" style="font-size:0.78rem;">{{ $step['desc'] }}</div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
-    function previewImage(event) {
-        var reader = new FileReader();
-        reader.onload = function(){
-            var output = document.getElementById('imagePreview');
-            var placeholder = document.getElementById('placeholderText');
-            output.src = reader.result;
-            output.style.display = 'block';
-            placeholder.style.display = 'none';
-        };
-        reader.readAsDataURL(event.target.files[0]);
+    let selectedScholarshipGwa = null;
+
+    function selectScholarship(el) {
+        // Deselect all
+        document.querySelectorAll('.scholarship-card-select').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+
+        // Set hidden inputs
+        document.getElementById('programNameInput').value = el.dataset.name;
+        document.getElementById('scholarshipIdInput').value = el.dataset.id;
+        selectedScholarshipGwa = parseFloat(el.dataset.gwa);
+
+        checkEligibility();
     }
 
-    function showLoading() {
-        const form = document.getElementById('applicationForm');
-        const btn = document.getElementById('submitBtn');
-        const doc = document.getElementById('documentUpload');
-        
-        if(form.checkValidity() && doc.files.length > 0) {
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Encrypting & Submitting...';
-            btn.classList.add('disabled');
+    function checkEligibility() {
+        const badge = document.getElementById('eligibilityBadge');
+        const submitBtn = document.getElementById('submitBtn');
+        const gwaVal = parseFloat(document.getElementById('gwaInput').value);
+
+        if (!selectedScholarshipGwa || isNaN(gwaVal)) {
+            badge.style.display = 'none';
+            return;
+        }
+
+        badge.style.display = 'block';
+
+        if (gwaVal <= selectedScholarshipGwa) {
+            badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.8rem;font-weight:600;"><i class="fa-solid fa-circle-check"></i> GWA eligible — you qualify for this program</span>`;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('disabled');
+        } else {
+            badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.8rem;font-weight:600;"><i class="fa-solid fa-circle-xmark"></i> GWA ${gwaVal.toFixed(2)} exceeds the max of ${selectedScholarshipGwa.toFixed(2)} for this program</span>`;
+            submitBtn.disabled = true;
         }
     }
-</script>
 
-<!-- If Laravel validation fails, show this popup! -->
-@if ($errors->any())
-<script>
+    function handleFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const zone = document.getElementById('uploadZone');
+        const placeholder = document.getElementById('uploadPlaceholder');
+        const preview = document.getElementById('uploadPreview');
+        const img = document.getElementById('previewImg');
+        const nameEl = document.getElementById('fileName');
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            img.src = e.target.result;
+            img.style.display = 'block';
+            nameEl.textContent = `📎 ${file.name} (${(file.size/1024).toFixed(0)} KB)`;
+            placeholder.style.display = 'none';
+            preview.style.display = 'block';
+            zone.classList.add('has-file');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearFile(e) {
+        e.stopPropagation();
+        const input = document.getElementById('documentUpload');
+        input.value = '';
+        document.getElementById('uploadPlaceholder').style.display = 'block';
+        document.getElementById('uploadPreview').style.display = 'none';
+        document.getElementById('uploadZone').classList.remove('has-file');
+        document.getElementById('previewImg').style.display = 'none';
+    }
+
+    // Drag and drop
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const dt = e.dataTransfer;
+        if (dt.files.length) {
+            const input = document.getElementById('documentUpload');
+            input.files = dt.files;
+            handleFile(input);
+        }
+    });
+
+    function showLoading() {
+        const btn = document.getElementById('submitBtn');
+        const form = document.getElementById('applicationForm');
+        if (form.checkValidity()) {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Encrypting & Submitting...';
+            btn.classList.add('disabled');
+            btn.disabled = true;
+        }
+    }
+
+    @if ($errors->any())
     Swal.fire({
         icon: 'error',
         title: 'Submission Failed',
-        html: '{!! implode("<br>", $errors->all()) !!}',
-        confirmButtonColor: '#0F5934'
+        html: `{!! implode('<br>', $errors->all()) !!}`,
+        confirmButtonColor: '#0F5934',
+        customClass: { popup: 'rounded-4' }
     });
-    // Remove loading spinner
-    document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Submit Application to OSA';
-    document.getElementById('submitBtn').classList.remove('disabled');
+    @endif
 </script>
-@endif
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endpush
