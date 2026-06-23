@@ -15,6 +15,22 @@ class UatSeeder extends Seeder
 {
     public function run(): void
     {
+        // Ensure mock directories exist and copy sample images to prevent 404s
+        $mockDocDir = storage_path('app/mock/path');
+        if (!file_exists($mockDocDir)) {
+            mkdir($mockDocDir, 0755, true);
+        }
+        $mockHeatmapDir = base_path('aegis-ai/mock/path');
+        if (!file_exists($mockHeatmapDir)) {
+            mkdir($mockHeatmapDir, 0755, true);
+        }
+
+        $srcOriginal = base_path('aegis-ai/real_test.jpg');
+        if (file_exists($srcOriginal)) {
+            copy($srcOriginal, $mockDocDir . '/doc.jpg');
+            copy($srcOriginal, $mockHeatmapDir . '/heatmap.jpg');
+        }
+
         // 1. Create a generic student user
         $student = User::firstOrCreate(
             ['email' => 'student@clsu.edu.ph'],

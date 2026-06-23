@@ -350,8 +350,10 @@
         const form = document.getElementById('applicationForm');
         if (form.checkValidity()) {
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Encrypting & Submitting...';
-            btn.classList.add('disabled');
-            btn.disabled = true;
+            setTimeout(() => {
+                btn.classList.add('disabled');
+                btn.disabled = true;
+            }, 10);
         }
     }
 

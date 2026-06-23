@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 try:
     import tensorflow as tf
+    from tensorflow.keras.applications.resnet50 import preprocess_input
     TENSORFLOW_AVAILABLE = True
 except ImportError:
     TENSORFLOW_AVAILABLE = False
@@ -17,7 +18,7 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'temp_uploads'
 ELA_FOLDER = 'ela_outputs'
 HEATMAP_FOLDER = 'heatmap_outputs'
-MODEL_PATH = 'aegis_resnet50_v1.h5'
+MODEL_PATH = 'aegis_resnet50_v1.keras'
 
 for folder in [UPLOAD_FOLDER, ELA_FOLDER, HEATMAP_FOLDER]:
     os.makedirs(folder, exist_ok=True)
@@ -111,7 +112,7 @@ def run_cnn_inference_and_gradcam(original_path, ela_path, heatmap_output_path):
     ela_img = cv2.imread(ela_path)
     ela_img = cv2.cvtColor(ela_img, cv2.COLOR_BGR2RGB)
     ela_resized = cv2.resize(ela_img, (224, 224))
-    img_array = np.expand_dims(ela_resized, axis=0) / 255.0 # Normalize
+    img_array = preprocess_input(np.expand_dims(ela_resized, axis=0).astype(np.float32))
 
     # 1. Real Inference
     prediction = model.predict(img_array)[0][0]

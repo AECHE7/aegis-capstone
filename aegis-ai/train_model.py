@@ -1,10 +1,12 @@
 import os
 import shutil
 import random
+import uuid
 import numpy as np
 import tensorflow as tf
 from PIL import Image, ImageDraw, ImageFont, ImageChops, ImageEnhance
 from tensorflow.keras.applications import ResNet50
+from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -19,8 +21,10 @@ SAMPLES_PER_CLASS = 200 # Generates 400 total images
 
 print("=== Phase 1: Synthetic COG Forgery Generation ===")
 shutil.rmtree(DATASET_DIR, ignore_errors=True)
-os.makedirs(os.path.join(DATASET_DIR, 'authentic'), exist_ok=True)
-os.makedirs(os.path.join(DATASET_DIR, 'tampered'), exist_ok=True)
+SPLITS = ['train', 'val', 'test']
+for split in SPLITS:
+    os.makedirs(os.path.join(DATASET_DIR, split, 'authentic'), exist_ok=True)
+    os.makedirs(os.path.join(DATASET_DIR, split, 'tampered'), exist_ok=True)
 
 def generate_synthetic_cog(is_forged=False):
     """Generates a realistic academic document and intentionally forges it if requested."""
@@ -66,23 +70,30 @@ def generate_synthetic_cog(is_forged=False):
         os.remove(temp_path)
         return forged_img
 
-# Generate the dataset
+# Generate the dataset and split 70% train / 15% val / 15% test
 for i in range(SAMPLES_PER_CLASS):
+    if i < 140:
+        subfolder = 'train'
+    elif i < 170:
+        subfolder = 'val'
+    else:
+        subfolder = 'test'
+        
     auth_img = generate_synthetic_cog(is_forged=False)
     # Save authentic at 90 quality
-    auth_img.save(os.path.join(DATASET_DIR, 'authentic', f'auth_{i}.jpg'), 'JPEG', quality=90)
+    auth_img.save(os.path.join(DATASET_DIR, subfolder, 'authentic', f'auth_{i}.jpg'), 'JPEG', quality=90)
     
     tamp_img = generate_synthetic_cog(is_forged=True)
     # Save tampered at 85 quality (The mismatch in compression is what ELA catches!)
-    tamp_img.save(os.path.join(DATASET_DIR, 'tampered', f'tamp_{i}.jpg'), 'JPEG', quality=85)
+    tamp_img.save(os.path.join(DATASET_DIR, subfolder, 'tampered', f'tamp_{i}.jpg'), 'JPEG', quality=85)
 
-print(f"Generated {SAMPLES_PER_CLASS * 2} documents for training.")
+print(f"Generated {SAMPLES_PER_CLASS * 2} documents (split 70/15/15) for training, validation, and testing.")
 
 # --- ELA PREPROCESSING ---
 print("\n=== Phase 2: Error Level Analysis Pipeline ===")
 def ela_preprocessing(image_array):
     original = Image.fromarray(np.uint8(image_array)).convert('RGB')
-    temp_filename = 'temp_train_compress.jpg'
+    temp_filename = f'temp_train_compress_{uuid.uuid4()}.jpg'
     original.save(temp_filename, 'JPEG', quality=95)
     compressed = Image.open(temp_filename)
     
@@ -95,24 +106,38 @@ def ela_preprocessing(image_array):
     ela_image = ImageEnhance.Brightness(ela_image).enhance(scale)
     
     os.remove(temp_filename)
-    return np.array(ela_image) / 255.0
+    # Convert PIL Image back to a float32 array in [0, 255] and apply ResNet50 preprocessing
+    ela_arr = np.array(ela_image, dtype=np.float32)
+    return preprocess_input(ela_arr)
 
-datagen = ImageDataGenerator(preprocessing_function=ela_preprocessing, validation_split=0.2)
-
-train_generator = datagen.flow_from_directory(
-    DATASET_DIR, target_size=IMG_SIZE, batch_size=BATCH_SIZE, class_mode='binary', subset='training'
+# Train generator has augmentation (horizontal flips and rotation up to ±15 deg)
+train_datagen = ImageDataGenerator(
+    preprocessing_function=ela_preprocessing,
+    horizontal_flip=True,
+    rotation_range=15
 )
-val_generator = datagen.flow_from_directory(
-    DATASET_DIR, target_size=IMG_SIZE, batch_size=BATCH_SIZE, class_mode='binary', subset='validation'
+
+# Validation and Test generators do NOT have augmentation
+val_test_datagen = ImageDataGenerator(
+    preprocessing_function=ela_preprocessing
+)
+
+train_generator = train_datagen.flow_from_directory(
+    os.path.join(DATASET_DIR, 'train'), target_size=IMG_SIZE, batch_size=BATCH_SIZE, class_mode='binary', shuffle=True
+)
+val_generator = val_test_datagen.flow_from_directory(
+    os.path.join(DATASET_DIR, 'val'), target_size=IMG_SIZE, batch_size=BATCH_SIZE, class_mode='binary', shuffle=False
+)
+test_generator = val_test_datagen.flow_from_directory(
+    os.path.join(DATASET_DIR, 'test'), target_size=IMG_SIZE, batch_size=BATCH_SIZE, class_mode='binary', shuffle=False
 )
 
 # --- NEURAL NETWORK ARCHITECTURE ---
 print("\n=== Phase 3: Compiling ResNet-50 Architecture ===")
 base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 
-# Freeze the bottom layers, but leave the top few layers un-frozen so it learns document features
-for layer in base_model.layers[:-10]:
-    layer.trainable = False
+# Unfreeze all layers so it can fine-tune its feature extractors on ELA noise patterns
+base_model.trainable = True
 
 x = base_model.output
 x = GlobalAveragePooling2D()(x)
@@ -130,8 +155,8 @@ model.compile(
 
 # Callbacks to stop training when accuracy peaks and save the best version
 callbacks = [
-    EarlyStopping(monitor='val_accuracy', patience=3, restore_best_weights=True),
-    ModelCheckpoint('aegis_resnet50_v1.h5', monitor='val_accuracy', save_best_only=True)
+    EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True),
+    ModelCheckpoint('aegis_resnet50_v1.keras', monitor='val_accuracy', save_best_only=True)
 ]
 
 print("\n=== Phase 4: Commencing Deep Learning Training ===")
@@ -142,4 +167,11 @@ history = model.fit(
     callbacks=callbacks
 )
 
-print("\nTraining Complete! High-Accuracy Model saved as 'aegis_resnet50_v1.h5'")
+print("\n=== Phase 5: Evaluating Model on Held-out Test Set ===")
+test_loss, test_acc, test_precision, test_recall = model.evaluate(test_generator)
+print(f"Test Loss: {test_loss:.4f}")
+print(f"Test Accuracy: {test_acc*100:.2f}% (Target: >= 90.00%)")
+print(f"Test Precision: {test_precision*100:.2f}% (Target: >= 85.00%)")
+print(f"Test Recall: {test_recall*100:.2f}% (Target: >= 85.00%)")
+
+print("\nTraining Complete! High-Accuracy Model saved as 'aegis_resnet50_v1.keras'")

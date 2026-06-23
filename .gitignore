@@ -35,8 +35,12 @@ aegis-ai/dataset_advanced/
 
 # Trained model (large binary — stored separately or use Git LFS)
 *.h5
+*.keras
 
 # Scratch/temp files
 form_content.txt
 form_tables.txt
 thesis_content.txt
+/dataset_advanced/
+/aegis-ai/mock/
+/public/uploads/

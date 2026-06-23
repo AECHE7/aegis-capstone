@@ -72,7 +72,7 @@ To transition the project from its current MVP setup to a robust, production-rea
 - **Goal:** Enable the AI analysis backend.
 - **Steps:**
   1. Initialize the Python environment in the `aegis-ai` directory.
-  2. Execute the `train_model.py` script to generate a synthetic dataset of authentic and tampered Certificates of Grades (COGs), train the ResNet-50 network, and save the binary model as `aegis_resnet50_v1.h5`.
+  2. Execute the `train_model.py` script to generate a synthetic dataset of authentic and tampered Certificates of Grades (COGs), train the ResNet-50 network, and save the binary model as `aegis_resnet50_v1.keras`.
   3. Start the Flask service (`python app.py`) to handle incoming HTTP scan requests.
 
 ### Phase 2: Asynchronous Scan Pipeline (Optimal Architecture Choice)
@@ -104,7 +104,7 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. Inject the floating evaluation modal into the master application layout.
   4. Build the UAT ratings summary module on the Super Admin Analytics dashboard.
 
-### Phase 6: Thesis Alignment & Security Hardening (Current)
+#### Phase 6: Thesis Alignment & Security Hardening - [COMPLETED]
 - **Goal:** Resolve remaining gaps between current codebase and the capstone thesis specifications.
 - **Steps:**
   1. **Schema Normalization:** Add `academic_terms` and `email_logs` tables and models. Add audit columns to `status_logs` and `document_type` to `documents`.
@@ -112,6 +112,43 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. **SHA-256 UUID Upload Renaming:** Enforce anonymous file renaming on upload to protect student identity at rest.
   4. **Forensics Classification Thresholds:** Align classification score boundaries (`p = 0.50` or 50% threshold) and risk-tier badge calculations with Chapter III diagrams.
   5. **Vertical Timeline UI:** Render dynamic status log transitions on the student dashboard.
+
+### Phase 7: Comprehensive Gap Analysis & UAT Mock Asset Verification - [COMPLETED]
+- **Goal:** Analyze the capstone thesis manuscript vs. the codebase, create technical handover documentation, and fix broken image links in seeded UAT data.
+- **Steps:**
+  1. **Auditing:** Conduct a detailed review comparing Chapter I-III claims to codebase functionality (completed).
+  2. **Technical Handover:** Produce a System Administration Manual (`system_admin_manual.md`) outlining hosting, process supervision (Supervisor), queue execution, and model retraining (completed).
+  3. **Mock Asset Seeding:** Patch `UatSeeder.php` to copy mock image files automatically, eliminating 404 broken images on the admin evaluation review dashboard (completed).
+  4. **Verification:** Validate stability with a complete PHPUnit test run (completed).
+
+### Phase 8: Form Submission Stalling Fix - [COMPLETED]
+- **Goal:** Resolve front-end submit button lock preventing student application submission.
+- **Steps:**
+  1. **Identify Bug:** Located synchronous disabling of the submit button (`btn.disabled = true`), which cancels form submission (completed).
+  2. **Remediation:** Introduce a micro-delay (`setTimeout`) in `showLoading()` to allow the native form submission event to fire before the button is disabled (completed).
+  3. **Verification:** Verify with feature test suites (completed).
+
+### Phase 9: AI Pipeline Script Alignment - [COMPLETED]
+- **Goal:** Align the Python retraining script `train_model.py` with the 70/15/15 split and data augmentation specifications detailed in Chapter III.
+- **Steps:**
+  1. **Split Refactoring:** Partition synthetic COG data into `train`, `val`, and `test` directories matching a 70/15/15 ratio.
+  2. **Data Augmentation:** Configure `rotation_range=15` and `horizontal_flip=True` in `ImageDataGenerator` for the training subset.
+  3. **Performance Metrics:** Add evaluation code to output final test accuracy, precision, and recall metrics matching Chapter III targets.
+
+### Phase 10: Python 3.11 Virtual Environment Setup - [COMPLETED]
+- **Goal:** Set up a dedicated Python 3.11 virtual environment for the AI microservice to support TensorFlow and Keras.
+- **Steps:**
+  1. **Initialization:** Create a virtual environment inside `aegis-ai/venv` using the preinstalled Python 3.11 binary at `C:\Python311\python.exe`.
+  2. **Install Dependencies:** Upgrade pip and install packages listed in `requirements.txt`.
+  3. **Verification:** Confirm that TensorFlow 2.16.1 and Keras 3.3.3 import correctly.
+
+### Phase 11: AI Model Training Execution - [COMPLETED]
+- **Goal:** Execute the training script to generate the synthetic COG dataset, train the ResNet-50 network, and save it in the Keras 3-compliant `.keras` format.
+- **Steps:**
+  1. **Update Code paths:** Modify `train_model.py` and `app.py` to target `aegis_resnet50_v1.keras` instead of `aegis_resnet50_v1.h5` (completed).
+  2. **Execution:** Launch `train_model.py` using the Python 3.11 virtual environment under `$env:PYTHONIOENCODING="utf-8"` (completed).
+  3. **Monitoring:** Verify training progresses across 10 epochs and achieves the target metric scores (Accuracy >= 90%, Precision/Recall >= 85%) (completed).
+  4. **Verification:** Confirm that the output model `aegis_resnet50_v1.keras` is successfully generated, loadable, and evaluate it on the test partition (completed).
 
 
 
