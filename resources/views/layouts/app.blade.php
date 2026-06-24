@@ -343,6 +343,52 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Responsive sidebar & backdrop for mobile/tablet */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: var(--sidebar-width) !important;
+                z-index: 1040;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .sidebar.mobile-show {
+                transform: translateX(0);
+            }
+            
+            .sidebar-toggle {
+                display: none !important;
+            }
+            
+            .main-wrapper, .main-wrapper.collapsed {
+                margin-left: 0 !important;
+            }
+            
+            .topbar {
+                padding: 0.75rem 1.25rem;
+            }
+            
+            .page-content {
+                padding: 1.25rem 1.25rem 3rem;
+            }
+            
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.6);
+                backdrop-filter: blur(4px);
+                z-index: 1039;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.25s ease;
+            }
+            
+            .sidebar-backdrop.show {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+
         @endif
         @endauth
 
@@ -352,7 +398,7 @@
         .student-navbar {
             background: var(--clsu-dark);
             border-bottom: 3px solid var(--clsu-gold);
-            padding: 0.75rem 0;
+            padding: 0.5rem 0;
             position: sticky;
             top: 0;
             z-index: 1020;
@@ -367,12 +413,28 @@
             border-radius: 8px;
             transition: var(--transition);
             text-decoration: none;
+            display: inline-block;
         }
 
         .student-navbar .nav-link-custom:hover,
         .student-navbar .nav-link-custom.active {
             color: white;
             background: rgba(255,255,255,0.1);
+        }
+
+        @media (max-width: 991.98px) {
+            .student-navbar .navbar-nav {
+                padding: 0.5rem 0 0.25rem;
+            }
+            .student-navbar .nav-link-custom {
+                display: block;
+                margin-bottom: 4px;
+                padding: 8px 12px;
+            }
+            .student-navbar .badge {
+                margin: 4px 0;
+                display: inline-block !important;
+            }
         }
 
         /* ══════════════════════════════════════════
@@ -641,6 +703,9 @@
         </div>
     </aside>
 
+    <!-- Sidebar Backdrop for Mobile -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     <!-- Sidebar Toggle Button -->
     <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
         <i class="fa-solid fa-chevron-left" id="toggleIcon" style="font-size: 0.7rem;"></i>
@@ -650,9 +715,15 @@
     <div class="main-wrapper" id="mainWrapper">
         <!-- Top bar -->
         <div class="topbar">
-            <div>
-                <p class="topbar-title">@yield('page-title', 'Dashboard')</p>
-                <p class="topbar-subtitle">@yield('page-subtitle', 'A.E.G.I.S. Portal')</p>
+            <div class="d-flex align-items-center">
+                <!-- Mobile Hamburger Toggle -->
+                <button class="btn btn-link text-dark p-0 me-3 d-lg-none" id="mobileSidebarToggle" aria-label="Toggle Navigation" style="box-shadow: none;">
+                    <i class="fa-solid fa-bars fs-4"></i>
+                </button>
+                <div>
+                    <p class="topbar-title">@yield('page-title', 'Dashboard')</p>
+                    <p class="topbar-subtitle">@yield('page-subtitle', 'A.E.G.I.S. Portal')</p>
+                </div>
             </div>
             <div class="d-flex align-items-center gap-3">
                 @if(auth()->user()->role === 'admin')
@@ -693,22 +764,27 @@
     {{-- ═══════════════════════════════════════════
          STUDENT TOP NAVBAR LAYOUT
     ═══════════════════════════════════════════ --}}
-    <nav class="student-navbar">
+    <nav class="student-navbar navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid px-md-5">
-            <div class="d-flex justify-content-between align-items-center">
-                <!-- Brand -->
-                <a href="{{ route('student.dashboard') }}" class="text-decoration-none d-flex align-items-center gap-2">
-                    <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--clsu-gold),#e09500);border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(242,169,0,0.35);">
-                        <i class="fa-solid fa-shield-halved text-dark" style="font-size:0.9rem;"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold text-white" style="font-size:0.95rem;font-family:'Poppins',sans-serif;line-height:1.1;">A.E.G.I.S.</div>
-                        <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);letter-spacing:0.8px;text-transform:uppercase;">Student Portal</div>
-                    </div>
-                </a>
+            <!-- Brand -->
+            <a href="{{ route('student.dashboard') }}" class="navbar-brand d-flex align-items-center gap-2 m-0 p-0 text-decoration-none">
+                <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--clsu-gold),#e09500);border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(242,169,0,0.35);">
+                    <i class="fa-solid fa-shield-halved text-dark" style="font-size:0.9rem;"></i>
+                </div>
+                <div>
+                    <div class="fw-bold text-white" style="font-size:0.95rem;font-family:'Poppins',sans-serif;line-height:1.1;">A.E.G.I.S.</div>
+                    <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);letter-spacing:0.8px;text-transform:uppercase;">Student Portal</div>
+                </div>
+            </a>
 
-                <!-- Navigation links -->
-                <div class="d-flex align-items-center gap-2">
+            <!-- Navbar Toggler for Mobile -->
+            <button class="navbar-toggler border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#studentNavbarContent" aria-controls="studentNavbarContent" aria-expanded="false" aria-label="Toggle navigation" style="box-shadow: none;">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navigation links -->
+            <div class="collapse navbar-collapse justify-content-end mt-2 mt-lg-0" id="studentNavbarContent">
+                <div class="navbar-nav align-items-lg-center gap-2">
                     <a href="{{ route('student.dashboard') }}" 
                        class="nav-link-custom {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
                         <i class="fa-solid fa-house me-1"></i> My Application
@@ -721,13 +797,13 @@
                        class="nav-link-custom {{ request()->routeIs('student.profile') ? 'active' : '' }}">
                         <i class="fa-solid fa-user me-1"></i> My Profile
                     </a>
-                    <span style="width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;"></span>
-                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);font-size:0.72rem;border:1px solid rgba(255,255,255,0.15);">
+                    <span class="d-none d-lg-inline" style="width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;"></span>
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold text-start text-lg-center" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);font-size:0.72rem;border:1px solid rgba(255,255,255,0.15); width: fit-content;">
                         <i class="fa-solid fa-user-graduate me-1"></i> {{ auth()->user()->name }}
                     </span>
                     <form action="{{ route('logout') }}" method="POST" class="d-inline m-0">
                         @csrf
-                        <button type="submit" class="btn btn-sm fw-semibold ms-1"
+                        <button type="submit" class="btn btn-sm fw-semibold ms-lg-1 w-100 text-start text-lg-center mt-2 mt-lg-0"
                                 style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.25);border-radius:8px;font-size:0.8rem;padding:5px 12px;">
                             <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
                         </button>
@@ -793,7 +869,7 @@
                             ['name' => 'security', 'label' => 'Security', 'desc' => 'Student private profile records are protected and access control is strictly enforced.'],
                         ] as $q)
                         <div class="mb-4">
-                            <label class="form-label fw-semibold text-dark mb-1 small">{{ $q['label'] }}</label>
+                            <div class="form-label fw-semibold text-dark mb-1 small">{{ $q['label'] }}</div>
                             <p class="text-muted mb-2" style="font-size: 0.78rem; line-height: 1.4;">{{ $q['desc'] }}</p>
                             <div class="d-flex gap-2">
                                 @for($i = 1; $i <= 5; $i++)
@@ -812,8 +888,8 @@
                         @endforeach
 
                         <div class="mb-0">
-                            <label class="form-label fw-semibold text-dark small">General Comments & Suggestions</label>
-                            <textarea class="form-control" name="comments" rows="3" 
+                            <label class="form-label fw-semibold text-dark small" for="commentsTextarea">General Comments & Suggestions</label>
+                            <textarea class="form-control" name="comments" id="commentsTextarea" rows="3" 
                                       placeholder="Enter suggestions for further system improvements..." 
                                       style="font-size:0.875rem;resize:none;"></textarea>
                         </div>
@@ -873,6 +949,24 @@
     }
 
     applySidebarState();
+
+    // Mobile Sidebar Drawer handlers
+    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+    if (mobileSidebarToggle) {
+        mobileSidebarToggle.addEventListener('click', () => {
+            sidebar?.classList.add('mobile-show');
+            sidebarBackdrop?.classList.add('show');
+        });
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', () => {
+            sidebar?.classList.remove('mobile-show');
+            sidebarBackdrop?.classList.remove('show');
+        });
+    }
 
     // ── UAT Star Highlighting ────────────────────────────────
     function highlightStars(input, group, val) {

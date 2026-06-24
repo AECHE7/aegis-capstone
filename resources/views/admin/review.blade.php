@@ -155,9 +155,8 @@
     </a>
 </div>
 
-{{-- Applicant Info Card --}}
 <div class="applicant-card">
-    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
         <div>
             <div class="d-flex align-items-center gap-2 mb-2">
                 <span class="badge rounded-pill px-3 py-1" style="background:#f1f5f9;color:#475569;font-size:0.75rem;font-weight:700;">APP-{{ $application->id }}</span>
@@ -284,8 +283,8 @@
             <form action="{{ route('admin.updateStatus', $application->id) }}" method="POST" id="decisionForm">
                 @csrf
                 <div class="mb-3">
-                    <label class="form-label fw-semibold small text-muted">Evaluator Remarks</label>
-                    <textarea name="remarks" class="form-control" rows="4" required
+                    <label class="form-label fw-semibold small text-muted" for="evaluatorRemarks">Evaluator Remarks</label>
+                    <textarea name="remarks" id="evaluatorRemarks" class="form-control" rows="4" required
                               placeholder="e.g., GWA verified. Cleared for DOST-SEI Merit."
                               style="resize:none;font-size:0.875rem;">{{ $application->remarks }}</textarea>
                 </div>
@@ -313,7 +312,7 @@
     {{-- RIGHT: Document Viewer --}}
     <div class="col-lg-8">
         <div class="card p-4 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-2">
                 <div>
                     <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-images text-primary me-2"></i> Document Forensics Viewer</h6>
                     <small class="text-muted">Click images to enlarge</small>
@@ -321,7 +320,7 @@
                 @if($application->document)
                     <a href="{{ route('admin.document.download', $application->document->id) }}"
                        class="btn btn-sm btn-light fw-semibold rounded-pill px-3"
-                       style="font-size:0.78rem;border:1px solid #e2e8f0;">
+                       style="font-size:0.78rem;border:1px solid #e2e8f0;white-space:nowrap;">
                         <i class="fa-solid fa-download me-1"></i> Download Original
                     </a>
                 @endif

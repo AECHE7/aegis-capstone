@@ -101,17 +101,17 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small text-muted">Program Name</label>
-                        <input type="text" name="name" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship">
+                        <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
+                        <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small text-muted">Maximum GWA Requirement</label>
-                        <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" class="form-control" required placeholder="e.g., 1.75">
+                        <label class="form-label fw-semibold small text-muted" for="gwaRequirement">Maximum GWA Requirement</label>
+                        <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" required placeholder="e.g., 1.75">
                         <div class="form-text small">Students with a GWA higher than this value will be blocked from applying.</div>
                     </div>
                     <div class="mb-0">
-                        <label class="form-label fw-semibold small text-muted">Program Description</label>
-                        <textarea name="description" class="form-control" rows="3" required
+                        <label class="form-label fw-semibold small text-muted" for="programDesc">Program Description</label>
+                        <textarea name="description" id="programDesc" class="form-control" rows="3" required
                                   placeholder="Brief overview of grant requirements and benefits..."
                                   style="resize:none;"></textarea>
                     </div>

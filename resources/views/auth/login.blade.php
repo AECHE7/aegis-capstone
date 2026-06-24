@@ -254,13 +254,13 @@
                 
                 <!-- Floating Email Input -->
                 <div class="form-floating mb-3">
-                    <input type="email" name="email" id="emailInput" class="form-control" placeholder="name@clsu.edu.ph" required value="{{ old('email') }}">
+                    <input type="email" name="email" id="emailInput" class="form-control" placeholder="name@clsu.edu.ph" required value="{{ old('email') }}" autocomplete="username">
                     <label for="emailInput"><i class="fa-solid fa-envelope me-2 text-muted"></i>Email Address</label>
                 </div>
 
                 <!-- Floating Password Input with Show/Hide -->
                 <div class="form-floating mb-2" style="position: relative;">
-                    <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Password" required style="padding-right: 48px;">
+                    <input type="password" name="password" id="passwordInput" class="form-control" placeholder="Password" required style="padding-right: 48px;" autocomplete="current-password">
                     <label for="passwordInput"><i class="fa-solid fa-lock me-2 text-muted"></i>Password</label>
                     <button type="button" id="togglePassword" onclick="togglePwd()"
                             style="position:absolute;top:50%;right:14px;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;z-index:10;padding:4px;">

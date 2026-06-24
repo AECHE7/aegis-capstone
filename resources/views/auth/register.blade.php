@@ -204,13 +204,13 @@
 
                 <!-- Name -->
                 <div class="form-floating mb-3">
-                    <input type="text" name="name" class="form-control" id="name" placeholder="Juan Dela Cruz" value="{{ old('name') }}" required autofocus>
+                    <input type="text" name="name" class="form-control" id="name" placeholder="Juan Dela Cruz" value="{{ old('name') }}" required autofocus autocomplete="name">
                     <label for="name"><i class="fa-solid fa-user me-2"></i>Full Name</label>
                 </div>
 
                 <!-- Email -->
                 <div class="form-floating mb-3">
-                    <input type="email" name="email" class="form-control" id="email" placeholder="student@clsu2.edu.ph" value="{{ old('email') }}" required>
+                    <input type="email" name="email" class="form-control" id="email" placeholder="student@clsu2.edu.ph" value="{{ old('email') }}" required autocomplete="email">
                     <label for="email"><i class="fa-solid fa-envelope me-2"></i>CLSU Student Email</label>
                     <div class="form-text text-muted small mt-1 ps-2">
                         Must end in <strong class="text-dark">@clsu.edu.ph</strong> or <strong class="text-dark">@clsu2.edu.ph</strong>
@@ -219,13 +219,13 @@
 
                 <!-- Password -->
                 <div class="form-floating mb-3">
-                    <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
+                    <input type="password" name="password" class="form-control" id="password" placeholder="Password" required autocomplete="new-password">
                     <label for="password"><i class="fa-solid fa-lock me-2"></i>Password</label>
                 </div>
 
                 <!-- Confirm Password -->
                 <div class="form-floating mb-4">
-                    <input type="password" name="password_confirmation" class="form-control" id="password_confirmation" placeholder="Confirm Password" required>
+                    <input type="password" name="password_confirmation" class="form-control" id="password_confirmation" placeholder="Confirm Password" required autocomplete="new-password">
                     <label for="password_confirmation"><i class="fa-solid fa-lock me-2"></i>Confirm Password</label>
                 </div>
 

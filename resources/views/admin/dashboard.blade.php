@@ -114,12 +114,12 @@
     <form action="{{ route('admin.dashboard') }}" method="GET">
         <div class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="form-label fw-semibold small text-muted mb-1"><i class="fa-solid fa-magnifying-glass me-1"></i> Search</label>
-                <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Name, ID, or Program...">
+                <label class="form-label fw-semibold small text-muted mb-1" for="searchInput"><i class="fa-solid fa-magnifying-glass me-1"></i> Search</label>
+                <input type="text" name="search" id="searchInput" class="form-control" value="{{ request('search') }}" placeholder="Name, ID, or Program..." autocomplete="off">
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-semibold small text-muted mb-1"><i class="fa-solid fa-graduation-cap me-1"></i> Scholarship</label>
-                <select name="scholarship_id" class="form-select">
+                <label class="form-label fw-semibold small text-muted mb-1" for="scholarshipSelect"><i class="fa-solid fa-graduation-cap me-1"></i> Scholarship</label>
+                <select name="scholarship_id" id="scholarshipSelect" class="form-select">
                     <option value="">All Programs</option>
                     @foreach($scholarships as $s)
                         <option value="{{ $s->id }}" {{ request('scholarship_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
@@ -127,8 +127,8 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-semibold small text-muted mb-1"><i class="fa-solid fa-circle-half-stroke me-1"></i> Status</label>
-                <select name="status" class="form-select">
+                <label class="form-label fw-semibold small text-muted mb-1" for="statusSelect"><i class="fa-solid fa-circle-half-stroke me-1"></i> Status</label>
+                <select name="status" id="statusSelect" class="form-select">
                     <option value="">All Statuses</option>
                     <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>⏳ Pending</option>
                     <option value="Under Review" {{ request('status') === 'Under Review' ? 'selected' : '' }}>🔍 Under Review</option>
@@ -137,8 +137,8 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-semibold small text-muted mb-1"><i class="fa-solid fa-calendar me-1"></i> Academic Period</label>
-                <select name="academic_term_id" class="form-select">
+                <label class="form-label fw-semibold small text-muted mb-1" for="academicPeriodSelect"><i class="fa-solid fa-calendar me-1"></i> Academic Period</label>
+                <select name="academic_term_id" id="academicPeriodSelect" class="form-select">
                     <option value="">All Periods</option>
                     @foreach($academicTerms as $term)
                         <option value="{{ $term->id }}" {{ request('academic_term_id') == $term->id ? 'selected' : '' }}>
@@ -161,13 +161,12 @@
 
 {{-- Application Queue Table --}}
 <div class="queue-table shadow-sm">
-    {{-- Table Header with Export --}}
-    <div class="d-flex justify-content-between align-items-center p-4 border-bottom" style="background: white;">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center p-4 border-bottom gap-3" style="background: white;">
         <div>
             <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-users-viewfinder text-primary me-2"></i> Applicant Evaluation Queue</h6>
             <small class="text-muted">{{ $applications->total() }} total {{ $applications->total() === 1 ? 'application' : 'applications' }}</small>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 w-100 w-md-auto justify-content-start justify-content-md-end flex-wrap">
             <a href="{{ route('admin.export', request()->query()) }}" class="btn-export btn-export-csv">
                 <i class="fa-solid fa-file-csv"></i> Export CSV
             </a>

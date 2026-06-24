@@ -199,3 +199,28 @@ To transition the project from its current MVP setup to a robust, production-rea
   4. Null-safe student profile properties in PDF templates and dashboard view tables to prevent property access errors on unpopulated user profile entities.
   5. Add test assertions inside `UserProfileTest.php` validating rendering, validations, database persistence, and profile AES-256 database encryption casts.
 
+### Phase 18: Manuscript Integration - [COMPLETED]
+- **Goal:** Programmatically write all implemented features and test results (Chapters IV & V) into the final Word manuscript (`edited-AEGIS.docx`).
+- **Steps:**
+  1. Expand the drafted chapters in `chapters_4_and_5.md` to detail Student Profile Management, Brevo SMTP configuration, email verification check, and dynamic PDF attachments on approval.
+  2. Implement `write_chapters.py` in the `aegis-ai` directory to parse markdown headers, paragraphs, lists, and tables, and insert them before the REFERENCES section.
+  3. Format tables and paragraphs programmatically (using double-line spacing and border XML elements).
+  4. Execute the integration script, backing up the document first to prevent corruption.
+  5. Verify the updated document structure programmatically.
+
+### Phase 19: Accessibility & Auto-Fill Enhancements - [COMPLETED]
+- **Goal:** Fix DevTools console warnings related to accessibility (label-association) and autofill compatibility (`autocomplete` attributes).
+- **Steps:**
+  1. Add autocomplete attributes (`username`, `current-password`, `new-password`, `name`, `email`) to login, register, forgot-password, and staff invitation forms.
+  2. Associate inputs with their labels (by applying matching `id` and `for` attributes) in the scholarship application form, UAT feedback modal, and administrative modals (staff/scholarships).
+  3. Run the feature test suite to verify no regressions were introduced.
+
+### Phase 20: Mobile Responsiveness & Design Enhancements
+- **Goal:** Improve the mobile responsiveness and design of the AEGIS portal views.
+- **Steps:**
+  1. Add CSS media queries to slide the admin sidebar drawer off-screen and remove margins for the main wrapper on mobile viewports.
+  2. Add a mobile hamburger toggler and backdrop overlay to the layout with JS controllers.
+  3. Refactor the student navbar to use Bootstrap 5's responsive collapse components.
+  4. Adjust headers, flex boxes, and spacing in student dashboard and admin table views to stack vertically.
+
+

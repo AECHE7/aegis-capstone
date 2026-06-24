@@ -125,6 +125,41 @@
         padding: 4rem 2rem;
         text-align: center;
     }
+
+    @media (max-width: 767.98px) {
+        .status-hero {
+            padding: 1.25rem 1.25rem;
+        }
+        .status-hero > .d-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 16px !important;
+        }
+        .status-hero .text-end {
+            text-align: left !important;
+            margin-top: 0.25rem;
+            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 0.75rem;
+        }
+        .status-hero .d-flex.align-items-center.gap-4 {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 12px !important;
+        }
+        
+        .step-track {
+            padding: 0 10px;
+        }
+        
+        .timeline-item {
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .timeline-content {
+            padding: 10px 12px;
+        }
+    }
 </style>
 @endpush
 
@@ -268,13 +303,13 @@
     @else
 
     {{-- EMPTY STATE --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h4 class="fw-bold mb-1">Welcome, {{ auth()->user()->name }}! 👋</h4>
             <p class="text-muted small mb-0">Track your scholarship applications and requirements here.</p>
         </div>
         <a href="{{ route('student.apply') }}" class="btn fw-bold shadow-sm px-4 py-2"
-           style="background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; border-radius: 10px;">
+           style="background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; border-radius: 10px; white-space: nowrap;">
             <i class="fa-solid fa-plus me-1"></i> New Application
         </a>
     </div>

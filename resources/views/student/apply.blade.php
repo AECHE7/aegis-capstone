@@ -163,7 +163,7 @@
 
                     {{-- Step 2: GWA --}}
                     <div class="mb-4">
-                        <label class="form-label fw-bold text-dark mb-2">
+                        <label class="form-label fw-bold text-dark mb-2" for="gwaInput">
                             <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
                             Declared GWA
                         </label>
@@ -177,7 +177,7 @@
 
                     {{-- Step 3: Upload --}}
                     <div class="mb-4">
-                        <label class="form-label fw-bold text-dark mb-2">
+                        <label class="form-label fw-bold text-dark mb-2" for="documentUpload">
                             <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">3</span>
                             Upload Certificate of Grades (COG)
                         </label>

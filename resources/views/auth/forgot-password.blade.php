@@ -124,7 +124,7 @@
 
         <!-- Email Address -->
         <div class="form-floating mb-4">
-            <input type="email" name="email" id="email" class="form-control" placeholder="name@clsu.edu.ph" required autofocus value="{{ old('email') }}">
+            <input type="email" name="email" id="email" class="form-control" placeholder="name@clsu.edu.ph" required autofocus value="{{ old('email') }}" autocomplete="email">
             <label for="email"><i class="fa-solid fa-envelope me-2 text-muted"></i>Email Address</label>
         </div>
 

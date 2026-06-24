@@ -109,7 +109,7 @@
                                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
                                     <input type="text" name="name" id="nameInput" 
                                            class="form-control border-start-0" 
-                                           value="{{ old('name', $user->name) }}" required>
+                                           value="{{ old('name', $user->name) }}" required autocomplete="name">
                                 </div>
                                 <div class="text-muted mt-1" style="font-size: 0.72rem;">Enter your official name registered in CLSU.</div>
                             </div>
@@ -134,7 +134,7 @@
                                     <input type="text" name="clsu_id_number" id="idNumberInput" 
                                            class="form-control border-start-0" 
                                            placeholder="e.g. 2023-4567" 
-                                           value="{{ old('clsu_id_number', $user->profile->clsu_id_number ?? '') }}" required>
+                                           value="{{ old('clsu_id_number', $user->profile->clsu_id_number ?? '') }}" required autocomplete="off">
                                 </div>
                                 <div class="text-muted mt-1" style="font-size: 0.72rem;">Format: YYYY-XXXX (e.g. 2023-4567).</div>
                             </div>
@@ -147,7 +147,7 @@
                                     <input type="text" name="contact_number" id="contactInput" 
                                            class="form-control border-start-0" 
                                            placeholder="e.g. 09123456789" 
-                                           value="{{ old('contact_number', $user->profile->contact_number ?? '') }}" required>
+                                           value="{{ old('contact_number', $user->profile->contact_number ?? '') }}" required autocomplete="tel">
                                 </div>
                                 <div class="text-muted mt-1" style="font-size: 0.72rem;">Philippine mobile number (e.g. 09123456789).</div>
                             </div>
@@ -201,7 +201,7 @@
                                     <input type="text" name="course" id="courseInput" 
                                            class="form-control border-start-0" 
                                            placeholder="e.g. BS Information Technology" 
-                                           value="{{ old('course', $user->profile->course ?? '') }}" required>
+                                           value="{{ old('course', $user->profile->course ?? '') }}" required autocomplete="off">
                                 </div>
                                 <div class="text-muted mt-1" style="font-size: 0.72rem;">Enter the full name of your degree program (e.g. BS Information Technology).</div>
                             </div>

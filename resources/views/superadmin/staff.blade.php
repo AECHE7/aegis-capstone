@@ -112,20 +112,20 @@
                 @csrf
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small text-muted">Full Name</label>
+                        <label class="form-label fw-semibold small text-muted" for="staffName">Full Name</label>
                         <div class="input-group">
                             <span class="input-group-text border-end-0 bg-white" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-user text-muted small"></i></span>
-                            <input type="text" name="name" class="form-control border-start-0" style="border-radius: 0 10px 10px 0;" required placeholder="e.g., Jane Smith" value="{{ old('name') }}">
+                            <input type="text" name="name" id="staffName" class="form-control border-start-0" style="border-radius: 0 10px 10px 0;" required placeholder="e.g., Jane Smith" value="{{ old('name') }}" autocomplete="name">
                         </div>
                         @error('name')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-0">
-                        <label class="form-label fw-semibold small text-muted">Institutional Email Address</label>
+                        <label class="form-label fw-semibold small text-muted" for="staffEmail">Institutional Email Address</label>
                         <div class="input-group">
                             <span class="input-group-text border-end-0 bg-white" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-envelope text-muted small"></i></span>
-                            <input type="email" name="email" class="form-control border-start-0" style="border-radius: 0 10px 10px 0;" required placeholder="e.g., janesmith@clsu.edu.ph" value="{{ old('email') }}">
+                            <input type="email" name="email" id="staffEmail" class="form-control border-start-0" style="border-radius: 0 10px 10px 0;" required placeholder="e.g., janesmith@clsu.edu.ph" value="{{ old('email') }}" autocomplete="email">
                         </div>
                         <div class="form-text small">Email must end with @clsu.edu.ph or @clsu2.edu.ph.</div>
                         @error('email')
