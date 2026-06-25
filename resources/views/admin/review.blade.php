@@ -200,8 +200,19 @@
             @if($isScanning)
                 <div class="text-center py-4">
                     <i class="fa-solid fa-circle-notch fa-spin fa-4x text-info mb-3"></i>
-                    <p class="text-white-50 small mb-0">ELA + ResNet-50 analysis running...<br>Page will auto-refresh.</p>
-                    <script>setTimeout(() => location.reload(), 3500);</script>
+                    <p class="text-white-50 small mb-2">ELA + ResNet-50 analysis running...<br>Page will auto-refresh.</p>
+                    <form action="{{ route('admin.scan', $application->id) }}" method="POST" class="d-inline-block">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-info rounded-pill px-3 mt-1" style="font-size: 0.72rem; border-color: rgba(0, 212, 255, 0.4); color: #00d4ff;">
+                            <i class="fa-solid fa-arrow-rotate-right me-1"></i> Force Restart Scan
+                        </button>
+                    </form>
+                    <script>
+                        setTimeout(() => {
+                            // Only reload if not submitting
+                            location.reload();
+                        }, 5000);
+                    </script>
                 </div>
             @elseif($isFailed)
                 <div class="text-center py-4">
