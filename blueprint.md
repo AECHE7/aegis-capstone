@@ -168,13 +168,13 @@ To transition the project from its current MVP setup to a robust, production-rea
   6. **Testing:** Write feature test suites `tests/Feature/UserRegistrationTest.php` and `tests/Feature/StaffInvitationTest.php`, verifying unverified student redirect locks and successful verified student access.
 
 
-### Phase 14: Brevo Integration
-- **Goal:** Configure the Laravel application to send real emails to CLSU domains using Brevo's free transactional mail SMTP service.
+### Phase 14: Brevo Integration - [COMPLETED]
+- **Goal:** Configure the Laravel application to send real emails to CLSU domains using Brevo's REST API to bypass outbound port blocks (587) on Render.
 - **Steps:**
-  1. Retrieve SMTP credentials from the Brevo dashboard (under SMTP & API).
-  2. Update the `.env` file with Brevo SMTP credentials.
-  3. Clear Laravel configuration cache via `php artisan config:clear`.
-  4. Perform an end-to-end test of email delivery.
+  1. Create a custom mail transport `BrevoTransport` targeting `https://api.brevo.com/v3/smtp/email`.
+  2. Register the `brevo_api` driver extension in `AppServiceProvider`.
+  3. Configure environment variables (`MAIL_MAILER=brevo_api` and `BREVO_API_KEY` containing the Brevo API Key starting with `xkeysib-`).
+  4. Perform diagnostic end-to-end tests via `/test-mail` to verify successful HTTP REST delivery.
 
 ### Phase 15: Verification Auto-Redirection
 - **Goal:** Enable the email verification prompt page to automatically redirect the student once they click the verification link in a new tab.
