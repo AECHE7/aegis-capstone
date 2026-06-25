@@ -26,6 +26,17 @@ Route::middleware('guest')->group(function () {
 Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\NewPasswordController::class, 'create'])->name('password.reset');
 Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->name('password.store');
 
+Route::get('/test-mail', function () {
+    try {
+        \Illuminate\Support\Facades\Mail::raw('Test email from CLSU AEGIS', function ($message) {
+            $message->to('admin@clsu.edu.ph')->subject('AEGIS SMTP Connection Test');
+        });
+        return 'Mail sent successfully!';
+    } catch (\Exception $e) {
+        return 'Mail sending failed: ' . $e->getMessage() . "\n\n" . $e->getTraceAsString();
+    }
+});
+
 
 // ==========================================
 // 🔒 SECURED ROUTES (Must be Logged In!)
