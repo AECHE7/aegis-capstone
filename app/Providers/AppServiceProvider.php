@@ -19,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Mail::extend('brevo_api', function (array $config) {
+            return new \App\Mail\Transport\BrevoTransport(env('MAIL_PASSWORD'));
+        });
     }
 }
