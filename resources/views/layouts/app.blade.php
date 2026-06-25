@@ -726,6 +726,28 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-3">
+                <!-- Notification Bell Dropdown -->
+                <div class="dropdown me-1">
+                    <button class="btn btn-link position-relative p-1 text-dark" type="button" id="notifBellAdmin" data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
+                        <i class="fa-regular fa-bell fs-5"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" id="notifBadgeAdmin" style="font-size: 0.6rem; padding: 3px 6px;">
+                            0
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" aria-labelledby="notifBellAdmin" style="width: 320px; border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
+                        <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                            <span class="fw-bold text-dark">Notifications</span>
+                            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small text-success fw-semibold" onclick="clearAllNotifications(event)">Mark all as read</button>
+                        </li>
+                        <div id="notifListAdmin">
+                            <li class="px-3 py-4 text-center text-muted small">
+                                <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
+                                No new notifications
+                            </li>
+                        </div>
+                    </ul>
+                </div>
+
                 @if(auth()->user()->role === 'admin')
                     <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: #dcfce7; color: #14532d; font-size: 0.75rem;">
                         <i class="fa-solid fa-user-shield me-1"></i> OSA Administrator
@@ -798,6 +820,29 @@
                         <i class="fa-solid fa-user me-1"></i> My Profile
                     </a>
                     <span class="d-none d-lg-inline" style="width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;"></span>
+                    
+                    <!-- Notification Bell Dropdown for Student -->
+                    <div class="dropdown me-lg-2 mt-2 mt-lg-0 text-start text-lg-center" style="width: fit-content;">
+                        <button class="btn btn-link position-relative p-1 text-white-50 hover-white d-flex align-items-center" type="button" id="notifBellStudent" data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
+                            <i class="fa-regular fa-bell fs-5 text-white"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" id="notifBadgeStudent" style="font-size: 0.6rem; padding: 3px 6px;">
+                                0
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" aria-labelledby="notifBellStudent" style="width: 320px; border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
+                            <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-dark">Notifications</span>
+                                <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small text-success fw-semibold" onclick="clearAllNotifications(event)">Mark all as read</button>
+                            </li>
+                            <div id="notifListStudent">
+                                <li class="px-3 py-4 text-center text-muted small">
+                                    <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
+                                    No new notifications
+                                </li>
+                            </div>
+                        </ul>
+                    </div>
+
                     <span class="badge px-3 py-2 rounded-pill fw-semibold text-start text-lg-center" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);font-size:0.72rem;border:1px solid rgba(255,255,255,0.15); width: fit-content;">
                         <i class="fa-solid fa-user-graduate me-1"></i> {{ auth()->user()->name }}
                     </span>
@@ -980,6 +1025,119 @@
         if (parseInt(star.dataset.val) <= 5) {
             star.style.color = '#F2A900';
         }
+    });
+
+    // ── Notification Box JS ──────────────────────────────────
+    function fetchNotifications() {
+        fetch('/notifications')
+            .then(res => res.json())
+            .then(data => {
+                const badgeAdmin = document.getElementById('notifBadgeAdmin');
+                const listAdmin = document.getElementById('notifListAdmin');
+                const badgeStudent = document.getElementById('notifBadgeStudent');
+                const listStudent = document.getElementById('notifListStudent');
+                
+                const count = data.count;
+                const notifications = data.notifications;
+                
+                if (badgeAdmin) {
+                    if (count > 0) {
+                        badgeAdmin.classList.remove('d-none');
+                        badgeAdmin.textContent = count;
+                    } else {
+                        badgeAdmin.classList.add('d-none');
+                    }
+                }
+                
+                if (listAdmin) {
+                    renderNotificationList(listAdmin, notifications);
+                }
+                
+                if (badgeStudent) {
+                    if (count > 0) {
+                        badgeStudent.classList.remove('d-none');
+                        badgeStudent.textContent = count;
+                    } else {
+                        badgeStudent.classList.add('d-none');
+                    }
+                }
+                
+                if (listStudent) {
+                    renderNotificationList(listStudent, notifications);
+                }
+            })
+            .catch(err => console.error('Error fetching notifications:', err));
+    }
+    
+    function renderNotificationList(listElement, notifications) {
+        listElement.innerHTML = '';
+        if (notifications.length === 0) {
+            listElement.innerHTML = `
+                <li class="px-3 py-4 text-center text-muted small">
+                    <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
+                    No new notifications
+                </li>
+            `;
+            return;
+        }
+        
+        notifications.forEach(n => {
+            const li = document.createElement('li');
+            li.className = 'px-3 py-2 border-bottom notification-item';
+            li.style.cursor = 'pointer';
+            li.innerHTML = `
+                <div class="d-flex flex-column gap-1 text-start">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong class="text-dark" style="font-size: 0.8rem;">${n.title}</strong>
+                        <span class="text-muted" style="font-size: 0.65rem;">${n.created_at}</span>
+                    </div>
+                    <div class="text-muted small" style="line-height: 1.3;">${n.message}</div>
+                </div>
+            `;
+            li.addEventListener('click', (e) => {
+                e.stopPropagation();
+                markAsRead(n.id);
+            });
+            listElement.appendChild(li);
+        });
+    }
+    
+    function markAsRead(id) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch(`/notifications/${id}/read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            fetchNotifications();
+        })
+        .catch(err => console.error('Error reading notification:', err));
+    }
+    
+    function clearAllNotifications(event) {
+        event.stopPropagation();
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch('/notifications/clear', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            fetchNotifications();
+        })
+        .catch(err => console.error('Error clearing notifications:', err));
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchNotifications();
+        setInterval(fetchNotifications, 20000);
     });
 </script>
 

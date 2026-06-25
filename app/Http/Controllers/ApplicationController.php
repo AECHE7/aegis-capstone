@@ -39,19 +39,15 @@ class ApplicationController extends Controller
                 ->with('error', 'Action Denied: Your most recent application (APP-'.$latestApplication->id.') is still pending review. Please wait for the OSA to evaluate it.');
         }
 
-        $scholarships = \App\Models\Scholarship::where('status', 'Active')->get();
+        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
+            return \App\Models\Scholarship::where('status', 'Active')->get();
+        });
         return view('student.apply', compact('scholarships'));
     }
 
     // 2. Save the Submitted Data
     public function store(\Illuminate\Http\Request $request)
     {
-        $request->validate([
-            'scholarship_id' => 'required',
-            'gwa' => 'required|numeric|min:1.00|max:5.00',
-            'document' => 'required|image|mimes:jpeg,png|max:5120', 
-        ]);
-
         $userId = auth()->id() ?? 1;
 
         // THE FIX: Backend protection checking only the latest app
@@ -60,7 +56,7 @@ class ApplicationController extends Controller
             return back()->withErrors(['duplicate' => 'Your most recent application is still pending!']);
         }
 
-        $scholarship = \App\Models\Scholarship::findOrFail($request->scholarship_id);
+        $scholarship = \App\Models\Scholarship::with('fields')->findOrFail($request->scholarship_id);
 
         if ($request->gwa > $scholarship->min_gwa_required) {
             return back()
@@ -68,7 +64,38 @@ class ApplicationController extends Controller
                 ->withInput(); 
         }
 
-        $activeTerm = \App\Models\AcademicTerm::where('is_active', true)->first();
+        // Build validation rules dynamically
+        $rules = [
+            'scholarship_id' => 'required',
+            'gwa' => 'required|numeric|min:1.00|max:5.00',
+            'document' => 'required|image|mimes:jpeg,png|max:5120', 
+        ];
+
+        foreach ($scholarship->fields as $field) {
+            $fieldRule = [];
+            if ($field->is_required) {
+                $fieldRule[] = 'required';
+            } else {
+                $fieldRule[] = 'nullable';
+            }
+
+            if ($field->field_type === 'number') {
+                $fieldRule[] = 'numeric';
+            } elseif ($field->field_type === 'file') {
+                $fieldRule[] = 'file';
+                $fieldRule[] = 'max:5120';
+            } else {
+                $fieldRule[] = 'string';
+            }
+
+            $rules['custom_fields.' . $field->field_name] = $fieldRule;
+        }
+
+        $request->validate($rules);
+
+        $activeTerm = \Illuminate\Support\Facades\Cache::remember('active_academic_term', 86400, function () {
+            return \App\Models\AcademicTerm::where('is_active', true)->first();
+        });
 
         $application = \App\Models\Application::create([
             'user_id' => $userId,
@@ -102,8 +129,55 @@ class ApplicationController extends Controller
             ]);
         }
 
+        // Store custom field values
+        if ($request->has('custom_fields')) {
+            foreach ($scholarship->fields as $field) {
+                $val = null;
+                if ($field->field_type === 'file') {
+                    if ($request->hasFile('custom_fields.' . $field->field_name)) {
+                        $cfile = $request->file('custom_fields.' . $field->field_name);
+                        $extension = $cfile->getClientOriginalExtension();
+                        $uuid = (string) \Illuminate\Support\Str::uuid();
+                        $filename = hash('sha256', $uuid) . '.' . $extension;
+                        $cfile->move(public_path('uploads'), $filename);
+                        $val = 'uploads/' . $filename;
+                    }
+                } else {
+                    $val = $request->input('custom_fields.' . $field->field_name);
+                }
+
+                if ($val !== null) {
+                    $application->customFields()->create([
+                        'field_name' => $field->field_label,
+                        'field_value' => $val
+                    ]);
+                }
+            }
+        }
+
+        // Dispatch database notifications to assigned staff
+        try {
+            $assignedStaff = \App\Models\User::where('role', 'admin')
+                ->whereHas('scholarships', function($q) use($application) {
+                    $q->where('scholarships.id', $application->scholarship_id);
+                })->get();
+
+            foreach ($assignedStaff as $staff) {
+                $staff->notify(new \App\Notifications\NewApplicationNotification($application));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to notify staff on new application: ' . $e->getMessage());
+        }
+
         return redirect()->route('student.dashboard')
             ->with('success', 'Your application has been submitted successfully to the OSA pipeline!');
+    }
+
+    // Dynamic schema helper for students
+    public function getScholarshipFields($id)
+    {
+        $scholarship = Scholarship::with('fields')->findOrFail($id);
+        return response()->json($scholarship->fields);
     }
 
     // 3. Render Profile Page

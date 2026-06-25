@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Laravel App Container (PHP-FPM)
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aegis_laravel
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html
+      - ./public/uploads:/var/www/html/public/uploads
+    env_file:
+      - .env
+
+  # Laravel Background Queue Worker
+  queue_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aegis_queue
+    restart: unless-stopped
+    command: php artisan queue:work --sleep=3 --tries=3
+    volumes:
+      - ./:/var/www/html
+      - ./public/uploads:/var/www/html/public/uploads
+    env_file:
+      - .env
+
+  # Python Deep Learning Microservice
+  ai_service:
+    build:
+      context: ./aegis-ai
+      dockerfile: Dockerfile
+    container_name: aegis_ai
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./aegis-ai:/app
+
+  # Nginx Reverse Proxy
+  webserver:
+    image: nginx:alpine
+    container_name: aegis_webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker-compose/nginx/aegis.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - laravel
+      - ai_service

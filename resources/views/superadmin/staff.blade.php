@@ -26,11 +26,12 @@
         <table class="table mb-0 align-middle">
             <thead class="table-light text-muted small uppercase fw-bold" style="background-color: #f8fafc;">
                 <tr>
-                    <th class="ps-4 py-3" style="font-size: 0.8rem; letter-spacing: 0.5px;">Name</th>
+                    <th class="ps-4 py-3" style="font-size: 0.8rem; letter-spacing: 0.5px;">Name & Assignments</th>
                     <th class="py-3" style="font-size: 0.8rem; letter-spacing: 0.5px;">Email</th>
                     <th class="py-3 text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">Role</th>
                     <th class="py-3 text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">Status</th>
-                    <th class="pe-4 py-3 text-end" style="font-size: 0.8rem; letter-spacing: 0.5px;">Invitation Sent</th>
+                    <th class="py-3 text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">Invitation Sent</th>
+                    <th class="pe-4 py-3 text-end" style="font-size: 0.8rem; letter-spacing: 0.5px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,6 +44,17 @@
                             </div>
                             <div>
                                 <div class="fw-semibold text-dark">{{ $staff->name }}</div>
+                                <div class="mt-1 d-flex flex-wrap gap-1">
+                                    @forelse($staff->scholarships as $s)
+                                        <span class="badge bg-success text-white px-2 py-0.5 rounded" style="font-size: 0.7rem; font-weight: 500;">
+                                            {{ $s->name }}
+                                        </span>
+                                    @empty
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-0.5 rounded" style="font-size: 0.7rem; font-weight: 500;">
+                                            No assignments
+                                        </span>
+                                    @endforelse
+                                </div>
                             </div>
                         </div>
                     </td>
@@ -50,12 +62,16 @@
                         <span class="text-muted small">{{ $staff->email }}</span>
                     </td>
                     <td class="py-3 text-center">
-                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-1fw-bold" style="font-size: 0.75rem;">
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-1 fw-bold" style="font-size: 0.75rem;">
                             {{ ucfirst($staff->role) }}
                         </span>
                     </td>
                     <td class="py-3 text-center">
-                        @if($staff->email_verified_at)
+                        @if(!$staff->is_active)
+                            <span class="status-badge rejected d-inline-flex align-items-center gap-1">
+                                <i class="fa-solid fa-circle" style="font-size: 0.5rem; color: #ef4444;"></i> Revoked / Inactive
+                            </span>
+                        @elseif($staff->email_verified_at)
                             <span class="status-badge approved d-inline-flex align-items-center gap-1">
                                 <i class="fa-solid fa-circle" style="font-size: 0.5rem; color: #10b981;"></i> Active
                             </span>
@@ -71,12 +87,85 @@
                             @endif
                         @endif
                     </td>
-                    <td class="pe-4 py-3 text-end text-muted small">
+                    <td class="py-3 text-center text-muted small">
                         @if($staff->invitation)
                             {{ $staff->invitation->created_at->diffForHumans() }}
                         @else
                             <span class="text-muted italic">—</span>
                         @endif
+                    </td>
+                    <td class="pe-4 py-3 text-end">
+                        <div class="d-flex justify-content-end align-items-center gap-2">
+                            <!-- Assign button -->
+                            <button class="btn btn-sm btn-light border" style="border-radius: 8px; padding: 5px 10px;" 
+                                    data-bs-toggle="modal" data-bs-target="#editAssignmentsModal_{{ $staff->id }}" 
+                                    title="Edit Assignments">
+                                <i class="fa-solid fa-tasks text-primary"></i> <span class="small fw-semibold ms-1">Assign</span>
+                            </button>
+
+                            <!-- Toggle activation status form -->
+                            @if($staff->is_active)
+                                <form action="{{ route('superadmin.staff.revoke', $staff->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to deactivate/revoke this staff member?');">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-danger border border-danger text-white" style="border-radius: 8px; padding: 5px 10px;" title="Deactivate/Revoke Access">
+                                        <i class="fa-solid fa-user-slash"></i> <span class="small fw-semibold ms-1">Revoke</span>
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('superadmin.staff.reactivate', $staff->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success border border-success text-white" style="border-radius: 8px; padding: 5px 10px;" title="Reactivate Access">
+                                        <i class="fa-solid fa-user-check"></i> <span class="small fw-semibold ms-1">Reactivate</span>
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+
+                        <!-- Edit Assignments Modal for each staff -->
+                        <div class="modal fade" id="editAssignmentsModal_{{ $staff->id }}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered text-start">
+                                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                                    <div class="modal-header border-0" style="background: linear-gradient(135deg, #0f1f12, #0F5934); padding: 1.5rem;">
+                                        <div>
+                                            <h5 class="modal-title fw-bold text-white mb-0">
+                                                <i class="fa-solid fa-tasks text-warning me-2"></i> Manage Assignments
+                                            </h5>
+                                            <small class="text-white-50">Assign scholarship programs to {{ $staff->name }}</small>
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{{ route('superadmin.staff.assign', $staff->id) }}" method="POST">
+                                        @csrf
+                                        <div class="modal-body p-4">
+                                            <label class="form-label fw-semibold small text-muted mb-2">Scholarship Programs</label>
+                                            <div class="p-3 bg-light border" style="border-radius: 10px; max-height: 250px; overflow-y: auto;">
+                                                @foreach($scholarships as $scholarship)
+                                                    @php
+                                                        $assigned = $staff->scholarships->contains($scholarship->id);
+                                                    @endphp
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="checkbox" name="scholarship_ids[]" value="{{ $scholarship->id }}" id="edit_scholarship_{{ $staff->id }}_{{ $scholarship->id }}" {{ $assigned ? 'checked' : '' }}>
+                                                        <label class="form-check-label small" for="edit_scholarship_{{ $staff->id }}_{{ $scholarship->id }}">
+                                                            {{ $scholarship->name }}
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                                @if($scholarships->isEmpty())
+                                                    <div class="text-muted small">No active scholarship programs available.</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                                            <button type="button" class="btn btn-light fw-semibold rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn fw-bold rounded-pill px-5 text-white"
+                                                    style="background: linear-gradient(135deg, var(--clsu-green), #16703f);">
+                                                Save Assignments
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 @endforeach
@@ -121,7 +210,7 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="mb-0">
+                    <div class="mb-3">
                         <label class="form-label fw-semibold small text-muted" for="staffEmail">Institutional Email Address</label>
                         <div class="input-group">
                             <span class="input-group-text border-end-0 bg-white" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-envelope text-muted small"></i></span>
@@ -132,11 +221,28 @@
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold small text-muted mb-2">Assign Scholarship Programs</label>
+                        <div class="p-3 bg-light border" style="border-radius: 10px; max-height: 180px; overflow-y: auto;">
+                            @foreach($scholarships as $scholarship)
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="scholarship_ids[]" value="{{ $scholarship->id }}" id="invite_scholarship_{{ $scholarship->id }}">
+                                    <label class="form-check-label small" for="invite_scholarship_{{ $scholarship->id }}">
+                                        {{ $scholarship->name }}
+                                    </label>
+                                </div>
+                            @endforeach
+                            @if($scholarships->isEmpty())
+                                <div class="text-muted small">No active scholarship programs available.</div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4 pt-0">
                     <button type="button" class="btn btn-light fw-semibold rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn fw-bold rounded-pill px-5"
-                            style="background: linear-gradient(135deg, var(--clsu-gold), #e09500); color: #1a1a00;">
+                    <button type="submit" class="btn fw-bold rounded-pill px-5 text-white"
+                            style="background: linear-gradient(135deg, var(--clsu-green), #16703f);">
                         <i class="fa-solid fa-paper-plane me-1"></i> Send Invitation
                     </button>
                 </div>

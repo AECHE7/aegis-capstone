@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'role', // Added role so we can assign Admin/Student
         'email_verified_at',
+        'is_active',
     ];
 
     /**
@@ -46,6 +47,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -89,5 +91,13 @@ class User extends Authenticatable implements MustVerifyEmail
     public function invitation()
     {
         return $this->hasOne(UserInvitation::class);
+    }
+
+    /**
+     * A user (admin/staff) can have many assigned scholarships they handle
+     */
+    public function scholarships()
+    {
+        return $this->belongsToMany(Scholarship::class, 'scholarship_staff');
     }
 }

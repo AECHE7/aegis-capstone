@@ -175,6 +175,17 @@
                         <div class="eligibility-badge mt-2" id="eligibilityBadge"></div>
                     </div>
 
+                    {{-- Dynamic Custom Fields Container --}}
+                    <div id="dynamicFieldsContainer" class="mb-4" style="display: none;">
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">*</span>
+                            Additional Requirements / Custom Details
+                        </label>
+                        <div class="p-3 bg-light border rounded-3" id="dynamicFieldsBody" style="border-radius: 12px;">
+                            <!-- Dynamic inputs will be appended here via JS -->
+                        </div>
+                    </div>
+
                     {{-- Step 3: Upload --}}
                     <div class="mb-4">
                         <label class="form-label fw-bold text-dark mb-2" for="documentUpload">
@@ -274,6 +285,83 @@
         selectedScholarshipGwa = parseFloat(el.dataset.gwa);
 
         checkEligibility();
+
+        // Fetch custom fields dynamically
+        fetch(`/scholarships/${el.dataset.id}/fields`)
+            .then(response => response.json())
+            .then(fields => {
+                const container = document.getElementById('dynamicFieldsContainer');
+                const body = document.getElementById('dynamicFieldsBody');
+                body.innerHTML = '';
+                
+                if (fields.length > 0) {
+                    container.style.display = 'block';
+                    fields.forEach(field => {
+                        const formGroup = document.createElement('div');
+                        formGroup.className = 'mb-3 text-start';
+                        
+                        const label = document.createElement('label');
+                        label.className = 'form-label fw-semibold small text-muted mb-1';
+                        label.innerHTML = field.field_label;
+                        if (field.is_required) {
+                            label.innerHTML += ' <span class="text-danger">*</span>';
+                        }
+                        formGroup.appendChild(label);
+                        
+                        let input;
+                        
+                        if (field.field_type === 'textarea') {
+                            input = document.createElement('textarea');
+                            input.className = 'form-control';
+                            input.rows = 3;
+                        } else if (field.field_type === 'select') {
+                            input = document.createElement('select');
+                            input.className = 'form-select';
+                            
+                            const defaultOpt = document.createElement('option');
+                            defaultOpt.value = '';
+                            defaultOpt.textContent = 'Select an option';
+                            input.appendChild(defaultOpt);
+                            
+                            if (field.options && Array.isArray(field.options)) {
+                                field.options.forEach(opt => {
+                                    const o = document.createElement('option');
+                                    o.value = opt;
+                                    o.textContent = opt;
+                                    input.appendChild(o);
+                                });
+                            }
+                        } else if (field.field_type === 'file') {
+                            input = document.createElement('input');
+                            input.type = 'file';
+                            input.className = 'form-control';
+                            input.accept = 'image/*,application/pdf';
+                        } else if (field.field_type === 'number') {
+                            input = document.createElement('input');
+                            input.type = 'number';
+                            input.step = 'any';
+                            input.className = 'form-control';
+                        } else {
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.className = 'form-control';
+                        }
+                        
+                        input.name = `custom_fields[${field.field_name}]`;
+                        if (field.is_required) {
+                            input.setAttribute('required', 'required');
+                        }
+                        
+                        formGroup.appendChild(input);
+                        body.appendChild(formGroup);
+                    });
+                } else {
+                    container.style.display = 'none';
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching dynamic fields:', err);
+            });
     }
 
     function checkEligibility() {

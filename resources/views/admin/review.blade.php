@@ -307,6 +307,29 @@
                 @endif
             </form>
         </div>
+
+        {{-- Custom Fields Card --}}
+        @if($application->customFields && $application->customFields->count() > 0)
+        <div class="card p-4 mt-3">
+            <h6 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-list-check text-primary me-2"></i> Custom Form Responses</h6>
+            <div class="d-flex flex-column gap-3 text-start">
+                @foreach($application->customFields as $field)
+                    <div class="border-bottom pb-2">
+                        <div class="small fw-semibold text-muted mb-1">{{ $field->field_name }}</div>
+                        <div class="text-dark fw-medium" style="font-size:0.875rem;">
+                            @if(Str::startsWith($field->field_value, 'uploads/'))
+                                <a href="{{ asset($field->field_value) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2" style="border-radius: 6px; font-size: 0.75rem;">
+                                    <i class="fa-solid fa-file-arrow-down me-1"></i> View Uploaded File
+                                </a>
+                            @else
+                                {{ $field->field_value }}
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
 
     {{-- RIGHT: Document Viewer --}}

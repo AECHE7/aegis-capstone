@@ -11,15 +11,15 @@ use App\Http\Controllers\AuthController;
 // ==========================================
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/login', [AuthController::class, 'showLogin']); 
-Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
-    Route::post('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store']);
+    Route::post('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])->middleware('throttle:5,1');
     Route::get('/activate-account', [\App\Http\Controllers\Auth\StaffActivationController::class, 'showActivationForm'])->name('activate.form');
     Route::post('/activate-account', [\App\Http\Controllers\Auth\StaffActivationController::class, 'activate'])->name('activate.submit');
     Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])->middleware('throttle:3,1')->name('password.email');
 });
 
 // Reset password routes available to both guest and authenticated users
@@ -34,6 +34,11 @@ Route::middleware(['auth'])->group(function () {
     
     // Logout is secured
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Notifications routes
+    Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [AuthController::class, 'markNotificationAsRead'])->name('notifications.read');
+    Route::post('/notifications/clear', [AuthController::class, 'clearNotifications'])->name('notifications.clear');
 
     // Email Verification Routes
     Route::get('/email/verify', [\App\Http\Controllers\Auth\EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
@@ -52,42 +57,55 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/student/dashboard', [ApplicationController::class, 'dashboard'])->name('student.dashboard');
         Route::get('/student/profile', [ApplicationController::class, 'editProfile'])->name('student.profile');
         Route::post('/student/profile', [ApplicationController::class, 'updateProfile'])->name('student.profile.update');
+        Route::get('/scholarships/{id}/fields', [ApplicationController::class, 'getScholarshipFields'])->name('scholarships.fields');
     });
 
     // OSA ADMIN DASHBOARD
-    Route::prefix('admin')->group(function () {
+    Route::prefix('admin')->middleware(['role:admin,superadmin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::get('/review/{id}', [AdminController::class, 'review'])->name('admin.review');
         Route::post('/review/{id}/scan', [AdminController::class, 'runScan'])->name('admin.scan');
         Route::post('/review/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.updateStatus');
+        Route::post('/review/{id}/archive', [AdminController::class, 'archive'])->name('admin.archive');
+        Route::post('/review/{id}/unarchive', [AdminController::class, 'unarchive'])->name('admin.unarchive');
         Route::get('/document/{id}/download', [AdminController::class, 'downloadDocument'])->name('admin.document.download');
         Route::get('/export-csv', [\App\Http\Controllers\ReportController::class, 'exportCsv'])->name('admin.export');
         Route::get('/export-pdf', [\App\Http\Controllers\ReportController::class, 'exportPdf'])->name('admin.exportPdf');
     });
 
     // SUPER ADMIN (Scholarship Management)
-    Route::prefix('superadmin')->group(function () {
+    Route::prefix('superadmin')->middleware(['role:superadmin'])->group(function () {
         Route::get('/scholarships', [SuperAdminController::class, 'index'])->name('superadmin.scholarships');
         Route::post('/scholarships', [SuperAdminController::class, 'store'])->name('superadmin.scholarships.store');
         Route::post('/scholarships/{id}/toggle', [SuperAdminController::class, 'toggleStatus'])->name('superadmin.scholarships.toggle');
         Route::get('/analytics', [SuperAdminController::class, 'analytics'])->name('superadmin.analytics');
         Route::get('/staff', [SuperAdminController::class, 'listStaff'])->name('superadmin.staff');
         Route::post('/staff/invite', [SuperAdminController::class, 'inviteStaff'])->name('superadmin.staff.invite');
+        Route::post('/staff/{id}/revoke', [SuperAdminController::class, 'revokeStaff'])->name('superadmin.staff.revoke');
+        Route::post('/staff/{id}/reactivate', [SuperAdminController::class, 'reactivateStaff'])->name('superadmin.staff.reactivate');
+        Route::post('/staff/{id}/assign', [SuperAdminController::class, 'updateStaffAssignments'])->name('superadmin.staff.assign');
     });
 
     // SECURE FILE VIEWING
     Route::get('/document/{id}/image', function ($id) {
-        $document = \App\Models\Document::findOrFail($id);
+        $document = \App\Models\Document::with('application')->findOrFail($id);
+        if (auth()->user()->role === 'student' && ($document->application->user_id ?? null) !== auth()->id()) {
+            abort(403, 'Unauthorized access.');
+        }
         if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($document->file_path)) { abort(404); }
         return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($document->file_path));
     })->name('document.view');
 
     Route::get('/document/{id}/heatmap', function ($id) {
-        $aiResult = \App\Models\AIResult::where('document_id', $id)->firstOrFail();
+        $aiResult = \App\Models\AIResult::with('document.application')->where('document_id', $id)->firstOrFail();
+        if (auth()->user()->role === 'student' && ($aiResult->document->application->user_id ?? null) !== auth()->id()) {
+            abort(403, 'Unauthorized access.');
+        }
         $path = base_path('aegis-ai/' . $aiResult->heatmap_path);
         if (!file_exists($path)) { abort(404); }
         return response()->file($path);
     })->name('document.heatmap');
+
 
     // UAT FEEDBACK SUBMISSION
     Route::post('/uat-feedback', [\App\Http\Controllers\UatFeedbackController::class, 'store'])->name('uat.store');

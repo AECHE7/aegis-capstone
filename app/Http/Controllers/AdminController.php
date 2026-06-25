@@ -16,6 +16,17 @@ class AdminController extends Controller
         // 1. Fetch search and filtering parameters
         $query = \App\Models\Application::with(['user.profile', 'document.aiResult', 'academicTerm']);
 
+        if (auth()->user()->role === 'admin') {
+            $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            $query->whereIn('scholarship_id', $assignedScholarshipIds);
+        }
+
+        if ($request->query('archived') == '1') {
+            $query->where('is_archived', true);
+        } else {
+            $query->where('is_archived', false);
+        }
+
         if ($request->filled('scholarship_id')) {
             $query->where('scholarship_id', $request->scholarship_id);
         }
@@ -48,17 +59,37 @@ class AdminController extends Controller
                             ->paginate(15)
                             ->withQueryString();
 
-        // 2. NEW: Calculate the real-time analytics for the top cards
-        $pendingCount = \App\Models\Application::where('status', 'Pending')->count();
-        $underReviewCount = \App\Models\Application::where('status', 'Under Review')->count();
-        $approvedCount = \App\Models\Application::where('status', 'Approved')->count();
-        $rejectedCount = \App\Models\Application::where('status', 'Rejected')->count();
+        // 2. Calculate the real-time analytics for the top cards (only active applications)
+        $pendingCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Pending');
+        $underReviewCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Under Review');
+        $approvedCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Approved');
+        $rejectedCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Rejected');
+        $archivedCountQuery = \App\Models\Application::where('is_archived', true);
+
+        if (auth()->user()->role === 'admin') {
+            $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            $pendingCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            $underReviewCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            $approvedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            $rejectedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            $archivedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+        }
+
+        $pendingCount = $pendingCountQuery->count();
+        $underReviewCount = $underReviewCountQuery->count();
+        $approvedCount = $approvedCountQuery->count();
+        $rejectedCount = $rejectedCountQuery->count();
+        $archivedCount = $archivedCountQuery->count();
         
         $avgFraudScore = \App\Models\AIResult::avg('fraud_probability') ?? 0;
         $avgFraudScore = round($avgFraudScore, 1); // Round to 1 decimal place
 
         // Fetch all scholarships, academic terms, and years for filters
-        $scholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
+        if (auth()->user()->role === 'admin') {
+            $scholarships = auth()->user()->scholarships()->orderBy('name', 'asc')->get();
+        } else {
+            $scholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
+        }
         
         $academicTerms = \App\Models\AcademicTerm::orderBy('academic_year', 'desc')
             ->orderBy('semester', 'desc')
@@ -81,7 +112,8 @@ class AdminController extends Controller
             'avgFraudScore',
             'scholarships',
             'years',
-            'academicTerms'
+            'academicTerms',
+            'archivedCount'
         ));
     }
 
@@ -240,6 +272,15 @@ class AdminController extends Controller
             'changed_by' => $evaluatorId
         ]);
 
+        // Dispatch database notification
+        try {
+            if ($application->user) {
+                $application->user->notify(new \App\Notifications\ApplicationStatusNotification($application));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send application status database notification: ' . $e->getMessage());
+        }
+
         // 4. Send automated email notification
         try {
             $application->load(['user.profile', 'document.aiResult', 'evaluator']);
@@ -263,5 +304,27 @@ class AdminController extends Controller
         // so they don't get stuck on this POST route and trigger a GET error!
         return redirect()->route('admin.dashboard')
             ->with('success', 'Application APP-' . $application->id . ' has been successfully ' . $request->status . '.');
+    }
+
+    // 4. Archive Application
+    public function archive($id)
+    {
+        $application = Application::findOrFail($id);
+        $application->is_archived = true;
+        $application->save();
+
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Application APP-' . $application->id . ' has been archived successfully.');
+    }
+
+    // 5. Unarchive Application
+    public function unarchive($id)
+    {
+        $application = Application::findOrFail($id);
+        $application->is_archived = false;
+        $application->save();
+
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Application APP-' . $application->id . ' has been unarchived successfully.');
     }
 }

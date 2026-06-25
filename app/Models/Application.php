@@ -9,7 +9,6 @@ class Application extends Model
 {
     use HasFactory;
 
-    // We make sure the audit trail columns are allowed to be saved
     protected $fillable = [
         'user_id', 
         'scholarship_id', 
@@ -18,7 +17,12 @@ class Application extends Model
         'gwa', 
         'status',
         'remarks',
-        'evaluated_by'
+        'evaluated_by',
+        'is_archived',
+    ];
+
+    protected $casts = [
+        'is_archived' => 'boolean',
     ];
 
     /**
@@ -75,5 +79,13 @@ class Application extends Model
     public function evaluator()
     {
         return $this->belongsTo(User::class, 'evaluated_by');
+    }
+
+    /**
+     * Relationship: An application has many custom form fields (responses)
+     */
+    public function customFields()
+    {
+        return $this->hasMany(ApplicationField::class);
     }
 }

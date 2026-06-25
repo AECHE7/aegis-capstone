@@ -16,4 +16,11 @@ class Document extends Model
     {
         return $this->hasOne(AIResult::class);
     }
+
+    // A Document belongs to an Application
+    public function application()
+    {
+        return $this->belongsTo(Application::class);
+    }
+
 }

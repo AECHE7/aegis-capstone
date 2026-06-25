@@ -21,10 +21,15 @@ class SuperAdminController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'min_gwa_required' => 'required|numeric|min:1.00|max:5.00',
-            'deadline' => 'nullable|date'
+            'deadline' => 'nullable|date',
+            'fields' => 'nullable|array',
+            'fields.*.label' => 'required|string|max:255',
+            'fields.*.type' => 'required|in:text,number,textarea,select,file',
+            'fields.*.required' => 'nullable',
+            'fields.*.options' => 'nullable|string',
         ]);
 
-        Scholarship::create([
+        $scholarship = Scholarship::create([
             'name' => $request->name,
             'description' => $request->description,
             'min_gwa_required' => $request->min_gwa_required,
@@ -32,7 +37,29 @@ class SuperAdminController extends Controller
             'status' => 'Active'
         ]);
 
-        return back()->with('success', 'New Scholarship Program successfully created!');
+        if ($request->has('fields')) {
+            foreach ($request->fields as $field) {
+                // Generate a field_name from the label (slug or snake_case)
+                $fieldName = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '_', trim($field['label'])));
+                // Ensure unique within this scholarship
+                $fieldName = uniqid($fieldName . '_');
+
+                $optionsArray = null;
+                if ($field['type'] === 'select' && !empty($field['options'])) {
+                    $optionsArray = array_map('trim', explode(',', $field['options']));
+                }
+
+                $scholarship->fields()->create([
+                    'field_name' => $fieldName,
+                    'field_label' => $field['label'],
+                    'field_type' => $field['type'],
+                    'is_required' => isset($field['required']) && ($field['required'] == '1' || $field['required'] == 'on' || $field['required'] == true) ? true : false,
+                    'options' => $optionsArray
+                ]);
+            }
+        }
+
+        return back()->with('success', 'New Scholarship Program and its custom fields successfully created!');
     }
 
     // 3. Toggle Status (Active/Closed)
@@ -143,11 +170,15 @@ class SuperAdminController extends Controller
     public function listStaff()
     {
         $staffList = \App\Models\User::where('role', 'admin')
-            ->with('invitation')
+            ->with(['invitation', 'scholarships'])
             ->latest()
             ->get();
 
-        return view('superadmin.staff', compact('staffList'));
+        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
+            return \App\Models\Scholarship::where('status', 'Active')->get();
+        });
+
+        return view('superadmin.staff', compact('staffList', 'scholarships'));
     }
 
     // 7. Invite a new staff member
@@ -169,6 +200,8 @@ class SuperAdminController extends Controller
                     }
                 }
             ],
+            'scholarship_ids' => 'nullable|array',
+            'scholarship_ids.*' => 'exists:scholarships,id',
         ]);
 
         // Create the user without a password (set random placeholder)
@@ -178,7 +211,13 @@ class SuperAdminController extends Controller
             'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
             'role' => 'admin',
             'email_verified_at' => null, // must set password first to activate
+            'is_active' => true,
         ]);
+
+        // Sync scholarship assignments
+        if ($request->has('scholarship_ids')) {
+            $user->scholarships()->sync($request->scholarship_ids);
+        }
 
         // Generate invitation token
         $token = \Illuminate\Support\Str::random(40);
@@ -193,6 +232,41 @@ class SuperAdminController extends Controller
         // Send invitation notification
         $user->notify(new \App\Notifications\StaffInvitationNotification($token));
 
-        return back()->with('success', 'Staff member successfully invited! An activation link has been sent to their email.');
+        return back()->with('success', 'Staff member successfully invited and assigned! An activation link has been sent to their email.');
+    }
+
+    // 8. Revoke staff access (deactivate)
+    public function revokeStaff($id)
+    {
+        $staff = \App\Models\User::where('role', 'admin')->findOrFail($id);
+        $staff->is_active = false;
+        $staff->save();
+
+        return back()->with('success', 'Staff access has been revoked successfully.');
+    }
+
+    // 9. Reactivate staff access
+    public function reactivateStaff($id)
+    {
+        $staff = \App\Models\User::where('role', 'admin')->findOrFail($id);
+        $staff->is_active = true;
+        $staff->save();
+
+        return back()->with('success', 'Staff access has been reactivated successfully.');
+    }
+
+    // 10. Update staff scholarship assignments
+    public function updateStaffAssignments(Request $request, $id)
+    {
+        $staff = \App\Models\User::where('role', 'admin')->findOrFail($id);
+        
+        $request->validate([
+            'scholarship_ids' => 'nullable|array',
+            'scholarship_ids.*' => 'exists:scholarships,id',
+        ]);
+
+        $staff->scholarships()->sync($request->scholarship_ids ?? []);
+
+        return back()->with('success', 'Staff scholarship assignments updated successfully.');
     }
 }

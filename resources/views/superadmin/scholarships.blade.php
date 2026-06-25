@@ -86,40 +86,55 @@
 
 {{-- New Program Modal --}}
 <div class="modal fade" id="newProgramModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
             <div class="modal-header border-0" style="background: linear-gradient(135deg, #0f1f12, #0F5934); padding: 1.5rem;">
                 <div>
                     <h5 class="modal-title fw-bold text-white mb-0">
                         <i class="fa-solid fa-plus-circle text-warning me-2"></i> Create Scholarship Program
                     </h5>
-                    <small class="text-white-50">Define a new grant for eligible students</small>
+                    <small class="text-white-50">Define a new grant and build custom application fields</small>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('superadmin.scholarships.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
-                        <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
+                            <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small text-muted" for="gwaRequirement">Maximum GWA</label>
+                            <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" required placeholder="e.g., 1.75">
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small text-muted" for="gwaRequirement">Maximum GWA Requirement</label>
-                        <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" required placeholder="e.g., 1.75">
-                        <div class="form-text small">Students with a GWA higher than this value will be blocked from applying.</div>
-                    </div>
-                    <div class="mb-0">
                         <label class="form-label fw-semibold small text-muted" for="programDesc">Program Description</label>
-                        <textarea name="description" id="programDesc" class="form-control" rows="3" required
+                        <textarea name="description" id="programDesc" class="form-control" rows="2" required
                                   placeholder="Brief overview of grant requirements and benefits..."
                                   style="resize:none;"></textarea>
+                    </div>
+
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-list-check text-success me-2"></i> Custom Form Fields (Google Forms Style)</h6>
+                        <button type="button" id="addFieldBtn" class="btn btn-sm btn-outline-success fw-bold px-3" style="border-radius: 8px;">
+                            <i class="fa-solid fa-plus me-1"></i> Add Custom Field
+                        </button>
+                    </div>
+                    
+                    <div id="fieldsContainer" class="p-3 bg-light border mb-0" style="border-radius: 12px; max-height: 280px; overflow-y: auto;">
+                        <div class="text-center text-muted small py-3" id="noFieldsText">
+                            No custom fields added yet. Only the standard GWA and COG upload will be required.
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4 pt-0">
                     <button type="button" class="btn btn-light fw-semibold rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn fw-bold rounded-pill px-5"
-                            style="background: linear-gradient(135deg, var(--clsu-gold), #e09500); color: #1a1a00;">
+                    <button type="submit" class="btn fw-bold rounded-pill px-5 text-white"
+                            style="background: linear-gradient(135deg, var(--clsu-green), #16703f);">
                         <i class="fa-solid fa-save me-1"></i> Save Program
                     </button>
                 </div>
@@ -129,3 +144,79 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    let fieldIndex = 0;
+
+    document.getElementById('addFieldBtn').addEventListener('click', function() {
+        const container = document.getElementById('fieldsContainer');
+        const noFieldsText = document.getElementById('noFieldsText');
+        if (noFieldsText) {
+            noFieldsText.remove();
+        }
+
+        const row = document.createElement('div');
+        row.className = 'field-row bg-white p-3 border mb-3 position-relative';
+        row.style.borderRadius = '10px';
+        row.innerHTML = `
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-field-btn" style="font-size: 0.75rem;"></button>
+            <div class="row g-2 text-start">
+                <div class="col-md-5">
+                    <label class="form-label small fw-semibold text-muted mb-1">Field Label</label>
+                    <input type="text" name="fields[${fieldIndex}][label]" class="form-control form-control-sm" required placeholder="e.g., Annual Household Income">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold text-muted mb-1">Field Type</label>
+                    <select name="fields[${fieldIndex}][type]" class="form-select form-select-sm field-type-select" required>
+                        <option value="text">Short Text</option>
+                        <option value="number">Number</option>
+                        <option value="textarea">Paragraph Text</option>
+                        <option value="select">Dropdown Select</option>
+                        <option value="file">File Upload</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold text-muted mb-1">Required</label>
+                    <div class="form-check form-switch mt-1">
+                        <input class="form-check-input" type="checkbox" name="fields[${fieldIndex}][required]" value="1" checked>
+                    </div>
+                </div>
+                <div class="col-md-12 select-options-wrapper d-none">
+                    <label class="form-label small fw-semibold text-muted mb-1">Dropdown Options (Comma-separated)</label>
+                    <input type="text" name="fields[${fieldIndex}][options]" class="form-control form-control-sm" placeholder="Option 1, Option 2, Option 3">
+                </div>
+            </div>
+        `;
+
+        container.appendChild(row);
+
+        // Toggle options wrapper on select type
+        const typeSelect = row.querySelector('.field-type-select');
+        const optionsWrapper = row.querySelector('.select-options-wrapper');
+        typeSelect.addEventListener('change', function() {
+            if (this.value === 'select') {
+                optionsWrapper.classList.remove('d-none');
+                optionsWrapper.querySelector('input').setAttribute('required', 'required');
+            } else {
+                optionsWrapper.classList.add('d-none');
+                optionsWrapper.querySelector('input').removeAttribute('required');
+            }
+        });
+
+        // Remove row logic
+        row.querySelector('.remove-field-btn').addEventListener('click', function() {
+            row.remove();
+            if (container.children.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted small py-3" id="noFieldsText">
+                        No custom fields added yet. Only the standard GWA and COG upload will be required.
+                    </div>
+                `;
+            }
+        });
+
+        fieldIndex++;
+    });
+</script>
+@endpush

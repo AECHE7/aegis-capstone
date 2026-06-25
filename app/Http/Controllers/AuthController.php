@@ -51,10 +51,17 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            if (isset($user->is_active) && !$user->is_active) {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Your account has been deactivated. Please contact the administrator.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
 
             // ROLE-BASED REDIRECTION
-            $user = Auth::user();
             $role = $user->role;
             
             if ($role === 'superadmin') {
@@ -82,5 +89,40 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    // 4. Get notifications
+    public function getNotifications()
+    {
+        $notifications = auth()->user()->unreadNotifications()->take(10)->get()->map(function($n) {
+            return [
+                'id' => $n->id,
+                'title' => $n->data['title'] ?? 'Notification',
+                'message' => $n->data['message'] ?? '',
+                'created_at' => $n->created_at->diffForHumans(),
+            ];
+        });
+
+        return response()->json([
+            'notifications' => $notifications,
+            'count' => auth()->user()->unreadNotifications()->count()
+        ]);
+    }
+
+    // 5. Mark notification as read
+    public function markNotificationAsRead($id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+
+        return response()->json(['success' => true]);
+    }
+
+    // 6. Clear all notifications
+    public function clearNotifications()
+    {
+        auth()->user()->unreadNotifications->markAsRead();
+
+        return response()->json(['success' => true]);
     }
 }

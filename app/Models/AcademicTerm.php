@@ -22,4 +22,19 @@ class AcademicTerm extends Model
     {
         return $this->hasMany(Application::class);
     }
+
+    /**
+     * Cache Busting: Clear active academic term cache on changes.
+     */
+    protected static function booted()
+    {
+        static::saved(function ($term) {
+            \Illuminate\Support\Facades\Cache::forget('active_academic_term');
+        });
+
+        static::deleted(function ($term) {
+            \Illuminate\Support\Facades\Cache::forget('active_academic_term');
+        });
+    }
+
 }

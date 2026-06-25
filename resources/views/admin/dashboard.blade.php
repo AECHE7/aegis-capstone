@@ -162,9 +162,22 @@
 {{-- Application Queue Table --}}
 <div class="queue-table shadow-sm">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center p-4 border-bottom gap-3" style="background: white;">
-        <div>
-            <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-users-viewfinder text-primary me-2"></i> Applicant Evaluation Queue</h6>
-            <small class="text-muted">{{ $applications->total() }} total {{ $applications->total() === 1 ? 'application' : 'applications' }}</small>
+        <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3">
+            <div>
+                <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-users-viewfinder text-primary me-2"></i> Applicant Evaluation Queue</h6>
+                <small class="text-muted">{{ $applications->total() }} total {{ $applications->total() === 1 ? 'application' : 'applications' }}</small>
+            </div>
+            <div>
+                @if(request('archived') == '1')
+                    <a href="{{ route('admin.dashboard', array_merge(request()->query(), ['archived' => null])) }}" class="btn btn-sm btn-outline-success fw-bold px-3 py-1.5" style="border-radius: 8px;">
+                        <i class="fa-solid fa-folder-open me-1"></i> Active Queue
+                    </a>
+                @else
+                    <a href="{{ route('admin.dashboard', array_merge(request()->query(), ['archived' => '1'])) }}" class="btn btn-sm btn-outline-secondary fw-bold px-3 py-1.5" style="border-radius: 8px;">
+                        <i class="fa-solid fa-box-archive me-1"></i> Archived Queue ({{ $archivedCount }})
+                    </a>
+                @endif
+            </div>
         </div>
         <div class="d-flex gap-2 w-100 w-md-auto justify-content-start justify-content-md-end flex-wrap">
             <a href="{{ route('admin.export', request()->query()) }}" class="btn-export btn-export-csv">
@@ -240,9 +253,26 @@
                         <div style="font-size:0.72rem;color:#94a3b8;">{{ $app->created_at->format('h:i A') }}</div>
                     </td>
                     <td class="pe-4 text-end" onclick="event.stopPropagation()">
-                        <a href="{{ route('admin.review', $app->id) }}" class="btn-evaluate">
-                            Evaluate <i class="fa-solid fa-arrow-right ms-1" style="font-size:0.7rem;"></i>
-                        </a>
+                        <div class="d-flex justify-content-end align-items-center gap-2">
+                            <a href="{{ route('admin.review', $app->id) }}" class="btn-evaluate">
+                                Evaluate <i class="fa-solid fa-arrow-right ms-1" style="font-size:0.7rem;"></i>
+                            </a>
+                            @if($app->is_archived)
+                                <form action="{{ route('admin.unarchive', $app->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;" title="Unarchive Application">
+                                        <i class="fa-solid fa-box-open"></i> Unarchive
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('admin.archive', $app->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;" title="Archive Application">
+                                        <i class="fa-solid fa-box-archive"></i> Archive
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @endforeach

@@ -215,7 +215,7 @@ To transition the project from its current MVP setup to a robust, production-rea
   2. Associate inputs with their labels (by applying matching `id` and `for` attributes) in the scholarship application form, UAT feedback modal, and administrative modals (staff/scholarships).
   3. Run the feature test suite to verify no regressions were introduced.
 
-### Phase 20: Mobile Responsiveness & Design Enhancements
+### Phase 20: Mobile Responsiveness & Design Enhancements - [COMPLETED]
 - **Goal:** Improve the mobile responsiveness and design of the AEGIS portal views.
 - **Steps:**
   1. Add CSS media queries to slide the admin sidebar drawer off-screen and remove margins for the main wrapper on mobile viewports.
@@ -223,4 +223,62 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. Refactor the student navbar to use Bootstrap 5's responsive collapse components.
   4. Adjust headers, flex boxes, and spacing in student dashboard and admin table views to stack vertically.
 
+### Phase 21: Advanced Portal Workflows & Builder Sprint - [COMPLETED]
+- **Goal:** Implement application archiving, staff revocation, staff scholarship assignment, database-driven notification box, and dynamic form builders.
+- **Steps:**
+  1. Database Migrations: Add `is_active` to `users`, `is_archived` to `applications`, generate the standard database `notifications` table, create pivot `scholarship_staff`, and dynamic field tables (`scholarship_fields`, `application_fields`) (completed).
+  2. Archiving & Revocation: Add archive/unarchive controller endpoints and deactivation-checks in auth handlers. Add status toggles on Admin and Super Admin dashboards (completed).
+  3. Notifications System: Create custom Notification classes for student updates and admin queue updates. Embed notification bell overlays with unread badges into app master layouts (completed).
+  4. Staff Assignments: Update staff creation and editing flows to sync active scholarship program pivot rows. Filter admin dashboard queues to only match assigned categories (completed).
+  5. Dynamic Forms Builder: Build interactive field creators inside scholarships management view, dynamically validate submissions in `ApplicationController`, and encrypt dynamically stored records using AES-256 casts (completed).
+
+### Phase 22: GAD Student Assistant Application Form PDF Refactoring
+- **Goal:** Redesign the dynamic scholarship application form PDF layout to mirror Form ACA.OSA.CDE.F.007.
+- **Steps:**
+  1. Refactor `resources/views/emails/application_form_pdf.blade.php` to replicate the official layout structure (header, picture box, checkboxes, personal info grids, family, education, availment history, and signature lines).
+  2. Implement helper methods inside the template to dynamically map student profile columns and custom form fields while rendering underlines for blank fields.
+  3. Keep the A.E.G.I.S. digital forensics audit report section on the form.
+  4. Implement `CheckRole` middleware and route restrictions preventing unauthorized students from loading admin/superadmin interfaces.
+  5. Add ownership validation to document image and Grad-CAM heatmap endpoints to prevent horizontal data disclosure (IDOR).
+  6. Verify compilation and security gates with a complete PHPUnit test run.
+
+### Phase 23: Systematic Security Hardening
+- **Goal:** Defend against brute-force rate-limiting, upload folder script executions, and HTTP header injections.
+- **Steps:**
+  1. Set up throttle limits on login, registration, and forgot-password POST submissions inside `web.php`.
+  2. Create a global `SecurityHeaders` middleware to enforce `X-Frame-Options`, nosniff, and a whitelist CSP.
+  3. Create an `.htaccess` script execution prevention file in the public uploads directory.
+  4. Write `SecurityHardeningTest.php` feature tests to verify headers presence and 429 rate limit triggers.
+
+### Phase 24: Database Query Caching - [COMPLETED]
+- **Goal:** Optimize read times for static config data using database query caching and automatic model observers.
+- **Steps:**
+  1. Refactor `ApplicationController.php` and `SuperAdminController.php` to cache active term and scholarship listings.
+  2. Implement `booted()` cache-busting hooks inside `AcademicTerm.php` and `Scholarship.php`.
+  3. Write `QueryCachingTest.php` feature tests verifying query caching and automatic cache clearing.
+  4. Run PHPUnit test suites.
+
+### Phase 25: DevOps & Production Integration - [COMPLETED]
+- **Goal:** Set up continuous integration, disaster recovery backups, and monitoring mechanisms.
+- **Steps:**
+  1. Upgrade public uploads directory execution block inside `.htaccess`.
+  2. Build GitHub Actions CI testing pipeline inside `.github/workflows/ci.yml`.
+  3. Install and publish Spatie Laravel Backup and Sentry Laravel packages.
+  4. Schedule cleaner and runner backup cron tasks inside `routes/console.php`.
+
+### Phase 26: Docker Compose Containerization - [COMPLETED]
+- **Goal:** Bundle Laravel, Queue, Flask, and Nginx reverse proxy services into unified containers.
+- **Steps:**
+  1. Create Laravel production `Dockerfile`.
+  2. Create Python AI microservice `aegis-ai/Dockerfile`.
+  3. Setup Nginx reverse proxy routing inside `docker-compose/nginx/aegis.conf`.
+  4. Orchestrate all 4 services inside a root `docker-compose.yml` configuration schema.
+
+### Phase 27: Cloud Deployment on Render & Supabase - [IN PROGRESS]
+- **Goal:** Deploy the Laravel web app to Render connected to a Supabase Postgres instance, with the AI microservice hosted on Hugging Face Spaces.
+- **Steps:**
+  1. Modify root `Dockerfile` to compile the `pdo_pgsql` PHP extension.
+  2. Map database schema structure to support pgsql-compliant fields.
+  3. Configure environment variables in the Render web service console (pointing to Supabase DB and Hugging Face AI endpoint).
+  4. Run migrations and seed data on the live remote database.
 

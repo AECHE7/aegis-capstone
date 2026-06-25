@@ -75,6 +75,9 @@ class AdminReportTest extends TestCase
         ]);
         $this->app2->created_at = \Carbon\Carbon::parse('2025-06-01 10:00:00');
         $this->app2->save();
+
+        // Assign admin to both scholarships to allow filtering in report/dashboard test
+        $this->admin->scholarships()->sync([$this->scholarship1->id, $this->scholarship2->id]);
     }
 
     public function test_admin_can_filter_applications_on_dashboard(): void

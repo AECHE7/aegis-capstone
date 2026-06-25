@@ -21,4 +21,34 @@ class Scholarship extends Model
     {
         return $this->hasMany(Application::class);
     }
+
+    /**
+     * Relationship: A scholarship has many custom fields configured
+     */
+    public function fields()
+    {
+        return $this->hasMany(ScholarshipField::class);
+    }
+
+    /**
+     * Relationship: A scholarship belongs to many assigned staff (many-to-many)
+     */
+    public function staff()
+    {
+        return $this->belongsToMany(User::class, 'scholarship_staff');
+    }
+
+    /**
+     * Cache Busting: Clear active scholarships list cache on changes.
+     */
+    protected static function booted()
+    {
+        static::saved(function ($scholarship) {
+            \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
+        });
+
+        static::deleted(function ($scholarship) {
+            \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
+        });
+    }
 }
