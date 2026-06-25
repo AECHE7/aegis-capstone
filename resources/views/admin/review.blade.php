@@ -217,7 +217,7 @@
             @elseif($isFailed)
                 <div class="text-center py-4">
                     <i class="fa-solid fa-triangle-exclamation fa-4x text-danger mb-3"></i>
-                    <p class="text-white-50 small mb-3">AI pipeline failed.<br>Ensure Flask microservice is online.</p>
+                    <p class="text-white-50 small mb-3">AI Scan failed.<br>The document file might be missing from the server disk (wiped during deployment updates) or the AI service returned an error.</p>
                     <form action="{{ route('admin.scan', $application->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-warning text-dark fw-bold w-100 rounded-3">
