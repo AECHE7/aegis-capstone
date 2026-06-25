@@ -21,13 +21,14 @@ class AIVerificationService
         // 2. Get the absolute system path
         $absolutePath = $disk->path($document->file_path);
 
-        // 3. Send to Python Flask API (Added a 60-second timeout to allow the CNN to think)
+        // 3. Send to Python Flask API (Added a 120-second timeout to allow the CNN to think)
         try {
-            $response = Http::timeout(60)->attach(
+            $aiUrl = env('AEGIS_AI_URL') ?: env('AI_SERVICE_URL') ?: 'http://127.0.0.1:5000';
+            $response = Http::timeout(120)->attach(
                 'file', file_get_contents($absolutePath), 'cog.jpg'
-            )->post('http://127.0.0.1:5000/analyze-document');
+            )->post($aiUrl . '/analyze-document');
         } catch (\Exception $e) {
-            throw new \Exception("Connection Error: Could not reach Python API. Make sure 'python app.py' is running in the aegis-ai terminal.");
+            throw new \Exception("Connection Error: Could not reach Python API at " . $aiUrl . ". Details: " . $e->getMessage());
         }
 
         // 4. Handle the Response

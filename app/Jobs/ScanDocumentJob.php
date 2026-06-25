@@ -65,9 +65,10 @@ class ScanDocumentJob implements ShouldQueue
         }
 
         try {
-            $response = Http::timeout(60)->attach(
+            $aiUrl = env('AEGIS_AI_URL') ?: env('AI_SERVICE_URL') ?: 'http://127.0.0.1:5000';
+            $response = Http::timeout(120)->attach(
                 'file', file_get_contents($actualPath), $document->original_name
-            )->post(env('AEGIS_AI_URL', 'http://127.0.0.1:5000') . '/analyze-document');
+            )->post($aiUrl . '/analyze-document');
 
             if ($response->successful()) {
                 $result = $response->json();

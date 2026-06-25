@@ -155,7 +155,9 @@ To transition the project from its current MVP setup to a robust, production-rea
 - **Steps:**
   1. **Update Controller:** Modify `AdminController@review` to detect if the student application has an uploaded document and has not yet been processed by the AI classifier.
   2. **Trigger Scan:** Auto-create the placeholder `AIResult` with `scanning` classification and dispatch the `ScanDocumentJob` in the background immediately.
-  3. **Verification:** Wrote integration test `test_reviewing_unscanned_application_auto_triggers_scan` in `DocumentScanTest.php` and verified that the queue worker correctly dispatches the scan automatically on page load.
+  3. **Robust Environment Resolution:** Updated `ScanDocumentJob` and `AIVerificationService` to support both `AEGIS_AI_URL` and `AI_SERVICE_URL` environment variables, with an increased timeout threshold (120 seconds) to handle Hugging Face cold starts.
+  4. **Background Queue Execution**: Configured Docker container CMD to launch a background queue worker (`php artisan queue:work &`) alongside the web server, enabling asynchronous execution on single-process free tier servers.
+  5. **Verification:** Wrote integration test `test_reviewing_unscanned_application_auto_triggers_scan` in `DocumentScanTest.php` and verified that the queue worker correctly dispatches the scan automatically on page load.
 
 ### Phase 13: Student Registration & Staff Management - [COMPLETED]
 - **Goal:** Implement secure student self-registration with institutional email verification, and a Superadmin staff invitation/account activation flow.
