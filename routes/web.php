@@ -103,9 +103,10 @@ Route::middleware(['auth'])->group(function () {
         if (auth()->user()->role === 'student' && ($aiResult->document->application->user_id ?? null) !== auth()->id()) {
             abort(403, 'Unauthorized access.');
         }
-        $path = base_path('aegis-ai/' . $aiResult->heatmap_path);
-        if (!file_exists($path)) { abort(404); }
-        return response()->file($path);
+        // Resolve the AI service base URL (same logic used in AIVerificationService)
+        $aiUrl = rtrim(env('AEGIS_AI_URL') ?: env('AI_SERVICE_URL') ?: 'http://127.0.0.1:5000', '/');
+        $filename = basename($aiResult->heatmap_path);
+        return redirect($aiUrl . '/heatmap/' . $filename);
     })->name('document.heatmap');
 
 

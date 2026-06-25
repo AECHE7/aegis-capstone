@@ -43,16 +43,31 @@ class BrevoTransport extends AbstractTransport
             ];
         }
 
-        $response = Http::withHeaders([
-            'api-key' => $this->key,
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ])->post('https://api.brevo.com/v3/smtp/email', [
-            'sender' => $sender,
-            'to' => $to,
-            'subject' => $email->getSubject(),
+        $payload = [
+            'sender'      => $sender,
+            'to'          => $to,
+            'subject'     => $email->getSubject(),
             'htmlContent' => $email->getHtmlBody() ?: $email->getTextBody(),
-        ]);
+        ];
+
+        // Include any attachments (e.g. approval PDF)
+        $attachments = [];
+        foreach ($email->getAttachments() as $part) {
+            $attachments[] = [
+                'content' => base64_encode($part->getBody()),
+                'name'    => $part->getPreparedHeaders()->getHeaderParameter('Content-Disposition', 'filename')
+                              ?: ($part->getPreparedHeaders()->getHeaderParameter('Content-Type', 'name') ?: 'attachment'),
+            ];
+        }
+        if (!empty($attachments)) {
+            $payload['attachment'] = $attachments;
+        }
+
+        $response = Http::withHeaders([
+            'api-key'      => $this->key,
+            'Content-Type' => 'application/json',
+            'Accept'       => 'application/json',
+        ])->post('https://api.brevo.com/v3/smtp/email', $payload);
 
         if ($response->failed()) {
             throw new \Exception('Brevo API Error: ' . $response->body());

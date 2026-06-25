@@ -10,7 +10,7 @@ except ImportError:
     TENSORFLOW_AVAILABLE = False
     print("Warning: TensorFlow not found. Running in Simulation/Fallback Mode.")
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from PIL import Image, ImageChops, ImageEnhance
 
 app = Flask(__name__)
@@ -169,7 +169,11 @@ def analyze_document():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
+@app.route('/heatmap/<filename>', methods=['GET'])
+def serve_heatmap(filename):
+    """Serve a generated heatmap image by filename."""
+    return send_from_directory(os.path.abspath(HEATMAP_FOLDER), filename)
+
 if __name__ == '__main__':
-    import os
     debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
     app.run(host='0.0.0.0', port=int(os.environ.get('FLASK_PORT', 5000)), debug=debug_mode)
