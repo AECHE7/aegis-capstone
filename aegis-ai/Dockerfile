@@ -14,5 +14,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy microservice code and model
 COPY . .
 
-EXPOSE 5000
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app", "--timeout", "120"]
+EXPOSE 7860
+CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app", "--timeout", "120"]
