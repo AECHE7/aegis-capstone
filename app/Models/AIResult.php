@@ -10,4 +10,10 @@ class AIResult extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    /** AIResult belongs to the Document it was generated for. */
+    public function document()
+    {
+        return $this->belongsTo(Document::class);
+    }
 }
