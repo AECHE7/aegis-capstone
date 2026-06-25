@@ -13,6 +13,43 @@ except ImportError:
 from flask import Flask, request, jsonify, send_from_directory
 from PIL import Image, ImageChops, ImageEnhance
 
+# ── Cloudinary persistent storage (optional) ────────────────────────────────
+try:
+    import cloudinary
+    import cloudinary.uploader
+    _CLD_NAME   = os.environ.get('CLOUDINARY_CLOUD_NAME')
+    _CLD_KEY    = os.environ.get('CLOUDINARY_API_KEY')
+    _CLD_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
+    if _CLD_NAME and _CLD_KEY and _CLD_SECRET:
+        cloudinary.config(cloud_name=_CLD_NAME, api_key=_CLD_KEY, api_secret=_CLD_SECRET, secure=True)
+        CLOUDINARY_ENABLED = True
+        print("Cloudinary persistent storage: ENABLED")
+    else:
+        CLOUDINARY_ENABLED = False
+        print("Cloudinary not configured — heatmaps stored locally (ephemeral).")
+except ImportError:
+    CLOUDINARY_ENABLED = False
+    print("cloudinary package missing — heatmaps stored locally (ephemeral).")
+
+def upload_heatmap_to_cloudinary(local_path: str, public_id: str) -> str | None:
+    """Upload a heatmap JPEG to Cloudinary and return its permanent secure URL.
+    Returns None if Cloudinary is not configured or the upload fails."""
+    if not CLOUDINARY_ENABLED:
+        return None
+    try:
+        result = cloudinary.uploader.upload(
+            local_path,
+            public_id=f"aegis_heatmaps/{public_id}",
+            overwrite=True,
+            resource_type="image",
+            folder="aegis_heatmaps",
+        )
+        return result.get('secure_url')
+    except Exception as e:
+        print(f"Cloudinary upload failed: {e}")
+        return None
+# ────────────────────────────────────────────────────────────────────────────
+
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'temp_uploads'
@@ -156,13 +193,18 @@ def analyze_document():
         try:
             generate_ela(original_path, ela_path)
             score, label = run_cnn_inference_and_gradcam(original_path, ela_path, heatmap_path)
-            
+
+            # Try to upload to Cloudinary for persistent storage
+            heatmap_filename = os.path.basename(heatmap_path)
+            cloudinary_url = upload_heatmap_to_cloudinary(heatmap_path, heatmap_filename.replace('.jpg', ''))
+
             return jsonify({
                 "status": "success",
                 "fraud_probability": score,
                 "classification": label,
                 "paths": {
-                    "heatmap_path": heatmap_path,
+                    # Use the permanent Cloudinary URL if available, else local filename
+                    "heatmap_path": cloudinary_url if cloudinary_url else heatmap_path,
                     "ela_path": ela_path
                 }
             }), 200

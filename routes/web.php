@@ -103,10 +103,14 @@ Route::middleware(['auth'])->group(function () {
         if (auth()->user()->role === 'student' && ($aiResult->document->application->user_id ?? null) !== auth()->id()) {
             abort(403, 'Unauthorized access.');
         }
-        // Resolve the AI service base URL (same logic used in AIVerificationService)
+        $path = $aiResult->heatmap_path;
+        // If Cloudinary (or any full URL) — redirect straight to CDN
+        if (str_starts_with($path, 'http')) {
+            return redirect($path);
+        }
+        // Fallback: proxy via the AI microservice /heatmap/ endpoint
         $aiUrl = rtrim(env('AEGIS_AI_URL') ?: env('AI_SERVICE_URL') ?: 'http://127.0.0.1:5000', '/');
-        $filename = basename($aiResult->heatmap_path);
-        return redirect($aiUrl . '/heatmap/' . $filename);
+        return redirect($aiUrl . '/heatmap/' . basename($path));
     })->name('document.heatmap');
 
 
