@@ -9,7 +9,13 @@ class Document extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'application_id',
+        'file_path',
+        'original_name',
+        'document_type',
+    ];
+
 
     // A Document has one AI Result
     public function aiResult()

@@ -9,7 +9,13 @@ class AIResult extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'document_id',
+        'fraud_probability',
+        'classification',
+        'heatmap_path',
+    ];
+
 
     /** AIResult belongs to the Document it was generated for. */
     public function document()
