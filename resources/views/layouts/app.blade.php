@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('aegis-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'A.E.G.I.S. Portal')</title>
@@ -24,6 +30,10 @@
             --clsu-gold-light: #ffd966;
             --clsu-dark: #0f172a;
             --clsu-bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-title: #0f172a;
+            --border-color: rgba(226, 232, 240, 0.8);
             --sidebar-width: 260px;
             --sidebar-collapsed: 72px;
             --radius-sm: 8px;
@@ -36,6 +46,139 @@
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        [data-theme="dark"] {
+            --clsu-bg: #090d16;
+            --card-bg: #0f172a;
+            --text-main: #94a3b8;
+            --text-title: #f8fafc;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --clsu-dark: #070a10;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.6);
+        }
+
+        /* ══════════════════════════════════════════
+           SKELETON LOADER & MICRO-INTERACTIONS
+        ══════════════════════════════════════════ */
+        .skeleton {
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: var(--radius-sm);
+            display: inline-block;
+            height: 1rem;
+            width: 100%;
+        }
+
+        [data-theme="dark"] .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .btn-glow {
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 0 12px rgba(15, 89, 52, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Glassmorphism elements */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        [data-theme="dark"] .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .topbar-icon-btn {
+            color: var(--text-main) !important;
+            transition: var(--transition);
+        }
+        .topbar-icon-btn:hover {
+            color: var(--clsu-green) !important;
+        }
+
+        /* Theme adjustments for general elements */
+        .dropdown-menu {
+            background-color: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        .dropdown-item {
+            color: var(--text-main) !important;
+        }
+        .dropdown-item:hover {
+            background-color: var(--clsu-bg) !important;
+            color: var(--text-title) !important;
+        }
+        .dropdown-menu span, .dropdown-menu li, .dropdown-menu div {
+            color: var(--text-main);
+        }
+        .dropdown-menu .fw-bold {
+            color: var(--text-title) !important;
+        }
+
+        /* Form elements inside theme */
+        .form-control, .form-select {
+            background-color: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--border-color) !important;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--clsu-green) !important;
+            box-shadow: 0 0 0 3px rgba(15, 89, 52, 0.15) !important;
+        }
+
+        /* Modals inside theme */
+        .modal-content {
+            background-color: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        .modal-header, .modal-footer {
+            border-color: var(--border-color) !important;
+        }
+        .modal-body {
+            color: var(--text-main) !important;
+        }
+
+        /* Tables inside theme */
+        .table {
+            color: var(--text-main) !important;
+        }
+        .table th {
+            color: var(--text-title) !important;
+            border-color: var(--border-color) !important;
+        }
+        .table td {
+            border-color: var(--border-color) !important;
+        }
+
+        /* Alert elements overrides */
+        [data-theme="dark"] .alert-success {
+            background-color: rgba(22, 101, 52, 0.25) !important;
+            color: #86efac !important;
+            border-color: rgba(34, 197, 94, 0.4) !important;
+        }
+        [data-theme="dark"] .alert-danger {
+            background-color: rgba(127, 29, 29, 0.25) !important;
+            color: #fca5a5 !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+        }
+
         /* ══════════════════════════════════════════
            GLOBAL BASE
         ══════════════════════════════════════════ */
@@ -44,25 +187,26 @@
         body {
             background-color: var(--clsu-bg);
             font-family: 'Inter', sans-serif;
-            color: #334155;
+            color: var(--text-main);
             margin: 0;
             overflow-x: hidden;
+            transition: background-color 0.25s, color 0.25s;
         }
 
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Poppins', sans-serif;
-            color: #0f172a;
+            color: var(--text-title);
         }
 
         /* ══════════════════════════════════════════
            CARD SYSTEM
         ══════════════════════════════════════════ */
         .card {
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-sm);
             transition: var(--transition);
-            background: #ffffff;
+            background: var(--card-bg);
         }
 
         .card-hover:hover {
@@ -291,17 +435,17 @@
             left: calc(var(--sidebar-width) - 16px);
             width: 32px;
             height: 32px;
-            background: white;
-            border: 1.5px solid #e2e8f0;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 1035;
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s, border-color 0.25s;
             box-shadow: var(--shadow-sm);
-            color: #64748b;
+            color: var(--text-main);
         }
 
         .sidebar-toggle:hover { background: var(--clsu-green); color: white; border-color: var(--clsu-green); }
@@ -318,8 +462,8 @@
 
         /* Top header bar inside main area */
         .topbar {
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
             padding: 0.75rem 2rem;
             display: flex;
             align-items: center;
@@ -328,9 +472,10 @@
             top: 0;
             z-index: 100;
             box-shadow: var(--shadow-sm);
+            transition: var(--transition);
         }
 
-        .topbar-title { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; color: #0f172a; margin: 0; }
+        .topbar-title { font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; color: var(--text-title); margin: 0; }
         .topbar-subtitle { font-size: 0.75rem; color: #94a3b8; margin: 0; }
 
         .page-content {
@@ -717,7 +862,7 @@
         <div class="topbar">
             <div class="d-flex align-items-center">
                 <!-- Mobile Hamburger Toggle -->
-                <button class="btn btn-link text-dark p-0 me-3 d-lg-none" id="mobileSidebarToggle" aria-label="Toggle Navigation" style="box-shadow: none;">
+                <button class="btn btn-link topbar-icon-btn p-0 me-3 d-lg-none" id="mobileSidebarToggle" aria-label="Toggle Navigation" style="box-shadow: none;">
                     <i class="fa-solid fa-bars fs-4"></i>
                 </button>
                 <div>
@@ -726,9 +871,14 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-3">
+                <!-- Theme Switcher -->
+                <button class="btn btn-link topbar-icon-btn p-1 me-1" id="themeToggleBtn" type="button" style="box-shadow: none;" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon fs-5" id="themeToggleIcon"></i>
+                </button>
+
                 <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-1">
-                    <button class="btn btn-link position-relative p-1 text-dark" type="button" id="notifBellAdmin" data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
+                    <button class="btn btn-link position-relative p-1 topbar-icon-btn" type="button" id="notifBellAdmin" data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
                         <i class="fa-regular fa-bell fs-5"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" id="notifBadgeAdmin" style="font-size: 0.6rem; padding: 3px 6px;">
                             0
@@ -736,7 +886,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" aria-labelledby="notifBellAdmin" style="width: 320px; border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
                         <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-dark">Notifications</span>
+                            <span class="fw-bold">Notifications</span>
                             <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small text-success fw-semibold" onclick="clearAllNotifications(event)">Mark all as read</button>
                         </li>
                         <div id="notifListAdmin">
@@ -821,6 +971,11 @@
                     </a>
                     <span class="d-none d-lg-inline" style="width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;"></span>
                     
+                    <!-- Theme Switcher for Student -->
+                    <button class="btn btn-link p-1 text-white-50 hover-white mt-1 mt-lg-0 me-lg-2 text-start text-lg-center" id="themeToggleBtnStudent" type="button" style="box-shadow: none;" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+                        <i class="fa-solid fa-moon fs-5 text-white" id="themeToggleIconStudent"></i>
+                    </button>
+
                     <!-- Notification Bell Dropdown for Student -->
                     <div class="dropdown me-lg-2 mt-2 mt-lg-0 text-start text-lg-center" style="width: fit-content;">
                         <button class="btn btn-link position-relative p-1 text-white-50 hover-white d-flex align-items-center" type="button" id="notifBellStudent" data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
@@ -1088,7 +1243,7 @@
             li.innerHTML = `
                 <div class="d-flex flex-column gap-1 text-start">
                     <div class="d-flex justify-content-between align-items-center">
-                        <strong class="text-dark" style="font-size: 0.8rem;">${n.title}</strong>
+                        <strong style="font-size: 0.8rem;">${n.title}</strong>
                         <span class="text-muted" style="font-size: 0.65rem;">${n.created_at}</span>
                     </div>
                     <div class="text-muted small" style="line-height: 1.3;">${n.message}</div>
@@ -1134,8 +1289,40 @@
         })
         .catch(err => console.error('Error clearing notifications:', err));
     }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('aegis-theme', newTheme);
+        
+        updateThemeToggleIcons(newTheme);
+    }
+
+    function updateThemeToggleIcons(theme) {
+        const icons = [
+            document.getElementById('themeToggleIcon'),
+            document.getElementById('themeToggleIconStudent')
+        ];
+        
+        icons.forEach(icon => {
+            if (icon) {
+                if (theme === 'dark') {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+        });
+    }
     
     document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('aegis-theme') || 'light';
+        updateThemeToggleIcons(savedTheme);
+        
         fetchNotifications();
         setInterval(fetchNotifications, 20000);
     });

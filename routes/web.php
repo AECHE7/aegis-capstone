@@ -12,6 +12,7 @@ use App\Http\Controllers\AuthController;
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/login', [AuthController::class, 'showLogin']); 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
+Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
