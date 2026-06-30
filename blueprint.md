@@ -284,3 +284,11 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. Configure environment variables in the Render web service console (pointing to Supabase DB and Hugging Face AI endpoint).
   4. Run migrations and seed data on the live remote database.
 
+### Phase 28: Authentication & Session Security Hardening - [COMPLETED]
+- **Goal:** Enforce strict password validation and secure sessions for all users.
+- **Steps:**
+  1. Implement `CheckUserActive` middleware to force logout users whose accounts have been deactivated.
+  2. Configure production-ready password complexity validation rules.
+  3. Enable HTTPS-only session cookies dynamically based on the active environment.
+  4. Validate and assert all scenarios with a custom feature test suite.
+
