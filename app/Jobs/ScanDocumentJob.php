@@ -65,7 +65,7 @@ class ScanDocumentJob implements ShouldQueue
         }
 
         try {
-            $aiUrl = env('AEGIS_AI_URL') ?: env('AI_SERVICE_URL') ?: 'http://127.0.0.1:5000';
+            $aiUrl = config('services.ai.url');
             $response = Http::timeout(120)->attach(
                 'file', file_get_contents($actualPath), $document->original_name
             )->post($aiUrl . '/analyze-document');

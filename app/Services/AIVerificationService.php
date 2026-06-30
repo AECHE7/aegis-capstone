@@ -23,7 +23,7 @@ class AIVerificationService
 
         // 3. Send to Python Flask API (Added a 120-second timeout to allow the CNN to think)
         try {
-            $aiUrl = env('AEGIS_AI_URL') ?: env('AI_SERVICE_URL') ?: 'http://127.0.0.1:5000';
+            $aiUrl = config('services.ai.url');
             $response = Http::timeout(120)->attach(
                 'file', file_get_contents($absolutePath), 'cog.jpg'
             )->post($aiUrl . '/analyze-document');

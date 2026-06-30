@@ -122,7 +122,7 @@ Route::middleware(['auth'])->group(function () {
             return redirect($path);
         }
         // Fallback: proxy via the AI microservice /heatmap/ endpoint
-        $aiUrl = rtrim(env('AEGIS_AI_URL') ?: env('AI_SERVICE_URL') ?: 'http://127.0.0.1:5000', '/');
+        $aiUrl = rtrim(config('services.ai.url'), '/');
         return redirect($aiUrl . '/heatmap/' . basename($path));
     })->name('document.heatmap');
 
