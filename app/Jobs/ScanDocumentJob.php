@@ -35,9 +35,9 @@ class ScanDocumentJob implements ShouldQueue
 
         $document = $application->document;
 
-        // Locate file path on disk
         $pathsToTry = [
             public_path($document->file_path),
+            storage_path('app/' . $document->file_path),
             storage_path('app/public/' . $document->file_path),
             base_path('public/' . $document->file_path)
         ];

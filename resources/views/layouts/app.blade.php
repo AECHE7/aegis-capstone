@@ -1324,7 +1324,25 @@
         updateThemeToggleIcons(savedTheme);
         
         fetchNotifications();
-        setInterval(fetchNotifications, 20000);
+
+        if (typeof(EventSource) !== "undefined") {
+            const eventSource = new EventSource("{{ route('notifications.stream') }}");
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.refresh) {
+                        fetchNotifications();
+                    }
+                } catch(e) {
+                    console.error("Error parsing notification stream data:", e);
+                }
+            };
+            eventSource.onerror = function(err) {
+                console.error("EventSource connection error:", err);
+            };
+        } else {
+            setInterval(fetchNotifications, 20000);
+        }
     });
 </script>
 

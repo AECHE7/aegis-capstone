@@ -113,43 +113,74 @@
 <div class="row g-4">
 
     {{-- UAT Scores Card --}}
-    <div class="col-lg-5">
+    <div class="col-lg-6">
         <div class="card p-4 h-100" style="border-radius:16px;">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-star text-warning me-2"></i> UAT Ratings (ISO/IEC 25010)</h6>
                     <small class="text-muted">Total Responses: <strong>{{ $uatStats['count'] }}</strong></small>
                 </div>
-                <div style="background:linear-gradient(135deg,var(--clsu-green),#16703f);color:white;border-radius:12px;padding:8px 14px;text-align:center;">
-                    <div style="font-family:'Poppins',sans-serif;font-size:1.5rem;font-weight:800;line-height:1;">{{ $uatStats['overall_mean'] }}</div>
-                    <div style="font-size:0.65rem;opacity:0.8;letter-spacing:0.5px;">Overall Mean Score</div>
+                <div class="d-flex align-items-center gap-3">
+                    @php
+                        $mean = $uatStats['overall_mean'];
+                        if ($mean >= 4.5) {
+                            $badgeClass = 'bg-success text-white';
+                            $badgeText = 'Outstanding';
+                        } elseif ($mean >= 4.0) {
+                            $badgeClass = 'bg-info text-dark';
+                            $badgeText = 'Very Good';
+                        } elseif ($mean >= 3.5) {
+                            $badgeClass = 'bg-warning text-dark';
+                            $badgeText = 'Satisfactory';
+                        } else {
+                            $badgeClass = 'bg-danger text-white';
+                            $badgeText = 'Needs Improvement';
+                        }
+                    @endphp
+                    <span class="badge {{ $badgeClass }} px-3 py-2 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                        {{ $badgeText }}
+                    </span>
+                    <div style="background:linear-gradient(135deg,var(--clsu-green),#16703f);color:white;border-radius:12px;padding:8px 14px;text-align:center;">
+                        <div style="font-family:'Poppins',sans-serif;font-size:1.5rem;font-weight:800;line-height:1;">{{ $uatStats['overall_mean'] }}</div>
+                        <div style="font-size:0.65rem;opacity:0.8;letter-spacing:0.5px;">Overall Mean Score</div>
+                    </div>
                 </div>
             </div>
 
-            @foreach([
-                ['label' => 'Functional Suitability', 'icon' => 'fa-gear', 'color' => '#0284c7', 'score' => $uatStats['avg_fs']],
-                ['label' => 'Usability', 'icon' => 'fa-hand-pointer', 'color' => '#7c3aed', 'score' => $uatStats['avg_us']],
-                ['label' => 'Reliability', 'icon' => 'fa-server', 'color' => '#0F5934', 'score' => $uatStats['avg_rl']],
-                ['label' => 'Security', 'icon' => 'fa-shield-halved', 'color' => '#d97706', 'score' => $uatStats['avg_sc']],
-            ] as $metric)
-            <div class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid {{ $metric['icon'] }} small" style="color: {{ $metric['color'] }};"></i>
-                        <span class="small fw-semibold text-dark">{{ $metric['label'] }}</span>
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    @foreach([
+                        ['label' => 'Functional Suitability', 'icon' => 'fa-gear', 'color' => '#0284c7', 'score' => $uatStats['avg_fs'], 'desc' => 'Degree to which functions meet stated and implied needs.'],
+                        ['label' => 'Usability', 'icon' => 'fa-hand-pointer', 'color' => '#7c3aed', 'score' => $uatStats['avg_us'], 'desc' => 'Ease of use, learning, and overall user interface satisfaction.'],
+                        ['label' => 'Reliability', 'icon' => 'fa-server', 'color' => '#0F5934', 'score' => $uatStats['avg_rl'], 'desc' => 'System uptime, error-free operations, and pipeline stability.'],
+                        ['label' => 'Security', 'icon' => 'fa-shield-halved', 'color' => '#d97706', 'score' => $uatStats['avg_sc'], 'desc' => 'Data encryption, access control, and IDOR protection compliance.'],
+                    ] as $metric)
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid {{ $metric['icon'] }} small" style="color: {{ $metric['color'] }};"></i>
+                                <span class="small fw-semibold text-dark">{{ $metric['label'] }}</span>
+                                <i class="fa-solid fa-circle-info text-muted ms-1" style="font-size:0.7rem; cursor:help;" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $metric['desc'] }}"></i>
+                            </div>
+                            <span class="fw-bold small" style="color: {{ $metric['color'] }};">{{ $metric['score'] }}/5</span>
+                        </div>
+                        <div class="uat-score-bar">
+                            <div class="uat-score-fill" data-width="{{ ($metric['score'] / 5) * 100 }}" style="background: linear-gradient(90deg, {{ $metric['color'] }}, {{ $metric['color'] }}99); width: 0%;"></div>
+                        </div>
                     </div>
-                    <span class="fw-bold small" style="color: {{ $metric['color'] }};">{{ $metric['score'] }}/5</span>
+                    @endforeach
                 </div>
-                <div class="uat-score-bar">
-                    <div class="uat-score-fill" data-width="{{ ($metric['score'] / 5) * 100 }}" style="background: linear-gradient(90deg, {{ $metric['color'] }}, {{ $metric['color'] }}99);"></div>
+                <div class="col-md-5">
+                    <div style="position:relative; height: 210px; width: 100%;">
+                        <canvas id="uatRadarChart"></canvas>
+                    </div>
                 </div>
             </div>
-            @endforeach
         </div>
     </div>
 
     {{-- Evaluator Audit Table --}}
-    <div class="col-lg-7">
+    <div class="col-lg-6">
         <div class="card p-4 h-100" style="border-radius:16px;">
             <h6 class="fw-bold text-dark mb-3">
                 <i class="fa-solid fa-list-check text-primary me-2"></i> Recent Evaluator Decisions
@@ -290,5 +321,50 @@
             }
         }
     });
+
+    // ── 4. UAT RADAR CHART ────────────────────────────
+    new Chart(document.getElementById('uatRadarChart'), {
+        type: 'radar',
+        data: {
+            labels: ['Functional Suitability', 'Usability', 'Reliability', 'Security'],
+            datasets: [{
+                label: 'Average Score',
+                data: [
+                    {{ $uatStats['avg_fs'] }},
+                    {{ $uatStats['avg_us'] }},
+                    {{ $uatStats['avg_rl'] }},
+                    {{ $uatStats['avg_sc'] }}
+                ],
+                backgroundColor: 'rgba(15, 89, 52, 0.18)',
+                borderColor: 'rgba(15, 89, 52, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(15, 89, 52, 1)',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgba(15, 89, 52, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0, 0, 0, 0.08)' },
+                    grid: { color: 'rgba(0, 0, 0, 0.08)' },
+                    pointLabels: { font: { size: 9, weight: '600' } },
+                    suggestedMin: 0,
+                    suggestedMax: 5,
+                    ticks: { stepSize: 1, display: false }
+                }
+            }
+        }
+    });
+
+    // ── 5. INITIALIZE TOOLTIPS ────────────────────────
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 </script>
 @endpush

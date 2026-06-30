@@ -301,3 +301,32 @@ To transition the project from its current MVP setup to a robust, production-rea
   4. Create a public `/health` endpoint validating database and storage status.
   5. Assert functional correctness with integration tests.
 
+### Phase 30: Storage Path Alignment, Security Hardening, & UAT Live Preview Upgrades - [COMPLETED]
+- **Goal:** Resolve critical storage/security mismatches, implement UAT ISO/IEC 25010 radar visualization, and build a live dynamic form preview.
+- **Steps:**
+  1. Fix background worker storage path resolution mismatch in `ScanDocumentJob.php` (completed).
+  2. Refactor document image source in admin review view (`review.blade.php`) to use the secure document route rather than public asset URLs (completed).
+  3. Upgrade the UAT Ratings Card with tooltip definitions and a Chart.js Radar Chart in `analytics.blade.php` (completed).
+  4. Build a responsive, real-time Live Form Preview Panel inside `newProgramModal` in `scholarships.blade.php` (completed).
+  5. Verify correctness and run the automated PHPUnit test suites (completed).
+
+### Phase 31: Student Application Details Portal & Secure Custom File Downloads - [COMPLETED]
+- **Goal:** Build secure application detail sidebars for student dashboards and implement IDOR-protected downloads for custom form files.
+- **Steps:**
+  1. Eager load custom parameters in `ApplicationController@dashboard` (completed).
+  2. Implement an IDOR-protected `/application-field/{id}/file` route and use it for file links (completed).
+  3. Restructure `student/dashboard.blade.php` to include the side-by-side details card (completed).
+  4. Add feature test checks for route access validation (completed).
+  5. Verify execution with the PHPUnit test suite (completed).
+
+### Phase 32: Real-time Event Notifications - [COMPLETED]
+- **Goal:** Replace standard 20s interval client polling with Server-Sent Events (SSE) to push status updates and staff notifications in real time.
+- **Steps:**
+  1. Register `/notifications/stream` SSE stream route in `routes/web.php` (completed).
+  2. Implement `streamNotifications` in `AuthController.php` utilizing streamed database checks (completed).
+  3. Integrate `EventSource` on the client side in `layouts/app.blade.php` with fallback polling support (completed).
+  4. Write `RealtimeNotificationsTest.php` feature verification suite (completed).
+  5. Validate implementation using PHPUnit (completed).
+
+
+

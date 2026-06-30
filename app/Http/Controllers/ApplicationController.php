@@ -15,7 +15,7 @@ class ApplicationController extends Controller
     public function dashboard()
     {
         $userId = auth()->id() ?? 1; // Fallback to user 1 for testing
-        $application = Application::with(['document.aiResult', 'statusLogs' => function($q) {
+        $application = Application::with(['document.aiResult', 'customFields', 'academicTerm', 'statusLogs' => function($q) {
             $q->orderBy('created_at', 'asc');
         }])
             ->where('user_id', $userId)

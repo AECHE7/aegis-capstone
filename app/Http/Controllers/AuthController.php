@@ -125,4 +125,48 @@ class AuthController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function streamNotifications()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            abort(403);
+        }
+
+        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($user) {
+            set_time_limit(0);
+            $lastChecked = now()->toDateTimeString();
+
+            // Send initial state
+            $initialCount = $user->unreadNotifications()->count();
+            echo "data: " . json_encode(['count' => $initialCount, 'refresh' => true]) . "\n\n";
+            if (ob_get_level() > 0) { ob_flush(); }
+            flush();
+
+            while (true) {
+                if (connection_aborted() || app()->runningUnitTests()) {
+                    break;
+                }
+
+                $newCount = $user->unreadNotifications()->where('created_at', '>', $lastChecked)->count();
+
+                if ($newCount > 0) {
+                    $lastChecked = now()->toDateTimeString();
+                    $totalCount = $user->unreadNotifications()->count();
+                    echo "data: " . json_encode(['count' => $totalCount, 'refresh' => true]) . "\n\n";
+                    if (ob_get_level() > 0) { ob_flush(); }
+                    flush();
+                }
+
+                sleep(2);
+            }
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+        $response->headers->set('X-Accel-Buffering', 'no');
+
+        return $response;
+    }
 }

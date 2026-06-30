@@ -40,6 +40,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Notifications routes
     Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');
+    Route::get('/notifications/stream', [AuthController::class, 'streamNotifications'])->name('notifications.stream');
     Route::post('/notifications/{id}/read', [AuthController::class, 'markNotificationAsRead'])->name('notifications.read');
     Route::post('/notifications/clear', [AuthController::class, 'clearNotifications'])->name('notifications.clear');
 
@@ -126,6 +127,20 @@ Route::middleware(['auth'])->group(function () {
         return redirect($aiUrl . '/heatmap/' . basename($path));
     })->name('document.heatmap');
 
+    Route::get('/application-field/{id}/file', function ($id) {
+        $field = \App\Models\ApplicationField::with('application')->findOrFail($id);
+        if (auth()->user()->role === 'student' && ($field->application->user_id ?? null) !== auth()->id()) {
+            abort(403, 'Unauthorized access.');
+        }
+        if (auth()->user()->role === 'admin') {
+            $assignedIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            if (!in_array($field->application->scholarship_id, $assignedIds)) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($field->field_value)) { abort(404); }
+        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($field->field_value));
+    })->name('application-field.file');
 
     // UAT FEEDBACK SUBMISSION
     Route::post('/uat-feedback', [\App\Http\Controllers\UatFeedbackController::class, 'store'])->name('uat.store');

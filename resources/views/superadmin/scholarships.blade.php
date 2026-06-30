@@ -86,7 +86,7 @@
 
 {{-- New Program Modal --}}
 <div class="modal fade" id="newProgramModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
             <div class="modal-header border-0" style="background: linear-gradient(135deg, #0f1f12, #0F5934); padding: 1.5rem;">
                 <div>
@@ -100,34 +100,70 @@
             <form action="{{ route('superadmin.scholarships.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-8">
-                            <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
-                            <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold small text-muted" for="gwaRequirement">Maximum GWA</label>
-                            <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" required placeholder="e.g., 1.75">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small text-muted" for="programDesc">Program Description</label>
-                        <textarea name="description" id="programDesc" class="form-control" rows="2" required
-                                  placeholder="Brief overview of grant requirements and benefits..."
-                                  style="resize:none;"></textarea>
-                    </div>
+                    <div class="row g-4">
+                        {{-- Left Column: Form Builder --}}
+                        <div class="col-lg-7 border-end pe-lg-4">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-8">
+                                    <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
+                                    <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold small text-muted" for="gwaRequirement">Maximum GWA</label>
+                                    <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" required placeholder="e.g., 1.75">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-muted" for="programDesc">Program Description</label>
+                                <textarea name="description" id="programDesc" class="form-control" rows="2" required
+                                          placeholder="Brief overview of grant requirements and benefits..."
+                                          style="resize:none;"></textarea>
+                            </div>
 
-                    <hr class="my-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-list-check text-success me-2"></i> Custom Form Fields (Google Forms Style)</h6>
-                        <button type="button" id="addFieldBtn" class="btn btn-sm btn-outline-success fw-bold px-3" style="border-radius: 8px;">
-                            <i class="fa-solid fa-plus me-1"></i> Add Custom Field
-                        </button>
-                    </div>
-                    
-                    <div id="fieldsContainer" class="p-3 bg-light border mb-0" style="border-radius: 12px; max-height: 280px; overflow-y: auto;">
-                        <div class="text-center text-muted small py-3" id="noFieldsText">
-                            No custom fields added yet. Only the standard GWA and COG upload will be required.
+                            <hr class="my-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-list-check text-success me-2"></i> Custom Form Fields</h6>
+                                <button type="button" id="addFieldBtn" class="btn btn-sm btn-outline-success fw-bold px-3" style="border-radius: 8px;">
+                                    <i class="fa-solid fa-plus me-1"></i> Add Custom Field
+                                </button>
+                            </div>
+                            
+                            <div id="fieldsContainer" class="p-3 bg-light border mb-0" style="border-radius: 12px; max-height: 280px; overflow-y: auto;">
+                                <div class="text-center text-muted small py-3" id="noFieldsText">
+                                    No custom fields added yet. Only the standard GWA and COG upload will be required.
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Right Column: Live Form Preview --}}
+                        <div class="col-lg-5 ps-lg-4">
+                            <div class="card p-3 bg-light border-0 shadow-sm" style="border-radius: 12px;">
+                                <h6 class="fw-bold mb-3 text-secondary" style="font-size:0.82rem; letter-spacing:0.5px; text-transform:uppercase;">
+                                    <i class="fa-solid fa-eye text-primary me-1"></i> Live Form Preview
+                                </h6>
+                                
+                                {{-- Standard Fields --}}
+                                <div class="mb-3 pb-3 border-bottom text-start">
+                                    <div class="small fw-bold text-muted mb-2" style="font-size: 0.72rem; letter-spacing: 0.3px; text-transform: uppercase;">Standard Requirements</div>
+                                    
+                                    <div class="mb-2">
+                                        <label class="form-label small fw-semibold text-dark mb-0">General Weighted Average (GWA) <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-sm bg-white" disabled placeholder="e.g., 1.75" style="opacity: 0.75;">
+                                    </div>
+                                    <div>
+                                        <label class="form-label small fw-semibold text-dark mb-0">Certificate of Grades (COG) Upload <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control form-control-sm bg-white" disabled style="opacity: 0.75;">
+                                    </div>
+                                </div>
+
+                                {{-- Dynamic Custom Fields Preview Container --}}
+                                <div class="small fw-bold text-muted mb-2 text-start" style="font-size: 0.72rem; letter-spacing: 0.3px; text-transform: uppercase;">Custom Parameters</div>
+                                <div id="livePreviewContainer" class="d-flex flex-column gap-3">
+                                    <div class="text-center text-muted small py-4" id="emptyPreviewText">
+                                        Custom fields you add will preview here in real time.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -149,6 +185,58 @@
 <script>
     let fieldIndex = 0;
 
+    function renderLivePreview() {
+        const container = document.getElementById('livePreviewContainer');
+        const rows = document.querySelectorAll('#fieldsContainer .field-row');
+        
+        if (rows.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted small py-4" id="emptyPreviewText">
+                    Custom fields you add will preview here in real time.
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = ''; // Clear existing preview
+
+        rows.forEach((row) => {
+            const labelInput = row.querySelector('.field-label-input');
+            const typeSelect = row.querySelector('.field-type-select');
+            const requiredCheck = row.querySelector('.field-required-check');
+            const optionsInput = row.querySelector('.field-options-input');
+
+            const label = (labelInput ? labelInput.value.trim() : '') || 'Untitled Field';
+            const type = typeSelect ? typeSelect.value : 'text';
+            const isRequired = requiredCheck ? requiredCheck.checked : false;
+            
+            const fieldWrapper = document.createElement('div');
+            fieldWrapper.className = 'mb-1 text-start';
+            
+            let labelHtml = `<label class="form-label small fw-semibold text-dark mb-0">${label}${isRequired ? ' <span class="text-danger">*</span>' : ''}</label>`;
+            let inputHtml = '';
+
+            if (type === 'text') {
+                inputHtml = `<input type="text" class="form-control form-control-sm bg-white" disabled placeholder="Short answer text">`;
+            } else if (type === 'number') {
+                inputHtml = `<input type="number" class="form-control form-control-sm bg-white" disabled placeholder="0">`;
+            } else if (type === 'textarea') {
+                inputHtml = `<textarea class="form-control form-control-sm bg-white" rows="2" disabled placeholder="Long answer text" style="resize:none;"></textarea>`;
+            } else if (type === 'file') {
+                inputHtml = `<input type="file" class="form-control form-control-sm bg-white" disabled>`;
+            } else if (type === 'select') {
+                const optionsVal = optionsInput ? optionsInput.value : '';
+                const options = optionsVal ? optionsVal.split(',').map(o => o.trim()).filter(Boolean) : ['Option 1', 'Option 2'];
+                
+                let selectOptionsHtml = options.map(opt => `<option>${opt}</option>`).join('');
+                inputHtml = `<select class="form-select form-select-sm bg-white" disabled>${selectOptionsHtml}</select>`;
+            }
+
+            fieldWrapper.innerHTML = labelHtml + inputHtml;
+            container.appendChild(fieldWrapper);
+        });
+    }
+
     document.getElementById('addFieldBtn').addEventListener('click', function() {
         const container = document.getElementById('fieldsContainer');
         const noFieldsText = document.getElementById('noFieldsText');
@@ -164,7 +252,7 @@
             <div class="row g-2 text-start">
                 <div class="col-md-5">
                     <label class="form-label small fw-semibold text-muted mb-1">Field Label</label>
-                    <input type="text" name="fields[${fieldIndex}][label]" class="form-control form-control-sm" required placeholder="e.g., Annual Household Income">
+                    <input type="text" name="fields[${fieldIndex}][label]" class="form-control form-control-sm field-label-input" required placeholder="e.g., Annual Household Income">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small fw-semibold text-muted mb-1">Field Type</label>
@@ -179,21 +267,29 @@
                 <div class="col-md-3">
                     <label class="form-label small fw-semibold text-muted mb-1">Required</label>
                     <div class="form-check form-switch mt-1">
-                        <input class="form-check-input" type="checkbox" name="fields[${fieldIndex}][required]" value="1" checked>
+                        <input class="form-check-input field-required-check" type="checkbox" name="fields[${fieldIndex}][required]" value="1" checked>
                     </div>
                 </div>
                 <div class="col-md-12 select-options-wrapper d-none">
                     <label class="form-label small fw-semibold text-muted mb-1">Dropdown Options (Comma-separated)</label>
-                    <input type="text" name="fields[${fieldIndex}][options]" class="form-control form-control-sm" placeholder="Option 1, Option 2, Option 3">
+                    <input type="text" name="fields[${fieldIndex}][options]" class="form-control form-control-sm field-options-input" placeholder="Option 1, Option 2, Option 3">
                 </div>
             </div>
         `;
 
         container.appendChild(row);
 
-        // Toggle options wrapper on select type
+        // Bind live preview events
+        const labelInput = row.querySelector('.field-label-input');
         const typeSelect = row.querySelector('.field-type-select');
+        const requiredCheck = row.querySelector('.field-required-check');
+        const optionsInput = row.querySelector('.field-options-input');
         const optionsWrapper = row.querySelector('.select-options-wrapper');
+
+        labelInput.addEventListener('input', renderLivePreview);
+        requiredCheck.addEventListener('change', renderLivePreview);
+        optionsInput.addEventListener('input', renderLivePreview);
+
         typeSelect.addEventListener('change', function() {
             if (this.value === 'select') {
                 optionsWrapper.classList.remove('d-none');
@@ -202,6 +298,7 @@
                 optionsWrapper.classList.add('d-none');
                 optionsWrapper.querySelector('input').removeAttribute('required');
             }
+            renderLivePreview();
         });
 
         // Remove row logic
@@ -214,9 +311,11 @@
                     </div>
                 `;
             }
+            renderLivePreview();
         });
 
         fieldIndex++;
+        renderLivePreview();
     });
 </script>
 @endpush

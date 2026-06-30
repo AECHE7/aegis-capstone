@@ -329,7 +329,7 @@
                         <div class="small fw-semibold text-muted mb-1">{{ $field->field_name }}</div>
                         <div class="text-dark fw-medium" style="font-size:0.875rem;">
                             @if(Str::startsWith($field->field_value, 'uploads/'))
-                                <a href="{{ asset($field->field_value) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2" style="border-radius: 6px; font-size: 0.75rem;">
+                                <a href="{{ route('application-field.file', $field->id) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2" style="border-radius: 6px; font-size: 0.75rem;">
                                     <i class="fa-solid fa-file-arrow-down me-1"></i> View Uploaded File
                                 </a>
                             @else
@@ -366,7 +366,7 @@
                     <div class="viewer-box">
                         <div class="viewer-label"><i class="fa-solid fa-file me-1"></i> Original Document</div>
                         @if($application->document)
-                            <img src="{{ asset($application->document->file_path) }}"
+                            <img src="{{ route('document.view', $application->document->id) }}"
                                  alt="Original Student Document" class="img-zoomable"
                                  onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found'"
                                  onclick="openLightbox(this.src)">

@@ -164,7 +164,7 @@
 @endpush
 
 @section('content')
-<div class="container-fluid px-0" style="max-width: 920px; margin: 0 auto; padding: 1.5rem 1rem 3rem;">
+<div class="container-fluid px-0" style="max-width: 1040px; margin: 0 auto; padding: 1.5rem 1rem 3rem;">
 
     @if($application)
         @php
@@ -184,114 +184,186 @@
             };
         @endphp
 
-        {{-- STATUS HERO BANNER --}}
-        <div class="status-hero {{ $statusClass }}">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3" style="position:relative;z-index:3;">
-                <div class="d-flex align-items-center gap-4">
-                    <div class="status-hero-icon {{ $application->status === 'Approved' ? 'approved-pulse' : '' }}">
-                        <i class="fa-solid {{ $statusIcon }}"></i>
-                    </div>
-                    <div>
-                        <div style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:0.7;" class="mb-1">
-                            {{ $application->program_name }}
+        <div class="row g-4">
+            {{-- Left Column: Hero & Timeline --}}
+            <div class="col-lg-7">
+                {{-- STATUS HERO BANNER --}}
+                <div class="status-hero {{ $statusClass }}">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3" style="position:relative;z-index:3;">
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="status-hero-icon {{ $application->status === 'Approved' ? 'approved-pulse' : '' }}">
+                                <i class="fa-solid {{ $statusIcon }}"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:0.7;" class="mb-1">
+                                    {{ $application->program_name }}
+                                </div>
+                                <h4 class="fw-bold mb-0" style="font-family:'Poppins',sans-serif;">
+                                    @if($application->status === 'Approved') 🎉 Congratulations! You are Approved!
+                                    @elseif($application->status === 'Rejected') Application Not Approved
+                                    @elseif($application->status === 'Under Review') Your Application is Under Review
+                                    @else Your Application is Pending Review
+                                    @endif
+                                </h4>
+                                @if($application->remarks && $application->status !== 'Pending')
+                                <p class="mb-0 mt-1" style="opacity:0.8;font-size:0.875rem;">
+                                    <i class="fa-solid fa-quote-left me-1" style="font-size:0.65rem;opacity:0.6;"></i>
+                                    {{ $application->remarks }}
+                                </p>
+                                @endif
+                            </div>
                         </div>
-                        <h4 class="fw-bold mb-0" style="font-family:'Poppins',sans-serif;">
-                            @if($application->status === 'Approved') 🎉 Congratulations! You are Approved!
-                            @elseif($application->status === 'Rejected') Application Not Approved
-                            @elseif($application->status === 'Under Review') Your Application is Under Review
-                            @else Your Application is Pending Review
-                            @endif
-                        </h4>
-                        @if($application->remarks && $application->status !== 'Pending')
-                        <p class="mb-0 mt-1" style="opacity:0.8;font-size:0.875rem;">
-                            <i class="fa-solid fa-quote-left me-1" style="font-size:0.65rem;opacity:0.6;"></i>
-                            {{ $application->remarks }}
-                        </p>
-                        @endif
+                        <div class="text-end" style="opacity:0.75;font-size:0.8rem;">
+                            <div>APP-{{ $application->id }}</div>
+                            <div>{{ $application->created_at->format('M d, Y') }}</div>
+                        </div>
+                    </div>
+
+                    {{-- STEP PROGRESS --}}
+                    <div class="mt-4" style="position:relative;z-index:3;">
+                        <div class="step-track">
+                            {{-- Submitted --}}
+                            <div class="step-node" style="background:#22c55e;color:white;" title="Submitted">
+                                <i class="fa-solid fa-check" style="font-size:0.75rem;"></i>
+                            </div>
+                            <div class="step-connector {{ in_array($application->status, ['Under Review','Approved','Rejected']) ? 'done' : '' }}"></div>
+                            {{-- Under Review --}}
+                            @php
+                                $reviewDone = in_array($application->status, ['Under Review','Approved','Rejected']);
+                                $reviewActive = $application->status === 'Under Review';
+                            @endphp
+                            <div class="step-node {{ $reviewDone ? ($reviewActive ? 'active-pulse' : '') : '' }}"
+                                 style="background: {{ $reviewDone ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.15)' }}; color: {{ $reviewDone ? '#0369a1' : 'rgba(255,255,255,0.4)' }};"
+                                 title="Under Review">
+                                <i class="fa-solid {{ $reviewActive ? 'fa-magnifying-glass' : ($reviewDone ? 'fa-check' : 'fa-magnifying-glass') }}" style="font-size:0.75rem;"></i>
+                            </div>
+                            <div class="step-connector {{ in_array($application->status, ['Approved','Rejected']) ? 'done' : '' }}"></div>
+                            {{-- Decision --}}
+                            @php $decided = in_array($application->status, ['Approved','Rejected']); @endphp
+                            <div class="step-node"
+                                 style="background: {{ $decided ? ($application->status === 'Approved' ? 'rgba(255,255,255,0.9)' : 'rgba(255,100,100,0.8)') : 'rgba(255,255,255,0.15)' }}; color: {{ $decided ? ($application->status === 'Approved' ? '#15803d' : 'white') : 'rgba(255,255,255,0.3)' }};"
+                                 title="Decision">
+                                <i class="fa-solid {{ $decided ? ($application->status === 'Approved' ? 'fa-award' : 'fa-times') : 'fa-lock' }}" style="font-size:0.75rem;"></i>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1" style="font-size:0.68rem;font-weight:600;opacity:0.65;letter-spacing:0.3px;">
+                            <span>Submitted</span>
+                            <span style="flex:1;text-align:center;">OSA Review</span>
+                            <span>Decision</span>
+                        </div>
                     </div>
                 </div>
-                <div class="text-end" style="opacity:0.75;font-size:0.8rem;">
-                    <div>APP-{{ $application->id }}</div>
-                    <div>{{ $application->created_at->format('M d, Y') }}</div>
+
+                {{-- AUDIT TIMELINE --}}
+                <div class="card p-4" style="border-radius:20px;">
+                    <h6 class="fw-bold text-dark mb-4">
+                        <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Verification History & Audit Trail
+                    </h6>
+
+                    <div style="padding-left: 4px;">
+                        @forelse($application->statusLogs as $log)
+                            @php
+                                $logColor = match($log->status) {
+                                    'Approved'     => ['bg' => '#22c55e', 'light' => '#dcfce7', 'text' => '#15803d', 'icon' => 'fa-award'],
+                                    'Rejected'     => ['bg' => '#ef4444', 'light' => '#fee2e2', 'text' => '#b91c1c', 'icon' => 'fa-circle-xmark'],
+                                    'Under Review' => ['bg' => '#0284c7', 'light' => '#e0f2fe', 'text' => '#0369a1', 'icon' => 'fa-magnifying-glass-chart'],
+                                    default        => ['bg' => '#f59e0b', 'light' => '#fef9c3', 'text' => '#a16207', 'icon' => 'fa-hourglass-half'],
+                                };
+                            @endphp
+                            <div class="timeline-item">
+                                @if(!$loop->last)
+                                    <div class="timeline-connector"></div>
+                                @endif
+                                <div class="timeline-icon" style="background: {{ $logColor['light'] }}; color: {{ $logColor['text'] }}; border: 2px solid {{ $logColor['bg'] }}30;">
+                                    <i class="fa-solid {{ $logColor['icon'] }}" style="font-size:0.8rem;"></i>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                        <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:{{ $logColor['light'] }};color:{{ $logColor['text'] }};font-size:0.72rem;font-weight:700;letter-spacing:0.3px;">
+                                            {{ strtoupper($log->status) }}
+                                        </span>
+                                        <span class="text-muted" style="font-size:0.75rem;">
+                                            <i class="fa-regular fa-clock me-1"></i>
+                                            {{ $log->created_at->format('M d, Y · h:i A') }}
+                                        </span>
+                                    </div>
+                                    @if($log->remarks)
+                                    <p class="mb-0 mt-2 text-muted" style="font-size:0.82rem;line-height:1.5;">{{ $log->remarks }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-4 text-muted small">No audit trail history available yet.</div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
 
-            {{-- STEP PROGRESS --}}
-            <div class="mt-4" style="position:relative;z-index:3;">
-                <div class="step-track">
-                    {{-- Submitted --}}
-                    <div class="step-node" style="background:#22c55e;color:white;" title="Submitted">
-                        <i class="fa-solid fa-check" style="font-size:0.75rem;"></i>
-                    </div>
-                    <div class="step-connector {{ in_array($application->status, ['Under Review','Approved','Rejected']) ? 'done' : '' }}"></div>
-                    {{-- Under Review --}}
-                    @php
-                        $reviewDone = in_array($application->status, ['Under Review','Approved','Rejected']);
-                        $reviewActive = $application->status === 'Under Review';
-                    @endphp
-                    <div class="step-node {{ $reviewDone ? ($reviewActive ? 'active-pulse' : '') : '' }}"
-                         style="background: {{ $reviewDone ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.15)' }}; color: {{ $reviewDone ? '#0369a1' : 'rgba(255,255,255,0.4)' }};"
-                         title="Under Review">
-                        <i class="fa-solid {{ $reviewActive ? 'fa-magnifying-glass' : ($reviewDone ? 'fa-check' : 'fa-magnifying-glass') }}" style="font-size:0.75rem;"></i>
-                    </div>
-                    <div class="step-connector {{ in_array($application->status, ['Approved','Rejected']) ? 'done' : '' }}"></div>
-                    {{-- Decision --}}
-                    @php $decided = in_array($application->status, ['Approved','Rejected']); @endphp
-                    <div class="step-node"
-                         style="background: {{ $decided ? ($application->status === 'Approved' ? 'rgba(255,255,255,0.9)' : 'rgba(255,100,100,0.8)') : 'rgba(255,255,255,0.15)' }}; color: {{ $decided ? ($application->status === 'Approved' ? '#15803d' : 'white') : 'rgba(255,255,255,0.3)' }};"
-                         title="Decision">
-                        <i class="fa-solid {{ $decided ? ($application->status === 'Approved' ? 'fa-award' : 'fa-times') : 'fa-lock' }}" style="font-size:0.75rem;"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between mt-1" style="font-size:0.68rem;font-weight:600;opacity:0.65;letter-spacing:0.3px;">
-                    <span>Submitted</span>
-                    <span style="flex:1;text-align:center;">OSA Review</span>
-                    <span>Decision</span>
-                </div>
-            </div>
-        </div>
-
-        {{-- AUDIT TIMELINE --}}
-        <div class="card p-4" style="border-radius:20px;">
-            <h6 class="fw-bold text-dark mb-4">
-                <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Verification History & Audit Trail
-            </h6>
-
-            <div style="padding-left: 4px;">
-                @forelse($application->statusLogs as $log)
-                    @php
-                        $logColor = match($log->status) {
-                            'Approved'     => ['bg' => '#22c55e', 'light' => '#dcfce7', 'text' => '#15803d', 'icon' => 'fa-award'],
-                            'Rejected'     => ['bg' => '#ef4444', 'light' => '#fee2e2', 'text' => '#b91c1c', 'icon' => 'fa-circle-xmark'],
-                            'Under Review' => ['bg' => '#0284c7', 'light' => '#e0f2fe', 'text' => '#0369a1', 'icon' => 'fa-magnifying-glass-chart'],
-                            default        => ['bg' => '#f59e0b', 'light' => '#fef9c3', 'text' => '#a16207', 'icon' => 'fa-hourglass-half'],
-                        };
-                    @endphp
-                    <div class="timeline-item">
-                        @if(!$loop->last)
-                            <div class="timeline-connector"></div>
-                        @endif
-                        <div class="timeline-icon" style="background: {{ $logColor['light'] }}; color: {{ $logColor['text'] }}; border: 2px solid {{ $logColor['bg'] }}30;">
-                            <i class="fa-solid {{ $logColor['icon'] }}" style="font-size:0.8rem;"></i>
+            {{-- Right Column: Application Details --}}
+            <div class="col-lg-5">
+                <div class="card p-4 h-100" style="border-radius:20px; border: 1px solid #e2e8f0; background: white;">
+                    <h6 class="fw-bold text-dark mb-4">
+                        <i class="fa-solid fa-file-invoice text-success me-2"></i> Submitted Application Details
+                    </h6>
+                    
+                    <div class="d-flex flex-column gap-3 text-start">
+                        <div class="border-bottom pb-2">
+                            <div class="small fw-semibold text-muted mb-1">Scholarship Program</div>
+                            <div class="text-dark fw-bold" style="font-size: 0.9rem;">{{ $application->program_name }}</div>
                         </div>
-                        <div class="timeline-content">
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:{{ $logColor['light'] }};color:{{ $logColor['text'] }};font-size:0.72rem;font-weight:700;letter-spacing:0.3px;">
-                                    {{ strtoupper($log->status) }}
-                                </span>
-                                <span class="text-muted" style="font-size:0.75rem;">
-                                    <i class="fa-regular fa-clock me-1"></i>
-                                    {{ $log->created_at->format('M d, Y · h:i A') }}
+                        
+                        @if($application->academicTerm)
+                        <div class="border-bottom pb-2">
+                            <div class="small fw-semibold text-muted mb-1">Academic Term</div>
+                            <div class="text-dark fw-semibold" style="font-size: 0.85rem;">{{ $application->academicTerm->semester }} Semester, A.Y. {{ $application->academicTerm->academic_year }}</div>
+                        </div>
+                        @endif
+                        
+                        <div class="border-bottom pb-2">
+                            <div class="small fw-semibold text-muted mb-1">Submitted GWA</div>
+                            <div>
+                                <span style="background:#fef9c3;color:#a16207;border:1px solid #fde047;border-radius:20px;padding:3px 12px;font-size:0.75rem;font-weight:700;">
+                                    GWA: {{ $application->gwa }}
                                 </span>
                             </div>
-                            @if($log->remarks)
-                            <p class="mb-0 mt-2 text-muted" style="font-size:0.82rem;line-height:1.5;">{{ $log->remarks }}</p>
-                            @endif
                         </div>
+                        
+                        <div class="border-bottom pb-2">
+                            <div class="small fw-semibold text-muted mb-1">Certificate of Grades (COG)</div>
+                            <div>
+                                @if($application->document)
+                                    <a href="{{ route('document.view', $application->document->id) }}" target="_blank" class="btn btn-sm btn-outline-success py-1 px-3 fw-bold" style="border-radius: 8px; font-size: 0.75rem;">
+                                        <i class="fa-solid fa-file-pdf me-1"></i> View Submitted COG
+                                    </a>
+                                @else
+                                    <span class="text-muted small">No document uploaded.</span>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        @if($application->customFields && $application->customFields->count() > 0)
+                            <div class="mt-2">
+                                <div class="small fw-bold text-muted mb-2" style="font-size:0.7rem; letter-spacing:0.5px; text-transform:uppercase;">Custom Responses</div>
+                                <div class="d-flex flex-column gap-3">
+                                    @foreach($application->customFields as $field)
+                                        <div class="border-bottom pb-2">
+                                            <div class="small fw-semibold text-muted mb-1">{{ $field->field_name }}</div>
+                                            <div class="text-dark fw-medium" style="font-size:0.82rem;">
+                                                @if(Str::startsWith($field->field_value, 'uploads/'))
+                                                    <a href="{{ route('application-field.file', $field->id) }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-2" style="border-radius: 6px; font-size: 0.72rem;">
+                                                        <i class="fa-solid fa-file-arrow-down me-1"></i> View Uploaded File
+                                                    </a>
+                                                @else
+                                                    {{ $field->field_value }}
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
-                @empty
-                    <div class="text-center py-4 text-muted small">No audit trail history available yet.</div>
-                @endforelse
+                </div>
             </div>
         </div>
 
