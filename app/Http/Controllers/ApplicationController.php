@@ -119,7 +119,7 @@ class ApplicationController extends Controller
             $extension = $file->getClientOriginalExtension();
             $uuid = (string) \Illuminate\Support\Str::uuid();
             $filename = hash('sha256', $uuid) . '.' . $extension;
-            $file->move(public_path('uploads'), $filename);
+            $file->storeAs('uploads', $filename, 'local');
 
             \App\Models\Document::create([
                 'application_id' => $application->id,
@@ -139,7 +139,7 @@ class ApplicationController extends Controller
                         $extension = $cfile->getClientOriginalExtension();
                         $uuid = (string) \Illuminate\Support\Str::uuid();
                         $filename = hash('sha256', $uuid) . '.' . $extension;
-                        $cfile->move(public_path('uploads'), $filename);
+                        $cfile->storeAs('uploads', $filename, 'local');
                         $val = 'uploads/' . $filename;
                     }
                 } else {

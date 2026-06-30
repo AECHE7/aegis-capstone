@@ -42,6 +42,8 @@ class DocumentScanTest extends TestCase
             'status' => 'Active'
         ]);
 
+        $admin->scholarships()->attach($scholarship->id);
+
         // 3. Create Application & Document
         $application = Application::create([
             'user_id' => $student->id,
@@ -101,6 +103,8 @@ class DocumentScanTest extends TestCase
             'min_gwa_required' => 2.00,
             'status' => 'Active'
         ]);
+
+        $admin->scholarships()->attach($scholarship->id);
 
         // 3. Create Application & Document (WITHOUT AIResult)
         $application = Application::create([

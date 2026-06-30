@@ -49,4 +49,135 @@ class SecurityHardeningTest extends TestCase
 
         $responseBlock->assertStatus(429);
     }
+
+    /**
+     * Test admin cannot access unassigned scholarship application review
+     */
+    public function test_admin_cannot_access_unassigned_scholarship_application_review(): void
+    {
+        // Create an admin
+        $admin = \App\Models\User::create([
+            'name' => 'OSA Staff',
+            'email' => 'staff@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        // Create two scholarships
+        $scholarshipA = \App\Models\Scholarship::create([
+            'name' => 'Scholarship A',
+            'min_gwa_required' => 2.00,
+            'status' => 'Active',
+        ]);
+
+        $scholarshipB = \App\Models\Scholarship::create([
+            'name' => 'Scholarship B',
+            'min_gwa_required' => 2.00,
+            'status' => 'Active',
+        ]);
+
+        // Assign only Scholarship A to the admin
+        $admin->scholarships()->attach($scholarshipA->id);
+
+        // Create an application for Scholarship B
+        $student = \App\Models\User::create([
+            'name' => 'Student User',
+            'email' => 'student@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'student',
+        ]);
+
+        $application = \App\Models\Application::create([
+            'user_id' => $student->id,
+            'scholarship_id' => $scholarshipB->id,
+            'program_name' => $scholarshipB->name,
+            'gwa' => 1.75,
+            'status' => 'Pending',
+        ]);
+
+        // Access unassigned application review page -> should get 403
+        $response = $this->actingAs($admin)->get(route('admin.review', $application->id));
+        $response->assertStatus(403);
+
+        // Access assigned scholarship (Scholarship A) application -> should get 200 (redirects to Under Review status or renders)
+        $applicationA = \App\Models\Application::create([
+            'user_id' => $student->id,
+            'scholarship_id' => $scholarshipA->id,
+            'program_name' => $scholarshipA->name,
+            'gwa' => 1.75,
+            'status' => 'Pending',
+        ]);
+
+        $responseA = $this->actingAs($admin)->get(route('admin.review', $applicationA->id));
+        // It updates status to Under Review and returns status 200
+        $responseA->assertStatus(200);
+    }
+
+    /**
+     * Test admin cannot access unassigned document and heatmap endpoints
+     */
+    public function test_admin_cannot_access_unassigned_scholarship_document_endpoints(): void
+    {
+        $admin = \App\Models\User::create([
+            'name' => 'OSA Staff',
+            'email' => 'staff@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        $scholarshipA = \App\Models\Scholarship::create([
+            'name' => 'Scholarship A',
+            'min_gwa_required' => 2.00,
+            'status' => 'Active',
+        ]);
+
+        $scholarshipB = \App\Models\Scholarship::create([
+            'name' => 'Scholarship B',
+            'min_gwa_required' => 2.00,
+            'status' => 'Active',
+        ]);
+
+        $admin->scholarships()->attach($scholarshipA->id);
+
+        $student = \App\Models\User::create([
+            'name' => 'Student User',
+            'email' => 'student@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'student',
+        ]);
+
+        $application = \App\Models\Application::create([
+            'user_id' => $student->id,
+            'scholarship_id' => $scholarshipB->id,
+            'program_name' => $scholarshipB->name,
+            'gwa' => 1.75,
+            'status' => 'Pending',
+        ]);
+
+        $document = \App\Models\Document::create([
+            'application_id' => $application->id,
+            'file_path' => 'uploads/test_file.png',
+            'original_name' => 'test_file.png',
+            'document_type' => 'COG',
+        ]);
+
+        $aiResult = \App\Models\AIResult::create([
+            'document_id' => $document->id,
+            'fraud_probability' => 10.0,
+            'classification' => 'authentic',
+            'heatmap_path' => 'uploads/heatmap_test.png',
+        ]);
+
+        // Attempt download document -> 403
+        $responseDownload = $this->actingAs($admin)->get(route('admin.document.download', $document->id));
+        $responseDownload->assertStatus(403);
+
+        // Attempt document view image -> 403
+        $responseImage = $this->actingAs($admin)->get(route('document.view', $document->id));
+        $responseImage->assertStatus(403);
+
+        // Attempt document view heatmap -> 403
+        $responseHeatmap = $this->actingAs($admin)->get(route('document.heatmap', $document->id));
+        $responseHeatmap->assertStatus(403);
+    }
 }

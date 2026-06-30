@@ -68,27 +68,27 @@ All core MVC components are fully operational:
 
 To transition the project from its current MVP setup to a robust, production-ready system, we outline the following sprints:
 
-### Phase 1: Microservice Model Initialization (Immediate)
+### Phase 1: Microservice Model Initialization (Immediate) - [COMPLETED]
 - **Goal:** Enable the AI analysis backend.
 - **Steps:**
   1. Initialize the Python environment in the `aegis-ai` directory.
   2. Execute the `train_model.py` script to generate a synthetic dataset of authentic and tampered Certificates of Grades (COGs), train the ResNet-50 network, and save the binary model as `aegis_resnet50_v1.keras`.
   3. Start the Flask service (`python app.py`) to handle incoming HTTP scan requests.
 
-### Phase 2: Asynchronous Scan Pipeline (Optimal Architecture Choice)
+### Phase 2: Asynchronous Scan Pipeline (Optimal Architecture Choice) - [COMPLETED]
 - **Goal:** Prevent the Laravel request loop from blocking while waiting for deep learning inference.
 - **Steps:**
   1. Refactor `AdminController@runScan` to dispatch a Laravel queued job (`ScanDocumentJob`).
   2. Configure a local queue worker (e.g. SQLite database driver or Redis).
   3. Implement Alpine.js polling or Laravel Echo (websockets) in the Admin Review interface to dynamically update the UI once the scan results are persisted in `a_i_results`.
 
-### Phase 3: Testing & Code Cleanup
+### Phase 3: Testing & Code Cleanup - [COMPLETED]
 - **Goal:** Ensure code stability and remove old boilerplate code.
 - **Steps:**
   1. Remove deprecated default Laravel Breeze tests (`tests/Feature/Auth/*` and `tests/Feature/ProfileTest.php`) since auth is handled by the custom `AuthController`.
   2. Write feature tests covering roles-based dashboard access, scholarship GWA boundary checks, CSV export formats, and the status update audit trail.
 
-### Phase 4: Notifications & Filtered Reporting (Current)
+### Phase 4: Notifications & Filtered Reporting - [COMPLETED]
 - **Goal:** Connect the email notification loop and implement full filtering for CSV and PDF compliance exports.
 - **Steps:**
   1. Modify `AdminController@updateStatus` to dispatch the `ApplicationStatusMail` template.
@@ -178,13 +178,13 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. Configure environment variables (`MAIL_MAILER=brevo_api` and `BREVO_API_KEY` containing the Brevo API Key starting with `xkeysib-`).
   4. Perform diagnostic end-to-end tests via `/test-mail` to verify successful HTTP REST delivery.
 
-### Phase 15: Verification Auto-Redirection
+### Phase 15: Verification Auto-Redirection - [COMPLETED]
 - **Goal:** Enable the email verification prompt page to automatically redirect the student once they click the verification link in a new tab.
 - **Steps:**
   1. Define a JSON endpoint `/email/verification-status` in `routes/web.php` that returns the logged-in user's verification state.
   2. Implement Javascript polling in `resources/views/auth/verify-email.blade.php` to fetch this endpoint periodically (every 2 seconds) and trigger a redirect to `student.dashboard` once verified.
 
-### Phase 16: PDF Application Form Attachment on Approval
+### Phase 16: PDF Application Form Attachment on Approval - [COMPLETED]
 - **Goal:** Dynamically generate a PDF scholarship application form upon approval, and automatically attach it to the student's status update email.
 - **Steps:**
   1. Create the PDF Blade layout (`resources/views/emails/application_form_pdf.blade.php`) representing the student's scholarship application form with personal, academic, and forensics verification metadata.
@@ -192,7 +192,7 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. Modify the mailable class `ApplicationStatusMail` to render, output, and attach the PDF memory buffer dynamically when the status is updated to "Approved".
   4. Write integration test assertions to verify that the PDF is correctly compiled and attached.
 
-### Phase 17: Student Profile Management
+### Phase 17: Student Profile Management - [COMPLETED]
 - **Goal:** Allow student applicants to edit their basic personal and academic details, and propagate updates to scholarship forms and approved PDF attachments.
 - **Steps:**
   1. Define profile edit routes (`GET /student/profile` and `POST /student/profile`) in `routes/web.php`.
@@ -234,7 +234,7 @@ To transition the project from its current MVP setup to a robust, production-rea
   4. Staff Assignments: Update staff creation and editing flows to sync active scholarship program pivot rows. Filter admin dashboard queues to only match assigned categories (completed).
   5. Dynamic Forms Builder: Build interactive field creators inside scholarships management view, dynamically validate submissions in `ApplicationController`, and encrypt dynamically stored records using AES-256 casts (completed).
 
-### Phase 22: GAD Student Assistant Application Form PDF Refactoring
+### Phase 22: GAD Student Assistant Application Form PDF Refactoring - [COMPLETED]
 - **Goal:** Redesign the dynamic scholarship application form PDF layout to mirror Form ACA.OSA.CDE.F.007.
 - **Steps:**
   1. Refactor `resources/views/emails/application_form_pdf.blade.php` to replicate the official layout structure (header, picture box, checkboxes, personal info grids, family, education, availment history, and signature lines).
@@ -244,7 +244,7 @@ To transition the project from its current MVP setup to a robust, production-rea
   5. Add ownership validation to document image and Grad-CAM heatmap endpoints to prevent horizontal data disclosure (IDOR).
   6. Verify compilation and security gates with a complete PHPUnit test run.
 
-### Phase 23: Systematic Security Hardening
+### Phase 23: Systematic Security Hardening - [COMPLETED]
 - **Goal:** Defend against brute-force rate-limiting, upload folder script executions, and HTTP header injections.
 - **Steps:**
   1. Set up throttle limits on login, registration, and forgot-password POST submissions inside `web.php`.

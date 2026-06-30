@@ -95,6 +95,12 @@ Route::middleware(['auth'])->group(function () {
         if (auth()->user()->role === 'student' && ($document->application->user_id ?? null) !== auth()->id()) {
             abort(403, 'Unauthorized access.');
         }
+        if (auth()->user()->role === 'admin') {
+            $assignedIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            if (!in_array($document->application->scholarship_id, $assignedIds)) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
         if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($document->file_path)) { abort(404); }
         return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($document->file_path));
     })->name('document.view');
@@ -103,6 +109,12 @@ Route::middleware(['auth'])->group(function () {
         $aiResult = \App\Models\AIResult::with('document.application')->where('document_id', $id)->firstOrFail();
         if (auth()->user()->role === 'student' && ($aiResult->document->application->user_id ?? null) !== auth()->id()) {
             abort(403, 'Unauthorized access.');
+        }
+        if (auth()->user()->role === 'admin') {
+            $assignedIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            if (!in_array($aiResult->document->application->scholarship_id, $assignedIds)) {
+                abort(403, 'Unauthorized access.');
+            }
         }
         $path = $aiResult->heatmap_path;
         // If Cloudinary (or any full URL) — redirect straight to CDN

@@ -10,6 +10,15 @@ use App\Mail\ApplicationStatusMail;
 
 class AdminController extends Controller
 {
+    private function validateAdminAccess(Application $application)
+    {
+        if (auth()->user()->role === 'admin') {
+            $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            if (!in_array($application->scholarship_id, $assignedScholarshipIds)) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+    }
     // SPRINT 4: Load Admin Dashboard
     public function index(\Illuminate\Http\Request $request)
     {
@@ -121,6 +130,7 @@ class AdminController extends Controller
     public function review($id)
     {
         $application = Application::with(['document.aiResult', 'evaluator', 'user.profile'])->findOrFail($id);
+        $this->validateAdminAccess($application);
         
         // Auto-update status to "Under Review" if it is Pending
         if ($application->status === 'Pending') {
@@ -156,6 +166,7 @@ class AdminController extends Controller
     public function runScan($id)
     {
         $application = \App\Models\Application::with('document')->findOrFail($id);
+        $this->validateAdminAccess($application);
         $document = $application->document;
 
         if (!$document) {
@@ -182,6 +193,11 @@ class AdminController extends Controller
     public function downloadDocument($id)
     {
         $document = \App\Models\Document::findOrFail($id);
+        $application = \App\Models\Application::where('document_id', $document->id)->first()
+                      ?? \App\Models\Application::whereHas('document', fn($q) => $q->where('id', $document->id))->first();
+        if ($application) {
+            $this->validateAdminAccess($application);
+        }
 
         // Make sure the file actually exists in storage
         if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($document->file_path)) {
@@ -204,9 +220,13 @@ class AdminController extends Controller
     public function exportCsv()
     {
         // Grab all APPROVED applications with the student's background profile
-        $applications = \App\Models\Application::where('status', 'Approved')
-                            ->with('user.profile')
-                            ->get();
+        $query = \App\Models\Application::where('status', 'Approved')
+                            ->with('user.profile');
+        if (auth()->user()->role === 'admin') {
+            $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            $query->whereIn('scholarship_id', $assignedScholarshipIds);
+        }
+        $applications = $query->get();
 
         $filename = "Verified_Scholars_" . date('Y-m-d') . ".csv";
         
@@ -254,6 +274,7 @@ class AdminController extends Controller
 
         // 2. Find the application in the database
         $application = \App\Models\Application::findOrFail($id);
+        $this->validateAdminAccess($application);
         
         $evaluatorId = auth()->id() ?? 2; // Default to admin user 2 if none logged in
 
@@ -310,6 +331,7 @@ class AdminController extends Controller
     public function archive($id)
     {
         $application = Application::findOrFail($id);
+        $this->validateAdminAccess($application);
         $application->is_archived = true;
         $application->save();
 
@@ -321,6 +343,7 @@ class AdminController extends Controller
     public function unarchive($id)
     {
         $application = Application::findOrFail($id);
+        $this->validateAdminAccess($application);
         $application->is_archived = false;
         $application->save();
 

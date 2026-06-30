@@ -14,6 +14,11 @@ class ReportController extends Controller
     {
         $query = Application::with(['user.profile', 'document.aiResult', 'academicTerm']);
 
+        if (auth()->user()->role === 'admin') {
+            $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            $query->whereIn('scholarship_id', $assignedScholarshipIds);
+        }
+
         if ($request->filled('scholarship_id')) {
             $query->where('scholarship_id', $request->scholarship_id);
         }

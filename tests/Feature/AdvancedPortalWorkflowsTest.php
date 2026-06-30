@@ -66,6 +66,8 @@ class AdvancedPortalWorkflowsTest extends TestCase
             'academic_year' => '2026-2027',
             'is_active' => true,
         ]);
+
+        $this->admin->scholarships()->attach($this->scholarship->id);
     }
 
     public function test_deactivated_staff_cannot_login(): void
@@ -315,6 +317,7 @@ class AdvancedPortalWorkflowsTest extends TestCase
         
         $application = Application::where('scholarship_id', $scholarship->id)->first();
         $this->assertNotNull($application);
+        $this->admin->scholarships()->attach($scholarship->id);
         $this->assertEquals(2, $application->customFields()->count());
 
         // Check encryption in database
