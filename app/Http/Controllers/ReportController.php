@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Application;
+use App\Models\StatusLog;
+use App\Models\EmailLog;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Response;
 
@@ -94,14 +96,14 @@ class ReportController extends Controller
     public function exportPdf(Request $request)
     {
         $applications = $this->buildReportQuery($request)->get();
-        
+
         // Calculate statistics for the summary block
-        $totalCount = $applications->count();
+        $totalCount    = $applications->count();
         $approvedCount = $applications->where('status', 'Approved')->count();
         $rejectedCount = $applications->where('status', 'Rejected')->count();
-        $pendingCount = $applications->whereIn('status', ['Pending', 'Under Review'])->count();
-        
-        $totalFraud = 0;
+        $pendingCount  = $applications->whereIn('status', ['Pending', 'Under Review'])->count();
+
+        $totalFraud  = 0;
         $scoredCount = 0;
         foreach ($applications as $app) {
             if ($app->document && $app->document->aiResult) {
@@ -112,17 +114,163 @@ class ReportController extends Controller
         $avgFraudScore = $scoredCount > 0 ? round($totalFraud / $scoredCount, 1) : 0;
 
         $stats = [
-            'total' => $totalCount,
-            'approved' => $approvedCount,
-            'rejected' => $rejectedCount,
-            'pending' => $pendingCount,
-            'avg_fraud' => $avgFraudScore
+            'total'      => $totalCount,
+            'approved'   => $approvedCount,
+            'rejected'   => $rejectedCount,
+            'pending'    => $pendingCount,
+            'avg_fraud'  => $avgFraudScore,
         ];
 
-        // Load the view and pass the data to it
         $pdf = Pdf::loadView('admin.report_pdf', compact('applications', 'stats'));
-        
-        // Download the generated PDF
         return $pdf->download('aegis_official_report_' . date('Y-m-d') . '.pdf');
+    }
+
+    // ─── AUDIT LOG EXPORTS (Superadmin only) ──────────────────────────────────
+
+    /**
+     * Build base query for StatusLog exports with optional date range filter.
+     * Skill 11: Cache::remember() could wrap count aggregations elsewhere.
+     */
+    private function buildAuditQuery(Request $request)
+    {
+        $query = StatusLog::with(['application.user', 'user'])->latest();
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Build base query for EmailLog exports with optional date range filter.
+     */
+    private function buildEmailLogQuery(Request $request)
+    {
+        $query = EmailLog::with(['application.user'])->latest();
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Stream CSV export of application status audit trail.
+     * Skill 9: Streamed response prevents memory exhaustion for large datasets.
+     */
+    public function exportAuditCsv(Request $request)
+    {
+        $logs     = $this->buildAuditQuery($request)->get();
+        $filename = "aegis_audit_log_" . date('Y-m-d') . ".csv";
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0",
+        ];
+
+        $columns = ['Log ID', 'App Ref', 'Student Name', 'Status Changed To', 'Remarks', 'Changed By', 'Timestamp'];
+
+        $callback = function () use ($logs, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($logs as $log) {
+                fputcsv($file, [
+                    $log->id,
+                    'APP-' . ($log->application->id ?? 'N/A'),
+                    $log->application?->user?->name ?? 'Unknown',
+                    $log->status,
+                    $log->remarks ?? '—',
+                    $log->user?->name ?? 'System',
+                    $log->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    /**
+     * Download PDF export of application status audit trail.
+     */
+    public function exportAuditPdf(Request $request)
+    {
+        $logs      = $this->buildAuditQuery($request)->get();
+        $dateRange = [
+            'from' => $request->date_from ?? null,
+            'to'   => $request->date_to   ?? null,
+        ];
+
+        $pdf = Pdf::loadView('superadmin.audit_log_pdf', compact('logs', 'dateRange'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('aegis_audit_log_' . date('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * Stream CSV export of email notification dispatch history.
+     */
+    public function exportEmailLogCsv(Request $request)
+    {
+        $logs     = $this->buildEmailLogQuery($request)->get();
+        $filename = "aegis_email_log_" . date('Y-m-d') . ".csv";
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0",
+        ];
+
+        $columns = ['Log ID', 'App Ref', 'Student Name', 'Recipient Email', 'Subject', 'Timestamp'];
+
+        $callback = function () use ($logs, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($logs as $log) {
+                fputcsv($file, [
+                    $log->id,
+                    'APP-' . ($log->application->id ?? 'N/A'),
+                    $log->application?->user?->name ?? 'Unknown',
+                    $log->recipient,
+                    $log->subject,
+                    $log->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
+    /**
+     * Download PDF export of email notification dispatch history.
+     */
+    public function exportEmailLogPdf(Request $request)
+    {
+        $logs      = $this->buildEmailLogQuery($request)->get();
+        $dateRange = [
+            'from' => $request->date_from ?? null,
+            'to'   => $request->date_to   ?? null,
+        ];
+
+        $pdf = Pdf::loadView('superadmin.email_log_pdf', compact('logs', 'dateRange'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('aegis_email_log_' . date('Y-m-d') . '.pdf');
     }
 }

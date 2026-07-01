@@ -26,6 +26,21 @@
 
     /* Avatar initials */
     .eval-avatar { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #e0f2fe, #bae6fd); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; color: #0369a1; flex-shrink: 0; }
+
+    /* Audit Export Card */
+    .export-card { background: linear-gradient(145deg, #0f172a, #1e293b); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.07); color: white; }
+    .export-card h6 { font-size: 0.65rem; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.4); font-weight: 700; margin-bottom: 0.75rem; }
+    .export-card h5 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .export-card p { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-bottom: 1.25rem; }
+    .export-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
+    .export-btn-csv  { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
+    .export-btn-csv:hover  { background: rgba(34,197,94,0.28); color: #86efac; }
+    .export-btn-pdf  { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+    .export-btn-pdf:hover  { background: rgba(239,68,68,0.28); color: #fca5a5; }
+    .date-filter-row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .date-filter-row label { font-size: 0.7rem; color: rgba(255,255,255,0.45); display: block; margin-bottom: 3px; }
+    .date-filter-row input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 7px; color: white; padding: 5px 10px; font-size: 0.78rem; outline: none; }
+    .export-group h6.group-label { font-size: 0.72rem; color: rgba(255,255,255,0.55); font-weight: 600; margin-bottom: 0.5rem; }
 </style>
 @endpush
 
@@ -233,6 +248,55 @@
     </div>
 </div>
 
+{{-- Phase 33: Audit History Log Exports Card --}}
+<div class="row g-3 mt-2 mb-4">
+    <div class="col-12">
+        <div class="export-card">
+            <h6><i class="fa-solid fa-shield-halved me-1"></i> Audit History Log Exports</h6>
+            <h5>Download Compliance Reports</h5>
+            <p>Export the full application status audit trail or email dispatch history as a structured CSV spreadsheet or branded PDF document. Use the date filter to scope the export window.</p>
+
+            {{-- Date Range Filter --}}
+            <div class="date-filter-row" id="auditExportFilters">
+                <div>
+                    <label>Date From</label>
+                    <input type="date" id="exportDateFrom" placeholder="YYYY-MM-DD">
+                </div>
+                <div>
+                    <label>Date To</label>
+                    <input type="date" id="exportDateTo" placeholder="YYYY-MM-DD">
+                </div>
+            </div>
+
+            {{-- Export Buttons --}}
+            <div class="d-flex flex-wrap gap-3">
+                <div class="export-group">
+                    <h6 class="group-label"><i class="fa-solid fa-clock-rotate-left me-1"></i> Status Audit Trail</h6>
+                    <div class="d-flex gap-2">
+                        <a id="auditCsvBtn" href="{{ route('superadmin.audit.csv') }}" class="export-btn export-btn-csv" target="_blank">
+                            <i class="fa-solid fa-file-csv"></i> Download CSV
+                        </a>
+                        <a id="auditPdfBtn" href="{{ route('superadmin.audit.pdf') }}" class="export-btn export-btn-pdf" target="_blank">
+                            <i class="fa-solid fa-file-pdf"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+                <div class="export-group" style="margin-left:1rem;padding-left:1rem;border-left:1px solid rgba(255,255,255,0.08);">
+                    <h6 class="group-label"><i class="fa-solid fa-envelope me-1"></i> Email Dispatch History</h6>
+                    <div class="d-flex gap-2">
+                        <a id="emailCsvBtn" href="{{ route('superadmin.emaillog.csv') }}" class="export-btn export-btn-csv" target="_blank">
+                            <i class="fa-solid fa-file-csv"></i> Download CSV
+                        </a>
+                        <a id="emailPdfBtn" href="{{ route('superadmin.emaillog.pdf') }}" class="export-btn export-btn-pdf" target="_blank">
+                            <i class="fa-solid fa-file-pdf"></i> Download PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -366,5 +430,25 @@
     // ── 5. INITIALIZE TOOLTIPS ────────────────────────
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+    // ── Phase 33: Audit Export Date Filter Wiring ─────
+    function updateExportHrefs() {
+        const from = document.getElementById('exportDateFrom')?.value ?? '';
+        const to   = document.getElementById('exportDateTo')?.value ?? '';
+
+        ['auditCsvBtn','auditPdfBtn','emailCsvBtn','emailPdfBtn'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            const base = btn.dataset.base || btn.href.split('?')[0];
+            btn.dataset.base = base;
+            const params = new URLSearchParams();
+            if (from) params.set('date_from', from);
+            if (to)   params.set('date_to',   to);
+            btn.href = params.toString() ? base + '?' + params.toString() : base;
+        });
+    }
+    document.getElementById('exportDateFrom')?.addEventListener('change', updateExportHrefs);
+    document.getElementById('exportDateTo')?.addEventListener('change', updateExportHrefs);
+
 </script>
 @endpush
