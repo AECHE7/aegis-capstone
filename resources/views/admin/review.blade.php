@@ -436,8 +436,20 @@
         }
     });
 
-    // ── Decision confirm ───────────────────────────────
+    // ── Decision confirm & AJAX submit ─────────────────
     function confirmDecision(status) {
+        const remarks = document.getElementById('evaluatorRemarks').value.trim();
+        if (!remarks) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Remarks Required',
+                text: 'Please write evaluator remarks before finalizing your decision.',
+                confirmButtonColor: '#f59e0b',
+                customClass: { popup: 'rounded-4' }
+            });
+            return;
+        }
+
         Swal.fire({
             title: `Confirm ${status}?`,
             text: `You are about to permanently mark this application as ${status}.`,
@@ -449,11 +461,139 @@
             customClass: { popup: 'rounded-4' }
         }).then(result => {
             if (result.isConfirmed) {
-                document.getElementById('statusInput').value = status;
-                document.getElementById('decisionForm').submit();
+                submitDecisionAjax(status);
             }
         });
     }
+
+    async function submitDecisionAjax(status) {
+        const form = document.getElementById('decisionForm');
+        document.getElementById('statusInput').value = status;
+        
+        // Show loading state on buttons
+        const approveBtn = document.querySelector('.btn-approve');
+        const rejectBtn = document.querySelector('.btn-reject');
+        const remarksField = document.getElementById('evaluatorRemarks');
+        
+        const originalApprove = approveBtn ? approveBtn.innerHTML : '';
+        const originalReject = rejectBtn ? rejectBtn.innerHTML : '';
+
+        if (approveBtn) { approveBtn.disabled = true; }
+        if (rejectBtn) { rejectBtn.disabled = true; }
+        if (remarksField) { remarksField.disabled = true; }
+
+        if (status === 'Approved' && approveBtn) {
+            approveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Saving...';
+        } else if (status === 'Rejected' && rejectBtn) {
+            rejectBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Saving...';
+        }
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Decision Finalized',
+                    text: data.message,
+                    confirmButtonColor: '#16a34a',
+                    customClass: { popup: 'rounded-4' }
+                });
+
+                // Update final state in UI
+                const container = form.parentElement;
+                container.innerHTML = `
+                    <h6 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-gavel text-primary me-2"></i> Final Eligibility Decision</h6>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted">Evaluator Remarks</label>
+                        <div class="p-3 rounded-3 bg-light border small text-dark">${data.remarks || 'No remarks provided.'}</div>
+                    </div>
+                    <div class="alert mb-0 text-center fw-bold rounded-3"
+                         style="background: ${data.status === 'Approved' ? '#dcfce7' : '#fee2e2'}; color: ${data.status === 'Approved' ? '#15803d' : '#b91c1c'}; border: none; font-size: 0.875rem;">
+                        <i class="fa-solid fa-lock me-1"></i> Application is finalized as ${data.status}.
+                    </div>
+                `;
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                if (approveBtn) { approveBtn.disabled = false; approveBtn.innerHTML = originalApprove; }
+                if (rejectBtn) { rejectBtn.disabled = false; rejectBtn.innerHTML = originalReject; }
+                if (remarksField) { remarksField.disabled = false; }
+            }
+        } catch (error) {
+            console.error('Decision Submission Error:', error);
+            Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+            if (approveBtn) { approveBtn.disabled = false; approveBtn.innerHTML = originalApprove; }
+            if (rejectBtn) { rejectBtn.disabled = false; rejectBtn.innerHTML = originalReject; }
+            if (remarksField) { remarksField.disabled = false; }
+        }
+    }
+
+    // ── AJAX Scan Execution ────────────────────────────
+    document.addEventListener('submit', async (e) => {
+        const form = e.target;
+        if (form.action && form.action.includes('/scan')) {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Scanning...';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Scan Started',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-4' }
+                    });
+                    
+                    // Temporarily update UI to show scanning state
+                    const viewerBox = form.closest('.viewer-box') || document.querySelector('.viewer-box.danger-box');
+                    if (viewerBox) {
+                        viewerBox.innerHTML = `
+                            <div class="viewer-label"><i class="fa-solid fa-fire me-1"></i> Grad-CAM Heatmap</div>
+                            <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                <i class="fa-solid fa-spinner fa-spin fa-3x text-primary mb-2"></i>
+                                <small class="text-muted">AI Scanning in progress...</small>
+                            </div>
+                        `;
+                    }
+                    
+                    // Reload page after a short delay or let SSE handle it
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Scan Failed', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            } catch (error) {
+                console.error('Scan Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        }
+    });
 
     // ── Lightbox ───────────────────────────────────────
     function openLightbox(src) {

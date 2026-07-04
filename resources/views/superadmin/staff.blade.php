@@ -36,7 +36,7 @@
             </thead>
             <tbody>
                 @foreach($staffList as $staff)
-                <tr style="border-bottom: 1px solid #f1f5f9;">
+                <tr style="border-bottom: 1px solid #f1f5f9;" data-staff-id="{{ $staff->id }}">
                     <td class="ps-4 py-3">
                         <div class="d-flex align-items-center">
                             <div class="avatar-circle me-3" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e2e8f0, #cbd5e1); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #475569;">
@@ -261,3 +261,213 @@
 @endif
 
 @endsection
+
+@push('scripts')
+<script>
+    // ── AJAX Staff Invitation ─────────────────────────
+    const inviteForm = document.querySelector('#inviteStaffModal form');
+    if (inviteForm) {
+        inviteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = inviteForm.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Inviting...';
+
+            // Clear errors
+            inviteForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            inviteForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            try {
+                const response = await fetch(inviteForm.action, {
+                    method: 'POST',
+                    body: new FormData(inviteForm),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (response.status === 422) {
+                    Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please correct validation issues.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    
+                    if (data.errors) {
+                        for (const [field, messages] of Object.entries(data.errors)) {
+                            const input = inviteForm.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                input.classList.add('is-invalid');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback';
+                                errorDiv.textContent = messages[0];
+                                input.parentElement.parentElement.appendChild(errorDiv);
+                            }
+                        }
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                } else if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Invitation Sent!',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-4' }
+                    });
+                    
+                    const modalEl = document.getElementById('inviteStaffModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            } catch (error) {
+                console.error('Invite Staff Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        });
+    }
+
+    // ── AJAX Staff Assignment Update ──────────────────
+    document.querySelectorAll('.modal form').forEach(form => {
+        if (form.action && form.action.includes('/assign')) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalHtml = submitBtn.innerHTML;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Assignments Saved',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: { popup: 'rounded-4' }
+                        });
+                        
+                        const modal = bootstrap.Modal.getInstance(form.closest('.modal'));
+                        if (modal) modal.hide();
+                        
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalHtml;
+                    }
+                } catch (error) {
+                    console.error('Save Assignments Error:', error);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            });
+        }
+    });
+
+    // ── AJAX Revoke / Reactivate ──────────────────────
+    document.querySelector('table').addEventListener('submit', async (e) => {
+        const form = e.target;
+        if (form.action && (form.action.includes('/revoke') || form.action.includes('/reactivate'))) {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Access Updated',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-4' }
+                    });
+
+                    // Update UI status badge and button inline
+                    const row = form.closest('tr');
+                    const statusCell = row.querySelector('.status-badge').parentElement;
+                    const actionCell = form.parentElement;
+
+                    if (data.is_active) {
+                        statusCell.innerHTML = `
+                            <span class="status-badge approved">
+                                <i class="fa-solid fa-circle-check" style="font-size:0.5rem;"></i> Active
+                            </span>
+                        `;
+                        actionCell.innerHTML = `
+                            <form action="${form.action.replace('/reactivate', '/revoke')}" method="POST" class="d-inline">
+                                <input type="hidden" name="_token" value="${form.querySelector('[name="_token"]').value}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;" title="Deactivate Staff Account">
+                                    <i class="fa-solid fa-user-slash"></i> Revoke
+                                </button>
+                            </form>
+                            <button class="btn btn-sm btn-outline-primary fw-bold px-2 py-1.5 ms-1" style="border-radius: 8px; font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#assignModal_${row.dataset.staffId}">
+                                <i class="fa-solid fa-tasks"></i> Assign
+                            </button>
+                        `;
+                    } else {
+                        statusCell.innerHTML = `
+                            <span class="status-badge rejected">
+                                <i class="fa-solid fa-circle-xmark" style="font-size:0.5rem;"></i> Suspended
+                            </span>
+                        `;
+                        actionCell.innerHTML = `
+                            <form action="${form.action.replace('/revoke', '/reactivate')}" method="POST" class="d-inline">
+                                <input type="hidden" name="_token" value="${form.querySelector('[name="_token"]').value}">
+                                <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;" title="Activate Staff Account">
+                                    <i class="fa-solid fa-user-check"></i> Reactivate
+                                </button>
+                            </form>
+                            <button class="btn btn-sm btn-outline-primary fw-bold px-2 py-1.5 ms-1" style="border-radius: 8px; font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#assignModal_${row.dataset.staffId}">
+                                <i class="fa-solid fa-tasks"></i> Assign
+                            </button>
+                        `;
+                    }
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            } catch (error) {
+                console.error('Staff Update Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        }
+    });
+</script>
+@endpush

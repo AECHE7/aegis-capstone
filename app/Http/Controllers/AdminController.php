@@ -112,6 +112,19 @@ class AdminController extends Controller
             ->values();
 
         // 3. Send EVERYTHING to the dashboard
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'html' => view('admin.partials.application_table', compact('applications', 'archivedCount'))->render(),
+                'counts' => [
+                    'pending' => $pendingCount,
+                    'under_review' => $underReviewCount,
+                    'approved' => $approvedCount,
+                    'rejected' => $rejectedCount,
+                    'archived' => $archivedCount,
+                ]
+            ]);
+        }
+
         return view('admin.dashboard', compact(
             'applications', 
             'pendingCount',
@@ -170,6 +183,9 @@ class AdminController extends Controller
         $document = $application->document;
 
         if (!$document) {
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'AI Scan Failed: Document not found.'], 404);
+            }
             return back()->with('error', 'AI Scan Failed: Document not found.');
         }
 
@@ -185,6 +201,10 @@ class AdminController extends Controller
 
         // 2. Dispatch the background job
         \App\Jobs\ScanDocumentJob::dispatch($application->id);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Document verification scan started in the background.']);
+        }
 
         return back()->with('success', 'Document verification scan started in the background.');
     }
@@ -323,6 +343,16 @@ class AdminController extends Controller
 
         // 5. SECURE REDIRECT: Kick the user back to the dashboard immediately 
         // so they don't get stuck on this POST route and trigger a GET error!
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application APP-' . $application->id . ' has been successfully ' . $application->status . '.',
+                'status' => $application->status,
+                'remarks' => $application->remarks,
+                'evaluated_by' => $application->evaluator->name ?? 'System'
+            ]);
+        }
+
         return redirect()->route('admin.dashboard')
             ->with('success', 'Application APP-' . $application->id . ' has been successfully ' . $request->status . '.');
     }
@@ -335,6 +365,14 @@ class AdminController extends Controller
         $application->is_archived = true;
         $application->save();
 
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application APP-' . $application->id . ' has been archived successfully.',
+                'is_archived' => true
+            ]);
+        }
+
         return redirect()->route('admin.dashboard')
             ->with('success', 'Application APP-' . $application->id . ' has been archived successfully.');
     }
@@ -346,6 +384,14 @@ class AdminController extends Controller
         $this->validateAdminAccess($application);
         $application->is_archived = false;
         $application->save();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application APP-' . $application->id . ' has been unarchived successfully.',
+                'is_archived' => false
+            ]);
+        }
 
         return redirect()->route('admin.dashboard')
             ->with('success', 'Application APP-' . $application->id . ' has been unarchived successfully.');

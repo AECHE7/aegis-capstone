@@ -348,6 +348,19 @@ To transition the project from its current MVP setup to a robust, production-rea
   4. Implement an `@auth` active session banner in `resources/views/auth/login.blade.php` (completed).
   5. Validate via test suite, commit, and push to remote (completed).
 
+### Phase 35: AJAX-Enabling the Frontend - [COMPLETED]
+- **Goal:** Modernize all forms, status toggles, dashboard filters, and review flows across student, admin, and superadmin views using asynchronous Fetch API (AJAX) to eliminate page reloads.
+- **Core Skills Applied:** API Gateway/Auth (Skill 7), Statelessness (Skill 12).
+- **Steps:**
+  1. Refactor controllers (Admin, SuperAdmin, Application) to return JSON responses for AJAX/JSON requests (completed).
+  2. Implement a Blade partial for the admin dashboard application table to allow dynamic asynchronous reloading (completed).
+  3. Update dashboard search/filters in `admin/dashboard.blade.php` to fetch table partials and update counts asynchronously (completed).
+  4. AJAX-enable status decisions, archiving, and scan triggering in `admin/review.blade.php` (completed).
+  5. Convert scholarship program configurations, toggle states, and staff management to Fetch API in superadmin views (completed).
+  6. Refactor student application submissions and profile updates to use AJAX Fetch with progress indicators (completed).
+  7. Run complete PHPUnit suite to verify backward-compatible HTTP redirects and JSON API responses (completed).
+
+
 
 
 

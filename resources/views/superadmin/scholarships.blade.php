@@ -317,5 +317,168 @@
         fieldIndex++;
         renderLivePreview();
     });
+
+    // ── AJAX Program Creation ─────────────────────────
+    const newProgramForm = document.querySelector('#newProgramModal form');
+    if (newProgramForm) {
+        newProgramForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = newProgramForm.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
+
+            // Clear previous errors
+            newProgramForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            newProgramForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            try {
+                const response = await fetch(newProgramForm.action, {
+                    method: 'POST',
+                    body: new FormData(newProgramForm),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (response.status === 422) {
+                    // Validation errors
+                    Swal.fire({ icon: 'error', title: 'Validation Failed', text: 'Please check the form inputs.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    
+                    if (data.errors) {
+                        for (const [field, messages] of Object.entries(data.errors)) {
+                            // Find corresponding input field
+                            let input = newProgramForm.querySelector(`[name="${field}"]`);
+                            if (!input && field.startsWith('fields.')) {
+                                // Match dynamic field names
+                                const parts = field.split('.');
+                                const index = parts[1];
+                                const subfield = parts[2];
+                                input = newProgramForm.querySelector(`[name="fields[${index}][${subfield}]"]`);
+                            }
+                            
+                            if (input) {
+                                input.classList.add('is-invalid');
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback';
+                                errorDiv.textContent = messages[0];
+                                input.parentElement.appendChild(errorDiv);
+                            }
+                        }
+                    }
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                } else if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-4' }
+                    });
+                    
+                    // Close Modal and reload
+                    const modalEl = document.getElementById('newProgramModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            } catch (error) {
+                console.error('Save Program Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        });
+    }
+
+    // ── AJAX Program Toggle Status ────────────────────
+    document.querySelector('table').addEventListener('submit', async (e) => {
+        const form = e.target;
+        if (form.action && form.action.includes('/toggle')) {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Updating...';
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Status Updated',
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-4' }
+                    });
+
+                    // Update UI status badge and button inline
+                    const row = form.closest('tr');
+                    const statusCell = row.querySelector('.status-badge').parentElement;
+                    const actionCell = form.parentElement;
+
+                    if (data.status === 'Active') {
+                        statusCell.innerHTML = `
+                            <span class="status-badge approved">
+                                <i class="fa-solid fa-circle-dot" style="font-size:0.5rem;"></i> Open
+                            </span>
+                        `;
+                        actionCell.innerHTML = `
+                            <form action="${form.action}" method="POST">
+                                <input type="hidden" name="_token" value="${form.querySelector('[name="_token"]').value}">
+                                <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
+                                        style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.78rem;">
+                                    <i class="fa-solid fa-lock me-1"></i> Close
+                                </button>
+                            </form>
+                        `;
+                    } else {
+                        statusCell.innerHTML = `
+                            <span class="status-badge rejected">
+                                <i class="fa-solid fa-circle-dot" style="font-size:0.5rem;"></i> Closed
+                            </span>
+                        `;
+                        actionCell.innerHTML = `
+                            <form action="${form.action}" method="POST">
+                                <input type="hidden" name="_token" value="${form.querySelector('[name="_token"]').value}">
+                                <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
+                                        style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.78rem;">
+                                    <i class="fa-solid fa-lock-open me-1"></i> Open
+                                </button>
+                            </form>
+                        `;
+                    }
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            } catch (error) {
+                console.error('Toggle Status Error:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            }
+        }
+    });
 </script>
 @endpush

@@ -253,16 +253,93 @@
 
 @push('scripts')
 <script>
-    function showSavingLoading() {
-        const btn = document.getElementById('saveProfileBtn');
-        const form = document.getElementById('profileForm');
-        if (form.checkValidity()) {
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving Profile...';
-            setTimeout(() => {
-                btn.classList.add('disabled');
-                btn.disabled = true;
-            }, 10);
-        }
+    const profileForm = document.getElementById('profileForm');
+    const saveBtn = document.getElementById('saveProfileBtn');
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Basic browser verification
+            if (!profileForm.checkValidity()) {
+                profileForm.reportValidity();
+                return;
+            }
+
+            const originalHtml = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Saving Profile...';
+
+            // Clear errors
+            profileForm.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+            profileForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+            try {
+                const response = await fetch(profileForm.action, {
+                    method: 'POST',
+                    body: new FormData(profileForm),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (response.status === 422) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Failed',
+                        text: 'Please correct the highlighted fields.',
+                        confirmButtonColor: '#0F5934',
+                        customClass: { popup: 'rounded-4' }
+                    });
+
+                    if (data.errors) {
+                        for (const [field, messages] of Object.entries(data.errors)) {
+                            const input = profileForm.querySelector(`[name="${field}"]`);
+                            if (input) {
+                                input.classList.add('is-invalid');
+                                const parent = input.closest('.input-group') || input.parentElement;
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'invalid-feedback';
+                                errorDiv.textContent = messages[0];
+                                parent.appendChild(errorDiv);
+                            }
+                        }
+                    }
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalHtml;
+                } else if (data.success) {
+                    // Update user name in header
+                    const headerName = document.querySelector('.profile-header h4');
+                    const avatar = document.querySelector('.profile-avatar-container');
+                    const newName = profileForm.querySelector('[name="name"]').value;
+                    if (headerName) headerName.textContent = newName;
+                    if (avatar) avatar.textContent = newName.substring(0, 1).toUpperCase();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Profile Updated',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-4' }
+                    });
+                    
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalHtml;
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalHtml;
+                }
+            } catch (error) {
+                console.error('Profile Save Error:', error);
+                Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalHtml;
+            }
+        });
     }
 
     @if ($errors->any())

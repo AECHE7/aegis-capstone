@@ -53,12 +53,21 @@ class ApplicationController extends Controller
         // THE FIX: Backend protection checking only the latest app
         $latestApplication = \App\Models\Application::where('user_id', $userId)->latest()->first();
         if ($latestApplication && $latestApplication->status === 'Pending') {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Your most recent application is still pending!'], 400);
+            }
             return back()->withErrors(['duplicate' => 'Your most recent application is still pending!']);
         }
 
         $scholarship = \App\Models\Scholarship::with('fields')->findOrFail($request->scholarship_id);
 
         if ($request->gwa > $scholarship->min_gwa_required) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Application Blocked: Your declared GWA of ' . $request->gwa . ' does not meet the minimum requirement (' . $scholarship->min_gwa_required . ') for the ' . $scholarship->name . '.'
+                ], 422);
+            }
             return back()
                 ->withErrors(['gwa' => 'Application Blocked: Your declared GWA of ' . $request->gwa . ' does not meet the minimum requirement (' . $scholarship->min_gwa_required . ') for the ' . $scholarship->name . '.'])
                 ->withInput(); 
@@ -169,6 +178,13 @@ class ApplicationController extends Controller
             \Illuminate\Support\Facades\Log::error('Failed to notify staff on new application: ' . $e->getMessage());
         }
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your application has been submitted successfully to the OSA pipeline!'
+            ]);
+        }
+
         return redirect()->route('student.dashboard')
             ->with('success', 'Your application has been submitted successfully to the OSA pipeline!');
     }
@@ -218,6 +234,13 @@ class ApplicationController extends Controller
                 'contact_number' => $request->contact_number,
             ]
         );
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully!'
+            ]);
+        }
 
         return redirect()->route('student.profile')->with('success', 'Profile updated successfully!');
     }

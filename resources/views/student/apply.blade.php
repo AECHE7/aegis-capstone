@@ -433,16 +433,118 @@
         }
     });
 
-    function showLoading() {
-        const btn = document.getElementById('submitBtn');
-        const form = document.getElementById('applicationForm');
-        if (form.checkValidity()) {
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Encrypting & Submitting...';
-            setTimeout(() => {
-                btn.classList.add('disabled');
-                btn.disabled = true;
-            }, 10);
-        }
+    // ── AJAX Application Form Submission ──────────────
+    const appForm = document.getElementById('applicationForm');
+    if (appForm) {
+        appForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Validate GWA selection
+            const gwaVal = parseFloat(document.getElementById('gwaInput').value);
+            if (selectedScholarshipGwa && gwaVal > selectedScholarshipGwa) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Ineligible GWA',
+                    text: 'Your GWA exceeds the maximum limit for this scholarship.',
+                    confirmButtonColor: '#dc2626',
+                    customClass: { popup: 'rounded-4' }
+                });
+                return;
+            }
+
+            if (!appForm.checkValidity()) {
+                appForm.reportValidity();
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
+
+            // Show Uploading dialog with progress bar
+            Swal.fire({
+                title: 'Submitting Application',
+                html: `
+                    <p class="small text-muted mb-2">Encrypting files and uploading to OSA pipeline...</p>
+                    <div class="progress" style="height: 10px; border-radius: 5px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                `,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-4' },
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Send via XMLHttpRequest for upload progress tracking
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', appForm.action);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('Accept', 'application/json');
+
+            xhr.upload.addEventListener('progress', function(event) {
+                if (event.lengthComputable) {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    const progressBar = Swal.getPopup().querySelector('.progress-bar');
+                    if (progressBar) {
+                        progressBar.style.width = percent + '%';
+                        progressBar.setAttribute('aria-valuenow', percent);
+                    }
+                }
+            });
+
+            xhr.onload = function() {
+                let response = {};
+                try {
+                    response = JSON.parse(xhr.responseText);
+                } catch(e) {
+                    console.error('Error parsing response:', e);
+                }
+
+                if (xhr.status === 200 && response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                        confirmButtonColor: '#0F5934',
+                        customClass: { popup: 'rounded-4' }
+                    }).then(() => {
+                        window.location.href = "{{ route('student.dashboard') }}";
+                    });
+                } else {
+                    let errMsg = response.message || 'Failed to submit application. Please try again.';
+                    if (xhr.status === 422 && response.errors) {
+                        errMsg = Object.values(response.errors).flat().join('<br>');
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Submission Failed',
+                        html: errMsg,
+                        confirmButtonColor: '#dc2626',
+                        customClass: { popup: 'rounded-4' }
+                    });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            };
+
+            xhr.onerror = function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Error',
+                    text: 'A network error occurred. Please check your connection and try again.',
+                    confirmButtonColor: '#dc2626',
+                    customClass: { popup: 'rounded-4' }
+                });
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalHtml;
+            };
+
+            xhr.send(new FormData(appForm));
+        });
     }
 
     @if ($errors->any())

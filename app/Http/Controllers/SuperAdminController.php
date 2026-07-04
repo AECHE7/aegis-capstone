@@ -59,6 +59,14 @@ class SuperAdminController extends Controller
             }
         }
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'New Scholarship Program and its custom fields successfully created!',
+                'scholarship' => $scholarship
+            ]);
+        }
+
         return back()->with('success', 'New Scholarship Program and its custom fields successfully created!');
     }
 
@@ -69,6 +77,14 @@ class SuperAdminController extends Controller
         // Flip the status
         $scholarship->status = $scholarship->status === 'Active' ? 'Closed' : 'Active';
         $scholarship->save();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $scholarship->name . ' is now ' . $scholarship->status . '.',
+                'status' => $scholarship->status
+            ]);
+        }
 
         return back()->with('success', $scholarship->name . ' is now ' . $scholarship->status . '.');
     }
@@ -232,6 +248,14 @@ class SuperAdminController extends Controller
         // Send invitation notification
         $user->notify(new \App\Notifications\StaffInvitationNotification($token));
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Staff member successfully invited and assigned! An activation link has been sent to their email.',
+                'staff' => $user->load('scholarships')
+            ]);
+        }
+
         return back()->with('success', 'Staff member successfully invited and assigned! An activation link has been sent to their email.');
     }
 
@@ -242,6 +266,14 @@ class SuperAdminController extends Controller
         $staff->is_active = false;
         $staff->save();
 
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Staff access has been revoked successfully.',
+                'is_active' => false
+            ]);
+        }
+
         return back()->with('success', 'Staff access has been revoked successfully.');
     }
 
@@ -251,6 +283,14 @@ class SuperAdminController extends Controller
         $staff = \App\Models\User::where('role', 'admin')->findOrFail($id);
         $staff->is_active = true;
         $staff->save();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Staff access has been reactivated successfully.',
+                'is_active' => true
+            ]);
+        }
 
         return back()->with('success', 'Staff access has been reactivated successfully.');
     }
@@ -266,6 +306,14 @@ class SuperAdminController extends Controller
         ]);
 
         $staff->scholarships()->sync($request->scholarship_ids ?? []);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Staff scholarship assignments updated successfully.',
+                'scholarships' => $staff->scholarships()->get()
+            ]);
+        }
 
         return back()->with('success', 'Staff scholarship assignments updated successfully.');
     }
