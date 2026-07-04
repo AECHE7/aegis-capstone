@@ -108,7 +108,9 @@ Route::middleware(['auth'])->group(function () {
                 abort(403, 'Unauthorized access.');
             }
         }
-        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($document->file_path)) { abort(404); }
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($document->file_path)) {
+            return redirect('https://placehold.co/600x800?text=Original+File+Wiped+On+Redeploy');
+        }
         return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($document->file_path));
     })->name('document.view');
 
@@ -124,6 +126,9 @@ Route::middleware(['auth'])->group(function () {
             }
         }
         $path = $aiResult->heatmap_path;
+        if (empty($path)) {
+            return redirect('https://placehold.co/600x800?text=Scan+Failed+Placeholder');
+        }
         // If Cloudinary (or any full URL) — redirect straight to CDN
         if (str_starts_with($path, 'http')) {
             return redirect($path);
