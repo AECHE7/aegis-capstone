@@ -20,5 +20,5 @@ php artisan queue:work --verbose --tries=3 --timeout=120 &
 
 echo "▶ Starting HTTP server on port ${PORT:-10000} with concurrent workers..."
 export PHP_CLI_SERVER_WORKERS=10
-exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000} --no-reload
 

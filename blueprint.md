@@ -347,6 +347,7 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. Remove the `Auth::check()` redirect in `AuthController.php` for the `showLogin` method to allow accessing the login gateway directly (completed).
   4. Implement an `@auth` active session banner in `resources/views/auth/login.blade.php` (completed).
   5. Validate via test suite, commit, and push to remote (completed).
+  6. Add `--no-reload` flag to `php artisan serve` in `start.sh` to resolve the CLI worker limit warning and enable proper concurrent request handling, preventing SSE connections from locking logout requests (completed).
 
 ### Phase 35: AJAX-Enabling the Frontend - [COMPLETED]
 - **Goal:** Modernize all forms, status toggles, dashboard filters, and review flows across student, admin, and superadmin views using asynchronous Fetch API (AJAX) to eliminate page reloads.
