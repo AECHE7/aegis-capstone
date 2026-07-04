@@ -237,6 +237,29 @@
     <div class="form-section">
         <div class="form-container">
             
+            @auth
+                <div class="alert alert-info border-0 bg-info bg-opacity-10 text-info rounded-3 mb-4 p-3 shadow-sm">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="fa-solid fa-circle-info fa-lg text-info"></i>
+                        <h6 class="mb-0 fw-bold">Active Session Detected</h6>
+                    </div>
+                    <p class="small mb-3">You are logged in as <strong>{{ auth()->user()->name }}</strong> ({{ ucfirst(auth()->user()->role) }}).</p>
+                    <div class="d-flex gap-2">
+                        @if(auth()->user()->role === 'superadmin')
+                            <a href="{{ route('superadmin.scholarships') }}" class="btn btn-sm btn-success text-white fw-bold px-3">Go to Dashboard</a>
+                        @elseif(auth()->user()->role === 'admin')
+                            <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-success text-white fw-bold px-3">Go to Dashboard</a>
+                        @else
+                            <a href="{{ route('student.dashboard') }}" class="btn btn-sm btn-success text-white fw-bold px-3">Go to Dashboard</a>
+                        @endif
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-secondary fw-bold px-3">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            @endauth
+
             <div class="text-center mb-4">
                 <h3 class="fw-bold text-dark">Welcome Back</h3>
                 <p class="text-muted">Enter your credentials to access the portal.</p>

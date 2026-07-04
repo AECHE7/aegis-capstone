@@ -10,20 +10,6 @@ class AuthController extends Controller
     // 1. Show the Login Page
     public function showLogin()
     {
-        if (Auth::check()) {
-            $role = Auth::user()->role;
-            if ($role === 'superadmin') {
-                return redirect()->route('superadmin.scholarships');
-            } elseif ($role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            } else {
-                if (Auth::user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !Auth::user()->hasVerifiedEmail()) {
-                    return redirect()->route('verification.notice');
-                }
-                return redirect()->route('student.dashboard');
-            }
-        }
-
         $demoStudent = null;
         $demoAdmin = null;
         $demoSuperAdmin = null;

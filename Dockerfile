@@ -30,7 +30,8 @@ COPY . .
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod +x /var/www/html/start.sh
 
-EXPOSE 80
-CMD php artisan migrate --force && php artisan db:seed --force && (php artisan queue:work --verbose --tries=3 --timeout=120 &) && php artisan serve --host=0.0.0.0 --port=${PORT:-80}
+EXPOSE 10000
+CMD ["/bin/bash", "/var/www/html/start.sh"]
