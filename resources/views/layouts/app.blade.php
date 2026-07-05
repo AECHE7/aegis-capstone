@@ -547,57 +547,23 @@
         @endauth
 
         /* ══════════════════════════════════════════
-           STUDENT TOP NAVBAR
+           TOPBAR ICON BUTTONS (all roles)
         ══════════════════════════════════════════ */
-        .student-navbar {
-            background: var(--clsu-dark);
-            border-bottom: 3px solid var(--clsu-gold);
-            padding: 0.5rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1020;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-
-        .student-navbar .nav-link-custom {
-            color: rgba(255,255,255,0.75);
-            font-weight: 500;
-            font-size: 0.875rem;
-            padding: 0.4rem 0.85rem;
-            border-radius: 8px;
+        .topbar-icon-btn {
+            color: var(--text-main);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             transition: var(--transition);
             text-decoration: none;
-            display: inline-block;
         }
 
-        .student-navbar .nav-link-custom:hover,
-        .student-navbar .nav-link-custom.active {
-            color: white;
-            background: rgba(255,255,255,0.1);
-        }
-
-        @media (max-width: 991.98px) {
-            .student-navbar .navbar-nav {
-                padding: 0.5rem 0 0.25rem;
-            }
-            .student-navbar .nav-link-custom {
-                display: block;
-                margin-bottom: 4px;
-                padding: 8px 12px;
-            }
-            .student-navbar .badge {
-                margin: 4px 0;
-                display: inline-block !important;
-            }
-        }
-
-        /* ══════════════════════════════════════════
-           OLD NAVBAR (fallback for authenticated navbar-custom)
-        ══════════════════════════════════════════ */
-        .navbar-custom {
-            background-color: var(--clsu-dark);
-            border-bottom: 4px solid var(--clsu-gold);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        .topbar-icon-btn:hover {
+            background: var(--clsu-green-muted, rgba(12,78,45,0.08));
+            color: var(--clsu-green);
         }
 
         /* ══════════════════════════════════════════
