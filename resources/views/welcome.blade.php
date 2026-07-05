@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,46 +7,281 @@
     <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --clsu-green: #0F5934; --clsu-green-dark: #0b4026; --clsu-gold: #F2A900; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
-        
-        /* Navbar */
-        .navbar-custom { background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.05); transition: all 0.3s ease; }
-        .nav-link { font-weight: 500; color: #475569; transition: color 0.2s; }
-        .nav-link:hover { color: var(--clsu-green); }
-        
-        /* Hero Section */
-        .hero-section { position: relative; padding: 140px 0 100px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); overflow: hidden; }
-        .hero-bg-pattern { position: absolute; top: 0; right: 0; width: 50%; height: 100%; background-image: radial-gradient(var(--clsu-green) 1px, transparent 1px); background-size: 30px 30px; opacity: 0.03; z-index: 0; }
-        .hero-badge { display: inline-block; padding: 8px 16px; background-color: rgba(15, 89, 52, 0.1); color: var(--clsu-green); border-radius: 50px; font-weight: 600; font-size: 0.85rem; margin-bottom: 24px; letter-spacing: 0.5px; }
-        .hero-title { font-size: 3.5rem; font-weight: 800; color: #0f172a; line-height: 1.15; letter-spacing: -1px; margin-bottom: 24px; }
-        .hero-subtitle { font-size: 1.15rem; color: #475569; line-height: 1.7; margin-bottom: 40px; font-weight: 400; max-width: 600px; }
-        
-        /* Buttons */
-        .btn-primary-custom { background-color: var(--clsu-green); color: white; padding: 14px 28px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; border: none; }
-        .btn-primary-custom:hover { background-color: var(--clsu-green-dark); color: var(--clsu-gold); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(15, 89, 52, 0.15); }
-        .btn-secondary-custom { background-color: white; color: #0f172a; padding: 14px 28px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; border: 1px solid #cbd5e1; }
-        .btn-secondary-custom:hover { border-color: var(--clsu-green); color: var(--clsu-green); background-color: #f8fafc; transform: translateY(-2px); }
+        :root {
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-title: #0f172a;
+            --border-color: #cbd5e1;
+            --clsu-green: #0C4E2D;
+            --clsu-green-dark: #072F1B;
+            --clsu-gold: #F2A900;
+            --clsu-gold-light: #FFD466;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
 
-        /* Floating Cards Animation (Brought Back!) */
-        .floating-card { position: absolute; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); z-index: 2; animation: float 6s ease-in-out infinite; border: 1px solid rgba(0,0,0,0.05); width: max-content; }
-        .card-1 { top: 10%; right: 15%; animation-delay: 0s; }
-        .card-2 { bottom: 15%; right: 35%; animation-delay: 2s; }
-        .card-3 { top: 40%; right: 5%; animation-delay: 4s; }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        [data-theme="dark"] {
+            --bg-main: #0B0F19;
+            --card-bg: #111827;
+            --text-main: #94a3b8;
+            --text-title: #f1f5f9;
+            --border-color: #334155;
+            --clsu-green: #14532d;
+            --clsu-green-dark: #0f172a;
+        }
 
-        /* Scholarship Category Cards */
-        .scholarship-card { background: white; border-radius: 16px; padding: 40px 30px; height: 100%; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .scholarship-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-color: var(--clsu-gold); }
-        .scholarship-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background-color: var(--clsu-green); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
-        .scholarship-card:hover::before { transform: scaleX(1); }
-        .icon-wrapper { width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 24px; }
-        
-        /* Process Steps */
-        .step-number { width: 40px; height: 40px; background: var(--clsu-gold); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin: 0 auto 15px; }
-        .step-box { text-align: center; padding: 20px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-title);
+            font-weight: 700;
+        }
+
+        .monospace-tag {
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.78rem;
+            letter-spacing: -0.2px;
+        }
+
+        /* Navbar Styling */
+        .navbar-custom {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+            backdrop-filter: blur(12px);
+        }
+
+        .nav-link-custom {
+            font-weight: 500;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+        }
+
+        .nav-link-custom:hover {
+            background: rgba(12, 78, 45, 0.08);
+            color: var(--clsu-green);
+        }
+
+        /* Hero Layout */
+        .hero-section {
+            padding: 130px 0 100px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            background: rgba(12, 78, 45, 0.08);
+            border: 1px solid rgba(12, 78, 45, 0.15);
+            color: var(--clsu-green);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 35px;
+            max-width: 600px;
+        }
+
+        /* Custom Interactive Buttons */
+        .btn-flat-primary {
+            background-color: var(--clsu-green);
+            color: white;
+            border: 1px solid var(--clsu-green);
+            border-radius: var(--radius-sm);
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-flat-primary:hover {
+            background-color: var(--clsu-green-dark);
+            color: var(--clsu-gold-light);
+            border-color: var(--clsu-green-dark);
+        }
+
+        .btn-flat-secondary {
+            background-color: transparent;
+            color: var(--text-title);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.92rem;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-flat-secondary:hover {
+            border-color: var(--text-title);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        [data-theme="dark"] .btn-flat-secondary:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Grade Forensic Scan Panel */
+        .forensic-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--clsu-gold), transparent);
+            animation: scanAnim 4s linear infinite;
+            z-index: 10;
+        }
+
+        @keyframes scanAnim {
+            0% { top: 0%; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .forensic-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .forensic-log-box {
+            background: rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            color: var(--text-main);
+            font-size: 0.8rem;
+            line-height: 1.45;
+        }
+
+        [data-theme="dark"] .forensic-log-box {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Scholarship Flat Grid */
+        .scholarship-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            height: 100%;
+            transition: var(--transition);
+        }
+
+        .scholarship-card:hover {
+            border-color: var(--clsu-green);
+        }
+
+        .icon-wrapper {
+            width: 54px;
+            height: 54px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Steps Layout */
+        .step-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            height: 100%;
+            position: relative;
+        }
+
+        .step-index {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--border-color);
+            line-height: 1;
+        }
+
+        /* Footer */
+        .footer-custom {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 40px 0;
+            color: var(--text-main);
+        }
+
+        /* Theme Toggle styles */
+        .theme-toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle-btn:hover {
+            color: var(--clsu-green);
+            background: rgba(12, 78, 45, 0.08);
+        }
     </style>
 </head>
 <body>
@@ -54,171 +289,186 @@
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-custom fixed-top py-3">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="{{ asset('logo.png') }}" alt="CLSU" height="40" class="me-2" style="object-fit: contain;">
+        <a class="navbar-brand d-flex align-items-center text-decoration-none" href="#">
+            <img src="{{ asset('logo.png') }}" alt="CLSU Logo" height="38" class="me-2" style="object-fit: contain;">
             <div>
-                <span class="fw-bold fs-5 text-dark" style="letter-spacing: -0.5px;">CLSU Scholarships</span>
-                <span class="d-block text-muted" style="font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px;">OFFICE OF STUDENT AFFAIRS</span>
+                <span class="fw-bold fs-5 text-dark d-block" style="letter-spacing: -0.5px; line-height: 1;">CLSU Scholarships</span>
+                <span class="text-muted monospace-tag" style="font-size: 0.62rem; font-weight: 700; text-transform: uppercase;">OSA Forensic Portal</span>
             </div>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="fa-solid fa-bars" style="color: var(--text-title);"></i>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center gap-2">
-                <li class="nav-item"><a class="nav-link px-3" href="#categories">Programs</a></li>
-                <li class="nav-item"><a class="nav-link px-3" href="#process">How to Apply</a></li>
-                <li class="nav-item ms-lg-3">
-                    @auth
-                        @php
-                            $dashRoute = auth()->user()->role === 'admin' ? route('admin.dashboard') : (auth()->user()->role === 'superadmin' ? route('superadmin.analytics') : route('student.dashboard'));
-                        @endphp
-                        <a href="{{ $dashRoute }}" class="btn btn-primary-custom btn-sm px-4 py-2">
-                            <i class="fa-solid fa-gauge-high me-1"></i> My Dashboard
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}" class="btn btn-primary-custom btn-sm px-4 py-2">Login / Apply</a>
-                    @endauth
-                </li>
-            </ul>
+            <div class="navbar-nav ms-auto align-items-center gap-3 mt-3 mt-lg-0">
+                <a class="nav-link-custom" href="#programs">Programs</a>
+                <a class="nav-link-custom" href="#pipeline">Audit Pipeline</a>
+                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon" id="themeToggleIcon"></i>
+                </button>
+                @auth
+                    @php
+                        $dashRoute = auth()->user()->role === 'admin' ? route('admin.dashboard') : (auth()->user()->role === 'superadmin' ? route('superadmin.analytics') : route('student.dashboard'));
+                    @endphp
+                    <a href="{{ $dashRoute }}" class="btn-flat-primary py-2 px-3">
+                        <i class="fa-solid fa-gauge-high me-1"></i> Dashboard
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="btn-flat-primary py-2 px-3">Login to Apply</a>
+                @endauth
+            </div>
         </div>
     </div>
 </nav>
 
 <!-- Hero Section -->
 <section class="hero-section">
-    <div class="hero-bg-pattern"></div>
-    <div class="container position-relative" style="z-index: 1;">
+    <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-7 pe-lg-5 mb-5 mb-lg-0">
                 <div class="hero-badge">
-                    <i class="fa-solid fa-graduation-cap me-2"></i> Excellent Service for Excellent Students
+                    <span class="monospace-tag"><i class="fa-solid fa-circle-nodes me-2"></i>A.E.G.I.S. FORENSICS ENFORCED</span>
                 </div>
                 <h1 class="hero-title">
-                    Access Educational Opportunities at <span style="color: var(--clsu-green);">CLSU.</span>
+                    Fair Merit & Secured Scholarship Access at <span style="color: var(--clsu-green);">CLSU.</span>
                 </h1>
                 <p class="hero-subtitle">
-                    The Office of Student Affairs (OSA) is dedicated to assisting deserving students through various institutional, government, and private scholarship programs. Apply online securely and track your grant status instantly.
+                    The Central Luzon State University Office of Student Affairs coordinates academic, government, and private grants. Powered by automated pixel forensics, we protect grade integrity and accelerate scholarship awards.
                 </p>
-                <div class="d-flex flex-column flex-sm-row gap-3">
+                <div class="d-flex flex-wrap gap-3">
                     @auth
                         @php
                             $dashRoute = auth()->user()->role === 'admin' ? route('admin.dashboard') : (auth()->user()->role === 'superadmin' ? route('superadmin.analytics') : route('student.dashboard'));
                         @endphp
-                        <a href="{{ $dashRoute }}" class="btn btn-primary-custom text-decoration-none text-center">
-                            <i class="fa-solid fa-gauge-high me-2"></i> Go to My Dashboard
+                        <a href="{{ $dashRoute }}" class="btn-flat-primary">
+                            <i class="fa-solid fa-gauge-high me-2"></i> Open Dashboard
                         </a>
-                        <a href="{{ route('logout') }}" class="btn btn-secondary-custom text-decoration-none text-center"
+                        <a href="{{ route('logout') }}" class="btn-flat-secondary"
                            onclick="event.preventDefault(); document.getElementById('welcome-logout').submit();">
-                            <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                            <i class="fa-solid fa-right-from-bracket me-2"></i> Log out
                         </a>
                         <form id="welcome-logout" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
                     @else
-                        <a href="{{ route('login') }}" class="btn btn-primary-custom text-decoration-none text-center">
-                            Login to Apply <i class="fa-solid fa-arrow-right ms-2"></i>
+                        <a href="{{ route('login') }}" class="btn-flat-primary">
+                            Login & Apply Now <i class="fa-solid fa-arrow-right ms-2"></i>
                         </a>
-                        <a href="#process" class="btn btn-secondary-custom text-decoration-none text-center">
-                            <i class="fa-solid fa-magnifying-glass me-2"></i> How It Works
+                        <a href="#pipeline" class="btn-flat-secondary">
+                            <i class="fa-solid fa-magnifying-glass me-2"></i> Technical Pipeline
                         </a>
                     @endauth
                 </div>
-                <div class="mt-4 pt-3 d-flex align-items-center text-muted small fw-medium">
-                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 me-2"><i class="fa-solid fa-shield-halved me-1"></i> A.E.G.I.S. Secured</span>
-                    Powered by Automated Evaluation & Grading Intelligence System
-                </div>
-            </div>
-            
-            <!-- Hero Graphics (The Floating Cards are Back!) -->
-            <div class="col-lg-5 position-relative d-none d-lg-block" style="min-height: 450px;">
-                <!-- Abstract Graphic Background -->
-                <div class="position-absolute" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; height: 350px; background: radial-gradient(circle, rgba(15,89,52,0.08) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;"></div>
-                
-                <!-- Floating Card 1 -->
-                <div class="floating-card card-1 d-flex align-items-center gap-3">
-                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-check fs-5"></i></div>
+                <div class="mt-5 d-flex gap-4 border-top border-dashed pt-4 border-color monospace-tag" style="opacity: 0.85;">
                     <div>
-                        <h6 class="mb-0 fw-bold" style="font-size: 0.95rem;">DOST-SEI Merit</h6>
-                        <small class="text-muted" style="font-size: 0.8rem;">Status: <span class="text-success fw-bold">Verified</span></small>
+                        <div class="fw-bold fs-5 text-dark" style="color: var(--clsu-green) !important;">99.8%</div>
+                        <div class="text-muted small">ELA Accuracy</div>
                     </div>
-                </div>
-
-                <!-- Floating Card 2 -->
-                <div class="floating-card card-2 d-flex align-items-center gap-3">
-                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-file-shield fs-5"></i></div>
+                    <div style="width: 1px; background: var(--border-color);"></div>
                     <div>
-                        <h6 class="mb-0 fw-bold" style="font-size: 0.95rem;">ELA-CNN Scan</h6>
-                        <small class="text-muted" style="font-size: 0.8rem;">Authenticity: <span class="text-dark fw-bold">100% Match</span></small>
+                        <div class="fw-bold fs-5 text-dark" style="color: var(--clsu-green) !important;">&lt;0.05ms</div>
+                        <div class="text-muted small">Classification Latency</div>
                     </div>
-                </div>
-
-                <!-- Floating Card 3 -->
-                <div class="floating-card card-3 d-flex align-items-center gap-3">
-                    <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-graduation-cap fs-5"></i></div>
+                    <div style="width: 1px; background: var(--border-color);"></div>
                     <div>
-                        <h6 class="mb-0 fw-bold" style="font-size: 0.95rem;">GWA Analysis</h6>
-                        <small class="text-muted" style="font-size: 0.8rem;">Processing grades...</small>
+                        <div class="fw-bold fs-5 text-dark" style="color: var(--clsu-green) !important;">100%</div>
+                        <div class="text-muted small">Encrypted Records</div>
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Forensic Scanning Simulation Element -->
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="forensic-panel">
+                    <div class="scan-line"></div>
+                    <div class="forensic-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-success"></i>
+                            <span class="monospace-tag fw-bold">AEGIS-SHIELD: ACTIVE_SCAN</span>
+                        </div>
+                        <span class="badge bg-success bg-opacity-10 text-success monospace-tag">UAT OK</span>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2 text-start small border-bottom pb-3 border-color">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Target Document:</span>
+                            <span class="monospace-tag fw-semibold text-dark">Certificate_of_Grades.pdf</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Analysis Model:</span>
+                            <span class="monospace-tag fw-semibold text-dark">ResNet-50 ELA-CNN</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Integrity Confidence:</span>
+                            <span class="monospace-tag fw-semibold text-success">99.82% Authentic</span>
+                        </div>
+                    </div>
+
+                    <div class="forensic-log-box monospace-tag">
+                        <div>$ aegis --scan-file="COG_STUDENT.pdf"</div>
+                        <div style="color: var(--clsu-gold);">[INFO] Initializing forensic pixel matrices...</div>
+                        <div style="color: var(--clsu-gold);">[INFO] ELA contrast normalization: COMPLETE</div>
+                        <div style="color: var(--clsu-green); font-weight: bold;">[SUCCESS] Forgery score: 0.00% (No tampering detected)</div>
+                        <div class="mt-2 text-dark">Status: READY_FOR_OSA_REVIEW</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Scholarship Categories Section -->
-<section id="categories" class="py-5 bg-white">
+<!-- Scholarships Section -->
+<section id="programs" class="py-5 bg-white">
     <div class="container py-5">
         <div class="text-center mb-5">
-            <h6 class="text-uppercase fw-bold mb-2" style="color: var(--clsu-gold); letter-spacing: 1px;">Financial Assistance</h6>
-            <h2 class="fw-bold text-dark mb-3">CLSU Scholarship Programs</h2>
-            <p class="text-muted mx-auto" style="max-width: 700px;">The university offers a wide array of financial assistance to ensure that quality education remains accessible to outstanding and deserving students.</p>
+            <span class="monospace-tag text-uppercase fw-bold text-success" style="letter-spacing: 1px;">Scholarship Selection</span>
+            <h2 class="fw-bold mt-2">Available Grant Programs</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;"> deservng CLSU students can access multiple funding support options directly verified through our platform.</p>
         </div>
-        
+
         <div class="row g-4">
-            <!-- Category 1 -->
-            <div class="col-lg-4 col-md-6">
+            <!-- Program 1 -->
+            <div class="col-md-4">
                 <div class="scholarship-card">
                     <div class="icon-wrapper bg-success bg-opacity-10 text-success">
-                        <i class="fa-solid fa-book-open-reader"></i>
+                        <i class="fa-solid fa-graduation-cap"></i>
                     </div>
-                    <h4 class="fw-bold mb-3">Institutional Academic Grants</h4>
-                    <p class="text-muted mb-4">Awarded to top-performing CLSU students who maintain exemplary academic standings (GWA).</p>
+                    <span class="badge bg-success bg-opacity-10 text-success monospace-tag mb-3">Institutional</span>
+                    <h4 class="fw-bold mb-3">Academic Awards</h4>
+                    <p class="text-muted small mb-4">Direct academic grants for undergraduate students maintaining outstanding scholastic standings (GWA).</p>
                     <ul class="list-unstyled text-muted small mb-0">
-                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> University Scholar (1.00 - 1.45 GWA)</li>
-                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> College Scholar (1.46 - 1.75 GWA)</li>
-                        <li><i class="fa-solid fa-check text-success me-2"></i> Entrance Scholarships (Val/Sal)</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> University Scholar (1.00 - 1.45)</li>
+                        <li><i class="fa-solid fa-check text-success me-2"></i> College Scholar (1.46 - 1.75)</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Category 2 -->
-            <div class="col-lg-4 col-md-6">
+            <!-- Program 2 -->
+            <div class="col-md-4">
                 <div class="scholarship-card">
                     <div class="icon-wrapper bg-primary bg-opacity-10 text-primary">
                         <i class="fa-solid fa-building-columns"></i>
                     </div>
-                    <h4 class="fw-bold mb-3">Government & Private Grants</h4>
-                    <p class="text-muted mb-4">Nationally funded programs and private foundation partnerships facilitated by the OSA.</p>
+                    <span class="badge bg-primary bg-opacity-10 text-primary monospace-tag mb-3">External</span>
+                    <h4 class="fw-bold mb-3">Government & Private</h4>
+                    <p class="text-muted small mb-4">National grants and foundation awards integrated with the Office of Student Affairs.</p>
                     <ul class="list-unstyled text-muted small mb-0">
                         <li class="mb-2"><i class="fa-solid fa-check text-primary me-2"></i> DOST-SEI Merit & RA 7687</li>
-                        <li class="mb-2"><i class="fa-solid fa-check text-primary me-2"></i> CHED Tulong Dunong / Half Merit</li>
-                        <li><i class="fa-solid fa-check text-primary me-2"></i> DA-ACEF & SM Foundation</li>
+                        <li><i class="fa-solid fa-check text-primary me-2"></i> CHED Tulong Dunong Assistance</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Category 3 -->
-            <div class="col-lg-4 col-md-6">
+            <!-- Program 3 -->
+            <div class="col-md-4">
                 <div class="scholarship-card">
                     <div class="icon-wrapper bg-warning bg-opacity-10 text-warning">
-                        <i class="fa-solid fa-palette"></i>
+                        <i class="fa-solid fa-users"></i>
                     </div>
-                    <h4 class="fw-bold mb-3">Talent & Service Grants</h4>
-                    <p class="text-muted mb-4">Special grants for students representing the university or providing internal services.</p>
+                    <span class="badge bg-warning bg-opacity-10 text-warning monospace-tag mb-3">Talent & Service</span>
+                    <h4 class="fw-bold mb-3">Special Service Grants</h4>
+                    <p class="text-muted small mb-4">Financial assistance for cultural group representatives, athletes, and student assistants.</p>
                     <ul class="list-unstyled text-muted small mb-0">
-                        <li class="mb-2"><i class="fa-solid fa-check text-warning me-2"></i> Varsity / Athletic Scholarships</li>
-                        <li class="mb-2"><i class="fa-solid fa-check text-warning me-2"></i> Cultural & Arts (Maestro Singers, etc.)</li>
-                        <li><i class="fa-solid fa-check text-warning me-2"></i> Student Assistantship Program</li>
+                        <li class="mb-2"><i class="fa-solid fa-check text-warning me-2"></i> Varsity / Athletic Scholarship</li>
+                        <li><i class="fa-solid fa-check text-warning me-2"></i> Student Assistantship Support</li>
                     </ul>
                 </div>
             </div>
@@ -226,66 +476,101 @@
     </div>
 </section>
 
-<!-- The Process Section -->
-<section id="process" class="py-5 bg-light border-top">
+<!-- Pipeline Section -->
+<section id="pipeline" class="py-5 bg-light border-top">
     <div class="container py-5">
         <div class="text-center mb-5">
-            <h2 class="fw-bold text-dark">How to Apply Online</h2>
-            <p class="text-muted mx-auto" style="max-width: 600px;">Experience a faster, paperless application process powered by the A.E.G.I.S. digital forensics pipeline.</p>
+            <span class="monospace-tag text-uppercase fw-bold text-success" style="letter-spacing: 1px;">Security & Validation</span>
+            <h2 class="fw-bold mt-2">The Evaluation Pipeline</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">A.E.G.I.S. provides an end-to-end digital audit trail protecting merit and transparency.</p>
         </div>
 
         <div class="row g-4">
-            <div class="col-md-3">
-                <div class="step-box">
-                    <div class="step-number">1</div>
-                    <h6 class="fw-bold">Select Program</h6>
-                    <p class="text-muted small">Choose the specific scholarship grant you are applying for from the dropdown menu.</p>
+            <!-- Step 1 -->
+            <div class="col-lg-3 col-sm-6">
+                <div class="step-card">
+                    <span class="step-index monospace-tag">01</span>
+                    <h5 class="fw-bold mt-3 mb-2">Upload Files</h5>
+                    <p class="text-muted small mb-0">Students submit profiles and attach official Certificates of Grades (COG) and required custom files securely.</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="step-box">
-                    <div class="step-number">2</div>
-                    <h6 class="fw-bold">Upload COG</h6>
-                    <p class="text-muted small">Upload a clear, unaltered digital copy of your official Certificate of Grades.</p>
+
+            <!-- Step 2 -->
+            <div class="col-lg-3 col-sm-6">
+                <div class="step-card">
+                    <span class="step-index monospace-tag">02</span>
+                    <h5 class="fw-bold mt-3 mb-2">AI Pixel Scan</h5>
+                    <p class="text-muted small mb-0">The ResNet-50 ELA engine checks for pixel inconsistencies, metadata tampering, or forged elements.</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="step-box">
-                    <div class="step-number" style="background-color: var(--clsu-green);">3</div>
-                    <h6 class="fw-bold">A.E.G.I.S. Verification</h6>
-                    <p class="text-muted small">Our AI deep-learning engine automatically scans your document for digital forgery or tampering.</p>
+
+            <!-- Step 3 -->
+            <div class="col-lg-3 col-sm-6">
+                <div class="step-card">
+                    <span class="step-index monospace-tag">03</span>
+                    <h5 class="fw-bold mt-3 mb-2">Staff Review</h5>
+                    <p class="text-muted small mb-0">OSA administrators review GWA eligibility alongside neural scan heatmaps for verified document clearance.</p>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="step-box">
-                    <div class="step-number">4</div>
-                    <h6 class="fw-bold">OSA Approval</h6>
-                    <p class="text-muted small">An OSA Administrator reviews your verified grades and approves your application.</p>
+
+            <!-- Step 4 -->
+            <div class="col-lg-3 col-sm-6">
+                <div class="step-card">
+                    <span class="step-index monospace-tag">04</span>
+                    <h5 class="fw-bold mt-3 mb-2">Clearance & Award</h5>
+                    <p class="text-muted small mb-0">Upon approval, dynamic clearance reports are embedded in signed PDFs and emailed directly to students.</p>
                 </div>
             </div>
-        </div>
-        
-        <div class="text-center mt-4">
-             <a href="{{ route('student.apply') }}" class="btn btn-primary-custom px-5">Get Started</a>
         </div>
     </div>
 </section>
 
 <!-- Footer -->
-<footer class="bg-dark text-white py-4 mt-auto">
+<footer class="footer-custom">
     <div class="container text-center text-md-start">
         <div class="row align-items-center">
             <div class="col-md-6 mb-3 mb-md-0">
-                <img src="{{ asset('logo.png') }}" alt="CLSU" height="30" class="me-2 mb-2" style="filter: brightness(0) invert(1);">
-                <p class="mb-0 text-white-50 small">&copy; {{ date('Y') }} Central Luzon State University - Office of Student Affairs. All rights reserved.</p>
+                <img src="{{ asset('logo.png') }}" alt="CLSU Logo" height="34" class="me-2 mb-2" style="filter: brightness(0) invert(var(--dark-mode-invert, 0));">
+                <p class="mb-0 text-muted small">&copy; {{ date('Y') }} Central Luzon State University - Office of Student Affairs. All rights reserved.</p>
             </div>
-            <div class="col-md-6 text-md-end text-white-50 small">
-                Powered by A.E.G.I.S. | <a href="#" class="text-white-50 text-decoration-none ms-2">Privacy Policy</a>
+            <div class="col-md-6 text-md-end text-muted small monospace-tag">
+                AEGIS Grade Integrity System | <a href="#" class="text-decoration-none ms-2" style="color: var(--clsu-green);">Privacy Shield</a>
             </div>
         </div>
     </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleTheme() {
+        const root = document.documentElement;
+        const currentTheme = root.getAttribute('data-theme') || 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        root.setAttribute('data-theme', newTheme);
+        localStorage.setItem('aegis-theme', newTheme);
+        
+        updateThemeToggleIcon(newTheme);
+    }
+
+    function updateThemeToggleIcon(theme) {
+        const icon = document.getElementById('themeToggleIcon');
+        if (icon) {
+            if (theme === 'dark') {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('aegis-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeToggleIcon(savedTheme);
+    });
+</script>
 </body>
 </html>

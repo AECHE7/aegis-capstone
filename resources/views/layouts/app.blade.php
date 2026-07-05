@@ -244,7 +244,7 @@
            SIDEBAR — ADMIN & SUPERADMIN
         ══════════════════════════════════════════ */
         @auth
-        @if(auth()->check() && in_array(auth()->user()->role, ['admin', 'superadmin']))
+        @if(auth()->check())
 
         .sidebar {
             position: fixed;
@@ -768,7 +768,7 @@
 <body>
 
 @auth
-    @if(auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin')
+    @if(auth()->check())
     
     {{-- ═══════════════════════════════════════════
          SIDEBAR LAYOUT (ADMIN / SUPERADMIN)
@@ -793,9 +793,12 @@
                 @if(auth()->user()->role === 'superadmin')
                     <i class="fa-solid fa-crown text-warning" style="min-width: 14px;"></i>
                     <span class="role-text fw-bold text-warning" style="overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</span>
-                @else
+                @elseif(auth()->user()->role === 'admin')
                     <i class="fa-solid fa-user-shield text-info" style="min-width: 14px;"></i>
                     <span class="role-text" style="overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</span>
+                @else
+                    <i class="fa-solid fa-user-graduate text-success" style="min-width: 14px;"></i>
+                    <span class="role-text text-success" style="overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</span>
                 @endif
             </div>
         </div>
@@ -845,6 +848,33 @@
                     <span class="sidebar-icon"><i class="fa-solid fa-users-gear"></i></span>
                     <span class="sidebar-text">Staff Accounts</span>
                 </a>
+                <a href="{{ route('superadmin.trash') }}" 
+                   class="sidebar-link {{ request()->routeIs('superadmin.trash') ? 'active' : '' }}"
+                   data-tooltip="Trash">
+                    <span class="sidebar-icon"><i class="fa-solid fa-trash-can"></i></span>
+                    <span class="sidebar-text">System Trash</span>
+                </a>
+
+            @elseif(auth()->user()->role === 'student')
+                <div class="sidebar-label">Student Menu</div>
+                <a href="{{ route('student.dashboard') }}" 
+                   class="sidebar-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}"
+                   data-tooltip="My Application">
+                    <span class="sidebar-icon"><i class="fa-solid fa-house"></i></span>
+                    <span class="sidebar-text">My Application</span>
+                </a>
+                <a href="{{ route('student.apply') }}" 
+                   class="sidebar-link {{ request()->routeIs('student.apply') ? 'active' : '' }}"
+                   data-tooltip="Apply">
+                    <span class="sidebar-icon"><i class="fa-solid fa-plus"></i></span>
+                    <span class="sidebar-text">Apply for Scholarship</span>
+                </a>
+                <a href="{{ route('student.profile') }}" 
+                   class="sidebar-link {{ request()->routeIs('student.profile') ? 'active' : '' }}"
+                   data-tooltip="Profile">
+                    <span class="sidebar-icon"><i class="fa-solid fa-user"></i></span>
+                    <span class="sidebar-text">My Profile</span>
+                </a>
             @endif
         </nav>
 
@@ -890,18 +920,24 @@
 
                 <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-1">
-                    <button class="btn btn-link position-relative p-1 topbar-icon-btn" type="button" id="notifBellAdmin" data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
+                    <button class="btn btn-link position-relative p-1 topbar-icon-btn" type="button" 
+                            id="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
+                            data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
                         <i class="fa-regular fa-bell fs-5"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" id="notifBadgeAdmin" style="font-size: 0.6rem; padding: 3px 6px;">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" 
+                              id="@if(auth()->user()->role === 'student') notifBadgeStudent @else notifBadgeAdmin @endif" 
+                              style="font-size: 0.6rem; padding: 3px 6px;">
                             0
                         </span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" aria-labelledby="notifBellAdmin" style="width: 320px; border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" 
+                        aria-labelledby="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
+                        style="width: 320px; border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
                         <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
                             <span class="fw-bold">Notifications</span>
                             <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small text-success fw-semibold" onclick="clearAllNotifications(event)">Mark all as read</button>
                         </li>
-                        <div id="notifListAdmin">
+                        <div id="@if(auth()->user()->role === 'student') notifListStudent @else notifListAdmin @endif">
                             <li class="px-3 py-4 text-center text-muted small">
                                 <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
                                 No new notifications
@@ -914,9 +950,13 @@
                     <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: #dcfce7; color: #14532d; font-size: 0.75rem;">
                         <i class="fa-solid fa-user-shield me-1"></i> OSA Administrator
                     </span>
-                @else
+                @elseif(auth()->user()->role === 'superadmin')
                     <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: #fef9c3; color: #854d0e; font-size: 0.75rem;">
                         <i class="fa-solid fa-crown me-1"></i> Director
+                    </span>
+                @else
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold text-success" style="background: rgba(25,135,84,0.1); font-size: 0.75rem; border: 1px solid rgba(25,135,84,0.25);">
+                        <i class="fa-solid fa-user-graduate me-1"></i> Student Applicant
                     </span>
                 @endif
             </div>
@@ -941,112 +981,6 @@
 
             @yield('content')
         </div>
-    </div>
-
-    @else
-
-    {{-- ═══════════════════════════════════════════
-         STUDENT TOP NAVBAR LAYOUT
-    ═══════════════════════════════════════════ --}}
-    <nav class="student-navbar navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid px-md-5">
-            <!-- Brand -->
-            <a href="{{ route('student.dashboard') }}" class="navbar-brand d-flex align-items-center gap-2 m-0 p-0 text-decoration-none">
-                <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--clsu-gold),#e09500);border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(242,169,0,0.35);">
-                    <i class="fa-solid fa-shield-halved text-dark" style="font-size:0.9rem;"></i>
-                </div>
-                <div>
-                    <div class="fw-bold text-white" style="font-size:0.95rem;font-family:'Poppins',sans-serif;line-height:1.1;">A.E.G.I.S.</div>
-                    <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);letter-spacing:0.8px;text-transform:uppercase;">Student Portal</div>
-                </div>
-            </a>
-
-            <!-- Navbar Toggler for Mobile -->
-            <button class="navbar-toggler border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#studentNavbarContent" aria-controls="studentNavbarContent" aria-expanded="false" aria-label="Toggle navigation" style="box-shadow: none;">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- Navigation links -->
-            <div class="collapse navbar-collapse justify-content-end mt-2 mt-lg-0" id="studentNavbarContent">
-                <div class="navbar-nav align-items-lg-center gap-2">
-                    <a href="{{ route('student.dashboard') }}" 
-                       class="nav-link-custom {{ request()->routeIs('student.dashboard') ? 'active' : '' }}">
-                        <i class="fa-solid fa-house me-1"></i> My Application
-                    </a>
-                    <a href="{{ route('student.apply') }}" 
-                       class="nav-link-custom {{ request()->routeIs('student.apply') ? 'active' : '' }}">
-                        <i class="fa-solid fa-plus me-1"></i> Apply
-                    </a>
-                    <a href="{{ route('student.profile') }}" 
-                       class="nav-link-custom {{ request()->routeIs('student.profile') ? 'active' : '' }}">
-                        <i class="fa-solid fa-user me-1"></i> My Profile
-                    </a>
-                    <span class="d-none d-lg-inline" style="width:1px;height:20px;background:rgba(255,255,255,0.15);margin:0 4px;"></span>
-                    
-                    <!-- Theme Switcher for Student -->
-                    <button class="btn btn-link p-1 text-white-50 hover-white mt-1 mt-lg-0 me-lg-2 text-start text-lg-center" id="themeToggleBtnStudent" type="button" style="box-shadow: none;" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
-                        <i class="fa-solid fa-moon fs-5 text-white" id="themeToggleIconStudent"></i>
-                    </button>
-
-                    <!-- Notification Bell Dropdown for Student -->
-                    <div class="dropdown me-lg-2 mt-2 mt-lg-0 text-start text-lg-center" style="width: fit-content;">
-                        <button class="btn btn-link position-relative p-1 text-white-50 hover-white d-flex align-items-center" type="button" id="notifBellStudent" data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
-                            <i class="fa-regular fa-bell fs-5 text-white"></i>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" id="notifBadgeStudent" style="font-size: 0.6rem; padding: 3px 6px;">
-                                0
-                            </span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" aria-labelledby="notifBellStudent" style="width: 320px; border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
-                            <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-dark">Notifications</span>
-                                <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small text-success fw-semibold" onclick="clearAllNotifications(event)">Mark all as read</button>
-                            </li>
-                            <div id="notifListStudent">
-                                <li class="px-3 py-4 text-center text-muted small">
-                                    <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
-                                    No new notifications
-                                </li>
-                            </div>
-                        </ul>
-                    </div>
-
-                    <span class="badge px-3 py-2 rounded-pill fw-semibold text-start text-lg-center" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);font-size:0.72rem;border:1px solid rgba(255,255,255,0.15); width: fit-content;">
-                        <i class="fa-solid fa-user-graduate me-1"></i> {{ auth()->user()->name }}
-                    </span>
-                    <form action="{{ route('logout') }}" method="POST" class="d-inline m-0">
-                        @csrf
-                        <button type="submit" class="btn btn-sm fw-semibold ms-lg-1 w-100 text-start text-lg-center mt-2 mt-lg-0"
-                                style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.25);border-radius:8px;font-size:0.8rem;padding:5px 12px;">
-                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Student page content -->
-    <div style="animation: fadeInUp 0.4s ease-out;">
-        @if(session('success'))
-            <div class="container-fluid px-md-5 pt-3">
-                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert"
-                     style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important; border-left-style: solid !important;">
-                    <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="container-fluid px-md-5 pt-3">
-                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert"
-                     style="background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444 !important; border-left-style: solid !important;">
-                    <i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            </div>
-        @endif
-
-        @yield('content')
     </div>
 
     @endif
