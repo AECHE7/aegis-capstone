@@ -23,39 +23,39 @@
            DESIGN SYSTEM TOKENS
         ══════════════════════════════════════════ */
         :root {
-            --clsu-green: #0F5934;
-            --clsu-green-dark: #0a4025;
-            --clsu-green-light: #16703f;
-            --clsu-gold: #F2A900;
-            --clsu-gold-light: #ffd966;
+            --clsu-green: #0C4E2D;
+            --clsu-green-dark: #07331c;
+            --clsu-green-light: #126b3f;
+            --clsu-gold: #D97706;
+            --clsu-gold-light: #fcd34d;
             --clsu-dark: #0f172a;
-            --clsu-bg: #f1f5f9;
+            --clsu-bg: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #334155;
+            --text-main: #475569;
             --text-title: #0f172a;
-            --border-color: rgba(226, 232, 240, 0.8);
+            --border-color: #e2e8f0;
             --sidebar-width: 260px;
             --sidebar-collapsed: 72px;
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 20px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-            --shadow-lg: 0 12px 32px rgba(0,0,0,0.12);
-            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: none;
+            --shadow-md: none;
+            --shadow-lg: none;
+            --transition: border-color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
         }
 
         [data-theme="dark"] {
-            --clsu-bg: #090d16;
-            --card-bg: #0f172a;
+            --clsu-bg: #0b0f19;
+            --card-bg: #111827;
             --text-main: #94a3b8;
             --text-title: #f8fafc;
-            --border-color: rgba(255, 255, 255, 0.08);
+            --border-color: rgba(255, 255, 255, 0.07);
             --clsu-dark: #070a10;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
-            --shadow-lg: 0 12px 32px rgba(0,0,0,0.6);
+            --shadow-sm: none;
+            --shadow-md: none;
+            --shadow-lg: none;
         }
 
         /* ══════════════════════════════════════════
@@ -203,15 +203,24 @@
         ══════════════════════════════════════════ */
         .card {
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
+            border-radius: var(--radius-md);
+            box-shadow: none;
             transition: var(--transition);
             background: var(--card-bg);
         }
 
         .card-hover:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
+            border-color: #cbd5e1;
+        }
+
+        [data-theme="dark"] .card-hover:hover {
+            border-color: #334155;
+        }
+
+        .monospace-data {
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.82em;
+            letter-spacing: -0.2px;
         }
 
         /* ══════════════════════════════════════════
@@ -595,10 +604,10 @@
            STAT CARDS
         ══════════════════════════════════════════ */
         .stat-card {
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-md);
             padding: 1.25rem 1.5rem;
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            background: white;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
@@ -611,17 +620,20 @@
             left: 0;
             right: 0;
             height: 3px;
-            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
         }
 
         .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-md);
+            border-color: #cbd5e1;
         }
 
-        .stat-card.warning::after  { background: #fbbf24; }
-        .stat-card.info::after     { background: #38bdf8; }
-        .stat-card.success::after  { background: #22c55e; }
+        [data-theme="dark"] .stat-card:hover {
+            border-color: #334155;
+        }
+
+        .stat-card.warning::after  { background: var(--clsu-gold); }
+        .stat-card.info::after     { background: #0284c7; }
+        .stat-card.success::after  { background: var(--clsu-green); }
         .stat-card.danger::after   { background: #ef4444; }
 
         .stat-icon {
@@ -1325,24 +1337,8 @@
         
         fetchNotifications();
 
-        if (typeof(EventSource) !== "undefined") {
-            const eventSource = new EventSource("{{ route('notifications.stream') }}");
-            eventSource.onmessage = function(event) {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.refresh) {
-                        fetchNotifications();
-                    }
-                } catch(e) {
-                    console.error("Error parsing notification stream data:", e);
-                }
-            };
-            eventSource.onerror = function(err) {
-                console.error("EventSource connection error:", err);
-            };
-        } else {
-            setInterval(fetchNotifications, 20000);
-        }
+        // Use standard AJAX polling instead of EventSource/SSE to prevent PHP worker exhaustion and session locking
+        setInterval(fetchNotifications, 20000);
     });
 </script>
 

@@ -11,23 +11,14 @@
     .text-mod-risk  { color: #f59e0b; }
     .text-low-risk  { color: #22c55e; }
 
-    /* AI Dark Card */
+    /* AI Card */
     .ai-card {
-        background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
-        border-radius: 16px;
-        color: white;
+        background: var(--card-bg);
+        border-radius: 12px;
+        color: var(--text-main);
         position: relative;
         overflow: hidden;
-        border: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .ai-card::before {
-        content: '';
-        position: absolute;
-        top: -60px; right: -60px;
-        width: 180px; height: 180px;
-        background: radial-gradient(circle, rgba(242,169,0,0.12) 0%, transparent 70%);
-        border-radius: 50%;
+        border: 1px solid var(--border-color);
     }
 
     /* Radial Progress Ring */
@@ -44,7 +35,7 @@
         height: 140px;
     }
 
-    .risk-ring-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 10; }
+    .risk-ring-track { fill: none; stroke: var(--border-color); stroke-width: 10; }
     .risk-ring-fill  { fill: none; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
 
     .risk-ring-center {
@@ -56,9 +47,9 @@
 
     /* Document Viewer */
     .viewer-box {
-        background: #f8fafc;
+        background: var(--clsu-bg);
         border-radius: 12px;
-        border: 2px solid #e2e8f0;
+        border: 1px solid var(--border-color);
         overflow: hidden;
         position: relative;
         display: flex;
@@ -66,7 +57,7 @@
         align-items: center;
     }
 
-    .viewer-box.danger-box { border-color: rgba(239, 68, 68, 0.3); background: #fff5f5; }
+    .viewer-box.danger-box { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); }
 
     .viewer-label {
         position: absolute;
@@ -94,36 +85,34 @@
 
     /* Decision buttons */
     .btn-approve {
-        background: linear-gradient(135deg, #16a34a, #15803d);
+        background: var(--clsu-green);
         color: white; border: none;
-        padding: 12px; border-radius: 10px;
+        padding: 12px; border-radius: 8px;
         font-weight: 700; font-size: 0.95rem;
-        transition: all 0.2s;
-        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        transition: var(--transition);
     }
-    .btn-approve:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4); color: white; }
+    .btn-approve:hover { background: var(--clsu-green-light); color: white; }
 
     .btn-reject {
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        background: #dc2626;
         color: white; border: none;
-        padding: 12px; border-radius: 10px;
+        padding: 12px; border-radius: 8px;
         font-weight: 700; font-size: 0.95rem;
-        transition: all 0.2s;
-        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        transition: var(--transition);
     }
-    .btn-reject:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4); color: white; }
+    .btn-reject:hover { background: #b91c1c; color: white; }
 
     /* Applicant info card */
     .applicant-card {
-        background: white;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
+        background: var(--card-bg);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
         padding: 1.25rem 1.5rem;
         margin-bottom: 1.25rem;
     }
 
     /* Info chip */
-    .info-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; background: #f1f5f9; font-size: 0.78rem; color: #475569; font-weight: 500; }
+    .info-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; background: var(--clsu-bg); font-size: 0.78rem; color: var(--text-main); font-weight: 500; }
 
     /* Lightbox */
     .img-zoomable { cursor: zoom-in; }
@@ -133,18 +122,9 @@
 @section('content')
 
 @php
-    $hasAiResult = $application->document && $application->document->aiResult;
-    $isScanning  = $hasAiResult && $application->document->aiResult->classification === 'scanning';
-    $isFailed    = $hasAiResult && $application->document->aiResult->classification === 'failed';
-
-    $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $application->document->aiResult->fraud_probability : 0;
-    $riskColor   = $fraudScore >= 70 ? '#ef4444' : ($fraudScore >= 40 ? '#f59e0b' : '#22c55e');
-    $riskLabel   = $fraudScore >= 70 ? 'HIGH RISK' : ($fraudScore >= 40 ? 'MODERATE RISK' : 'LOW RISK');
-    $riskClass   = $fraudScore >= 70 ? 'danger' : ($fraudScore >= 40 ? 'warning' : 'success');
-
-    // Ring math — circumference of r=60 circle = 2π×60 ≈ 376.99
-    $circumference = 376.99;
-    $dashOffset = $circumference - ($fraudScore / 100) * $circumference;
+    $hasAnyAiResult = $application->documents->contains(fn($d) => $d->aiResult);
+    $anyScanning  = $application->documents->contains(fn($d) => $d->aiResult && $d->aiResult->classification === 'scanning');
+    $anyFailed    = $application->documents->contains(fn($d) => $d->aiResult && $d->aiResult->classification === 'failed');
 @endphp
 
 {{-- Back button --}}
@@ -159,18 +139,20 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
         <div>
             <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="badge rounded-pill px-3 py-1" style="background:#f1f5f9;color:#475569;font-size:0.75rem;font-weight:700;">APP-{{ $application->id }}</span>
+                <span class="badge rounded-pill px-3 py-1 monospace-data" style="background:#f1f5f9;color:#475569;font-size:0.75rem;font-weight:700;">APP-{{ $application->id }}</span>
                 <h5 class="fw-bold mb-0 text-dark">{{ $application->program_name }}</h5>
             </div>
             <div class="d-flex flex-wrap gap-2">
                 <span class="info-chip"><i class="fa-solid fa-user text-primary"></i> {{ $application->user->name ?? 'Unknown' }}</span>
-                <span class="info-chip"><i class="fa-solid fa-id-card text-primary"></i> {{ $application->user->profile?->clsu_id_number ?? 'N/A' }}</span>
+                <span class="info-chip"><i class="fa-solid fa-id-card text-primary"></i> <span class="monospace-data">{{ $application->user->profile?->clsu_id_number ?? 'N/A' }}</span></span>
                 <span class="info-chip"><i class="fa-solid fa-graduation-cap text-primary"></i> {{ $application->user->profile?->course ?? 'N/A' }} — {{ $application->user->profile?->year_level ?? 'N/A' }}</span>
-                <span class="info-chip"><i class="fa-solid fa-star text-warning"></i> GWA: <strong>{{ $application->gwa }}</strong></span>
+                <span class="info-chip"><i class="fa-solid fa-star text-warning"></i> GWA: <strong class="monospace-data">{{ $application->gwa }}</strong></span>
             </div>
         </div>
         <div>
-            @if($application->status == 'Pending')
+            @if($application->trashed())
+                <span class="status-badge bg-secondary text-white"><i class="fa-solid fa-ban"></i> Cancelled</span>
+            @elseif($application->status == 'Pending')
                 <span class="status-badge pending"><i class="fa-solid fa-hourglass-half"></i> Pending</span>
             @elseif($application->status == 'Under Review')
                 <span class="status-badge review"><i class="fa-solid fa-magnifying-glass"></i> Under Review</span>
@@ -189,103 +171,121 @@
     {{-- LEFT: AI Panel + Decision --}}
     <div class="col-lg-4">
 
-        {{-- AI Card --}}
-        <div class="ai-card p-4 mb-3">
-            <div class="text-center mb-3">
-                <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);" class="mb-2">
-                    <i class="fa-solid fa-microchip me-1 text-info"></i> A.E.G.I.S. Deep Learning Analysis
+        @foreach($application->documents as $doc)
+            @php
+                $hasAiResult = $doc->aiResult;
+                $isScanning  = $hasAiResult && $doc->aiResult->classification === 'scanning';
+                $isFailed    = $hasAiResult && $doc->aiResult->classification === 'failed';
+
+                $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $doc->aiResult->fraud_probability : 0;
+                $riskColor   = $fraudScore >= 70 ? '#ef4444' : ($fraudScore >= 40 ? '#f59e0b' : '#22c55e');
+                $riskLabel   = $fraudScore >= 70 ? 'HIGH RISK' : ($fraudScore >= 40 ? 'MODERATE RISK' : 'LOW RISK');
+                $riskClass   = $fraudScore >= 70 ? 'danger' : ($fraudScore >= 40 ? 'warning' : 'success');
+
+                // Ring math — circumference of r=60 circle = 2π×60 ≈ 376.99
+                $circumference = 376.99;
+                $dashOffset = $circumference - ($fraudScore / 100) * $circumference;
+            @endphp
+            
+            <div class="ai-panel-doc" id="ai-panel-{{ $doc->id }}" style="display: {{ $loop->first ? 'block' : 'none' }};">
+                {{-- AI Card --}}
+                <div class="ai-card p-4 mb-3">
+                    <div class="text-center mb-3">
+                        <div style="font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-main);opacity:0.6;" class="mb-2">
+                            <i class="fa-solid fa-microchip me-1 text-info"></i> {{ $doc->document_type }} Verification Analysis
+                        </div>
+                    </div>
+
+                    @if($isScanning)
+                        <div class="text-center py-4">
+                            <i class="fa-solid fa-circle-notch fa-spin fa-4x text-info mb-3"></i>
+                            <p class="text-muted small mb-2">ELA + ResNet-50 analysis running...<br>Page will auto-refresh.</p>
+                            <form action="{{ route('admin.scan', $application->id) }}" method="POST" class="d-inline-block">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-outline-info rounded-pill px-3 mt-1" style="font-size: 0.72rem; border-color: rgba(0, 212, 255, 0.4); color: #00d4ff;">
+                                    <i class="fa-solid fa-arrow-rotate-right me-1"></i> Force Restart Scan
+                                </button>
+                            </form>
+                            <script>
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 5000);
+                            </script>
+                        </div>
+                    @elseif($isFailed)
+                        <div class="text-center py-4">
+                            <i class="fa-solid fa-triangle-exclamation fa-4x text-danger mb-3"></i>
+                            <p class="text-muted small mb-3">AI Scan failed.<br>The document file might be missing from the server disk or the AI service returned an error.</p>
+                            <form action="{{ route('admin.scan', $application->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-warning text-dark fw-bold w-100 rounded-3">
+                                    <i class="fa-solid fa-arrow-rotate-right me-1"></i> Retry AI Scan
+                                </button>
+                            </form>
+                        </div>
+                    @elseif($hasAiResult)
+                        {{-- Radial ring --}}
+                        <div class="risk-ring-wrapper mb-3">
+                            <svg class="risk-ring-svg" viewBox="0 0 140 140">
+                                <circle class="risk-ring-track" cx="70" cy="70" r="60"/>
+                                <circle class="risk-ring-fill" cx="70" cy="70" r="60"
+                                    stroke="{{ $riskColor }}"
+                                    stroke-dasharray="{{ $circumference }}"
+                                    stroke-dashoffset="{{ $circumference }}"
+                                    id="riskRing-{{ $doc->id }}"/>
+                            </svg>
+                            <div class="risk-ring-center">
+                                <div class="monospace-data" style="font-size:2rem;font-weight:700;color:{{ $riskColor }};line-height:1;">{{ $fraudScore }}</div>
+                                <div style="font-size:0.75rem;color:var(--text-main);opacity:0.6;">% fraud prob.</div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <span class="badge px-3 py-2 rounded-pill fw-bold" style="background: {{ $riskColor }}22; color: {{ $riskColor }}; border: 1px solid {{ $riskColor }}44; font-size: 0.75rem; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ $riskLabel }}
+                            </span>
+                        </div>
+
+                        <div class="rounded-3 p-3 small" style="background: var(--clsu-bg); border: 1px solid var(--border-color);">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span style="color:var(--text-main);opacity:0.7;">Architecture</span>
+                                <span class="fw-semibold">ResNet-50 CNN</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span style="color:var(--text-main);opacity:0.7;">Preprocessing</span>
+                                <span class="fw-semibold">Error Level Analysis</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span style="color:var(--text-main);opacity:0.7;">Classification</span>
+                                <span class="fw-semibold" style="color:{{ $riskColor }};">{{ ucfirst($doc->aiResult->classification) }}</span>
+                            </div>
+                        </div>
+                    @else
+                        <div class="text-center py-4">
+                            <div style="width:72px;height:72px;border-radius:12px;background:var(--clsu-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border: 1px solid var(--border-color);">
+                                <i class="fa-solid fa-file-shield fa-2x text-muted" style="opacity:0.6;"></i>
+                            </div>
+                            <p class="mb-3 text-muted" style="font-size:0.85rem;">Document awaiting forensic verification.</p>
+                            <form action="{{ route('admin.scan', $application->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-info text-dark fw-bold w-100 rounded-3" style="border-radius:8px !important;">
+                                    <i class="fa-solid fa-bolt me-1"></i> Execute AI Scan
+                                </button>
+                            </form>
+                        </div>
+                    @endif
                 </div>
+
+                {{-- Risk Legend --}}
+                @if($hasAiResult && !$isScanning && !$isFailed)
+                <div class="d-flex gap-2 mb-3 justify-content-center">
+                    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#dcfce7;color:#16a34a;font-size:0.7rem;font-weight:700;"><span>●</span> 0–39% Low</span>
+                    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#fef9c3;color:#a16207;font-size:0.7rem;font-weight:700;"><span>●</span> 40–69% Moderate</span>
+                    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#fee2e2;color:#b91c1c;font-size:0.7rem;font-weight:700;"><span>●</span> 70–100% High</span>
+                </div>
+                @endif
             </div>
-
-            @if($isScanning)
-                <div class="text-center py-4">
-                    <i class="fa-solid fa-circle-notch fa-spin fa-4x text-info mb-3"></i>
-                    <p class="text-white-50 small mb-2">ELA + ResNet-50 analysis running...<br>Page will auto-refresh.</p>
-                    <form action="{{ route('admin.scan', $application->id) }}" method="POST" class="d-inline-block">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-outline-info rounded-pill px-3 mt-1" style="font-size: 0.72rem; border-color: rgba(0, 212, 255, 0.4); color: #00d4ff;">
-                            <i class="fa-solid fa-arrow-rotate-right me-1"></i> Force Restart Scan
-                        </button>
-                    </form>
-                    <script>
-                        setTimeout(() => {
-                            // Only reload if not submitting
-                            location.reload();
-                        }, 5000);
-                    </script>
-                </div>
-            @elseif($isFailed)
-                <div class="text-center py-4">
-                    <i class="fa-solid fa-triangle-exclamation fa-4x text-danger mb-3"></i>
-                    <p class="text-white-50 small mb-3">AI Scan failed.<br>The document file might be missing from the server disk (wiped during deployment updates) or the AI service returned an error.</p>
-                    <form action="{{ route('admin.scan', $application->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-warning text-dark fw-bold w-100 rounded-3">
-                            <i class="fa-solid fa-arrow-rotate-right me-1"></i> Retry AI Scan
-                        </button>
-                    </form>
-                </div>
-            @elseif($hasAiResult)
-                {{-- Radial ring --}}
-                <div class="risk-ring-wrapper mb-3">
-                    <svg class="risk-ring-svg" viewBox="0 0 140 140">
-                        <circle class="risk-ring-track" cx="70" cy="70" r="60"/>
-                        <circle class="risk-ring-fill" cx="70" cy="70" r="60"
-                            stroke="{{ $riskColor }}"
-                            stroke-dasharray="{{ $circumference }}"
-                            stroke-dashoffset="{{ $circumference }}"
-                            id="riskRing"/>
-                    </svg>
-                    <div class="risk-ring-center">
-                        <div style="font-size:2rem;font-weight:800;font-family:'Poppins',sans-serif;color:{{ $riskColor }};line-height:1;">{{ $fraudScore }}</div>
-                        <div style="font-size:0.75rem;color:rgba(255,255,255,0.4);">% fraud prob.</div>
-                    </div>
-                </div>
-
-                <div class="text-center mb-3">
-                    <span class="badge px-3 py-2 rounded-pill fw-bold" style="background: {{ $riskColor }}22; color: {{ $riskColor }}; border: 1px solid {{ $riskColor }}44; font-size: 0.75rem; letter-spacing: 0.5px;">
-                        <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ $riskLabel }}
-                    </span>
-                </div>
-
-                <div class="rounded-3 p-3 small" style="background: rgba(255,255,255,0.05);">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span style="color:rgba(255,255,255,0.4);">Architecture</span>
-                        <span class="fw-semibold">ResNet-50 CNN</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span style="color:rgba(255,255,255,0.4);">Preprocessing</span>
-                        <span class="fw-semibold">Error Level Analysis</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span style="color:rgba(255,255,255,0.4);">Classification</span>
-                        <span class="fw-semibold" style="color:{{ $riskColor }};">{{ ucfirst($application->document->aiResult->classification) }}</span>
-                    </div>
-                </div>
-            @else
-                <div class="text-center py-4">
-                    <div style="width:72px;height:72px;border-radius:18px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-                        <i class="fa-solid fa-file-shield fa-2x" style="color:rgba(255,255,255,0.3);"></i>
-                    </div>
-                    <p class="mb-3" style="color:rgba(255,255,255,0.4);font-size:0.85rem;">Document awaiting forensic verification.</p>
-                    <form action="{{ route('admin.scan', $application->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-info text-dark fw-bold w-100 rounded-3">
-                            <i class="fa-solid fa-bolt me-1"></i> Execute AI Scan
-                        </button>
-                    </form>
-                </div>
-            @endif
-        </div>
-
-        {{-- Risk Legend --}}
-        @if($hasAiResult && !$isScanning && !$isFailed)
-        <div class="d-flex gap-2 mb-3 justify-content-center">
-            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#dcfce7;color:#16a34a;font-size:0.7rem;font-weight:700;"><span>●</span> 0–39% Low</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#fef9c3;color:#a16207;font-size:0.7rem;font-weight:700;"><span>●</span> 40–69% Moderate</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#fee2e2;color:#b91c1c;font-size:0.7rem;font-weight:700;"><span>●</span> 70–100% High</span>
-        </div>
-        @endif
+        @endforeach
 
         {{-- Decision Form --}}
         <div class="card p-4">
@@ -300,7 +300,15 @@
                               style="resize:none;font-size:0.875rem;">{{ $application->remarks }}</textarea>
                 </div>
 
-                @if($application->status == 'Pending' || $application->status == 'Under Review')
+                @if($application->trashed())
+                    <div class="alert alert-warning text-center rounded-3 mb-3 small" style="border: none; background: #fffbeb; color: #b45309;">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Cancelled Application</strong><br>
+                        This application was cancelled by the student and is soft-deleted.
+                    </div>
+                    <button type="button" id="restoreReviewBtn" class="btn btn-success fw-bold w-100 py-2 text-white" style="border-radius:10px;">
+                        <i class="fa-solid fa-trash-arrow-up me-1"></i> Restore Application
+                    </button>
+                @elseif($application->status == 'Pending' || $application->status == 'Under Review')
                     <div class="d-flex gap-2">
                         <button type="button" class="btn-approve w-50" onclick="confirmDecision('Approved')">
                             <i class="fa-solid fa-check-circle me-1"></i> Approve
@@ -351,61 +359,75 @@
                     <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-images text-primary me-2"></i> Document Forensics Viewer</h6>
                     <small class="text-muted">Click images to enlarge</small>
                 </div>
-                @if($application->document)
-                    <a href="{{ route('admin.document.download', $application->document->id) }}"
-                       class="btn btn-sm btn-light fw-semibold rounded-pill px-3"
-                       style="font-size:0.78rem;border:1px solid #e2e8f0;white-space:nowrap;">
-                        <i class="fa-solid fa-download me-1"></i> Download Original
-                    </a>
+                @if($application->documents->count() > 1)
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small fw-bold text-muted mb-0 me-1" for="docSelector"><i class="fa-solid fa-file-invoice"></i> Document:</label>
+                        <select class="form-select form-select-sm" id="docSelector" style="width: auto; font-size: 0.8rem; border-radius: 8px;">
+                            @foreach($application->documents as $doc)
+                                <option value="{{ $doc->id }}">{{ $doc->document_type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 @endif
             </div>
 
-            <div class="row g-3">
-                {{-- Original --}}
-                <div class="col-md-6">
-                    <div class="viewer-box">
-                        <div class="viewer-label"><i class="fa-solid fa-file me-1"></i> Original Document</div>
-                        @if($application->document)
-                            <img src="{{ route('document.view', $application->document->id) }}"
-                                 alt="Original Student Document" class="img-zoomable"
-                                 onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found'"
-                                 onclick="openLightbox(this.src)">
-                        @else
-                            <div class="d-flex flex-column align-items-center justify-content-center h-100 py-5 text-muted">
-                                <i class="fa-solid fa-file-circle-xmark fa-3x mb-2 opacity-30"></i>
-                                <small>No Document Found</small>
-                            </div>
-                        @endif
+            @foreach($application->documents as $doc)
+                @php
+                    $hasAiResult = $doc->aiResult;
+                    $isScanning  = $hasAiResult && $doc->aiResult->classification === 'scanning';
+                    $isFailed    = $hasAiResult && $doc->aiResult->classification === 'failed';
+                    $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $doc->aiResult->fraud_probability : 0;
+                    $riskClass   = $fraudScore >= 70 ? 'danger' : ($fraudScore >= 40 ? 'warning' : 'success');
+                @endphp
+                <div class="doc-viewer-wrapper" id="viewer-doc-{{ $doc->id }}" style="display: {{ $loop->first ? 'block' : 'none' }};">
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="{{ route('admin.document.download', $doc->id) }}"
+                           class="btn btn-sm btn-light fw-semibold rounded-pill px-3"
+                           style="font-size:0.78rem;border:1px solid #e2e8f0;white-space:nowrap;">
+                            <i class="fa-solid fa-download me-1"></i> Download {{ $doc->document_type }}
+                        </a>
                     </div>
-                </div>
+                    <div class="row g-3">
+                        {{-- Original --}}
+                        <div class="col-md-6">
+                            <div class="viewer-box">
+                                <div class="viewer-label"><i class="fa-solid fa-file me-1"></i> Original {{ $doc->document_type }}</div>
+                                <img src="{{ route('document.view', $doc->id) }}"
+                                     alt="Original Student Document" class="img-zoomable"
+                                     onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found'"
+                                     onclick="openLightbox(this.src)">
+                            </div>
+                        </div>
 
-                {{-- Heatmap --}}
-                <div class="col-md-6">
-                    <div class="viewer-box danger-box">
-                        <div class="viewer-label"><i class="fa-solid fa-fire me-1"></i> Grad-CAM Heatmap</div>
-                        @if($isScanning)
-                            <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
-                                <i class="fa-solid fa-spinner fa-spin fa-3x text-primary mb-2"></i>
-                                <small class="text-muted">AI Scanning in progress...</small>
+                        {{-- Heatmap --}}
+                        <div class="col-md-6">
+                            <div class="viewer-box {{ $riskClass }}-box">
+                                <div class="viewer-label"><i class="fa-solid fa-fire me-1"></i> Grad-CAM Heatmap</div>
+                                @if($isScanning)
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                        <i class="fa-solid fa-spinner fa-spin fa-3x text-primary mb-2"></i>
+                                        <small class="text-muted">AI Scanning in progress...</small>
+                                    </div>
+                                @elseif($isFailed)
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                        <i class="fa-solid fa-triangle-exclamation fa-3x text-danger mb-2 opacity-50"></i>
+                                        <small class="text-muted">Scan failed. Please retry.</small>
+                                    </div>
+                                @elseif($hasAiResult)
+                                    <img src="{{ route('document.heatmap', $doc->id) }}"
+                                         alt="AI Heatmap Overlay" class="img-zoomable"
+                                         onclick="openLightbox(this.src)">
+                                @else
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                        <i class="fa-solid fa-robot fa-3x text-danger mb-2 opacity-25"></i>
+                                        <small class="text-muted">Awaiting AI scan execution</small>
+                                    </div>
+                                @endif
                             </div>
-                        @elseif($isFailed)
-                            <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
-                                <i class="fa-solid fa-triangle-exclamation fa-3x text-danger mb-2 opacity-50"></i>
-                                <small class="text-muted">Scan failed. Please retry.</small>
-                            </div>
-                        @elseif($hasAiResult)
-                            <img src="{{ route('document.heatmap', $application->document->id) }}"
-                                 alt="AI Heatmap Overlay" class="img-zoomable"
-                                 onclick="openLightbox(this.src)">
-                        @else
-                            <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
-                                <i class="fa-solid fa-robot fa-3x text-danger mb-2 opacity-25"></i>
-                                <small class="text-muted">Awaiting AI scan execution</small>
-                            </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
 
             {{-- Footer explanation --}}
             <div class="mt-4 rounded-3 p-3 small text-muted" style="background:#f8fafc;border:1px solid #e2e8f0;">
@@ -428,11 +450,38 @@
 <script>
     // ── Radial ring animation ──────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
-        const ring = document.getElementById('riskRing');
-        if (ring) {
-            setTimeout(() => {
-                ring.style.strokeDashoffset = '{{ $dashOffset }}';
-            }, 200);
+        @foreach($application->documents as $doc)
+            @php
+                $hasAiResult = $doc->aiResult;
+                $isScanning  = $hasAiResult && $doc->aiResult->classification === 'scanning';
+                $isFailed    = $hasAiResult && $doc->aiResult->classification === 'failed';
+                $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $doc->aiResult->fraud_probability : 0;
+                $dashOffset = 376.99 - ($fraudScore / 100) * 376.99;
+            @endphp
+            const ring{{ $doc->id }} = document.getElementById('riskRing-{{ $doc->id }}');
+            if (ring{{ $doc->id }}) {
+                setTimeout(() => {
+                    ring{{ $doc->id }}.style.strokeDashoffset = '{{ $dashOffset }}';
+                }, 200);
+            }
+        @endforeach
+
+        // Document selector listener
+        const docSelector = document.getElementById('docSelector');
+        if (docSelector) {
+            docSelector.addEventListener('change', function() {
+                const docId = this.value;
+                
+                // Hide all AI panels and viewers
+                document.querySelectorAll('.ai-panel-doc').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.doc-viewer-wrapper').forEach(el => el.style.display = 'none');
+                
+                // Show selected
+                const selectedAiPanel = document.getElementById('ai-panel-' + docId);
+                const selectedViewer = document.getElementById('viewer-doc-' + docId);
+                if (selectedAiPanel) selectedAiPanel.style.display = 'block';
+                if (selectedViewer) selectedViewer.style.display = 'block';
+            });
         }
     });
 
@@ -613,5 +662,57 @@
     @if(session('error'))
         Swal.fire({ icon: 'error', title: 'Error', text: "{{ session('error') }}", confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
     @endif
+
+    // ── Restore Application from Review Page ───────────
+    const restoreBtn = document.getElementById('restoreReviewBtn');
+    if (restoreBtn) {
+        restoreBtn.addEventListener('click', async () => {
+            const result = await Swal.fire({
+                title: 'Restore Application?',
+                text: "This will move the application back to the active review queue.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#475569',
+                confirmButtonText: 'Yes, restore it!'
+            });
+
+            if (result.isConfirmed) {
+                restoreBtn.disabled = true;
+                restoreBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Restoring...';
+
+                try {
+                    const response = await fetch("{{ route('admin.restore', $application->id) }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Restored!',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        restoreBtn.disabled = false;
+                        restoreBtn.innerHTML = '<i class="fa-solid fa-trash-arrow-up me-1"></i> Restore Application';
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred.' });
+                    restoreBtn.disabled = false;
+                    restoreBtn.innerHTML = '<i class="fa-solid fa-trash-arrow-up me-1"></i> Restore Application';
+                }
+            }
+        });
+    }
 </script>
 @endpush

@@ -317,4 +317,169 @@ class SuperAdminController extends Controller
 
         return back()->with('success', 'Staff scholarship assignments updated successfully.');
     }
+
+    // ==========================================
+    // DIRECTOR (SUPER ADMIN) TRASH MANAGEMENT
+    // ==========================================
+
+    public function trashIndex()
+    {
+        $applications = \App\Models\Application::onlyTrashed()->with('user.profile')->latest()->get();
+        $scholarships = \App\Models\Scholarship::onlyTrashed()->latest()->get();
+        $staffMembers = \App\Models\User::onlyTrashed()->where('role', 'admin')->latest()->get();
+
+        return view('superadmin.trash', compact('applications', 'scholarships', 'staffMembers'));
+    }
+
+    // 1. Applications Trashed Actions
+    public function restoreApplication($id)
+    {
+        $application = \App\Models\Application::onlyTrashed()->findOrFail($id);
+        $application->restore();
+
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => $application->status,
+            'remarks' => 'Application restored from Trash by Director.',
+            'changed_by' => auth()->id() ?? 1
+        ]);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Application restored successfully.']);
+        }
+        return back()->with('success', 'Application restored successfully.');
+    }
+
+    public function forceDeleteApplication($id)
+    {
+        $application = \App\Models\Application::onlyTrashed()->findOrFail($id);
+
+        // Delete COG document file
+        if ($application->document) {
+            $filePath = $application->document->file_path;
+            if (\Illuminate\Support\Facades\Storage::disk('local')->exists($filePath)) {
+                \Illuminate\Support\Facades\Storage::disk('local')->delete($filePath);
+            }
+            $application->document->forceDelete();
+        }
+
+        // Delete custom fields file uploads
+        if ($application->customFields) {
+            foreach ($application->customFields as $field) {
+                if (\Illuminate\Support\Str::startsWith($field->field_value, 'uploads/')) {
+                    if (\Illuminate\Support\Facades\Storage::disk('local')->exists($field->field_value)) {
+                        \Illuminate\Support\Facades\Storage::disk('local')->delete($field->field_value);
+                    }
+                }
+                $field->delete();
+            }
+        }
+
+        // Cascade delete logs
+        $application->statusLogs()->delete();
+        $application->emailLogs()->delete();
+
+        // Permanently delete application
+        $application->forceDelete();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Application permanently deleted.']);
+        }
+        return back()->with('success', 'Application permanently deleted.');
+    }
+
+    // 2. Scholarships Trashed Actions
+    public function deleteScholarship($id)
+    {
+        $scholarship = \App\Models\Scholarship::findOrFail($id);
+        $scholarship->delete();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Scholarship program soft-deleted successfully.']);
+        }
+        return back()->with('success', 'Scholarship program soft-deleted successfully.');
+    }
+
+    public function restoreScholarship($id)
+    {
+        $scholarship = \App\Models\Scholarship::onlyTrashed()->findOrFail($id);
+        $scholarship->restore();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Scholarship program restored successfully.']);
+        }
+        return back()->with('success', 'Scholarship program restored successfully.');
+    }
+
+    public function forceDeleteScholarship($id)
+    {
+        $scholarship = \App\Models\Scholarship::onlyTrashed()->findOrFail($id);
+
+        // Check if there are any applications referencing it (even soft deleted ones!)
+        $appCount = \App\Models\Application::withTrashed()->where('scholarship_id', $scholarship->id)->count();
+        if ($appCount > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Action Blocked: This scholarship program cannot be permanently deleted because it has ' . $appCount . ' associated student applications. You must permanently delete the applications first or keep this scholarship soft-deleted for historical records.'
+            ], 422);
+        }
+
+        // Permanently delete custom fields configuration
+        $scholarship->fields()->delete();
+
+        // Dissociate staff pivot
+        $scholarship->staff()->detach();
+
+        // Permanently delete
+        $scholarship->forceDelete();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Scholarship program permanently deleted.']);
+        }
+        return back()->with('success', 'Scholarship program permanently deleted.');
+    }
+
+    // 3. Staff Trashed Actions
+    public function deleteStaff($id)
+    {
+        $staff = \App\Models\User::where('role', 'admin')->findOrFail($id);
+        $staff->delete();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Staff member account soft-deleted successfully.']);
+        }
+        return back()->with('success', 'Staff member account soft-deleted successfully.');
+    }
+
+    public function restoreStaff($id)
+    {
+        $staff = \App\Models\User::onlyTrashed()->where('role', 'admin')->findOrFail($id);
+        $staff->restore();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Staff member account restored successfully.']);
+        }
+        return back()->with('success', 'Staff member account restored successfully.');
+    }
+
+    public function forceDeleteStaff($id)
+    {
+        $staff = \App\Models\User::onlyTrashed()->where('role', 'admin')->findOrFail($id);
+
+        // Dissociate assigned scholarships
+        $staff->scholarships()->detach();
+
+        // Delete invitation link if any
+        if ($staff->invitation) {
+            $staff->invitation->delete();
+        }
+
+        // Permanently delete
+        $staff->forceDelete();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Staff member account permanently deleted.']);
+        }
+        return back()->with('success', 'Staff member account permanently deleted.');
+    }
 }

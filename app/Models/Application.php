@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Application extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id', 
@@ -39,6 +40,14 @@ class Application extends Model
     public function document()
     {
         return $this->hasOne(Document::class);
+    }
+
+    /**
+     * Relationship: An application has many uploaded documents (COG + Custom Uploads)
+     */
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
     }
 
     /**

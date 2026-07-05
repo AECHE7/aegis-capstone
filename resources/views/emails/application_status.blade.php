@@ -35,8 +35,42 @@
                 @endif
             </div>
 
-            <p style="margin-top: 30px;">Reference ID: <strong>APP-{{ $application->id }}</strong><br>
-            Declared GWA: <strong>{{ $application->gwa }}</strong></p>
+            @if($application->status == 'Approved')
+                <div style="margin-top: 25px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; text-align: left;">
+                    <h3 style="margin-top: 0; color: #0F5934; font-size: 15px; border-bottom: 2px solid #F2A900; padding-bottom: 5px; text-transform: uppercase; font-weight: bold;">Submitted Credentials & Responses</h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #333333;">
+                        <tr style="border-bottom: 1px solid #eeeeee;">
+                            <td style="padding: 6px 0; font-weight: bold; color: #6c757d; width: 40%;">Student Name:</td>
+                            <td style="padding: 6px 0; font-weight: bold;">{{ $application->user->name ?? 'N/A' }}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eeeeee;">
+                            <td style="padding: 6px 0; font-weight: bold; color: #6c757d;">Student ID Number:</td>
+                            <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">{{ $application->user->profile?->clsu_id_number ?? 'N/A' }}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eeeeee;">
+                            <td style="padding: 6px 0; font-weight: bold; color: #6c757d;">Course & Year Level:</td>
+                            <td style="padding: 6px 0; font-weight: bold;">{{ $application->user->profile?->course ?? 'N/A' }} - {{ $application->user->profile?->year_level ?? 'N/A' }}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eeeeee;">
+                            <td style="padding: 6px 0; font-weight: bold; color: #6c757d;">Declared GWA:</td>
+                            <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">{{ $application->gwa }}</td>
+                        </tr>
+                        @if($application->customFields && $application->customFields->count() > 0)
+                            @foreach($application->customFields as $field)
+                                @if(!str_starts_with($field->field_value, 'uploads/'))
+                                    <tr style="border-bottom: 1px solid #eeeeee;">
+                                        <td style="padding: 6px 0; font-weight: bold; color: #6c757d; text-transform: capitalize;">{{ $field->field_name }}:</td>
+                                        <td style="padding: 6px 0; font-weight: bold;">{{ $field->field_value }}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        @endif
+                    </table>
+                </div>
+            @endif
+
+            <p style="margin-top: 30px;">Reference ID: <strong style="font-family: monospace;">APP-{{ $application->id }}</strong><br>
+            Declared GWA: <strong style="font-family: monospace;">{{ $application->gwa }}</strong></p>
         </div>
 
         <div class="footer">

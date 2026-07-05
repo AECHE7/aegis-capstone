@@ -1,18 +1,27 @@
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center p-4 border-bottom gap-3" style="background: white;">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center p-4 border-bottom gap-3" style="background: var(--card-bg);">
     <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3">
         <div>
             <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-users-viewfinder text-primary me-2"></i> Applicant Evaluation Queue</h6>
             <small class="text-muted">{{ $applications->total() }} total {{ $applications->total() === 1 ? 'application' : 'applications' }}</small>
         </div>
         <div>
-            @if(request('archived') == '1')
+            @if(request('status') === 'Cancelled')
+                <button type="button" onclick="document.getElementById('statusSelect').value = ''; reloadQueue();" class="btn btn-sm btn-outline-success fw-bold px-3 py-1.5" style="border-radius: 8px;">
+                    <i class="fa-solid fa-folder-open me-1"></i> Active Queue
+                </button>
+            @elseif(request('archived') == '1')
                 <button type="button" data-archived="0" class="btn btn-sm btn-outline-success fw-bold px-3 py-1.5 active-queue-toggle" style="border-radius: 8px;">
                     <i class="fa-solid fa-folder-open me-1"></i> Active Queue
                 </button>
             @else
-                <button type="button" data-archived="1" class="btn btn-sm btn-outline-secondary fw-bold px-3 py-1.5 active-queue-toggle" style="border-radius: 8px;">
-                    <i class="fa-solid fa-box-archive me-1"></i> Archived Queue ({{ $archivedCount }})
-                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" data-archived="1" class="btn btn-sm btn-outline-secondary fw-bold px-3 py-1.5 active-queue-toggle" style="border-radius: 8px;">
+                        <i class="fa-solid fa-box-archive me-1"></i> Archived Queue ({{ $archivedCount }})
+                    </button>
+                    <button type="button" id="cancelledQueueToggle" class="btn btn-sm btn-outline-danger fw-bold px-3 py-1.5" style="border-radius: 8px;">
+                        <i class="fa-solid fa-trash-can me-1"></i> Cancelled Queue ({{ $cancelledCount ?? 0 }})
+                    </button>
+                </div>
             @endif
         </div>
     </div>
@@ -44,14 +53,14 @@
             @foreach($applications as $app)
             <tr onclick="window.location='{{ route('admin.review', $app->id) }}'" style="cursor:pointer;">
                 <td class="ps-4">
-                    <span class="fw-bold text-dark" style="font-size:0.8rem;font-family:'Poppins',sans-serif;">APP-{{ $app->id }}</span>
+                    <span class="fw-bold text-dark monospace-data" style="font-size:0.8rem;">APP-{{ $app->id }}</span>
                 </td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <div class="student-avatar">{{ strtoupper(substr($app->user->name ?? 'U', 0, 2)) }}</div>
                         <div>
                             <div class="fw-semibold text-dark" style="font-size:0.875rem;">{{ $app->user->name ?? 'Unknown' }}</div>
-                            <div class="text-muted" style="font-size:0.72rem;">{{ $app->user->profile?->clsu_id_number ?? 'N/A' }}</div>
+                            <div class="text-muted monospace-data" style="font-size:0.72rem;">{{ $app->user->profile?->clsu_id_number ?? 'N/A' }}</div>
                         </div>
                     </div>
                 </td>
@@ -59,12 +68,12 @@
                     <div class="fw-medium text-dark" style="font-size:0.875rem;">{{ $app->program_name }}</div>
                 </td>
                 <td class="text-center">
-                    <span class="badge rounded-pill px-2 py-1 fw-bold" style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid #e2e8f0;">{{ $app->gwa }}</span>
+                    <span class="badge rounded-pill px-2 py-1 fw-bold monospace-data" style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid var(--border-color);">{{ $app->gwa }}</span>
                 </td>
                 <td class="text-center">
                     @if($app->document && $app->document->aiResult && !in_array($app->document->aiResult->classification, ['scanning','failed']))
                         @php $score = $app->document->aiResult->fraud_probability; @endphp
-                        <span class="fraud-chip {{ $score >= 70 ? 'fraud-high' : ($score >= 40 ? 'fraud-mod' : 'fraud-low') }}">
+                        <span class="fraud-chip monospace-data {{ $score >= 70 ? 'fraud-high' : ($score >= 40 ? 'fraud-mod' : 'fraud-low') }}">
                             <i class="fa-solid fa-microchip" style="font-size:0.6rem;"></i>
                             {{ $score }}%
                         </span>
@@ -75,7 +84,9 @@
                     @endif
                 </td>
                 <td class="text-center">
-                    @if($app->status == 'Pending')
+                    @if($app->trashed())
+                        <span class="status-badge bg-secondary text-white"><i class="fa-solid fa-ban" style="font-size:0.65rem;"></i> Cancelled</span>
+                    @elseif($app->status == 'Pending')
                         <span class="status-badge pending"><i class="fa-solid fa-hourglass-half" style="font-size:0.65rem;"></i> Pending</span>
                     @elseif($app->status == 'Under Review')
                         <span class="status-badge review"><i class="fa-solid fa-magnifying-glass" style="font-size:0.65rem;"></i> Under Review</span>
@@ -86,28 +97,40 @@
                     @endif
                 </td>
                 <td>
-                    <div style="font-size:0.82rem;color:#64748b;">{{ $app->created_at->format('M d, Y') }}</div>
+                    <div class="monospace-data" style="font-size:0.82rem;color:#64748b;">{{ $app->created_at->format('M d, Y') }}</div>
                     <div style="font-size:0.72rem;color:#94a3b8;">{{ $app->created_at->format('h:i A') }}</div>
                 </td>
                 <td class="pe-4 text-end" onclick="event.stopPropagation()">
                     <div class="d-flex justify-content-end align-items-center gap-2">
-                        <a href="{{ route('admin.review', $app->id) }}" class="btn-evaluate">
-                            Evaluate <i class="fa-solid fa-arrow-right ms-1" style="font-size:0.7rem;"></i>
-                        </a>
-                        @if($app->is_archived)
-                            <form action="{{ route('admin.unarchive', $app->id) }}" method="POST" class="d-inline archive-form">
+                        @if($app->trashed())
+                            <a href="{{ route('admin.review', $app->id) }}" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;">
+                                <i class="fa-solid fa-eye me-1"></i> View Details
+                            </a>
+                            <form action="{{ route('admin.restore', $app->id) }}" method="POST" class="d-inline restore-app-form">
                                 @csrf
-                                <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-2 py-1.5 btn-archive-toggle" style="border-radius: 8px; font-size: 0.75rem;" title="Unarchive Application">
-                                    <i class="fa-solid fa-box-open"></i> Unarchive
+                                <button type="submit" class="btn btn-sm btn-success fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem; color: white;">
+                                    <i class="fa-solid fa-trash-arrow-up me-1"></i> Restore
                                 </button>
                             </form>
                         @else
-                            <form action="{{ route('admin.archive', $app->id) }}" method="POST" class="d-inline archive-form">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1.5 btn-archive-toggle" style="border-radius: 8px; font-size: 0.75rem;" title="Archive Application">
-                                    <i class="fa-solid fa-box-archive"></i> Archive
-                                </button>
-                            </form>
+                            <a href="{{ route('admin.review', $app->id) }}" class="btn-evaluate">
+                                Evaluate <i class="fa-solid fa-arrow-right ms-1" style="font-size:0.7rem;"></i>
+                            </a>
+                            @if($app->is_archived)
+                                <form action="{{ route('admin.unarchive', $app->id) }}" method="POST" class="d-inline archive-form">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-2 py-1.5 btn-archive-toggle" style="border-radius: 8px; font-size: 0.75rem;" title="Unarchive Application">
+                                        <i class="fa-solid fa-box-open"></i> Unarchive
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('admin.archive', $app->id) }}" method="POST" class="d-inline archive-form">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1.5 btn-archive-toggle" style="border-radius: 8px; font-size: 0.75rem;" title="Archive Application">
+                                        <i class="fa-solid fa-box-archive"></i> Archive
+                                    </button>
+                                </form>
+                            @endif
                         @endif
                     </div>
                 </td>

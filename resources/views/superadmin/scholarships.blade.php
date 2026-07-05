@@ -6,7 +6,10 @@
 
 @section('content')
 
-<div class="d-flex justify-content-end mb-4">
+<div class="d-flex justify-content-end align-items-center gap-2 mb-4">
+    <a href="{{ route('superadmin.trash') }}" class="btn btn-outline-danger fw-bold px-4" style="border-radius: 10px;">
+        <i class="fa-solid fa-trash-can me-1"></i> System Trash
+    </a>
     <button class="btn fw-bold px-4" 
             style="background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(15,89,52,0.25);"
             data-bs-toggle="modal" data-bs-target="#newProgramModal">
@@ -52,20 +55,30 @@
                         @endif
                     </td>
                     <td class="pe-4 text-end">
-                        <form action="{{ route('superadmin.scholarships.toggle', $scholarship->id) }}" method="POST">
-                            @csrf
-                            @if($scholarship->status == 'Active')
-                                <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
-                                        style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.78rem;">
-                                    <i class="fa-solid fa-lock me-1"></i> Close
+                        <div class="d-flex justify-content-end align-items-center gap-2">
+                            <form action="{{ route('superadmin.scholarships.toggle', $scholarship->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @if($scholarship->status == 'Active')
+                                    <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
+                                            style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.78rem;">
+                                        <i class="fa-solid fa-lock me-1"></i> Close
+                                    </button>
+                                @else
+                                    <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
+                                            style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.78rem;">
+                                        <i class="fa-solid fa-lock-open me-1"></i> Open
+                                    </button>
+                                @endif
+                            </form>
+
+                            <form action="{{ route('superadmin.scholarships.delete', $scholarship->id) }}" method="POST" class="d-inline delete-scholarship-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold rounded-pill px-3" style="font-size:0.78rem;">
+                                    <i class="fa-solid fa-trash-can me-1"></i> Delete
                                 </button>
-                            @else
-                                <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
-                                        style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.78rem;">
-                                    <i class="fa-solid fa-lock-open me-1"></i> Open
-                                </button>
-                            @endif
-                        </form>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 @endforeach
@@ -477,6 +490,61 @@
                 console.error('Toggle Status Error:', error);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalHtml;
+            }
+        }
+    });
+
+    // ── Delete Scholarship program ────────────────────
+    document.addEventListener('submit', async (e) => {
+        const form = e.target.closest('.delete-scholarship-form');
+        if (form) {
+            e.preventDefault();
+            const result = await Swal.fire({
+                title: 'Delete Scholarship Program?',
+                text: "This will move the scholarship to the System Trash. Students won't be able to apply to it anymore.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#475569',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalHtml = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Deleting...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalHtml;
+                    }
+                } catch (error) {
+                    console.error('Delete Scholarship Error:', error);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
             }
         }
     });

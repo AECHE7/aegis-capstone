@@ -6,7 +6,7 @@
 <style>
     /* Status Hero Banner */
     .status-hero {
-        border-radius: 20px;
+        border-radius: 16px;
         padding: 2rem 2.5rem;
         position: relative;
         overflow: hidden;
@@ -14,33 +14,15 @@
         color: white;
     }
 
-    .status-hero::before {
-        content: '';
-        position: absolute;
-        top: -40px; right: -40px;
-        width: 200px; height: 200px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.06);
-    }
-
-    .status-hero::after {
-        content: '';
-        position: absolute;
-        bottom: -60px; right: 80px;
-        width: 280px; height: 280px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.04);
-    }
-
-    .status-hero.pending  { background: linear-gradient(135deg, #b45309, #d97706); }
-    .status-hero.review   { background: linear-gradient(135deg, #0369a1, #0284c7); }
-    .status-hero.approved { background: linear-gradient(135deg, #15803d, #16a34a); }
-    .status-hero.rejected { background: linear-gradient(135deg, #b91c1c, #dc2626); }
-    .status-hero.empty    { background: linear-gradient(135deg, #334155, #475569); }
+    .status-hero.pending  { background: #b45309; }
+    .status-hero.review   { background: #0284c7; }
+    .status-hero.approved { background: #0C4E2D; }
+    .status-hero.rejected { background: #b91c1c; }
+    .status-hero.empty    { background: #475569; }
 
     .status-hero-icon {
         width: 64px; height: 64px;
-        border-radius: 18px;
+        border-radius: 12px;
         background: rgba(255,255,255,0.15);
         backdrop-filter: blur(10px);
         display: flex; align-items: center; justify-content: center;
@@ -65,7 +47,7 @@
         border: 3px solid white;
         position: relative;
         z-index: 2;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        box-shadow: none;
         flex-shrink: 0;
     }
 
@@ -77,15 +59,6 @@
     }
 
     .step-connector.done { background: rgba(255,255,255,0.7); }
-
-    /* Pulse animation on active step */
-    @keyframes pulse-ring {
-        0%   { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
-        70%  { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
-        100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
-    }
-
-    .step-node.active-pulse { animation: pulse-ring 2s infinite; }
 
     /* Timeline */
     .timeline-item { display: flex; gap: 16px; margin-bottom: 24px; position: relative; }
@@ -102,16 +75,16 @@
         position: absolute;
         left: 19px; top: 38px; bottom: -24px;
         width: 2px;
-        background: linear-gradient(to bottom, #e2e8f0, transparent);
+        background: linear-gradient(to bottom, var(--border-color), transparent);
     }
 
     .timeline-content {
         flex: 1;
-        background: white;
-        border: 1px solid #e2e8f0;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 12px 16px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        box-shadow: none;
     }
 
     /* Confetti */
@@ -119,9 +92,9 @@
 
     /* Empty state */
     .empty-card {
-        background: white;
-        border-radius: 20px;
-        border: 2px dashed #e2e8f0;
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 2px dashed var(--border-color);
         padding: 4rem 2rem;
         text-align: center;
     }
@@ -213,9 +186,16 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="text-end" style="opacity:0.75;font-size:0.8rem;">
+                        <div class="text-end monospace-data" style="opacity:0.85;font-size:0.8rem;">
                             <div>APP-{{ $application->id }}</div>
                             <div>{{ $application->created_at->format('M d, Y') }}</div>
+                            @if(in_array($application->status, ['Pending', 'Under Review']))
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-danger fw-bold cancel-app-btn px-2 py-1" data-id="{{ $application->id }}" style="font-size:0.7rem; border-radius:6px; background:#b91c1c; border:none; color:white;">
+                                        <i class="fa-solid fa-ban me-1"></i> Cancel Application
+                                    </button>
+                                </div>
+                            @endif
                         </div>
                     </div>
 
@@ -255,7 +235,7 @@
                 </div>
 
                 {{-- AUDIT TIMELINE --}}
-                <div class="card p-4" style="border-radius:20px;">
+                <div class="card p-4" style="border-radius:12px; box-shadow:none;">
                     <h6 class="fw-bold text-dark mb-4">
                         <i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Verification History & Audit Trail
                     </h6>
@@ -282,7 +262,7 @@
                                         <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:{{ $logColor['light'] }};color:{{ $logColor['text'] }};font-size:0.72rem;font-weight:700;letter-spacing:0.3px;">
                                             {{ strtoupper($log->status) }}
                                         </span>
-                                        <span class="text-muted" style="font-size:0.75rem;">
+                                        <span class="text-muted small monospace-data" style="font-size:0.75rem;">
                                             <i class="fa-regular fa-clock me-1"></i>
                                             {{ $log->created_at->format('M d, Y · h:i A') }}
                                         </span>
@@ -401,6 +381,59 @@
     </div>
     @endif
 
+    @if(isset($cancelledApplications) && $cancelledApplications->count() > 0)
+        <div class="card p-4 mt-4" style="border-radius:12px; border: 1px solid var(--border-color); background: var(--card-bg); box-shadow: none;">
+            <h6 class="fw-bold text-dark mb-3">
+                <i class="fa-solid fa-trash-can text-danger me-2"></i> My Cancelled Applications (History)
+            </h6>
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th>Ref ID</th>
+                            <th>Scholarship Program</th>
+                            <th>GWA</th>
+                            <th>Status When Cancelled</th>
+                            <th>Cancelled Date</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($cancelledApplications as $cApp)
+                            <tr>
+                                <td class="fw-bold text-dark monospace-data" style="font-size:0.8rem;">APP-{{ $cApp->id }}</td>
+                                <td class="fw-semibold text-dark" style="font-size:0.82rem;">{{ $cApp->program_name }}</td>
+                                <td><span class="badge bg-light text-dark monospace-data" style="border: 1px solid var(--border-color);">{{ $cApp->gwa }}</span></td>
+                                <td>
+                                    <span class="badge bg-secondary text-white">{{ $cApp->status }}</span>
+                                </td>
+                                <td class="text-muted small monospace-data" style="font-size:0.75rem;">{{ $cApp->deleted_at->format('M d, Y · h:i A') }}</td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        @if(!$application || $application->status !== 'Pending')
+                                            <button type="button" class="btn btn-sm btn-outline-success fw-bold restore-app-btn" data-id="{{ $cApp->id }}" style="font-size:0.75rem; border-radius:8px;">
+                                                <i class="fa-solid fa-trash-arrow-up me-1"></i> Restore
+                                            </button>
+                                        @endif
+                                        @if($cApp->status === 'Pending')
+                                            <button type="button" class="btn btn-sm btn-outline-danger fw-bold withdraw-app-btn" data-id="{{ $cApp->id }}" style="font-size:0.75rem; border-radius:8px;">
+                                                <i class="fa-solid fa-times-circle me-1"></i> Withdraw
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-3 text-muted small">No cancelled applications.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
 </div>
 @endsection
 
@@ -448,5 +481,114 @@
         draw();
     })();
 @endif
+
+    // Deletion Management Event Handlers
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    document.querySelectorAll('.cancel-app-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (!confirm('Are you sure you want to cancel this application? This will withdraw it from the OSA review pipeline and allow you to submit a new one.')) return;
+            
+            const id = this.dataset.id;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Cancelling...';
+            
+            fetch(`/application/${id}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error cancelling application.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Cancel Application';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Cancel Application';
+            });
+        });
+    });
+
+    document.querySelectorAll('.restore-app-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!confirm('Are you sure you want to restore this application?')) return;
+            
+            const id = this.dataset.id;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Restoring...';
+            
+            fetch(`/application/${id}/restore`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-trash-arrow-up me-1"></i> Restore';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-trash-arrow-up me-1"></i> Restore';
+            });
+        });
+    });
+
+    document.querySelectorAll('.withdraw-app-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!confirm('WARNING: Are you sure you want to permanently delete and withdraw this application? This action is irreversible and will delete all files from storage.')) return;
+            
+            const id = this.dataset.id;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Deleting...';
+            
+            fetch(`/application/${id}/withdraw`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-times-circle me-1"></i> Withdraw';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-times-circle me-1"></i> Withdraw';
+            });
+        });
+    });
 </script>
 @endpush

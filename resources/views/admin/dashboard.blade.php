@@ -7,31 +7,31 @@
 @push('styles')
 <style>
     /* Count-up animation */
-    .stat-number { font-size: 2.25rem; font-weight: 800; font-family: 'Poppins', sans-serif; line-height: 1; }
+    .stat-number { font-size: 2rem; font-weight: 700; font-family: 'Poppins', sans-serif; line-height: 1; }
 
     /* Searchbar */
-    .filter-bar { background: white; border-radius: 16px; padding: 1.25rem 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .filter-bar { background: var(--card-bg); border-radius: 12px; padding: 1.25rem 1.5rem; border: 1px solid var(--border-color); box-shadow: none; }
 
     /* Table */
-    .queue-table { border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; background: white; }
-    .queue-table thead th { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #64748b; background: #f8fafc; padding: 0.9rem 1rem; border-bottom: 2px solid #e2e8f0; }
-    .queue-table tbody tr { border-color: #f1f5f9; cursor: pointer; transition: all 0.15s; }
-    .queue-table tbody tr:hover { background: #f8fafc; }
+    .queue-table { border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); background: var(--card-bg); }
+    .queue-table thead th { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-main); background: var(--clsu-bg); padding: 0.9rem 1rem; border-bottom: 2px solid var(--border-color); }
+    .queue-table tbody tr { border-color: var(--border-color); cursor: pointer; transition: var(--transition); }
+    .queue-table tbody tr:hover { background: var(--clsu-bg); }
     .queue-table td { padding: 0.85rem 1rem; vertical-align: middle; font-size: 0.875rem; }
 
     /* Avatar */
-    .student-avatar { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #e0f2fe, #bae6fd); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #0369a1; flex-shrink: 0; }
+    .student-avatar { width: 36px; height: 36px; border-radius: 8px; background: var(--clsu-bg); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: var(--clsu-green); flex-shrink: 0; }
 
     /* Fraud Score Chip */
     .fraud-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
-    .fraud-low    { background: #dcfce7; color: #15803d; }
-    .fraud-mod    { background: #fef9c3; color: #a16207; }
-    .fraud-high   { background: #fee2e2; color: #b91c1c; }
-    .fraud-none   { background: #f1f5f9; color: #94a3b8; }
+    .fraud-low    { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
+    .fraud-mod    { background: rgba(217, 119, 6, 0.15); color: #d97706; }
+    .fraud-high   { background: rgba(220, 38, 38, 0.15); color: #dc2626; }
+    .fraud-none   { background: var(--clsu-bg); color: var(--text-main); }
 
     /* Action button */
-    .btn-evaluate { background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; border: none; padding: 6px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
-    .btn-evaluate:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15,89,52,0.3); color: white; }
+    .btn-evaluate { background: var(--clsu-green); color: white; border: none; padding: 6px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; transition: var(--transition); }
+    .btn-evaluate:hover { background: var(--clsu-green-light); color: white; }
 
     /* Export buttons */
     .btn-export { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; border: 1.5px solid; transition: all 0.2s; text-decoration: none; }
@@ -53,7 +53,7 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
                     <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size:0.68rem;letter-spacing:0.8px;">Pending</div>
-                    <div class="stat-number text-dark count-up" data-target="{{ $pendingCount }}">0</div>
+                    <div class="stat-number text-dark count-up monospace-data" data-target="{{ $pendingCount }}">0</div>
                 </div>
                 <div class="stat-icon" style="background:#fef9c3;">
                     <i class="fa-solid fa-hourglass-half" style="color:#ca8a04;"></i>
@@ -68,7 +68,7 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
                     <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size:0.68rem;letter-spacing:0.8px;">Under Review</div>
-                    <div class="stat-number text-dark count-up" data-target="{{ $underReviewCount }}">0</div>
+                    <div class="stat-number text-dark count-up monospace-data" data-target="{{ $underReviewCount }}">0</div>
                 </div>
                 <div class="stat-icon" style="background:#e0f2fe;">
                     <i class="fa-solid fa-magnifying-glass-chart" style="color:#0284c7;"></i>
@@ -83,7 +83,7 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
                     <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size:0.68rem;letter-spacing:0.8px;">Verified Scholars</div>
-                    <div class="stat-number text-dark count-up" data-target="{{ $approvedCount }}">0</div>
+                    <div class="stat-number text-dark count-up monospace-data" data-target="{{ $approvedCount }}">0</div>
                 </div>
                 <div class="stat-icon" style="background:#dcfce7;">
                     <i class="fa-solid fa-user-graduate" style="color:#16a34a;"></i>
@@ -98,7 +98,7 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
                     <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size:0.68rem;letter-spacing:0.8px;">Anomalies Detected</div>
-                    <div class="stat-number text-dark count-up" data-target="{{ $rejectedCount }}">0</div>
+                    <div class="stat-number text-dark count-up monospace-data" data-target="{{ $rejectedCount }}">0</div>
                 </div>
                 <div class="stat-icon" style="background:#fee2e2;">
                     <i class="fa-solid fa-shield-virus" style="color:#dc2626;"></i>
@@ -134,6 +134,7 @@
                     <option value="Under Review" {{ request('status') === 'Under Review' ? 'selected' : '' }}>🔍 Under Review</option>
                     <option value="Approved" {{ request('status') === 'Approved' ? 'selected' : '' }}>✅ Approved</option>
                     <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>❌ Rejected</option>
+                    <option value="Cancelled" {{ request('status') === 'Cancelled' ? 'selected' : '' }}>🗑️ Cancelled / Trash</option>
                 </select>
             </div>
             <div class="col-md-2">
@@ -299,6 +300,16 @@
         if (toggleBtn) {
             e.preventDefault();
             currentArchivedState = toggleBtn.dataset.archived;
+            reloadQueue();
+        }
+    });
+
+    // Handle Cancelled Queue toggle
+    tableContainer.addEventListener('click', (e) => {
+        const cancelledBtn = e.target.closest('#cancelledQueueToggle');
+        if (cancelledBtn) {
+            e.preventDefault();
+            statusSelect.value = 'Cancelled';
             reloadQueue();
         }
     });

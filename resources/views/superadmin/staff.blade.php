@@ -105,20 +105,29 @@
 
                             <!-- Toggle activation status form -->
                             @if($staff->is_active)
-                                <form action="{{ route('superadmin.staff.revoke', $staff->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to deactivate/revoke this staff member?');">
+                                <form action="{{ route('superadmin.staff.revoke', $staff->id) }}" method="POST" class="d-inline revoke-staff-form">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-danger border border-danger text-white" style="border-radius: 8px; padding: 5px 10px;" title="Deactivate/Revoke Access">
                                         <i class="fa-solid fa-user-slash"></i> <span class="small fw-semibold ms-1">Revoke</span>
                                     </button>
                                 </form>
                             @else
-                                <form action="{{ route('superadmin.staff.reactivate', $staff->id) }}" method="POST" class="d-inline">
+                                <form action="{{ route('superadmin.staff.reactivate', $staff->id) }}" method="POST" class="d-inline reactivate-staff-form">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-success border border-success text-white" style="border-radius: 8px; padding: 5px 10px;" title="Reactivate Access">
                                         <i class="fa-solid fa-user-check"></i> <span class="small fw-semibold ms-1">Reactivate</span>
                                     </button>
                                 </form>
                             @endif
+
+                            <!-- Soft Delete staff form -->
+                            <form action="{{ route('superadmin.staff.delete', $staff->id) }}" method="POST" class="d-inline delete-staff-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; padding: 5px 10px;" title="Delete Staff Account">
+                                    <i class="fa-solid fa-trash-can me-1"></i> <span class="small fw-semibold">Delete</span>
+                                </button>
+                            </form>
                         </div>
 
                         <!-- Edit Assignments Modal for each staff -->
@@ -466,6 +475,61 @@
                 console.error('Staff Update Error:', error);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalHtml;
+            }
+        }
+    });
+
+    // ── Delete Staff Member ──────────────────────────
+    document.addEventListener('submit', async (e) => {
+        const form = e.target.closest('.delete-staff-form');
+        if (form) {
+            e.preventDefault();
+            const result = await Swal.fire({
+                title: 'Delete Staff Account?',
+                text: "This will move the staff account to the System Trash. They won't be able to log in anymore.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#475569',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalHtml = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Deleting...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalHtml;
+                    }
+                } catch (error) {
+                    console.error('Delete Staff Error:', error);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
             }
         }
     });

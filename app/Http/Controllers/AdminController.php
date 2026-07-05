@@ -23,7 +23,13 @@ class AdminController extends Controller
     public function index(\Illuminate\Http\Request $request)
     {
         // 1. Fetch search and filtering parameters
-        $query = \App\Models\Application::with(['user.profile', 'document.aiResult', 'academicTerm']);
+        if ($request->query('status') === 'Cancelled') {
+            $query = \App\Models\Application::onlyTrashed();
+        } else {
+            $query = \App\Models\Application::query();
+        }
+
+        $query->with(['user.profile', 'document.aiResult', 'academicTerm']);
 
         if (auth()->user()->role === 'admin') {
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
@@ -40,7 +46,7 @@ class AdminController extends Controller
             $query->where('scholarship_id', $request->scholarship_id);
         }
 
-        if ($request->filled('status')) {
+        if ($request->filled('status') && $request->status !== 'Cancelled') {
             $query->where('status', $request->status);
         }
 
@@ -74,6 +80,7 @@ class AdminController extends Controller
         $approvedCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Approved');
         $rejectedCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Rejected');
         $archivedCountQuery = \App\Models\Application::where('is_archived', true);
+        $cancelledCountQuery = \App\Models\Application::onlyTrashed();
 
         if (auth()->user()->role === 'admin') {
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
@@ -82,6 +89,7 @@ class AdminController extends Controller
             $approvedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
             $rejectedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
             $archivedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            $cancelledCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
         }
 
         $pendingCount = $pendingCountQuery->count();
@@ -89,6 +97,7 @@ class AdminController extends Controller
         $approvedCount = $approvedCountQuery->count();
         $rejectedCount = $rejectedCountQuery->count();
         $archivedCount = $archivedCountQuery->count();
+        $cancelledCount = $cancelledCountQuery->count();
         
         $avgFraudScore = \App\Models\AIResult::avg('fraud_probability') ?? 0;
         $avgFraudScore = round($avgFraudScore, 1); // Round to 1 decimal place
@@ -114,13 +123,14 @@ class AdminController extends Controller
         // 3. Send EVERYTHING to the dashboard
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
-                'html' => view('admin.partials.application_table', compact('applications', 'archivedCount'))->render(),
+                'html' => view('admin.partials.application_table', compact('applications', 'archivedCount', 'cancelledCount'))->render(),
                 'counts' => [
                     'pending' => $pendingCount,
                     'under_review' => $underReviewCount,
                     'approved' => $approvedCount,
                     'rejected' => $rejectedCount,
                     'archived' => $archivedCount,
+                    'cancelled' => $cancelledCount,
                 ]
             ]);
         }
@@ -135,18 +145,19 @@ class AdminController extends Controller
             'scholarships',
             'years',
             'academicTerms',
-            'archivedCount'
+            'archivedCount',
+            'cancelledCount'
         ));
     }
 
     // 2. Display the Document Evaluation Screen
     public function review($id)
     {
-        $application = Application::with(['document.aiResult', 'evaluator', 'user.profile'])->findOrFail($id);
+        $application = Application::withTrashed()->with(['documents.aiResult', 'evaluator', 'user.profile', 'customFields'])->findOrFail($id);
         $this->validateAdminAccess($application);
         
-        // Auto-update status to "Under Review" if it is Pending
-        if ($application->status === 'Pending') {
+        // Auto-update status to "Under Review" if it is Pending and NOT cancelled
+        if ($application->status === 'Pending' && !$application->trashed()) {
             $application->update(['status' => 'Under Review']);
 
             \App\Models\StatusLog::create([
@@ -157,47 +168,81 @@ class AdminController extends Controller
             ]);
         }
 
-        // Auto-trigger AI scan if a document exists and no AI result exists yet
-        if ($application->document && !$application->document->aiResult) {
-            \App\Models\AIResult::create([
-                'document_id' => $application->document->id,
-                'fraud_probability' => 0.00,
-                'classification' => 'scanning',
-                'heatmap_path' => null
-            ]);
-
-            \App\Jobs\ScanDocumentJob::dispatch($application->id);
-
+        // Auto-trigger AI scan for all documents that do not have an AI result yet and NOT cancelled
+        if (!$application->trashed()) {
+            $triggerScan = false;
+            foreach ($application->documents as $doc) {
+                if (!$doc->aiResult) {
+                    \App\Models\AIResult::create([
+                        'document_id' => $doc->id,
+                        'fraud_probability' => 0.00,
+                        'classification' => 'scanning'
+                    ]);
+                    $triggerScan = true;
+                }
+            }
+            if ($triggerScan) {
+                \App\Jobs\ScanDocumentJob::dispatch($application->id);
+            }
             // Reload relation to reflect the scanning state in the view
-            $application->load('document.aiResult');
+            $application->load('documents.aiResult');
         }
 
         return view('admin.review', compact('application'));
     }
 
+    // 2.5. Restore soft-deleted application (Admin Action)
+    public function restoreApplication($id)
+    {
+        $application = Application::onlyTrashed()->findOrFail($id);
+        $this->validateAdminAccess($application);
+
+        $application->restore();
+
+        // Log restoration in status_logs
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => $application->status,
+            'remarks' => 'Application restored by OSA Admin.',
+            'changed_by' => auth()->id() ?? 2
+        ]);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application restored successfully.',
+                'status' => $application->status
+            ]);
+        }
+
+        return redirect()->route('admin.review', $application->id)->with('success', 'Application restored successfully.');
+    }
+
     // We just changed the name from scan() to runScan() here!
     public function runScan($id)
     {
-        $application = \App\Models\Application::with('document')->findOrFail($id);
+        $application = \App\Models\Application::with('documents')->findOrFail($id);
         $this->validateAdminAccess($application);
-        $document = $application->document;
+        $documents = $application->documents;
 
-        if (!$document) {
+        if ($documents->isEmpty()) {
             if (request()->expectsJson() || request()->ajax()) {
-                return response()->json(['success' => false, 'message' => 'AI Scan Failed: Document not found.'], 404);
+                return response()->json(['success' => false, 'message' => 'AI Scan Failed: No documents found.'], 404);
             }
-            return back()->with('error', 'AI Scan Failed: Document not found.');
+            return back()->with('error', 'AI Scan Failed: No documents found.');
         }
 
-        // 1. Create a placeholder scanning result
-        \App\Models\AIResult::updateOrCreate(
-            ['document_id' => $document->id],
-            [
-                'fraud_probability' => 0.00,
-                'classification' => 'scanning',
-                'heatmap_path' => null
-            ]
-        );
+        foreach ($documents as $doc) {
+            // 1. Create a placeholder scanning result
+            \App\Models\AIResult::updateOrCreate(
+                ['document_id' => $doc->id],
+                [
+                    'fraud_probability' => 0.00,
+                    'classification' => 'scanning',
+                    'heatmap_path' => null
+                ]
+            );
+        }
 
         // 2. Dispatch the background job
         \App\Jobs\ScanDocumentJob::dispatch($application->id);
@@ -213,8 +258,10 @@ class AdminController extends Controller
     public function downloadDocument($id)
     {
         $document = \App\Models\Document::findOrFail($id);
-        $application = \App\Models\Application::where('document_id', $document->id)->first()
-                      ?? \App\Models\Application::whereHas('document', fn($q) => $q->where('id', $document->id))->first();
+        $application = $document->application 
+                       ?? \App\Models\Application::where('id', $document->application_id)->first()
+                       ?? \App\Models\Application::where('document_id', $document->id)->first()
+                       ?? \App\Models\Application::whereHas('document', fn($q) => $q->where('id', $document->id))->first();
         if ($application) {
             $this->validateAdminAccess($application);
         }
@@ -227,11 +274,9 @@ class AdminController extends Controller
         $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($document->file_path);
         $extension = pathinfo($document->file_path, PATHINFO_EXTENSION);
 
-        // Construct a human-readable download filename using Application ID
-        $application = \App\Models\Application::where('document_id', $document->id)->first()
-                      ?? \App\Models\Application::whereHas('document', fn($q) => $q->where('id', $document->id))->first();
-
-        $downloadName = 'APP-' . ($application->id ?? 'unknown') . '_COG.' . $extension;
+        // Construct a human-readable download filename using Application ID and document type
+        $docTypeClean = \Illuminate\Support\Str::slug($document->document_type, '_');
+        $downloadName = 'APP-' . ($application->id ?? 'unknown') . '_' . ($docTypeClean ?: 'document') . '.' . $extension;
 
         return response()->download($fullPath, $downloadName);
     }

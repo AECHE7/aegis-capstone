@@ -361,7 +361,19 @@ To transition the project from its current MVP setup to a robust, production-rea
   6. Refactor student application submissions and profile updates to use AJAX Fetch with progress indicators (completed).
   7. Run complete PHPUnit suite to verify backward-compatible HTTP redirects and JSON API responses (completed).
 
-
-
-
-
+### Phase 36: System Slowness & Performance Resolution - [COMPLETED]
+- **Goal:** Resolve systemic page-load and logout slowness by releasing PHP session locks and avoiding PHP CLI server worker starvation.
+- **Core Skills Applied:** Performance Optimization (Skill 11), Message Queue/Streaming (Skill 9).
+- **Steps:**
+  1. Optimize `streamNotifications` in `AuthController.php` to release the session lock via `session_write_close()` before entering the loop, and limit the maximum loop execution time to 30 seconds.
+  2. Modify client-side notification script in `layouts/app.blade.php` to use lightweight AJAX polling (every 20 seconds) instead of persistent SSE connection to prevent worker process starvation.
+  3. Verify all changes with the existing `RealtimeNotificationsTest.php` suite.
+### Phase 37: Soft Delete & Hard Delete Management - [IN PROGRESS]
+- **Goal:** Implement soft-delete and hard-delete operations across all user roles (Student, Admin, Director) while maintaining database referential integrity.
+- **Core Skills Applied:** Database Integrity (Skill 12), Authorization Gates (Skill 7).
+- **Steps:**
+  1. Generate database migrations adding `deleted_at` columns to `applications`, `scholarships`, and `users` tables.
+  2. Implement `SoftDeletes` traits in models and handle cache-busting triggers.
+  3. Define delete, restore, and force-delete routes and controller methods.
+  4. Create student cancellation/withdrawal workflows, admin queue filters, and a centralized superadmin trash dashboard.
+  5. Validate with feature tests.

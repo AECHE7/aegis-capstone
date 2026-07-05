@@ -22,7 +22,14 @@ class ApplicationController extends Controller
             ->latest()
             ->first();
 
-        return view('student.dashboard', compact('application'));
+        // Fetch soft-deleted (cancelled) applications for this student
+        $cancelledApplications = Application::onlyTrashed()
+            ->with(['academicTerm'])
+            ->where('user_id', $userId)
+            ->orderBy('deleted_at', 'desc')
+            ->get();
+
+        return view('student.dashboard', compact('application', 'cancelledApplications'));
     }
 
     // 1. Load the Application Form
@@ -150,6 +157,14 @@ class ApplicationController extends Controller
                         $filename = hash('sha256', $uuid) . '.' . $extension;
                         $cfile->storeAs('uploads', $filename, 'local');
                         $val = 'uploads/' . $filename;
+
+                        // Also register in documents table for AI scanning
+                        \App\Models\Document::create([
+                            'application_id' => $application->id,
+                            'file_path' => 'uploads/' . $filename,
+                            'original_name' => $cfile->getClientOriginalName(),
+                            'document_type' => $field->field_label
+                        ]);
                     }
                 } else {
                     $val = $request->input('custom_fields.' . $field->field_name);
@@ -243,5 +258,128 @@ class ApplicationController extends Controller
         }
 
         return redirect()->route('student.profile')->with('success', 'Profile updated successfully!');
+    }
+
+    // 5. Cancel application (Soft Delete)
+    public function cancel($id)
+    {
+        $userId = auth()->id() ?? 1;
+        $application = Application::where('user_id', $userId)->findOrFail($id);
+
+        if (!in_array($application->status, ['Pending', 'Under Review'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Action Denied: You cannot cancel an application that has already been ' . strtolower($application->status) . '.'
+            ], 403);
+        }
+
+        // Soft delete the application
+        $application->delete();
+
+        // Log the cancellation transition in status_logs
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => 'Cancelled',
+            'remarks' => 'Application was cancelled by the applicant.',
+            'changed_by' => $userId
+        ]);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application cancelled successfully.'
+            ]);
+        }
+
+        return redirect()->route('student.dashboard')->with('success', 'Application cancelled successfully.');
+    }
+
+    // 6. Permanently Withdraw application (Hard Delete)
+    public function withdraw($id)
+    {
+        $userId = auth()->id() ?? 1;
+        // Search in soft-deleted models
+        $application = Application::onlyTrashed()
+            ->where('user_id', $userId)
+            ->findOrFail($id);
+
+        // Can only permanently delete if it was in Pending status when cancelled
+        if ($application->status !== 'Pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Action Denied: For auditing integrity, only applications in Pending status can be permanently withdrawn.'
+            ], 403);
+        }
+
+        // Permanently delete document files if any
+        if ($application->document) {
+            $filePath = $application->document->file_path;
+            if (\Illuminate\Support\Facades\Storage::disk('local')->exists($filePath)) {
+                \Illuminate\Support\Facades\Storage::disk('local')->delete($filePath);
+            }
+            $application->document->forceDelete();
+        }
+
+        // Permanently delete custom fields file uploads if any
+        if ($application->customFields) {
+            foreach ($application->customFields as $field) {
+                if (\Illuminate\Support\Str::startsWith($field->field_value, 'uploads/')) {
+                    if (\Illuminate\Support\Facades\Storage::disk('local')->exists($field->field_value)) {
+                        \Illuminate\Support\Facades\Storage::disk('local')->delete($field->field_value);
+                    }
+                }
+                $field->delete();
+            }
+        }
+
+        // Permanently delete application
+        $application->forceDelete();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application permanently withdrawn.'
+            ]);
+        }
+
+        return redirect()->route('student.dashboard')->with('success', 'Application permanently withdrawn.');
+    }
+
+    // 7. Restore cancelled application (Soft Delete Restore)
+    public function restore($id)
+    {
+        $userId = auth()->id() ?? 1;
+        $application = Application::onlyTrashed()
+            ->where('user_id', $userId)
+            ->findOrFail($id);
+
+        // Check if user already has an active pending application
+        $latestActive = Application::where('user_id', $userId)->latest()->first();
+        if ($latestActive && $latestActive->status === 'Pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Action Denied: You already have an active pending application (APP-' . $latestActive->id . '). Please withdraw or wait for evaluation before restoring this one.'
+            ], 403);
+        }
+
+        // Restore
+        $application->restore();
+
+        // Log the restoration in status_logs
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => $application->status, // Restore to its previous status
+            'remarks' => 'Application was restored by the applicant.',
+            'changed_by' => $userId
+        ]);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application restored successfully.'
+            ]);
+        }
+
+        return redirect()->route('student.dashboard')->with('success', 'Application restored successfully.');
     }
 }

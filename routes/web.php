@@ -62,6 +62,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/student/profile', [ApplicationController::class, 'editProfile'])->name('student.profile');
         Route::post('/student/profile', [ApplicationController::class, 'updateProfile'])->name('student.profile.update');
         Route::get('/scholarships/{id}/fields', [ApplicationController::class, 'getScholarshipFields'])->name('scholarships.fields');
+        
+        // Deletion & Cancellation Workflows (Soft & Hard deletes for Student)
+        Route::post('/application/{id}/cancel', [ApplicationController::class, 'cancel'])->name('student.application.cancel');
+        Route::post('/application/{id}/withdraw', [ApplicationController::class, 'withdraw'])->name('student.application.withdraw');
+        Route::post('/application/{id}/restore', [ApplicationController::class, 'restore'])->name('student.application.restore');
     });
 
     // OSA ADMIN DASHBOARD
@@ -75,6 +80,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/document/{id}/download', [AdminController::class, 'downloadDocument'])->name('admin.document.download');
         Route::get('/export-csv', [\App\Http\Controllers\ReportController::class, 'exportCsv'])->name('admin.export');
         Route::get('/export-pdf', [\App\Http\Controllers\ReportController::class, 'exportPdf'])->name('admin.exportPdf');
+        
+        // Restore soft-deleted application (Admin Action)
+        Route::post('/review/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.restore');
     });
 
     // SUPER ADMIN (Scholarship Management)
@@ -88,6 +96,23 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/staff/{id}/revoke', [SuperAdminController::class, 'revokeStaff'])->name('superadmin.staff.revoke');
         Route::post('/staff/{id}/reactivate', [SuperAdminController::class, 'reactivateStaff'])->name('superadmin.staff.reactivate');
         Route::post('/staff/{id}/assign', [SuperAdminController::class, 'updateStaffAssignments'])->name('superadmin.staff.assign');
+
+        // System Trash Dashboard
+        Route::get('/trash', [SuperAdminController::class, 'trashIndex'])->name('superadmin.trash');
+        
+        // Trashed Applications actions (SuperAdmin / Director)
+        Route::post('/applications/{id}/restore', [SuperAdminController::class, 'restoreApplication'])->name('superadmin.applications.restore');
+        Route::delete('/applications/{id}/force-delete', [SuperAdminController::class, 'forceDeleteApplication'])->name('superadmin.applications.force-delete');
+
+        // Trashed Scholarships actions (SuperAdmin / Director)
+        Route::delete('/scholarships/{id}/delete', [SuperAdminController::class, 'deleteScholarship'])->name('superadmin.scholarships.delete');
+        Route::post('/scholarships/{id}/restore', [SuperAdminController::class, 'restoreScholarship'])->name('superadmin.scholarships.restore');
+        Route::delete('/scholarships/{id}/force-delete', [SuperAdminController::class, 'forceDeleteScholarship'])->name('superadmin.scholarships.force-delete');
+
+        // Trashed Staff actions (SuperAdmin / Director)
+        Route::delete('/staff/{id}/delete', [SuperAdminController::class, 'deleteStaff'])->name('superadmin.staff.delete');
+        Route::post('/staff/{id}/restore', [SuperAdminController::class, 'restoreStaff'])->name('superadmin.staff.restore');
+        Route::delete('/staff/{id}/force-delete', [SuperAdminController::class, 'forceDeleteStaff'])->name('superadmin.staff.force-delete');
 
         // Phase 33: Audit History Log Exports (Skill 7 – API Gateway: superadmin-only gate)
         Route::get('/audit-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportAuditCsv'])->name('superadmin.audit.csv');

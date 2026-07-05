@@ -120,6 +120,9 @@ class AuthController extends Controller
         }
 
         $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($user) {
+            // Release session lock to prevent blocking concurrent requests
+            session_write_close();
+
             set_time_limit(0);
             $lastChecked = now()->toDateTimeString();
 
@@ -129,7 +132,9 @@ class AuthController extends Controller
             if (ob_get_level() > 0) { ob_flush(); }
             flush();
 
-            while (true) {
+            $maxCycles = 15; // 30 seconds total (15 * 2s) to prevent worker exhaustion
+            $cycle = 0;
+            while ($cycle < $maxCycles) {
                 if (connection_aborted() || app()->runningUnitTests()) {
                     break;
                 }
@@ -145,6 +150,7 @@ class AuthController extends Controller
                 }
 
                 sleep(2);
+                $cycle++;
             }
         });
 

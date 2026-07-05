@@ -520,6 +520,35 @@
         ACA.OSA.CDE.F.007 (Revision No. 0; October 25, 2018)
     </div>
 
+    <!-- Student Custom Responses and File Uploads Section -->
+    @if(($application->customFields && $application->customFields->count() > 0) || $application->documents->count() > 1)
+    <div style="margin-top: 10px; border: 1px solid #0f5934; border-radius: 4px; padding: 5px; background-color: #f8fafc; page-break-inside: avoid;">
+        <div style="font-weight: bold; color: #0f5934; font-size: 8px; text-transform: uppercase; margin-bottom: 3px; border-bottom: 1px solid #0f5934; padding-bottom: 1px;">
+            📝 Student Application Responses & Custom Credentials
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 7.5px;">
+            @if($application->customFields && $application->customFields->count() > 0)
+                @foreach($application->customFields as $field)
+                    @if(!str_starts_with($field->field_value, 'uploads/'))
+                        <tr style="border-bottom: 1px dashed #cbd5e1;">
+                            <td style="width: 40%; font-weight: bold; padding: 2px 0; color: #475569; text-transform: uppercase;">{{ $field->field_name }}:</td>
+                            <td style="width: 60%; padding: 2px 0; color: #0f172a; font-weight: bold;">{{ $field->field_value }}</td>
+                        </tr>
+                    @endif
+                @endforeach
+            @endif
+            @foreach($application->documents as $doc)
+                @if($doc->document_type !== 'COG')
+                    <tr style="border-bottom: 1px dashed #cbd5e1;">
+                        <td style="width: 40%; font-weight: bold; padding: 2px 0; color: #475569; text-transform: uppercase;">Uploaded {{ $doc->document_type }}:</td>
+                        <td style="width: 60%; padding: 2px 0; color: #0f172a; font-weight: bold;">{{ $doc->original_name }} (Verified by A.E.G.I.S.)</td>
+                    </tr>
+                @endif
+            @endforeach
+        </table>
+    </div>
+    @endif
+
     <!-- A.E.G.I.S. Digital Forensics Audit Trail Section (Thesis Alignment Badge) -->
     <div class="aegis-badge-card">
         <div style="font-weight: bold; color: #b45309; font-size: 8px; text-transform: uppercase; margin-bottom: 2px;">
