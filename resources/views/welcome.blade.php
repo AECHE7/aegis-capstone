@@ -9,12 +9,75 @@
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.E.G.I.S. — CLSU Scholarship Portal</title>
-    <meta name="description" content="Central Luzon State University's official scholarship portal powered by the A.E.G.I.S. grade integrity forensic system.">
+    <title>A.E.G.I.S. — CLSU Scholarship Portal | Central Luzon State University</title>
+    <meta name="description" content="Apply for CLSU scholarships online. A.E.G.I.S. (Automated Grade Integrity System) is Central Luzon State University's official scholarship management portal with AI-powered grade verification, real-time application tracking, and secure document management.">
+    <meta name="keywords" content="CLSU scholarship, Central Luzon State University, scholarship portal, A.E.G.I.S., scholarship application, Philippines scholarship">
+    <meta name="author" content="Central Luzon State University — Office of Student Affairs">
+    <meta name="robots" content="index, follow">
+
+    {{-- Canonical URL --}}
+    <link rel="canonical" href="{{ url('/') }}">
+
+    {{-- Favicon --}}
     <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
+
+    {{-- Open Graph (Facebook, LinkedIn) --}}
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="A.E.G.I.S. — CLSU Scholarship Portal">
+    <meta property="og:description" content="Apply for CLSU scholarships online. Official scholarship management portal with AI-powered grade verification and real-time application tracking.">
+    <meta property="og:image" content="{{ asset('logo.png') }}">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:locale" content="en_PH">
+    <meta property="og:site_name" content="A.E.G.I.S. CLSU Scholarship Portal">
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="A.E.G.I.S. — CLSU Scholarship Portal">
+    <meta name="twitter:description" content="Apply for CLSU scholarships online with AI-powered grade verification and real-time tracking.">
+    <meta name="twitter:image" content="{{ asset('logo.png') }}">
+
+    {{-- JSON-LD Structured Data --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "A.E.G.I.S. CLSU Scholarship Portal",
+        "url": "{{ url('/') }}",
+        "description": "Central Luzon State University's official scholarship management portal with AI-powered grade integrity verification.",
+        "applicationCategory": "EducationApplication",
+        "operatingSystem": "Web Browser",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Central Luzon State University",
+            "url": "https://www.clsu.edu.ph",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ asset('logo.png') }}"
+            },
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Science City of Muñoz",
+                "addressRegion": "Nueva Ecija",
+                "addressCountry": "PH"
+            }
+        }
+    }
+    </script>
+
+    {{-- Preconnect to CDN origins --}}
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    {{-- Non-blocking Google Fonts --}}
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet"></noscript>
     <style>
         :root {
             --bg-main: #f8fafc;

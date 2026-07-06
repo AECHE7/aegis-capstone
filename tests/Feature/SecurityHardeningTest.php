@@ -16,11 +16,26 @@ class SecurityHardeningTest extends TestCase
     {
         $response = $this->get(route('login'));
 
+        // Core security headers
         $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
         $response->assertHeader('X-Content-Type-Options', 'nosniff');
-        $response->assertHeader('X-XSS-Protection', '1; mode=block');
         $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-        
+
+        // Note: X-XSS-Protection intentionally removed — deprecated in modern browsers
+        // and can introduce security risks. Replaced with a strong CSP.
+
+        // New A+-grade headers
+        $response->assertHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        $response->assertHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        $response->assertHeader('Cross-Origin-Resource-Policy', 'same-site');
+
+        // Permissions-Policy must be present
+        $permPolicy = $response->headers->get('Permissions-Policy');
+        $this->assertNotNull($permPolicy, 'Permissions-Policy header must be present.');
+        $this->assertStringContainsString('camera=()', $permPolicy);
+        $this->assertStringContainsString('microphone=()', $permPolicy);
+
+        // CSP must be present and correctly configured
         $csp = $response->headers->get('Content-Security-Policy');
         $this->assertNotNull($csp);
         $this->assertStringContainsString("default-src 'self'", $csp);

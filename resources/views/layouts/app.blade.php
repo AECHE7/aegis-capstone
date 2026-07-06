@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    {{-- Inline theme init (non-blocking, before first paint) --}}
     <script>
         (function () {
             const savedTheme = localStorage.getItem('aegis-theme') || 'light';
@@ -10,14 +11,36 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'A.E.G.I.S. Portal')</title>
+    <meta name="description" content="@yield('meta_description', 'A.E.G.I.S. is Central Luzon State University\'s official scholarship management portal. Apply for scholarships, track your application status, and receive real-time updates.')">
+    <meta name="robots" content="noindex, nofollow">
+    <title>@yield('title', 'A.E.G.I.S. Portal') — CLSU Scholarship System</title>
     <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
 
+    {{-- Open Graph meta --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="A.E.G.I.S. CLSU Scholarship Portal">
+    <meta property="og:title" content="@yield('title', 'A.E.G.I.S. Portal') — CLSU Scholarship System">
+    <meta property="og:description" content="@yield('meta_description', 'Central Luzon State University\'s official scholarship management portal.')">
+    <meta property="og:image" content="{{ asset('logo.png') }}">
+    <meta property="og:locale" content="en_PH">
+
+    {{-- Preconnect to CDN origins (reduces DNS + TLS overhead) --}}
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    {{-- Bootstrap CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {{-- Font Awesome --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    {{-- Google Fonts: non-blocking load via media='print' trick --}}
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet"></noscript>
+
+    {{-- SweetAlert2: loaded async (moved to end of body) --}}
 
     <style>
         /* ══════════════════════════════════════════
@@ -32,7 +55,7 @@
             --clsu-dark: #0f172a;
             --clsu-bg: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #475569;
+            --text-main: #334155;
             --text-title: #0f172a;
             --border-color: #e2e8f0;
             --sidebar-width: 260px;
@@ -761,7 +784,7 @@
     ═══════════════════════════════════════════ --}}
     
     <!-- Sidebar -->
-    <aside class="sidebar" id="mainSidebar">
+    <aside class="sidebar" id="mainSidebar" role="complementary" aria-label="Application navigation sidebar">
         <!-- Brand -->
         <a href="#" class="sidebar-brand text-decoration-none">
             <div class="sidebar-brand-icon">
@@ -790,7 +813,7 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="sidebar-nav">
+        <nav class="sidebar-nav" aria-label="Main navigation">
             @if(auth()->user()->role === 'admin')
                 <div class="sidebar-label">Main Menu</div>
                 <a href="{{ route('admin.dashboard') }}" 
@@ -964,16 +987,16 @@
         <!-- Page Content -->
         <div class="page-content">
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert"
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" aria-live="polite" aria-atomic="true"
                      style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important; border-left-style: solid !important;">
-                    <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
+                    <i class="fa-solid fa-circle-check me-2" aria-hidden="true"></i> {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
             @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert"
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" aria-live="assertive" aria-atomic="true"
                      style="background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444 !important; border-left-style: solid !important;">
-                    <i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}
+                    <i class="fa-solid fa-circle-exclamation me-2" aria-hidden="true"></i> {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
@@ -987,8 +1010,8 @@
     {{-- ═══════════════════════════════════════════
          UAT FEEDBACK BUTTON & MODAL (ALL ROLES)
     ═══════════════════════════════════════════ --}}
-    <button class="uat-fab" data-bs-toggle="modal" data-bs-target="#uatFeedbackModal" title="Submit UAT Evaluation">
-        <i class="fa-solid fa-star fs-5"></i>
+    <button class="uat-fab" data-bs-toggle="modal" data-bs-target="#uatFeedbackModal" title="Submit UAT Evaluation" aria-label="Submit system evaluation feedback">
+        <i class="fa-solid fa-star fs-5" aria-hidden="true"></i>
     </button>
 
     <!-- UAT Feedback Modal -->
@@ -1276,5 +1299,8 @@
 </script>
 
 @stack('scripts')
+
+{{-- SweetAlert2: deferred load (non-blocking — moved from <head>) --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
 </body>
 </html>
