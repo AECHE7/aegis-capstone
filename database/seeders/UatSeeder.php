@@ -26,26 +26,7 @@ class UatSeeder extends Seeder
         Application::query()->delete();
         User::where('role', 'student')->delete();
 
-        // 2. Create the clean CLSU student 2 user account (UAT student portal account)
-        $student = User::create([
-            'name' => 'CLSU Student 2',
-            'email' => 'clsu2@clsu.edu.ph',
-            'password' => Hash::make('password'),
-            'role' => 'student',
-            'email_verified_at' => now(), // Mark verified so the user doesn't need to check email logs
-        ]);
-
-        // Create student profile
-        StudentProfile::create([
-            'user_id' => $student->id,
-            'clsu_id_number' => '2023-9999',
-            'college' => 'College of Engineering',
-            'course' => 'BS Computer Science',
-            'year_level' => '3rd Year',
-            'contact_number' => '09999999999'
-        ]);
-
-        // 3. Ensure Admin & Super Admin/Director exist and are verified
+        // 2. Ensure Admin & Super Admin/Director exist and are verified
         User::firstOrCreate(
             ['email' => 'admin@clsu.edu.ph'],
             [
@@ -88,6 +69,6 @@ class UatSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('Database cleaned! CLSU student 2 UAT student registered successfully with email verified.');
+        $this->command->info('Database cleaned! Ready for manual student registration.');
     }
 }
