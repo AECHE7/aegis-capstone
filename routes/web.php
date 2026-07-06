@@ -155,6 +155,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/scholarships', [SuperAdminController::class, 'index'])->name('superadmin.scholarships');
         Route::post('/scholarships', [SuperAdminController::class, 'store'])->name('superadmin.scholarships.store');
         Route::post('/scholarships/{id}/toggle', [SuperAdminController::class, 'toggleStatus'])->name('superadmin.scholarships.toggle');
+        Route::get('/scholarships/{id}', [SuperAdminController::class, 'show'])->name('superadmin.scholarships.show');
+        Route::put('/scholarships/{id}', [SuperAdminController::class, 'update'])->name('superadmin.scholarships.update');
         Route::get('/analytics', [SuperAdminController::class, 'analytics'])->name('superadmin.analytics');
         Route::get('/staff', [SuperAdminController::class, 'listStaff'])->name('superadmin.staff');
         Route::post('/staff/invite', [SuperAdminController::class, 'inviteStaff'])->name('superadmin.staff.invite');

@@ -425,7 +425,7 @@
             </h1>
 
             <p class="hero-desc">
-                A.E.G.I.S. streamlines scholarship applications at CLSU with AI-powered document verification — secure, paperless, and fast.
+                {{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} streamlines scholarship applications at {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}, providing a direct, paperless, and secure portal for students and the Office of Student Affairs.
             </p>
 
             <!-- Feature list -->
@@ -440,50 +440,28 @@
                 <div class="feature-item">
                     <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
                     <div>
-                        <p class="feature-title">Fast-Tracked Evaluation</p>
-                        <p class="feature-sub">Automated document screening for quicker results.</p>
+                        <p class="feature-title">Real-Time Tracking</p>
+                        <p class="feature-sub">Follow your application status from submission to approval instantly.</p>
                     </div>
                 </div>
                 <div class="feature-item">
-                    <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="feature-icon"><i class="fa-solid fa-user-check"></i></div>
                     <div>
-                        <p class="feature-title">Secure AI Verification</p>
-                        <p class="feature-sub">Forensics powered by ResNet-50 deep learning ELA.</p>
+                        <p class="feature-title">Digital Profile Management</p>
+                        <p class="feature-sub">Keep your verified student information up to date securely.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Stats row -->
-            <div class="stats-row">
-                <div class="stat-item">
-                    <div class="stat-val" data-target="998" data-suffix="%">0%</div>
-                    <div class="stat-lbl">ELA Accuracy</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-val">&lt;0.05ms</div>
-                    <div class="stat-lbl">Scan Latency</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-val" data-target="100" data-suffix="%">0%</div>
-                    <div class="stat-lbl">Encrypted</div>
-                </div>
-            </div>
-
-            <!-- Live scan terminal -->
-            <div class="scan-terminal">
-                <div class="sweep-line"></div>
-                <div class="terminal-bar">
-                    <span class="t-dot r"></span>
-                    <span class="t-dot y"></span>
-                    <span class="t-dot g"></span>
-                    <span class="t-label">aegis-shield — forensic scanner</span>
-                </div>
-                <span class="t-line t-cmd" id="tl1"></span>
-                <span class="t-line t-info" id="tl2"></span>
-                <span class="t-line t-info" id="tl3"></span>
-                <span class="t-line t-ok" id="tl4"></span>
-                <span class="t-line t-muted" id="tl5"></span>
-                <span class="cursor" id="tCursor"></span>
+            <!-- Welcome Info Block -->
+            <div class="mt-4 p-4 border border-white-50 rounded-4 text-start" style="background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); border-radius: 16px;">
+                <h3 class="h6 fw-bold text-warning mb-2"><i class="fa-solid fa-circle-info me-2"></i> How to Get Started</h3>
+                <ul class="text-white-50 small ps-3 mb-0" style="line-height: 1.6;">
+                    <li>Create your account using your verified CLSU email address.</li>
+                    <li>Complete your digital student profile.</li>
+                    <li>Apply directly to active scholarship programs.</li>
+                    <li>Track updates and receive notifications from the OSA team in real time.</li>
+                </ul>
             </div>
 
         </div>
@@ -583,40 +561,6 @@
                 </p>
             </form>
 
-            <!-- Quick Access -->
-            <div class="or-divider">OR QUICK ACCESS</div>
-
-            <div class="row g-2">
-                @if($demoStudent)
-                <div class="col-4">
-                    <div class="quick-chip" onclick="fillDemo('{{ $demoStudent->email }}')">
-                        <i class="fa-solid fa-user-graduate fs-5 text-primary"></i>
-                        Student
-                    </div>
-                </div>
-                @endif
-                @if($demoAdmin)
-                <div class="col-4">
-                    <div class="quick-chip" onclick="fillDemo('{{ $demoAdmin->email }}')">
-                        <i class="fa-solid fa-user-shield fs-5 text-success"></i>
-                        Admin
-                    </div>
-                </div>
-                @endif
-                @if($demoSuperAdmin)
-                <div class="col-4">
-                    <div class="quick-chip" onclick="fillDemo('{{ $demoSuperAdmin->email }}')">
-                        <i class="fa-solid fa-crown fs-5 text-warning"></i>
-                        Director
-                    </div>
-                </div>
-                @endif
-            </div>
-
-            <p class="text-center mt-2 mb-0" style="font-size: 0.75rem; color: #334155;">
-                <i class="fa-solid fa-circle-info me-1"></i> Click a profile above to auto-fill credentials.
-            </p>
-
             @if(app()->environment('local', 'testing'))
             <div class="text-center mt-4 pt-3 border-top">
                 <div class="small fw-semibold text-muted mb-2">
@@ -641,20 +585,6 @@
 </div>
 
 <script>
-    /* ── Quick Access Auto-fill ─────────────────── */
-    function fillDemo(email) {
-        const e = document.getElementById('emailInput');
-        const p = document.getElementById('passwordInput');
-        e.value = email;
-        p.value = 'password';
-
-        // Brief scale bounce feedback
-        [e, p].forEach(el => {
-            el.style.transition = 'transform 0.12s';
-            el.style.transform = 'scale(1.015)';
-            setTimeout(() => el.style.transform = 'scale(1)', 120);
-        });
-    }
 
     /* ── Password Toggle ────────────────────────── */
     function togglePwd() {
@@ -678,78 +608,7 @@
         }, 10);
     }
 
-    /* ── Count-up for stats ─────────────────────── */
-    function countUp(el, target, suffix, duration) {
-        const start = performance.now();
-        const step = ts => {
-            const progress = Math.min((ts - start) / duration, 1);
-            // ease-out
-            const val = Math.floor(progress * target);
-            // Format: 998 → 99.8%
-            if (target === 998) {
-                el.textContent = (val / 10).toFixed(1) + suffix;
-            } else {
-                el.textContent = val + suffix;
-            }
-            if (progress < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
     }
-
-    /* ── Typewriter Terminal ─────────────────────── */
-    const termLines = [
-        { id: 'tl1', text: '$ aegis --scan "COG_2024.pdf"',     cls: 't-cmd',  delay: 600  },
-        { id: 'tl2', text: '[INFO] Loading ELA matrices...',     cls: 't-info', delay: 1400 },
-        { id: 'tl3', text: '[INFO] Contrast normalization: OK',  cls: 't-info', delay: 2200 },
-        { id: 'tl4', text: '[PASS] Forgery probability: 0.00%',  cls: 't-ok',   delay: 3000 },
-        { id: 'tl5', text: '→ Status: READY_FOR_OSA_REVIEW',    cls: 't-muted',delay: 3800 },
-    ];
-
-    function typeText(el, text, cb) {
-        let i = 0;
-        const cursor = document.getElementById('tCursor');
-        function next() {
-            if (i <= text.length) {
-                el.textContent = text.slice(0, i);
-                i++;
-                setTimeout(next, 28);
-            } else {
-                if (cb) cb();
-            }
-        }
-        next();
-    }
-
-    function runTerminal(index) {
-        if (index >= termLines.length) return;
-        const { id, text, delay } = termLines[index];
-        setTimeout(() => {
-            const el = document.getElementById(id);
-            typeText(el, text, () => runTerminal(index + 1));
-        }, index === 0 ? delay : 200);
-    }
-
-    /* ── Init on DOMContentLoaded ───────────────── */
-    document.addEventListener('DOMContentLoaded', () => {
-        // Count-up stats
-        const statEls = document.querySelectorAll('[data-target]');
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const el     = entry.target;
-                    const target = parseInt(el.dataset.target);
-                    const suffix = el.dataset.suffix || '';
-                    countUp(el, target, suffix, 1200);
-                    observer.unobserve(el);
-                }
-            });
-        }, { threshold: 0.4 });
-
-        statEls.forEach(el => observer.observe(el));
-
-        // Typewriter terminal
-        runTerminal(0);
-    });
 </script>
 
 </main>

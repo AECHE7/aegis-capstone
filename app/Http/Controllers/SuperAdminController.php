@@ -72,6 +72,83 @@ class SuperAdminController extends Controller
         return back()->with('success', 'New Scholarship Program and its custom fields successfully created!');
     }
 
+    // Retrieve Scholarship Details for Edit Modal
+    public function show($id)
+    {
+        $scholarship = Scholarship::with('fields')->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'scholarship' => $scholarship
+        ]);
+    }
+
+    // Save Scholarship Updates
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'min_gwa_required' => 'required|numeric|min:1.00|max:5.00',
+            'deadline' => 'nullable|date',
+            'max_renewals' => 'nullable|integer|min:1|max:12',
+            'fields' => 'nullable|array',
+            'fields.*.label' => 'required|string|max:255',
+            'fields.*.type' => 'required|in:text,number,textarea,select,file',
+            'fields.*.required' => 'nullable',
+            'fields.*.options' => 'nullable|string',
+        ]);
+
+        $scholarship = Scholarship::findOrFail($id);
+        $scholarship->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'min_gwa_required' => $request->min_gwa_required,
+            'deadline' => $request->deadline,
+            'max_renewals' => $request->max_renewals ?? 4,
+        ]);
+
+        // Wipe and rebuild fields
+        $scholarship->fields()->delete();
+
+        if ($request->has('fields')) {
+            foreach ($request->fields as $field) {
+                // Generate field_name
+                $fieldName = strtolower(preg_replace('/[^a-zA-Z0-9_]/', '_', trim($field['label'])));
+                $fieldName = uniqid($fieldName . '_');
+
+                $optionsArray = null;
+                if ($field['type'] === 'select' && !empty($field['options'])) {
+                    if (is_array($field['options'])) {
+                        $optionsArray = $field['options'];
+                    } else {
+                        $optionsArray = array_map('trim', explode(',', $field['options']));
+                    }
+                }
+
+                $scholarship->fields()->create([
+                    'field_name' => $fieldName,
+                    'field_label' => $field['label'],
+                    'field_type' => $field['type'],
+                    'is_required' => isset($field['required']) && ($field['required'] == '1' || $field['required'] == 'on' || $field['required'] == true) ? true : false,
+                    'options' => $optionsArray
+                ]);
+            }
+        }
+
+        // Bust the active scholarships list cache
+        \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Scholarship Program and its custom fields successfully updated!',
+                'scholarship' => $scholarship->load('fields')
+            ]);
+        }
+
+        return back()->with('success', 'Scholarship Program and its custom fields successfully updated!');
+    }
+
     // 3. Toggle Status (Active/Closed)
     public function toggleStatus($id)
     {

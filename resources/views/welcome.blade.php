@@ -839,15 +839,15 @@
             <div class="col-lg-6">
                 <div class="hero-eyebrow">
                     <span class="dot"></span>
-                    <span class="mono">A.E.G.I.S. FORENSICS — ACTIVE</span>
+                    <span class="mono">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} PORTAL — ACTIVE</span>
                 </div>
 
                 <h1 class="hero-title">
-                    Merit-based Scholarships<br>at <span class="accent">CLSU,</span> Secured<br>by AI.
+                    Merit-based Scholarships<br>at <span class="accent">{{ \App\Models\Setting::get('university_name', 'CLSU') }}.</span>
                 </h1>
 
                 <p class="hero-desc">
-                    The OSA Scholarship Portal connects Central Luzon State University students to institutional, government, and private grants — protected end-to-end by automated forensic document verification.
+                    The {{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Scholarship Portal connects {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} students to institutional, government, and private grants—providing a direct, paperless, and secure application process.
                 </p>
 
                 <div class="hero-actions">
@@ -879,73 +879,60 @@
 
                 <div class="hero-stats">
                     <div class="hero-stat">
-                        <div class="hero-stat-val mono">99.8%</div>
-                        <div class="hero-stat-lbl">ELA Accuracy Rate</div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-val mono">&lt;0.05ms</div>
-                        <div class="hero-stat-lbl">AI Scan Latency</div>
-                    </div>
-                    <div class="hero-stat">
                         <div class="hero-stat-val mono">100%</div>
-                        <div class="hero-stat-lbl">Encrypted Records</div>
+                        <div class="hero-stat-lbl">Paperless Process</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-val mono">Real-Time</div>
+                        <div class="hero-stat-lbl">Application Tracking</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-val mono">Secure</div>
+                        <div class="hero-stat-lbl">Profile Verification</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right: Live Forensic Panel -->
+            <!-- Right: Application Process Preview -->
             <div class="col-lg-6 d-none d-lg-block">
-                <div class="forensic-panel">
-                    <div class="scan-sweep"></div>
-
-                    <div class="panel-header">
-                        <div class="panel-header-title">
-                            <i class="fa-solid fa-shield-halved text-success"></i>
-                            <span class="mono">AEGIS-SHIELD / ACTIVE_SCAN</span>
+                <div class="card border-0 shadow-lg p-4" style="border-radius: 24px; background: var(--card-bg); border: 1px solid var(--border-color);">
+                    <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-list-check text-success fs-5"></i>
+                            <span class="fw-bold text-title" style="font-size: 0.95rem;">Application Progress Tracker</span>
                         </div>
-                        <span class="panel-badge">LIVE</span>
+                        <span class="badge bg-success-subtle text-success px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.72rem; background: var(--clsu-green-muted); color: var(--clsu-green);">Active Term</span>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="panel-row">
-                            <span class="panel-row-label mono">Target File</span>
-                            <span class="panel-row-val">Certificate_of_Grades.pdf</span>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-4" style="background: var(--bg-main); border: 1px solid var(--border-color); text-align: left;">
+                            <div class="d-flex align-items-center justify-content-center bg-success text-white rounded-circle" style="width: 32px; height: 32px; min-width: 32px; background: var(--clsu-green) !important;">
+                                <i class="fa-solid fa-check small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-title small">1. Digital Registration</div>
+                                <div class="text-muted small mt-1">Register using your official @clsu.edu.ph email and activate your account.</div>
+                            </div>
                         </div>
-                        <div class="panel-row">
-                            <span class="panel-row-label mono">Analysis Engine</span>
-                            <span class="panel-row-val">ResNet-50 ELA-CNN</span>
-                        </div>
-                        <div class="panel-row">
-                            <span class="panel-row-label mono">Pixel Hash</span>
-                            <span class="panel-row-val">sha256:a3f8c1...</span>
-                        </div>
-                        <div class="panel-row">
-                            <span class="panel-row-label mono">Integrity Score</span>
-                            <span class="panel-row-val success">99.82% — Authentic</span>
-                        </div>
-                    </div>
 
-                    <div class="panel-terminal">
-                        <div class="t-cmd">$ aegis --scan "COG_STUDENT_2024.pdf"</div>
-                        <div class="t-info">[INFO] Loading ELA forensic matrices...</div>
-                        <div class="t-info">[INFO] Contrast normalization: COMPLETE</div>
-                        <div class="t-ok">[PASS] Forgery probability: 0.00%</div>
-                        <div class="t-label mt-1">→ Status: READY_FOR_OSA_REVIEW</div>
-                    </div>
-
-                    <div class="integrity-ring">
-                        <div class="ring-circle">
-                            <svg width="42" height="42" viewBox="0 0 42 42">
-                                <circle cx="21" cy="21" r="17" fill="none" stroke="var(--border-color)" stroke-width="3"/>
-                                <circle cx="21" cy="21" r="17" fill="none" stroke="#22c55e" stroke-width="3"
-                                        stroke-dasharray="106.8" stroke-dashoffset="1"
-                                        stroke-linecap="round"/>
-                                <text x="21" y="26" text-anchor="middle" class="ring-text" transform="rotate(90, 21, 21)">✓</text>
-                            </svg>
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-4" style="background: var(--bg-main); border: 1px solid var(--border-color); text-align: left;">
+                            <div class="d-flex align-items-center justify-content-center bg-success text-white rounded-circle" style="width: 32px; height: 32px; min-width: 32px; background: var(--clsu-green) !important;">
+                                <i class="fa-solid fa-check small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-title small">2. Complete Academic Profile</div>
+                                <div class="text-muted small mt-1">Encode your grades and upload your verified Certificate of Grades (COG).</div>
+                            </div>
                         </div>
-                        <div>
-                            <div style="font-size: 0.82rem; font-weight: 700; color: #16a34a;">Document Cleared</div>
-                            <div class="mono" style="font-size: 0.72rem; color: var(--text-main);">No tampering detected • Ready for OSA review</div>
+
+                        <div class="d-flex align-items-start gap-3 p-3 rounded-4" style="background: var(--bg-main); border: 1px solid var(--border-color); text-align: left;">
+                            <div class="d-flex align-items-center justify-content-center bg-warning text-white rounded-circle" style="width: 32px; height: 32px; min-width: 32px; background: var(--clsu-gold) !important; animation: pulse-dot 2s infinite;">
+                                <i class="fa-solid fa-clock small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-title small">3. OSA Evaluation Queue</div>
+                                <div class="text-muted small mt-1">Our coordinators evaluate your application requirements and confirm your details.</div>
+                            </div>
                         </div>
                     </div>
                 </div>
