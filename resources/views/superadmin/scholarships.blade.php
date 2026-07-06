@@ -136,15 +136,11 @@
                         {{-- Left Column: Form Builder --}}
                         <div class="col-lg-7 border-end pe-lg-4">
                             <div class="row g-3 mb-3">
-                                <div class="col-md-6">
+                                <div class="col-md-8">
                                     <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
                                     <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold small text-muted" for="gwaRequirement">Maximum GWA</label>
-                                    <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" placeholder="Optional (e.g., 1.75)">
-                                </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label fw-semibold small text-muted" for="maxRenewals">Max Renewals</label>
                                     <input type="number" min="1" max="12" name="max_renewals" id="maxRenewals" class="form-control" required value="4" placeholder="e.g., 4">
                                 </div>
@@ -222,15 +218,11 @@
                         {{-- Left Column: Form Builder --}}
                         <div class="col-lg-7 border-end pe-lg-4">
                             <div class="row g-3 mb-3">
-                                <div class="col-md-6">
+                                <div class="col-md-8">
                                     <label class="form-label fw-semibold small text-muted" for="editProgramName">Program Name</label>
                                     <input type="text" name="name" id="editProgramName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold small text-muted" for="editGwaRequirement">Maximum GWA</label>
-                                    <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="editGwaRequirement" class="form-control" placeholder="Optional (e.g., 1.75)">
-                                </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <label class="form-label fw-semibold small text-muted" for="editMaxRenewals">Max Renewals</label>
                                     <input type="number" min="1" max="12" name="max_renewals" id="editMaxRenewals" class="form-control" required placeholder="e.g., 4">
                                 </div>
@@ -842,7 +834,6 @@
                 if (data.success) {
                     const s = data.scholarship;
                     document.getElementById('editProgramName').value = s.name;
-                    document.getElementById('editGwaRequirement').value = s.min_gwa_required;
                     document.getElementById('editMaxRenewals').value = s.max_renewals ?? 4;
                     document.getElementById('editProgramDesc').value = s.description;
 

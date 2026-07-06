@@ -325,10 +325,12 @@
                         }
                         
                         input.name = `custom_fields[${field.field_name}]`;
+                        input.classList.add('custom-field-input');
+                        input.dataset.label = field.field_label;
+                        input.dataset.required = field.is_required ? '1' : '0';
                         if (field.is_required) {
                             input.setAttribute('required', 'required');
                             input.classList.add('required-custom-field');
-                            input.dataset.label = field.field_label;
                         }
                         
                         formGroup.appendChild(input);
@@ -365,11 +367,11 @@
         }
 
         // 2. Dynamic custom fields checks
-        const customReqFields = document.querySelectorAll('.required-custom-field');
+        const customFields = document.querySelectorAll('.custom-field-input');
         // Remove existing dynamic checklist items
         document.querySelectorAll('.dynamic-checklist-item').forEach(el => el.remove());
 
-        customReqFields.forEach(input => {
+        customFields.forEach(input => {
             let isFilled = false;
             if (input.type === 'file') {
                 isFilled = input.files && input.files.length > 0;
@@ -377,18 +379,40 @@
                 isFilled = input.value.trim() !== '';
             }
 
-            if (!isFilled) {
+            const isRequired = input.dataset.required === '1';
+
+            if (isRequired && !isFilled) {
                 allValid = false;
             }
 
             const checklistItems = document.getElementById('checklistItems');
             const item = document.createElement('div');
             item.className = 'd-flex align-items-center justify-content-between dynamic-checklist-item';
+            
+            let badgeHtml = '';
+            if (isFilled) {
+                badgeHtml = `
+                    <span class="badge bg-success rounded-pill">
+                        <i class="fa-solid fa-check"></i>
+                    </span>
+                `;
+            } else if (isRequired) {
+                badgeHtml = `
+                    <span class="badge bg-danger rounded-pill">
+                        <i class="fa-solid fa-xmark"></i>
+                    </span>
+                `;
+            } else {
+                badgeHtml = `
+                    <span class="badge bg-secondary rounded-pill" style="font-size: 0.65rem;">
+                        Optional
+                    </span>
+                `;
+            }
+
             item.innerHTML = `
-                <span class="${isFilled ? 'text-dark fw-semibold' : 'text-muted'}">${input.dataset.label}</span>
-                <span class="badge ${isFilled ? 'bg-success' : 'bg-danger'} rounded-pill">
-                    <i class="fa-solid ${isFilled ? 'fa-check' : 'fa-xmark'}"></i>
-                </span>
+                <span class="${isFilled ? 'text-dark fw-semibold' : 'text-muted'}">${input.dataset.label}${isRequired ? '' : ' (Optional)'}</span>
+                ${badgeHtml}
             `;
             checklistItems.appendChild(item);
         });
