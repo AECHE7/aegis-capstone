@@ -351,13 +351,16 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: var(--transition);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 12px rgba(12, 78, 45, 0.15);
         }
 
         .btn-hero-primary:hover {
             background: var(--clsu-green-dark);
             border-color: var(--clsu-green-dark);
             color: var(--clsu-gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(12, 78, 45, 0.25);
         }
 
         .btn-hero-outline {
@@ -372,16 +375,18 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: var(--transition);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .btn-hero-outline:hover {
             border-color: var(--text-title);
             background: rgba(0,0,0,0.03);
             color: var(--text-title);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
         }
 
-        [data-theme="dark"] .btn-hero-outline:hover { background: rgba(255,255,255,0.04); }
+        [data-theme="dark"] .btn-hero-outline:hover { background: rgba(255,255,255,0.04); box-shadow: 0 6px 16px rgba(255,255,255,0.02); }
 
         /* Stats row */
         .hero-stats {
@@ -577,10 +582,14 @@
             border-radius: var(--radius-md);
             padding: 28px;
             height: 100%;
-            transition: border-color 0.2s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .program-card:hover { border-color: var(--clsu-green); }
+        .program-card:hover {
+            border-color: var(--clsu-green);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px -10px rgba(12, 78, 45, 0.12);
+        }
 
         .program-icon {
             width: 48px;
@@ -649,10 +658,14 @@
             padding: 24px;
             height: 100%;
             position: relative;
-            transition: border-color 0.2s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .step-card:hover { border-color: var(--clsu-green); }
+        .step-card:hover {
+            border-color: var(--clsu-green);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px -10px rgba(12, 78, 45, 0.12);
+        }
 
         .step-num {
             position: absolute;

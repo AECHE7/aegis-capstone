@@ -50,7 +50,7 @@
         /* ── LEFT HERO PANEL ──────────────────────── */
         .hero-panel {
             width: 55%;
-            background: var(--green);
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -334,14 +334,15 @@
             padding: 13px;
             font-weight: 600;
             font-size: 0.95rem;
-            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 12px rgba(12, 78, 45, 0.2);
         }
 
         .btn-login:hover {
             background: var(--green-dark);
             color: var(--gold-light);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(12,78,45,0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(12, 78, 45, 0.35);
         }
 
         .btn-login:active { transform: translateY(0); }
@@ -606,8 +607,6 @@
             document.getElementById('btnSpinner').classList.remove('d-none');
             document.getElementById('btnArrow').style.display = 'none';
         }, 10);
-    }
-
     }
 </script>
 
