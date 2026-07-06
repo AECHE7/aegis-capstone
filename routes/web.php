@@ -27,6 +27,26 @@ Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
     ]);
 });
 
+Route::get('/robots.txt', function () {
+    $content = "User-agent: *\n";
+    $content .= "Allow: /\n\n";
+    $content .= "# Block private/admin areas from search indexing\n";
+    $content .= "Disallow: /admin\n";
+    $content .= "Disallow: /superadmin\n";
+    $content .= "Disallow: /student/apply\n";
+    $content .= "Disallow: /student/dashboard\n";
+    $content .= "Disallow: /login\n";
+    $content .= "Disallow: /register\n";
+    $content .= "Disallow: /forgot-password\n";
+    $content .= "Disallow: /storage/\n";
+    $content .= "Disallow: /uploads/\n\n";
+    $content .= "# Sitemap location\n";
+    $content .= "Sitemap: " . url('/sitemap.xml') . "\n";
+    
+    return response($content, 200)->header('Content-Type', 'text/plain');
+});
+
+
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');

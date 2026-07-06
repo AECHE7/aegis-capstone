@@ -967,7 +967,7 @@
                         <i class="fa-solid fa-graduation-cap"></i>
                     </div>
                     <span class="program-tag" style="background: rgba(34,197,94,0.1); color: #16a34a; border: 1px solid rgba(34,197,94,0.2);">Institutional</span>
-                    <h4>Academic Excellence Awards</h4>
+                    <h3>Academic Excellence Awards</h3>
                     <p>Direct university grants for undergraduate students maintaining outstanding GWA standings.</p>
                     <ul class="program-list">
                         <li><i class="fa-solid fa-check text-success" style="font-size: 0.7rem;"></i> University Scholar (GWA 1.00–1.45)</li>
@@ -982,7 +982,7 @@
                         <i class="fa-solid fa-building-columns"></i>
                     </div>
                     <span class="program-tag" style="background: rgba(59,130,246,0.1); color: #2563eb; border: 1px solid rgba(59,130,246,0.2);">External</span>
-                    <h4>Government & Private Grants</h4>
+                    <h3>Government & Private Grants</h3>
                     <p>National grants and foundation awards integrated directly with the Office of Student Affairs.</p>
                     <ul class="program-list">
                         <li><i class="fa-solid fa-check text-primary" style="font-size: 0.7rem;"></i> DOST-SEI Merit & RA 7687</li>
@@ -997,7 +997,7 @@
                         <i class="fa-solid fa-users"></i>
                     </div>
                     <span class="program-tag" style="background: rgba(234,179,8,0.1); color: #b45309; border: 1px solid rgba(234,179,8,0.2);">Talent & Service</span>
-                    <h4>Special Service Grants</h4>
+                    <h3>Special Service Grants</h3>
                     <p>Financial assistance for cultural representatives, athletes, and student assistants at CLSU.</p>
                     <ul class="program-list">
                         <li><i class="fa-solid fa-check text-warning" style="font-size: 0.7rem;"></i> Varsity & Athletic Scholarship</li>
@@ -1023,7 +1023,7 @@
                 <div class="step-card">
                     <span class="step-num mono">01</span>
                     <div class="step-icon"><i class="fa-solid fa-upload"></i></div>
-                    <h5>Submit Application</h5>
+                    <h3>Submit Application</h3>
                     <p>Students complete their profile, answer scholarship-specific questions, and securely upload required documents (COG, ITR, certifications).</p>
                 </div>
             </div>
@@ -1032,7 +1032,7 @@
                 <div class="step-card">
                     <span class="step-num mono">02</span>
                     <div class="step-icon"><i class="fa-solid fa-microchip"></i></div>
-                    <h5>AI Document Scan</h5>
+                    <h3>AI Document Scan</h3>
                     <p>The ResNet-50 ELA engine inspects every uploaded file for pixel inconsistencies, metadata tampering, or forged content signatures.</p>
                 </div>
             </div>
@@ -1041,7 +1041,7 @@
                 <div class="step-card">
                     <span class="step-num mono">03</span>
                     <div class="step-icon"><i class="fa-solid fa-eye"></i></div>
-                    <h5>OSA Staff Review</h5>
+                    <h3>OSA Staff Review</h3>
                     <p>Administrators review GWA eligibility alongside Grad-CAM neural heatmaps and risk scores for each document submitted.</p>
                 </div>
             </div>
@@ -1050,7 +1050,7 @@
                 <div class="step-card">
                     <span class="step-num mono">04</span>
                     <div class="step-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
-                    <h5>Clearance & Award</h5>
+                    <h3>Clearance & Award</h3>
                     <p>Upon approval, an A.E.G.I.S. clearance report is embedded in a signed PDF and emailed directly to the student applicant.</p>
                 </div>
             </div>
