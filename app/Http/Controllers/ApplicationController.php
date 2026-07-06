@@ -92,7 +92,7 @@ class ApplicationController extends Controller
         // Build validation rules dynamically
         $rules = [
             'scholarship_id' => 'required',
-            'gwa' => 'required|numeric|min:1.00|max:5.00',
+            'gwa' => $scholarship->min_gwa_required !== null ? 'required|numeric|min:1.00|max:5.00' : 'nullable|numeric|min:1.00|max:5.00',
             'document' => 'required|image|mimes:jpeg,png|max:5120', 
         ];
 

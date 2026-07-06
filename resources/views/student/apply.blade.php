@@ -145,7 +145,7 @@
                             <div class="scholarship-card-select"
                                  data-id="{{ $scholarship->id }}"
                                  data-name="{{ $scholarship->name }}"
-                                 data-gwa="{{ $scholarship->min_gwa_required }}"
+                                 data-gwa="{{ $scholarship->min_gwa_required ?? '' }}"
                                  onclick="selectScholarship(this)">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
@@ -153,7 +153,7 @@
                                         <div class="text-muted small mt-1">{{ $scholarship->description }}</div>
                                     </div>
                                     <span style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;font-size:0.72rem;font-weight:700;padding:3px 10px;white-space:nowrap;margin-left:10px;">
-                                        Max GWA: {{ $scholarship->min_gwa_required }}
+                                        Max GWA: {{ $scholarship->min_gwa_required ?? 'None' }}
                                     </span>
                                 </div>
                             </div>
@@ -165,7 +165,7 @@
                     <div class="mb-4">
                         <label class="form-label fw-bold text-dark mb-2" for="gwaInput">
                             <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
-                            Declared GWA
+                            <span id="gwaLabelText">Declared GWA</span>
                         </label>
                         <input type="number" step="0.01" min="1.00" max="5.00"
                                name="gwa" id="gwaInput"
@@ -410,16 +410,45 @@
 
         // 2. GWA check
         const gwaVal = parseFloat(document.getElementById('gwaInput').value);
-        const gwaValid = !isNaN(gwaVal) && gwaVal >= 1.00 && gwaVal <= 5.00 && (!selectedScholarshipGwa || gwaVal <= selectedScholarshipGwa);
-        if (gwaValid) {
-            chkGwa.querySelector('.badge').className = 'badge bg-success rounded-pill';
-            chkGwa.querySelector('.badge i').className = 'fa-solid fa-check';
-            chkGwa.querySelector('span').className = 'text-dark fw-semibold';
+        if (isNaN(selectedScholarshipGwa)) {
+            // GWA is optional!
+            document.getElementById('gwaInput').removeAttribute('required');
+            document.getElementById('gwaLabelText').textContent = 'Declared GWA (Optional)';
+            
+            // GWA checklist is valid by default if empty or matches 1-5 range
+            const gwaValid = isNaN(gwaVal) || (gwaVal >= 1.00 && gwaVal <= 5.00);
+            
+            if (gwaValid) {
+                chkGwa.querySelector('.badge').className = 'badge bg-success rounded-pill';
+                chkGwa.querySelector('.badge i').className = 'fa-solid fa-check';
+                chkGwa.querySelector('span').className = 'text-dark fw-semibold';
+                chkGwa.querySelector('span').textContent = '2. Declared GWA (Optional)';
+            } else {
+                chkGwa.querySelector('.badge').className = 'badge bg-danger rounded-pill';
+                chkGwa.querySelector('.badge i').className = 'fa-solid fa-xmark';
+                chkGwa.querySelector('span').className = 'text-muted';
+                chkGwa.querySelector('span').textContent = '2. Declared GWA (Invalid Range)';
+                allValid = false;
+            }
         } else {
-            chkGwa.querySelector('.badge').className = 'badge bg-danger rounded-pill';
-            chkGwa.querySelector('.badge i').className = 'fa-solid fa-xmark';
-            chkGwa.querySelector('span').className = 'text-muted';
-            allValid = false;
+            // GWA is required!
+            document.getElementById('gwaInput').setAttribute('required', 'required');
+            document.getElementById('gwaLabelText').textContent = 'Declared GWA';
+            
+            const gwaValid = !isNaN(gwaVal) && gwaVal >= 1.00 && gwaVal <= 5.00 && gwaVal <= selectedScholarshipGwa;
+            
+            if (gwaValid) {
+                chkGwa.querySelector('.badge').className = 'badge bg-success rounded-pill';
+                chkGwa.querySelector('.badge i').className = 'fa-solid fa-check';
+                chkGwa.querySelector('span').className = 'text-dark fw-semibold';
+                chkGwa.querySelector('span').textContent = '2. Declared GWA';
+            } else {
+                chkGwa.querySelector('.badge').className = 'badge bg-danger rounded-pill';
+                chkGwa.querySelector('.badge i').className = 'fa-solid fa-xmark';
+                chkGwa.querySelector('span').className = 'text-muted';
+                chkGwa.querySelector('span').textContent = '2. Declared GWA';
+                allValid = false;
+            }
         }
 
         // 3. Document check
@@ -472,7 +501,7 @@
         const submitBtn = document.getElementById('submitBtn');
         const gwaVal = parseFloat(document.getElementById('gwaInput').value);
 
-        if (!selectedScholarshipGwa || isNaN(gwaVal)) {
+        if (isNaN(selectedScholarshipGwa) || isNaN(gwaVal)) {
             badge.style.display = 'none';
             updateChecklist();
             return;
@@ -555,11 +584,11 @@
 
             // Validate GWA selection
             const gwaVal = parseFloat(document.getElementById('gwaInput').value);
-            if (selectedScholarshipGwa && gwaVal > selectedScholarshipGwa) {
+            if (!isNaN(selectedScholarshipGwa) && (isNaN(gwaVal) || gwaVal > selectedScholarshipGwa)) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Ineligible GWA',
-                    text: 'Your GWA exceeds the maximum limit for this scholarship.',
+                    text: 'Your GWA is invalid or exceeds the maximum limit for this scholarship.',
                     confirmButtonColor: '#dc2626',
                     customClass: { popup: 'rounded-4' }
                 });

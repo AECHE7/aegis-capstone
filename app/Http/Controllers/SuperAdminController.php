@@ -20,7 +20,7 @@ class SuperAdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'min_gwa_required' => 'required|numeric|min:1.00|max:5.00',
+            'min_gwa_required' => 'nullable|numeric|min:1.00|max:5.00',
             'deadline' => 'nullable|date',
             'max_renewals' => 'nullable|integer|min:1|max:12',
             'fields' => 'nullable|array',
@@ -88,7 +88,7 @@ class SuperAdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'min_gwa_required' => 'required|numeric|min:1.00|max:5.00',
+            'min_gwa_required' => 'nullable|numeric|min:1.00|max:5.00',
             'deadline' => 'nullable|date',
             'max_renewals' => 'nullable|integer|min:1|max:12',
             'fields' => 'nullable|array',

@@ -40,9 +40,15 @@
                         <span class="text-muted small">{{ Str::limit($scholarship->description, 60) }}</span>
                     </td>
                     <td class="text-center">
-                        <span style="background:#fef9c3;color:#a16207;border:1px solid #fde047;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
-                            <i class="fa-solid fa-star me-1" style="font-size:0.6rem;"></i> ≤ {{ $scholarship->min_gwa_required }}
-                        </span>
+                        @if($scholarship->min_gwa_required)
+                            <span style="background:#fef9c3;color:#a16207;border:1px solid #fde047;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
+                                <i class="fa-solid fa-star me-1" style="font-size:0.6rem;"></i> ≤ {{ $scholarship->min_gwa_required }}
+                            </span>
+                        @else
+                            <span style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
+                                None
+                            </span>
+                        @endif
                     </td>
                     <td class="text-center">
                         <span style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
@@ -136,7 +142,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold small text-muted" for="gwaRequirement">Maximum GWA</label>
-                                    <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" required placeholder="e.g., 1.75">
+                                    <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" placeholder="Optional (e.g., 1.75)">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold small text-muted" for="maxRenewals">Max Renewals</label>
@@ -177,7 +183,7 @@
                                     <div class="small fw-bold text-muted mb-2" style="font-size: 0.72rem; letter-spacing: 0.3px; text-transform: uppercase;">Standard Requirements</div>
                                     
                                     <div class="mb-2">
-                                        <label class="form-label small fw-semibold text-dark mb-0">General Weighted Average (GWA) <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-semibold text-dark mb-0">General Weighted Average (GWA) <span class="text-muted fw-normal">(Optional unless GWA set)</span></label>
                                         <input type="text" class="form-control form-control-sm bg-white" disabled placeholder="e.g., 1.75" style="opacity: 0.75;">
                                     </div>
                                     <div>
@@ -236,7 +242,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold small text-muted" for="editGwaRequirement">Maximum GWA</label>
-                                    <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="editGwaRequirement" class="form-control" required placeholder="e.g., 1.75">
+                                    <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="editGwaRequirement" class="form-control" placeholder="Optional (e.g., 1.75)">
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold small text-muted" for="editMaxRenewals">Max Renewals</label>
@@ -277,7 +283,7 @@
                                     <div class="small fw-bold text-muted mb-2" style="font-size: 0.72rem; letter-spacing: 0.3px; text-transform: uppercase;">Standard Requirements</div>
                                     
                                     <div class="mb-2">
-                                        <label class="form-label small fw-semibold text-dark mb-0">General Weighted Average (GWA) <span class="text-danger">*</span></label>
+                                        <label class="form-label small fw-semibold text-dark mb-0">General Weighted Average (GWA) <span class="text-muted fw-normal">(Optional unless GWA set)</span></label>
                                         <input type="text" class="form-control form-control-sm bg-white" disabled placeholder="e.g., 1.75" style="opacity: 0.75;">
                                     </div>
                                     <div>

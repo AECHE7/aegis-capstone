@@ -115,6 +115,24 @@ class EditScholarshipProgramTest extends TestCase
     }
 
     /** @test */
+    public function superadmin_can_update_scholarship_with_null_gwa_requirement()
+    {
+        $response = $this->actingAs($this->superadmin)
+                         ->putJson(route('superadmin.scholarships.update', $this->scholarship->id), [
+                             'name' => 'No GWA Scholarship',
+                             'description' => 'GWA is optional.',
+                             'min_gwa_required' => null,
+                             'max_renewals' => 4,
+                         ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
+
+        $this->scholarship->refresh();
+        $this->assertNull($this->scholarship->min_gwa_required);
+    }
+
+    /** @test */
     public function non_superadmins_are_blocked_from_retrieving_and_updating_scholarships()
     {
         // Admin
