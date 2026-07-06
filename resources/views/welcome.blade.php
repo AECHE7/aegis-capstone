@@ -9,35 +9,35 @@
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.E.G.I.S. — CLSU Scholarship Portal | Central Luzon State University</title>
-    <meta name="description" content="Apply for CLSU scholarships online. A.E.G.I.S. (Automated Grade Integrity System) is Central Luzon State University's official scholarship management portal with AI-powered grade verification, real-time application tracking, and secure document management.">
-    <meta name="keywords" content="CLSU scholarship, Central Luzon State University, scholarship portal, A.E.G.I.S., scholarship application, Philippines scholarship">
-    <meta name="author" content="Central Luzon State University — Office of Student Affairs">
+    <title>{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} — {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} Scholarship Portal</title>
+    <meta name="description" content="Apply for {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} scholarships online. {{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} is the official scholarship management portal with AI-powered grade verification, real-time application tracking, and secure document management.">
+    <meta name="keywords" content="scholarship, {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}, scholarship portal, {{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}, scholarship application, Philippines scholarship">
+    <meta name="author" content="{{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} — Office of Student Affairs">
     <meta name="robots" content="index, follow">
 
     {{-- Canonical URL --}}
     <link rel="canonical" href="{{ url('/') }}">
 
     {{-- Favicon: WebP for modern browsers, PNG fallback --}}
-    <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
-    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
+    <link rel="icon" type="image/webp" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
+    <link rel="icon" type="image/png" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.png') }}">
 
     {{-- Open Graph (Facebook, LinkedIn) --}}
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:title" content="A.E.G.I.S. — CLSU Scholarship Portal">
-    <meta property="og:description" content="Apply for CLSU scholarships online. Official scholarship management portal with AI-powered grade verification and real-time application tracking.">
-    <meta property="og:image" content="{{ asset('logo.webp') }}">
+    <meta property="og:title" content="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} — {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} Scholarship Portal">
+    <meta property="og:description" content="Apply for {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} scholarships online. Official scholarship management portal with AI-powered grade verification and real-time application tracking.">
+    <meta property="og:image" content="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
     <meta property="og:locale" content="en_PH">
-    <meta property="og:site_name" content="A.E.G.I.S. CLSU Scholarship Portal">
+    <meta property="og:site_name" content="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} {{ \App\Models\Setting::get('university_name', 'CLSU') }} Scholarship Portal">
 
     {{-- Twitter Card --}}
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="A.E.G.I.S. — CLSU Scholarship Portal">
-    <meta name="twitter:description" content="Apply for CLSU scholarships online with AI-powered grade verification and real-time tracking.">
-    <meta name="twitter:image" content="{{ asset('logo.webp') }}">
+    <meta name="twitter:title" content="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} — {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} Scholarship Portal">
+    <meta name="twitter:description" content="Apply for {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} scholarships online with AI-powered grade verification and real-time tracking.">
+    <meta name="twitter:image" content="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
 
     {{-- JSON-LD Structured Data --}}
     <script type="application/ld+json">
@@ -787,12 +787,16 @@
 <nav class="site-nav">
     <div class="container">
         <a href="{{ route('welcome') }}" class="nav-brand">
-            <div class="nav-brand-icon">
-                <i class="fa-solid fa-shield-halved"></i>
+            <div class="nav-brand-icon d-flex align-items-center justify-content-center" style="overflow: hidden;">
+                @if(\App\Models\Setting::get('app_logo'))
+                    <img src="{{ route('system.logo') }}" style="width: 20px; height: 20px; object-fit: contain;">
+                @else
+                    <i class="fa-solid fa-shield-halved"></i>
+                @endif
             </div>
             <div class="nav-brand-text">
-                <span class="nav-brand-name">A.E.G.I.S.</span>
-                <span class="nav-brand-sub">CLSU Scholarship Portal</span>
+                <span class="nav-brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}</span>
+                <span class="nav-brand-sub">{{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} Portal</span>
             </div>
         </a>
 

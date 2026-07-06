@@ -13,16 +13,16 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="@yield('meta_description', 'A.E.G.I.S. is Central Luzon State University\'s official scholarship management portal. Apply for scholarships, track your application status, and receive real-time updates.')">
     <meta name="robots" content="noindex, nofollow">
-    <title>@yield('title', 'A.E.G.I.S. Portal') — CLSU Scholarship System</title>
-    <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
-    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
+    <title>@yield('title', \App\Models\Setting::get('app_name', 'A.E.G.I.S.') . ' Portal') — {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}</title>
+    <link rel="icon" type="image/webp" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
+    <link rel="icon" type="image/png" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.png') }}">
 
     {{-- Open Graph meta --}}
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="A.E.G.I.S. CLSU Scholarship Portal">
-    <meta property="og:title" content="@yield('title', 'A.E.G.I.S. Portal') — CLSU Scholarship System">
-    <meta property="og:description" content="@yield('meta_description', 'Central Luzon State University\'s official scholarship management portal.')">
-    <meta property="og:image" content="{{ asset('logo.webp') }}">
+    <meta property="og:site_name" content="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Scholarship Portal">
+    <meta property="og:title" content="@yield('title', \App\Models\Setting::get('app_name', 'A.E.G.I.S.') . ' Portal')">
+    <meta property="og:description" content="@yield('meta_description', \App\Models\Setting::get('university_name', 'Central Luzon State University') . '\'s official scholarship management portal.')">
+    <meta property="og:image" content="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
     <meta property="og:locale" content="en_PH">
 
     {{-- Preconnect to CDN origins (reduces DNS + TLS overhead) --}}
@@ -788,11 +788,15 @@
     <aside class="sidebar" id="mainSidebar" role="complementary" aria-label="Application navigation sidebar">
         <!-- Brand -->
         <a href="#" class="sidebar-brand text-decoration-none">
-            <div class="sidebar-brand-icon">
-                <i class="fa-solid fa-shield-halved text-dark fs-5"></i>
+            <div class="sidebar-brand-icon d-flex align-items-center justify-content-center">
+                @if(\App\Models\Setting::get('app_logo'))
+                    <img src="{{ route('system.logo') }}" style="width: 24px; height: 24px; object-fit: contain;">
+                @else
+                    <i class="fa-solid fa-shield-halved text-dark fs-5"></i>
+                @endif
             </div>
             <div class="sidebar-brand-text">
-                <span class="sidebar-brand-name">A.E.G.I.S.</span>
+                <span class="sidebar-brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}</span>
                 <span class="sidebar-brand-sub">OSA Portal</span>
             </div>
         </a>
@@ -876,6 +880,12 @@
                    data-tooltip="Trash">
                     <span class="sidebar-icon"><i class="fa-solid fa-trash-can"></i></span>
                     <span class="sidebar-text">System Trash</span>
+                </a>
+                <a href="{{ route('superadmin.settings') }}" 
+                   class="sidebar-link {{ request()->routeIs('superadmin.settings') ? 'active' : '' }}"
+                   data-tooltip="Settings">
+                    <span class="sidebar-icon"><i class="fa-solid fa-gears text-success"></i></span>
+                    <span class="sidebar-text">System Settings</span>
                 </a>
 
             @elseif(auth()->user()->role === 'student')

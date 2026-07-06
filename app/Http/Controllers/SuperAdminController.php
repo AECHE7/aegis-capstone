@@ -516,4 +516,41 @@ class SuperAdminController extends Controller
         }
         return back()->with('success', 'Staff member account permanently deleted.');
     }
+
+    public function settings()
+    {
+        $settings = [
+            'app_name' => \App\Models\Setting::get('app_name', 'A.E.G.I.S.'),
+            'university_name' => \App\Models\Setting::get('university_name', 'Central Luzon State University'),
+            'ai_fraud_threshold' => \App\Models\Setting::get('ai_fraud_threshold', '50.0'),
+            'gwa_discrepancy_tolerance' => \App\Models\Setting::get('gwa_discrepancy_tolerance', '0.01'),
+            'app_logo' => \App\Models\Setting::get('app_logo'),
+        ];
+        return view('superadmin.settings', compact('settings'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'app_name' => 'required|string|max:255',
+            'university_name' => 'required|string|max:255',
+            'ai_fraud_threshold' => 'required|numeric|min:0|max:100',
+            'gwa_discrepancy_tolerance' => 'required|numeric|min:0|max:5',
+            'app_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+        ]);
+
+        \App\Models\Setting::set('app_name', $request->app_name);
+        \App\Models\Setting::set('university_name', $request->university_name);
+        \App\Models\Setting::set('ai_fraud_threshold', $request->ai_fraud_threshold);
+        \App\Models\Setting::set('gwa_discrepancy_tolerance', $request->gwa_discrepancy_tolerance);
+
+        if ($request->boolean('reset_logo')) {
+            \App\Models\Setting::set('app_logo', null);
+        } elseif ($request->hasFile('app_logo')) {
+            $logoPath = \App\Services\CloudStorageService::upload($request->file('app_logo'));
+            \App\Models\Setting::set('app_logo', $logoPath);
+        }
+
+        return back()->with('success', 'System settings updated successfully.');
+    }
 }

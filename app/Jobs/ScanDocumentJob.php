@@ -92,13 +92,17 @@ class ScanDocumentJob implements ShouldQueue
                 if ($response->successful()) {
                     $result = $response->json();
                     $extractedGwa = $result['extracted_gwa'] ?? null;
-                    $fraudProbability = $result['fraud_probability'] ?? 0.00;
-                    $classification = $result['classification'] ?? 'Authentic';
+                    $fraudProbability = (float) ($result['fraud_probability'] ?? 0.00);
+
+                    // Determine classification dynamically based on db threshold setting
+                    $thresholdSetting = (float) \App\Models\Setting::get('ai_fraud_threshold', 50.0);
+                    $classification = $fraudProbability >= $thresholdSetting ? 'tampered' : ($result['classification'] ?? 'Authentic');
 
                     // GWA Integrity Validation (Logical Fraud Detection)
                     if ($extractedGwa !== null && !empty($application->gwa)) {
                         $declaredGwa = (float) $application->gwa;
-                        if (abs($declaredGwa - (float)$extractedGwa) > 0.01) {
+                        $gwaTolerance = (float) \App\Models\Setting::get('gwa_discrepancy_tolerance', 0.01);
+                        if (abs($declaredGwa - (float)$extractedGwa) > $gwaTolerance) {
                             $fraudProbability = 99.00;
                             $classification = 'Tampered (Grade Discrepancy)';
                             Log::warning("ScanDocumentJob: GWA mismatch detected for Application ID {$application->id}. Declared: {$declaredGwa}, Extracted: {$extractedGwa}");

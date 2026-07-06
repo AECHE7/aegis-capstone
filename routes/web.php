@@ -46,7 +46,19 @@ Route::get('/robots.txt', function () {
     return response($content, 200)->header('Content-Type', 'text/plain');
 });
 
-
+Route::get('/system/logo', function () {
+    $logoPath = \App\Models\Setting::get('app_logo');
+    if (empty($logoPath)) {
+        abort(404);
+    }
+    if (str_starts_with($logoPath, 'http')) {
+        return redirect($logoPath);
+    }
+    if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($logoPath)) {
+        abort(404);
+    }
+    return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($logoPath));
+})->name('system.logo');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
@@ -160,6 +172,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/audit-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportAuditPdf'])->name('superadmin.audit.pdf');
         Route::get('/email-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportEmailLogCsv'])->name('superadmin.emaillog.csv');
         Route::get('/email-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportEmailLogPdf'])->name('superadmin.emaillog.pdf');
+
+        // Dynamic System Settings Panel
+        Route::get('/settings', [SuperAdminController::class, 'settings'])->name('superadmin.settings');
+        Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
     });
 
     // SECURE FILE VIEWING

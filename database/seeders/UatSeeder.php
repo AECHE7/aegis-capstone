@@ -69,6 +69,13 @@ class UatSeeder extends Seeder
             ]);
         }
 
+        // 6. Ensure Default Settings exist
+        \App\Models\Setting::firstOrCreate(['key' => 'app_name'], ['value' => 'A.E.G.I.S.']);
+        \App\Models\Setting::firstOrCreate(['key' => 'university_name'], ['value' => 'Central Luzon State University']);
+        \App\Models\Setting::firstOrCreate(['key' => 'ai_fraud_threshold'], ['value' => '50.0']);
+        \App\Models\Setting::firstOrCreate(['key' => 'gwa_discrepancy_tolerance'], ['value' => '0.01']);
+        \App\Models\Setting::firstOrCreate(['key' => 'app_logo'], ['value' => null]);
+
         $this->command->info('Database cleaned! Ready for manual student registration.');
     }
 }

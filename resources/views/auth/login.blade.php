@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.E.G.I.S. | Secure Gateway</title>
-    <meta name="description" content="Securely sign in to the A.E.G.I.S. CLSU Scholarship Portal to apply for grants, check your application queue, and verify grades.">
-    <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
-    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
+    <title>{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} | Secure Gateway</title>
+    <meta name="description" content="Securely sign in to the {{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }} Scholarship Portal to apply for grants, check your application queue, and verify grades.">
+    <link rel="icon" type="image/webp" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
+    <link rel="icon" type="image/png" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.png') }}">
 
     {{-- Preconnect hints --}}
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -490,12 +490,16 @@
 
         <!-- Hero footer -->
         <div class="hero-footer mt-4">
-            <div class="brand-circle">
-                <i class="fa-solid fa-shield-halved text-white"></i>
+            <div class="brand-circle d-flex align-items-center justify-content-center" style="overflow: hidden;">
+                @if(\App\Models\Setting::get('app_logo'))
+                    <img src="{{ route('system.logo') }}" style="width: 24px; height: 24px; object-fit: contain;">
+                @else
+                    <i class="fa-solid fa-shield-halved text-white"></i>
+                @endif
             </div>
             <div>
-                <div class="brand-name">A.E.G.I.S. Portal</div>
-                <div class="brand-sub">Automated Evaluation & Grading Intelligence System</div>
+                <div class="brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Portal</div>
+                <div class="brand-sub">{{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}</div>
             </div>
         </div>
 
