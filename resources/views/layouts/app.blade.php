@@ -781,6 +781,13 @@
                     <span class="sidebar-text">Application Queue</span>
                 </a>
 
+                <a href="{{ route('admin.announcements.index') }}" 
+                   class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
+                   data-tooltip="Announcements">
+                    <span class="sidebar-icon"><i class="fa-solid fa-bullhorn text-warning"></i></span>
+                    <span class="sidebar-text">Announcements</span>
+                </a>
+
                 <div class="sidebar-label mt-2">Reports</div>
                 <a href="{{ route('admin.export') }}" 
                    class="sidebar-link"
@@ -814,6 +821,12 @@
                    data-tooltip="Staff">
                     <span class="sidebar-icon"><i class="fa-solid fa-users-gear"></i></span>
                     <span class="sidebar-text">Staff Accounts</span>
+                </a>
+                <a href="{{ route('admin.announcements.index') }}" 
+                   class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
+                   data-tooltip="Announcements">
+                    <span class="sidebar-icon"><i class="fa-solid fa-bullhorn text-warning"></i></span>
+                    <span class="sidebar-text">Announcements</span>
                 </a>
                 <a href="{{ route('superadmin.trash') }}" 
                    class="sidebar-link {{ request()->routeIs('superadmin.trash') ? 'active' : '' }}"

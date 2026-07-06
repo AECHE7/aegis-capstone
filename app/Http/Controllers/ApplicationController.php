@@ -22,14 +22,15 @@ class ApplicationController extends Controller
             ->latest()
             ->first();
 
-        // Fetch soft-deleted (cancelled) applications for this student
         $cancelledApplications = Application::onlyTrashed()
             ->with(['academicTerm'])
             ->where('user_id', $userId)
             ->orderBy('deleted_at', 'desc')
             ->get();
 
-        return view('student.dashboard', compact('application', 'cancelledApplications'));
+        $announcements = \App\Models\Announcement::with('author')->latest()->take(3)->get();
+
+        return view('student.dashboard', compact('application', 'cancelledApplications', 'announcements'));
     }
 
     // 1. Load the Application Form

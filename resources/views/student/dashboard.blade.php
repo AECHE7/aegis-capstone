@@ -139,6 +139,34 @@
 @section('content')
 <div class="container-fluid px-0" style="max-width: 1040px; margin: 0 auto; padding: 1.5rem 1rem 3rem;">
 
+    {{-- Official Announcements Section --}}
+    @if(isset($announcements) && $announcements->count() > 0)
+        <div class="mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="fa-solid fa-bullhorn text-warning"></i>
+                <h6 class="fw-bold mb-0 text-dark" style="font-size:0.9rem; letter-spacing: 0.5px;">Official Announcements</h6>
+            </div>
+            <div class="row g-3">
+                @foreach($announcements as $ann)
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm p-3 position-relative" style="border-radius: 12px; border-left: 4px solid var(--clsu-gold) !important; background: #fffbeb;">
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                                <h6 class="fw-bold text-dark mb-1" style="font-size:0.875rem;">{{ $ann->title }}</h6>
+                                <span class="text-muted monospace-data" style="font-size: 0.65rem; white-space: nowrap;">
+                                    {{ $ann->created_at->format('M d, Y') }}
+                                </span>
+                            </div>
+                            <p class="text-muted mb-2 small" style="line-height:1.45; font-size: 0.8rem;">{!! nl2br(e($ann->content)) !!}</p>
+                            <div class="text-muted" style="font-size: 0.68rem; font-weight: 550;">
+                                Broadcasted by: <span class="text-dark">{{ $ann->author->name ?? 'Office of Student Affairs' }}</span> ({{ ucfirst($ann->author->role ?? 'Staff') }})
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     @if($application)
         @php
             $statusClass = match($application->status) {
