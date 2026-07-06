@@ -412,3 +412,24 @@ To transition the project from its current MVP setup to a robust, production-rea
   4. Ensure smooth touchscreen drawer navigation and click handlers.
   5. Validate via PHPUnit tests.
 
+### Phase 41: Cloudflare R2 Cloud Storage & Dual-Engine AI Fraud Detection - [COMPLETED]
+- **Goal:** Implement persistent cloud storage via Cloudflare R2 with local fallback, and upgrade the AI pipeline with GWA logical mismatch checking.
+- **Steps:**
+  1. Register the `r2` disk in `config/filesystems.php` (completed).
+  2. Implement `CloudStorageService.php` to manage local/R2 hybrid uploads on the fly (completed).
+  3. Update secure file viewing and application controllers to save and redirect to R2 CDN URLs (completed).
+  4. Integrate `pypdf` inside Flask microservice `aegis-ai/app.py` for GWA text extraction (completed).
+  5. Implement logical grade mismatch checks inside `ScanDocumentJob.php` to auto-flag grade discrepant files at 99.00% fraud probability (completed).
+  6. Verify functionality with `CloudStorageTest.php` and `GradeDiscrepancyFraudTest.php` (completed).
+
+### Phase 42: Dynamic System Settings Panel - [COMPLETED]
+- **Goal:** Build a database-driven settings manager to control application names, university branding, custom logo assets, and AI thresholds at runtime.
+- **Steps:**
+  1. Create a `settings` database migration and corresponding cached `Setting` model (completed).
+  2. Add public `/system/logo` route to render custom logos from local or cloud storage dynamically (completed).
+  3. Build the `superadmin.settings` view panel for branding inputs and AI range sliders (completed).
+  4. Integrate `Setting::get` config variables in document scanning jobs, layouts, headers, and guest welcome pages (completed).
+  5. Enforce role authorization gates on settings routes and verify with `SystemSettingsTest.php` (completed).
+  6. Run full project test suite ensuring all 107 tests are green (completed).
+
+
