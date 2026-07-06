@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A.E.G.I.S. | Secure Gateway</title>
+    <meta name="description" content="Securely sign in to the A.E.G.I.S. CLSU Scholarship Portal to apply for grants, check your application queue, and verify grades.">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
     <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
 
@@ -127,7 +129,7 @@
         .hero-desc {
             font-size: 0.9rem;
             line-height: 1.7;
-            opacity: 0.75;
+            opacity: 0.88;
             max-width: 460px;
             margin-bottom: 32px;
         }
@@ -167,7 +169,7 @@
         }
 
         .feature-title { font-size: 0.85rem; font-weight: 700; margin: 0; }
-        .feature-sub { font-size: 0.75rem; opacity: 0.65; margin: 0; }
+        .feature-sub { font-size: 0.75rem; opacity: 0.85; margin: 0; }
 
         /* ── STATS ROW ────────────────────────────── */
         .stats-row {
@@ -193,7 +195,7 @@
             margin-bottom: 4px;
         }
 
-        .stat-lbl { font-size: 0.68rem; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-lbl { font-size: 0.68rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* ── SCAN TERMINAL ────────────────────────── */
         .scan-terminal {
@@ -349,7 +351,8 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            color: #cbd5e1;
+            color: #475569;
+            font-weight: 600;
             font-size: 0.78rem;
             margin: 24px 0 16px;
         }
@@ -370,7 +373,7 @@
             padding: 10px 8px;
             font-size: 0.82rem;
             font-weight: 600;
-            color: #475569;
+            color: #334155;
             cursor: pointer;
             display: flex;
             flex-direction: column;
@@ -401,6 +404,7 @@
 </head>
 <body>
 
+<main>
 <div class="split">
 
     <!-- ── LEFT: HERO PANEL ─────────────────────────── -->
@@ -525,7 +529,7 @@
             @endauth
 
             <div class="mb-4">
-                <h3 class="fw-bold text-dark mb-1">Welcome Back</h3>
+                <h2 class="h4 fw-bold text-dark mb-1">Welcome Back</h2>
                 <p class="text-muted" style="font-size: 0.88rem;">Enter your credentials to access the portal.</p>
             </div>
 
@@ -554,7 +558,7 @@
                     <label for="passwordInput">
                         <i class="fa-solid fa-lock me-2 text-muted" style="font-size: 0.8rem;"></i>Password
                     </label>
-                    <button type="button" onclick="togglePwd()"
+                    <button type="button" onclick="togglePwd()" aria-label="Toggle password visibility"
                             style="position:absolute;top:50%;right:14px;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;z-index:10;">
                         <i class="fa-solid fa-eye" id="eyeIcon"></i>
                     </button>
@@ -744,5 +748,6 @@
     });
 </script>
 
+</main>
 </body>
 </html>
