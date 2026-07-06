@@ -261,7 +261,7 @@
             box-shadow: 0 0 0 3px rgba(12,78,45,0.1);
         }
 
-        .form-floating > label { color: #94a3b8; font-weight: 500; font-size: 0.9rem; }
+        .form-floating > label { color: #334155; font-weight: 500; font-size: 0.9rem; }
 
         /* Password strength bar */
         .strength-bar {
@@ -282,7 +282,7 @@
         .strength-label {
             font-size: 0.72rem;
             margin-top: 4px;
-            color: #94a3b8;
+            color: #475569;
             transition: color 0.2s;
         }
 
@@ -310,7 +310,7 @@
         /* Email hint */
         .email-hint {
             font-size: 0.75rem;
-            color: #94a3b8;
+            color: #475569;
             margin-top: 5px;
             padding-left: 2px;
         }
@@ -330,6 +330,7 @@
 </head>
 <body>
 
+<main>
 <div class="split">
 
     <!-- ── LEFT: HERO PANEL ─────────────────────────── -->
@@ -414,7 +415,7 @@
         <div class="form-box">
 
             <div class="mb-4">
-                <h3 class="fw-bold text-dark mb-1">Get Started</h3>
+                <h2 class="h4 fw-bold text-dark mb-1">Get Started</h2>
                 <p class="text-muted" style="font-size: 0.88rem;">Enter your details to register as a student.</p>
             </div>
 
@@ -574,5 +575,6 @@
     }
 </script>
 
+</main>
 </body>
 </html>
