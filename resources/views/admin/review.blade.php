@@ -146,7 +146,7 @@
                 <span class="info-chip"><i class="fa-solid fa-user text-primary"></i> {{ $application->user->name ?? 'Unknown' }}</span>
                 <span class="info-chip"><i class="fa-solid fa-id-card text-primary"></i> <span class="monospace-data">{{ $application->user->profile?->clsu_id_number ?? 'N/A' }}</span></span>
                 <span class="info-chip"><i class="fa-solid fa-graduation-cap text-primary"></i> {{ $application->user->profile?->course ?? 'N/A' }} — {{ $application->user->profile?->year_level ?? 'N/A' }}</span>
-                <span class="info-chip"><i class="fa-solid fa-star text-warning"></i> GWA: <strong class="monospace-data">{{ $application->gwa }}</strong></span>
+                <span class="info-chip"><i class="fa-solid fa-star text-warning"></i> GWA: <strong class="monospace-data">{{ $application->gwa !== null ? number_format($application->gwa, 2) : 'N/A' }}</strong></span>
             </div>
         </div>
         <div>
@@ -421,80 +421,90 @@
     {{-- RIGHT: Document Viewer --}}
     <div class="col-lg-8">
         <div class="card p-4 h-100">
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-2">
-                <div>
-                    <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-images text-primary me-2"></i> Document Forensics Viewer</h6>
-                    <small class="text-muted">Click images to enlarge</small>
+            @if($application->documents->isEmpty())
+                <div class="text-center py-5 my-auto">
+                    <div style="width:80px;height:80px;border-radius:50%;background:var(--clsu-bg);display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border-color);" class="mb-3">
+                        <i class="fa-solid fa-folder-open fa-2x text-muted" style="opacity:0.6;"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1">No Documents Uploaded</h6>
+                    <p class="text-muted small mb-0">This program does not require any document submissions.</p>
                 </div>
-                @if($application->documents->count() > 1)
-                    <div class="d-flex align-items-center gap-2">
-                        <label class="small fw-bold text-muted mb-0 me-1" for="docSelector"><i class="fa-solid fa-file-invoice"></i> Document:</label>
-                        <select class="form-select form-select-sm" id="docSelector" style="width: auto; font-size: 0.8rem; border-radius: 8px;">
-                            @foreach($application->documents as $doc)
-                                <option value="{{ $doc->id }}">{{ $doc->document_type }}</option>
-                            @endforeach
-                        </select>
+            @else
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-2">
+                    <div>
+                        <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-images text-primary me-2"></i> Document Forensics Viewer</h6>
+                        <small class="text-muted">Click images to enlarge</small>
                     </div>
-                @endif
-            </div>
-
-            @foreach($application->documents as $doc)
-                @php
-                    $hasAiResult = $doc->aiResult;
-                    $isScanning  = $hasAiResult && $doc->aiResult->classification === 'scanning';
-                    $isFailed    = $hasAiResult && $doc->aiResult->classification === 'failed';
-                    $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $doc->aiResult->fraud_probability : 0;
-                    $riskClass   = $fraudScore >= 70 ? 'danger' : ($fraudScore >= 40 ? 'warning' : 'success');
-                @endphp
-                <div class="doc-viewer-wrapper" id="viewer-doc-{{ $doc->id }}" style="display: {{ $loop->first ? 'block' : 'none' }};">
-                    <div class="d-flex justify-content-end mb-3">
-                        <a href="{{ route('admin.document.download', $doc->id) }}"
-                           class="btn btn-sm btn-light fw-semibold rounded-pill px-3"
-                           style="font-size:0.78rem;border:1px solid #e2e8f0;white-space:nowrap;">
-                            <i class="fa-solid fa-download me-1"></i> Download {{ $doc->document_type }}
-                        </a>
-                    </div>
-                    <div class="row g-3">
-                        {{-- Original --}}
-                        <div class="col-md-6">
-                            <div class="viewer-box">
-                                <div class="viewer-label"><i class="fa-solid fa-file me-1"></i> Original {{ $doc->document_type }}</div>
-                                <img src="{{ route('document.view', $doc->id) }}"
-                                     alt="Original Student Document" class="img-zoomable"
-                                     onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found'"
-                                     onclick="openLightbox(this.src)">
-                            </div>
+                    @if($application->documents->count() > 1)
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small fw-bold text-muted mb-0 me-1" for="docSelector"><i class="fa-solid fa-file-invoice"></i> Document:</label>
+                            <select class="form-select form-select-sm" id="docSelector" style="width: auto; font-size: 0.8rem; border-radius: 8px;">
+                                @foreach($application->documents as $doc)
+                                    <option value="{{ $doc->id }}">{{ $doc->document_type }}</option>
+                                @endforeach
+                            </select>
                         </div>
+                    @endif
+                </div>
 
-                        {{-- Heatmap --}}
-                        <div class="col-md-6">
-                            <div class="viewer-box {{ $riskClass }}-box">
-                                <div class="viewer-label"><i class="fa-solid fa-fire me-1"></i> Grad-CAM Heatmap</div>
-                                @if($isScanning)
-                                    <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
-                                        <i class="fa-solid fa-spinner fa-spin fa-3x text-primary mb-2"></i>
-                                        <small class="text-muted">AI Scanning in progress...</small>
-                                    </div>
-                                @elseif($isFailed)
-                                    <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
-                                        <i class="fa-solid fa-triangle-exclamation fa-3x text-danger mb-2 opacity-50"></i>
-                                        <small class="text-muted">Scan failed. Please retry.</small>
-                                    </div>
-                                @elseif($hasAiResult)
-                                    <img src="{{ route('document.heatmap', $doc->id) }}"
-                                         alt="AI Heatmap Overlay" class="img-zoomable"
+                @foreach($application->documents as $doc)
+                    @php
+                        $hasAiResult = $doc->aiResult;
+                        $isScanning  = $hasAiResult && $doc->aiResult->classification === 'scanning';
+                        $isFailed    = $hasAiResult && $doc->aiResult->classification === 'failed';
+                        $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $doc->aiResult->fraud_probability : 0;
+                        $riskClass   = $fraudScore >= 70 ? 'danger' : ($fraudScore >= 40 ? 'warning' : 'success');
+                    @endphp
+                    <div class="doc-viewer-wrapper" id="viewer-doc-{{ $doc->id }}" style="display: {{ $loop->first ? 'block' : 'none' }};">
+                        <div class="d-flex justify-content-end mb-3">
+                            <a href="{{ route('admin.document.download', $doc->id) }}"
+                               class="btn btn-sm btn-light fw-semibold rounded-pill px-3"
+                               style="font-size:0.78rem;border:1px solid #e2e8f0;white-space:nowrap;">
+                                <i class="fa-solid fa-download me-1"></i> Download {{ $doc->document_type }}
+                            </a>
+                        </div>
+                        <div class="row g-3">
+                            {{-- Original --}}
+                            <div class="col-md-6">
+                                <div class="viewer-box">
+                                    <div class="viewer-label"><i class="fa-solid fa-file me-1"></i> Original {{ $doc->document_type }}</div>
+                                    <img src="{{ route('document.view', $doc->id) }}"
+                                         alt="Original Student Document" class="img-zoomable"
+                                         onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found'"
                                          onclick="openLightbox(this.src)">
-                                @else
-                                    <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
-                                        <i class="fa-solid fa-robot fa-3x text-danger mb-2 opacity-25"></i>
-                                        <small class="text-muted">Awaiting AI scan execution</small>
-                                    </div>
-                                @endif
+                                </div>
+                            </div>
+
+                            {{-- Heatmap --}}
+                            <div class="col-md-6">
+                                <div class="viewer-box {{ $riskClass }}-box">
+                                    <div class="viewer-label"><i class="fa-solid fa-fire me-1"></i> Grad-CAM Heatmap</div>
+                                    @if($isScanning)
+                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                            <i class="fa-solid fa-spinner fa-spin fa-3x text-primary mb-2"></i>
+                                            <small class="text-muted">AI Scanning in progress...</small>
+                                        </div>
+                                    @elseif($isFailed)
+                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                            <i class="fa-solid fa-triangle-exclamation fa-3x text-danger mb-2 opacity-50"></i>
+                                            <small class="text-muted">Scan failed. Please retry.</small>
+                                        </div>
+                                    @elseif($hasAiResult)
+                                        <img src="{{ route('document.heatmap', $doc->id) }}"
+                                             alt="AI Heatmap Overlay" class="img-zoomable"
+                                             onclick="openLightbox(this.src)">
+                                    @else
+                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                            <i class="fa-solid fa-robot fa-3x text-danger mb-2 opacity-25"></i>
+                                            <small class="text-muted">Awaiting AI scan execution</small>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            @endif
 
             {{-- Footer explanation --}}
             <div class="mt-4 rounded-3 p-3 small text-muted" style="background:#f8fafc;border:1px solid #e2e8f0;">

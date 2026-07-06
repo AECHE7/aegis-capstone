@@ -80,7 +80,7 @@ class ReportController extends Controller
                     $app->user->profile?->course ?? 'N/A',
                     $app->user->profile?->year_level ?? 'N/A',
                     $app->program_name,
-                    $app->gwa,
+                    $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A',
                     $app->status,
                     $app->created_at->format('Y-m-d')
                 ];

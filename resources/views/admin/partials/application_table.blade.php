@@ -74,7 +74,7 @@
                     <div class="fw-medium text-dark" style="font-size:0.875rem;">{{ $app->program_name }}</div>
                 </td>
                 <td class="text-center">
-                    <span class="badge rounded-pill px-2 py-1 fw-bold monospace-data" style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid var(--border-color);">{{ $app->gwa }}</span>
+                    <span class="badge rounded-pill px-2 py-1 fw-bold monospace-data" style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid var(--border-color);">{{ $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A' }}</span>
                 </td>
                 <td class="text-center">
                     @if($app->document && $app->document->aiResult && !in_array($app->document->aiResult->classification, ['scanning','failed']))

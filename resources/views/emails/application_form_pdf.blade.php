@@ -574,14 +574,14 @@
             </tr>
             <tr>
                 <td style="font-weight: bold; padding: 1px 0; color: #475569;">GWA Integrity Check:</td>
-                <td style="font-weight: bold; padding: 1px 0; color: #0f5934;">GWA {{ number_format($application->gwa, 2) }} (Valid)</td>
+                <td style="font-weight: bold; padding: 1px 0; color: #0f5934;">{{ $application->gwa !== null ? 'GWA ' . number_format($application->gwa, 2) . ' (Valid)' : 'N/A' }}</td>
                 <td style="font-weight: bold; padding: 1px 0; color: #475569;">Tampering Risk Score:</td>
                 <td style="font-weight: bold; padding: 1px 0; color: #0f172a;">{{ number_format($fraudScore, 2) }}% Probability</td>
             </tr>
             <tr>
                 <td style="font-weight: bold; padding: 1px 0; color: #475569;">Remarks / Audit Logs:</td>
                 <td colspan="3" style="color: #64748b; font-style: italic; padding: 1px 0;">
-                    {{ $application->remarks ?: 'Grade document metadata cleared. No unauthorized edits detected. Applicant meets GWA criteria.' }}
+                    {{ $application->remarks ?: ($application->gwa !== null ? 'Grade document metadata cleared. No unauthorized edits detected. Applicant meets GWA criteria.' : 'Document requirements verified.') }}
                 </td>
             </tr>
         </table>

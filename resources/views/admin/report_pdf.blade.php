@@ -85,7 +85,7 @@
                 <td>{{ $app->user->name ?? 'Unknown' }}</td>
                 <td>{{ $app->user->profile?->clsu_id_number ?? 'N/A' }}</td>
                 <td>{{ $app->program_name }}</td>
-                <td>{{ $app->gwa }}</td>
+                <td>{{ $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A' }}</td>
                 <td>{{ $app->status }}</td>
                 <td>{{ $app->created_at->format('M d, Y') }}</td>
             </tr>

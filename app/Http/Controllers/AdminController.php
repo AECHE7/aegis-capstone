@@ -341,7 +341,7 @@ class AdminController extends Controller
                     $app->user->profile->course ?? 'N/A',
                     $app->user->profile->year_level ?? 'N/A',
                     $app->program_name,
-                    $app->gwa,
+                    $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A',
                     $app->updated_at->format('M d, Y')
                 ];
                 fputcsv($file, $row); // Write data row

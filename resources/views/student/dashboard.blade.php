@@ -341,6 +341,7 @@
                         </div>
                         @endif
                         
+                        @if($application->gwa !== null)
                         <div class="border-bottom pb-2">
                             <div class="small fw-semibold text-muted mb-1">Submitted GWA</div>
                             <div>
@@ -349,19 +350,18 @@
                                 </span>
                             </div>
                         </div>
+                        @endif
                         
+                        @if($application->document !== null)
                         <div class="border-bottom pb-2">
                             <div class="small fw-semibold text-muted mb-1">Certificate of Grades (COG)</div>
                             <div>
-                                @if($application->document)
-                                    <a href="{{ route('document.view', $application->document->id) }}" target="_blank" class="btn btn-sm btn-outline-success py-1 px-3 fw-bold" style="border-radius: 8px; font-size: 0.75rem;">
-                                        <i class="fa-solid fa-file-pdf me-1"></i> View Submitted COG
-                                    </a>
-                                @else
-                                    <span class="text-muted small">No document uploaded.</span>
-                                @endif
+                                <a href="{{ route('document.view', $application->document->id) }}" target="_blank" class="btn btn-sm btn-outline-success py-1 px-3 fw-bold" style="border-radius: 8px; font-size: 0.75rem;">
+                                    <i class="fa-solid fa-file-pdf me-1"></i> View Submitted COG
+                                </a>
                             </div>
                         </div>
+                        @endif
                         
                         @if($application->customFields && $application->customFields->count() > 0)
                             <div class="mt-2">

@@ -53,7 +53,7 @@
                         </tr>
                         <tr style="border-bottom: 1px solid #eeeeee;">
                             <td style="padding: 6px 0; font-weight: bold; color: #6c757d;">Declared GWA:</td>
-                            <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">{{ $application->gwa }}</td>
+                            <td style="padding: 6px 0; font-weight: bold; font-family: monospace;">{{ $application->gwa !== null ? number_format($application->gwa, 2) : 'N/A' }}</td>
                         </tr>
                         @if($application->customFields && $application->customFields->count() > 0)
                             @foreach($application->customFields as $field)
@@ -70,7 +70,7 @@
             @endif
 
             <p style="margin-top: 30px;">Reference ID: <strong style="font-family: monospace;">APP-{{ $application->id }}</strong><br>
-            Declared GWA: <strong style="font-family: monospace;">{{ $application->gwa }}</strong></p>
+            Declared GWA: <strong style="font-family: monospace;">{{ $application->gwa !== null ? number_format($application->gwa, 2) : 'N/A' }}</strong></p>
         </div>
 
         <div class="footer">
