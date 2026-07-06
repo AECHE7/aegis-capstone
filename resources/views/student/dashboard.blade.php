@@ -133,6 +133,20 @@
             padding: 10px 12px;
         }
     }
+
+    @media (max-width: 480px) {
+        .step-node {
+            width: 32px !important;
+            height: 32px !important;
+            border-width: 2px !important;
+        }
+        .step-node i {
+            font-size: 0.68rem !important;
+        }
+        .step-track + div {
+            font-size: 0.6rem !important;
+        }
+    }
 </style>
 @endpush
 

@@ -127,7 +127,7 @@
 
     <div class="row g-4">
         {{-- LEFT: Form --}}
-        <div class="col-lg-7">
+        <div class="col-lg-7 order-last order-lg-first">
             <div class="card p-4" style="border-radius: 20px;">
                 <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" id="applicationForm">
                     @csrf
@@ -222,7 +222,7 @@
         </div>
 
         {{-- RIGHT: Tips Panel --}}
-        <div class="col-lg-5">
+        <div class="col-lg-5 order-first order-lg-last">
             {{-- Application Checklist Card --}}
             <div class="card p-4 mb-3 border-0 shadow-sm" style="border-radius:16px;">
                 <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-list-check text-success me-2"></i> Application Checklist</h6>

@@ -544,6 +544,25 @@
             }
         }
 
+        @media (max-width: 575.98px) {
+            .topbar-subtitle {
+                display: none !important;
+            }
+            .topbar-title {
+                font-size: 0.85rem !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 170px;
+            }
+            .topbar {
+                padding: 0.5rem 1rem !important;
+            }
+            .page-content {
+                padding: 1rem 0.75rem 2.5rem !important;
+            }
+        }
+
         @endif
         @endauth
 

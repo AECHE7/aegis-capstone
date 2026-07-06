@@ -402,3 +402,13 @@ To transition the project from its current MVP setup to a robust, production-rea
   8. Interactive per-scholarship Director snapshot statistics table on the analytics dashboard (completed).
   9. Add test suites validating all conditions (completed).
 
+### Phase 40: Mobile View UI/UX Optimization - [COMPLETED]
+- **Goal:** Improve mobile-view layout, responsiveness, and usability for student-facing features and global navigation.
+- **Core Skills Applied:** Frontend & UX Design (Skill 3), Responsive Design System (Skill 7).
+- **Steps:**
+  1. Add responsive column ordering (`order-first order-lg-last`) to student apply page (`student/apply.blade.php`) to keep completeness checklist at the top on mobile.
+  2. Add fluid media queries to adjust font size and wrap spacing for title/subtitle on screens under `576px` in topbar (`layouts/app.blade.php`).
+  3. Optimize Pizza Tracker status badge sizes and font scales in `student/dashboard.blade.php` to prevent text squishing on narrow devices.
+  4. Ensure smooth touchscreen drawer navigation and click handlers.
+  5. Validate via PHPUnit tests.
+
