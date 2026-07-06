@@ -68,6 +68,21 @@ class ApplicationController extends Controller
 
         $scholarship = \App\Models\Scholarship::with('fields')->findOrFail($request->scholarship_id);
 
+        // Renewal limit check
+        $approvedCount = \App\Models\Application::where('user_id', $userId)
+            ->where('scholarship_id', $scholarship->id)
+            ->where('status', 'Approved')
+            ->count();
+
+        $maxRenewals = $scholarship->max_renewals ?? 4;
+        if ($approvedCount >= $maxRenewals) {
+            $msg = 'Application Blocked: You have reached the maximum renewal limit (' . $maxRenewals . ') for the ' . $scholarship->name . '.';
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return back()->withErrors(['renewal_limit' => $msg])->withInput();
+        }
+
         if ($request->gwa > $scholarship->min_gwa_required) {
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([

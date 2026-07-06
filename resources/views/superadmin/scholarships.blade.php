@@ -25,6 +25,7 @@
                     <th class="ps-4">Program Name</th>
                     <th>Description</th>
                     <th class="text-center">Max GWA</th>
+                    <th class="text-center">Max Renewals</th>
                     <th class="text-center">Status</th>
                     <th class="pe-4 text-end">Action</th>
                 </tr>
@@ -41,6 +42,11 @@
                     <td class="text-center">
                         <span style="background:#fef9c3;color:#a16207;border:1px solid #fde047;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
                             <i class="fa-solid fa-star me-1" style="font-size:0.6rem;"></i> ≤ {{ $scholarship->min_gwa_required }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <span style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
+                            <i class="fa-solid fa-rotate me-1" style="font-size:0.6rem;"></i> {{ $scholarship->max_renewals ?? 4 }}
                         </span>
                     </td>
                     <td class="text-center">
@@ -117,13 +123,17 @@
                         {{-- Left Column: Form Builder --}}
                         <div class="col-lg-7 border-end pe-lg-4">
                             <div class="row g-3 mb-3">
-                                <div class="col-md-8">
+                                <div class="col-md-6">
                                     <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
                                     <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label fw-semibold small text-muted" for="gwaRequirement">Maximum GWA</label>
                                     <input type="number" step="0.01" min="1.00" max="5.00" name="min_gwa_required" id="gwaRequirement" class="form-control" required placeholder="e.g., 1.75">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold small text-muted" for="maxRenewals">Max Renewals</label>
+                                    <input type="number" min="1" max="12" name="max_renewals" id="maxRenewals" class="form-control" required value="4" placeholder="e.g., 4">
                                 </div>
                             </div>
                             <div class="mb-3">

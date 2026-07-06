@@ -39,7 +39,10 @@
     <table class="table mb-0" style="border-collapse: separate;">
         <thead>
             <tr>
-                <th class="ps-4">Ref ID</th>
+                <th class="ps-4" style="width: 45px; text-align: center; vertical-align: middle;">
+                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="cursor: pointer; transform: scale(1.15);">
+                </th>
+                <th>Ref ID</th>
                 <th>Applicant</th>
                 <th>Program / Grant</th>
                 <th class="text-center">GWA</th>
@@ -51,8 +54,11 @@
         </thead>
         <tbody>
             @foreach($applications as $app)
-            <tr onclick="window.location='{{ route('admin.review', $app->id) }}'" style="cursor:pointer;">
-                <td class="ps-4">
+            <tr onclick="window.location='{{ route('admin.review', $app->id) }}'" style="cursor:pointer;" class="app-row" data-id="{{ $app->id }}">
+                <td class="ps-4 text-center" onclick="event.stopPropagation();" style="vertical-align: middle;">
+                    <input type="checkbox" class="app-checkbox" value="{{ $app->id }}" onchange="toggleAppSelect(this)" style="cursor: pointer; transform: scale(1.15);">
+                </td>
+                <td>
                     <span class="fw-bold text-dark monospace-data" style="font-size:0.8rem;">APP-{{ $app->id }}</span>
                 </td>
                 <td>
@@ -90,6 +96,12 @@
                         <span class="status-badge pending"><i class="fa-solid fa-hourglass-half" style="font-size:0.65rem;"></i> Pending</span>
                     @elseif($app->status == 'Under Review')
                         <span class="status-badge review"><i class="fa-solid fa-magnifying-glass" style="font-size:0.65rem;"></i> Under Review</span>
+                        @php $days = $app->updated_at ? $app->updated_at->diffInDays(now()) : 0; @endphp
+                        @if($days >= 7)
+                            <span class="status-badge bg-danger text-white ms-1" style="font-size: 0.7rem; padding: 2px 8px; border: 1px solid #dc2626;" title="Review pending for 7+ days"><i class="fa-solid fa-circle-exclamation" style="font-size:0.65rem;"></i> Critical</span>
+                        @elseif($days >= 3)
+                            <span class="status-badge bg-warning text-dark ms-1" style="font-size: 0.7rem; padding: 2px 8px; border: 1px solid #d97706;" title="Review pending for 3+ days"><i class="fa-solid fa-triangle-exclamation" style="font-size:0.65rem;"></i> Overdue</span>
+                        @endif
                     @elseif($app->status == 'Approved')
                         <span class="status-badge approved"><i class="fa-solid fa-check" style="font-size:0.65rem;"></i> Approved</span>
                     @else

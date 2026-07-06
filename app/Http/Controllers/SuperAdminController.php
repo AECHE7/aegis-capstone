@@ -22,6 +22,7 @@ class SuperAdminController extends Controller
             'description' => 'nullable|string',
             'min_gwa_required' => 'required|numeric|min:1.00|max:5.00',
             'deadline' => 'nullable|date',
+            'max_renewals' => 'nullable|integer|min:1|max:12',
             'fields' => 'nullable|array',
             'fields.*.label' => 'required|string|max:255',
             'fields.*.type' => 'required|in:text,number,textarea,select,file',
@@ -34,6 +35,7 @@ class SuperAdminController extends Controller
             'description' => $request->description,
             'min_gwa_required' => $request->min_gwa_required,
             'deadline' => $request->deadline,
+            'max_renewals' => $request->max_renewals ?? 4,
             'status' => 'Active'
         ]);
 
@@ -167,6 +169,37 @@ class SuperAdminController extends Controller
                 ->count();
         }
 
+        // 8. Per-Scholarship Program Breakdown Stats
+        $scholarshipsBreakdown = \App\Models\Scholarship::with(['applications.documents.aiResult'])->get()->map(function($scholarship) {
+            $apps = $scholarship->applications;
+            
+            $approvedApps = $apps->where('status', 'Approved');
+            $avgGwaApproved = $approvedApps->avg('gwa') ?? 0;
+            
+            $fraudScores = [];
+            foreach ($apps as $app) {
+                foreach ($app->documents as $doc) {
+                    if ($doc->aiResult && $doc->aiResult->classification !== 'scanning') {
+                        $fraudScores[] = $doc->aiResult->fraud_probability;
+                    }
+                }
+            }
+            $avgFraud = count($fraudScores) > 0 ? (array_sum($fraudScores) / count($fraudScores)) : 0;
+
+            return [
+                'name' => $scholarship->name,
+                'status' => $scholarship->status,
+                'min_gwa' => $scholarship->min_gwa_required,
+                'max_renew' => $scholarship->max_renewals ?? 4,
+                'total_apps' => $apps->count(),
+                'approved_count' => $approvedApps->count(),
+                'rejected_count' => $apps->where('status', 'Rejected')->count(),
+                'pending_count' => $apps->whereIn('status', ['Pending', 'Under Review'])->count(),
+                'avg_gwa_approved' => round($avgGwaApproved, 2),
+                'avg_fraud' => round($avgFraud, 1)
+            ];
+        });
+
         // Pass the new variables to dashboard
         return view('superadmin.analytics', compact(
             'totalStudents', 
@@ -178,7 +211,8 @@ class SuperAdminController extends Controller
             'uatStats',
             'statusCounts',
             'riskTiers',
-            'monthlyTrend'
+            'monthlyTrend',
+            'scholarshipsBreakdown'
         ));
     }
 

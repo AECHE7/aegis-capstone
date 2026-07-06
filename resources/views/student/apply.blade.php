@@ -223,6 +223,25 @@
 
         {{-- RIGHT: Tips Panel --}}
         <div class="col-lg-5">
+            {{-- Application Checklist Card --}}
+            <div class="card p-4 mb-3 border-0 shadow-sm" style="border-radius:16px;">
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-list-check text-success me-2"></i> Application Checklist</h6>
+                <div id="checklistItems" class="d-flex flex-column gap-2 small">
+                    <div class="d-flex align-items-center justify-content-between" id="chkScholarship">
+                        <span class="text-muted">1. Select Scholarship</span>
+                        <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between" id="chkGwa">
+                        <span class="text-muted">2. Declared GWA</span>
+                        <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between" id="chkDocument">
+                        <span class="text-muted">3. Upload COG</span>
+                        <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>
+                    </div>
+                </div>
+            </div>
+
             <div class="tips-panel mb-3">
                 <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i> Submission Tips</h6>
                 <div class="tip-item">
@@ -350,6 +369,8 @@
                         input.name = `custom_fields[${field.field_name}]`;
                         if (field.is_required) {
                             input.setAttribute('required', 'required');
+                            input.classList.add('required-custom-field');
+                            input.dataset.label = field.field_label;
                         }
                         
                         formGroup.appendChild(input);
@@ -358,10 +379,92 @@
                 } else {
                     container.style.display = 'none';
                 }
+                updateChecklist();
             })
             .catch(err => {
                 console.error('Error fetching dynamic fields:', err);
+                updateChecklist();
             });
+    }
+
+    function updateChecklist() {
+        const chkScholarship = document.getElementById('chkScholarship');
+        const chkGwa = document.getElementById('chkGwa');
+        const chkDocument = document.getElementById('chkDocument');
+        const submitBtn = document.getElementById('submitBtn');
+
+        let allValid = true;
+
+        // 1. Scholarship selected check
+        const schId = document.getElementById('scholarshipIdInput').value;
+        if (schId) {
+            chkScholarship.querySelector('.badge').className = 'badge bg-success rounded-pill';
+            chkScholarship.querySelector('.badge i').className = 'fa-solid fa-check';
+            chkScholarship.querySelector('span').className = 'text-dark fw-semibold';
+        } else {
+            chkScholarship.querySelector('.badge').className = 'badge bg-danger rounded-pill';
+            chkScholarship.querySelector('.badge i').className = 'fa-solid fa-xmark';
+            chkScholarship.querySelector('span').className = 'text-muted';
+            allValid = false;
+        }
+
+        // 2. GWA check
+        const gwaVal = parseFloat(document.getElementById('gwaInput').value);
+        const gwaValid = !isNaN(gwaVal) && gwaVal >= 1.00 && gwaVal <= 5.00 && (!selectedScholarshipGwa || gwaVal <= selectedScholarshipGwa);
+        if (gwaValid) {
+            chkGwa.querySelector('.badge').className = 'badge bg-success rounded-pill';
+            chkGwa.querySelector('.badge i').className = 'fa-solid fa-check';
+            chkGwa.querySelector('span').className = 'text-dark fw-semibold';
+        } else {
+            chkGwa.querySelector('.badge').className = 'badge bg-danger rounded-pill';
+            chkGwa.querySelector('.badge i').className = 'fa-solid fa-xmark';
+            chkGwa.querySelector('span').className = 'text-muted';
+            allValid = false;
+        }
+
+        // 3. Document check
+        const docUpload = document.getElementById('documentUpload');
+        if (docUpload.files && docUpload.files.length > 0) {
+            chkDocument.querySelector('.badge').className = 'badge bg-success rounded-pill';
+            chkDocument.querySelector('.badge i').className = 'fa-solid fa-check';
+            chkDocument.querySelector('span').className = 'text-dark fw-semibold';
+        } else {
+            chkDocument.querySelector('.badge').className = 'badge bg-danger rounded-pill';
+            chkDocument.querySelector('.badge i').className = 'fa-solid fa-xmark';
+            chkDocument.querySelector('span').className = 'text-muted';
+            allValid = false;
+        }
+
+        // 4. Dynamic custom fields checks
+        const customReqFields = document.querySelectorAll('.required-custom-field');
+        // Remove existing dynamic checklist items
+        document.querySelectorAll('.dynamic-checklist-item').forEach(el => el.remove());
+
+        customReqFields.forEach(input => {
+            let isFilled = false;
+            if (input.type === 'file') {
+                isFilled = input.files && input.files.length > 0;
+            } else {
+                isFilled = input.value.trim() !== '';
+            }
+
+            if (!isFilled) {
+                allValid = false;
+            }
+
+            const checklistItems = document.getElementById('checklistItems');
+            const item = document.createElement('div');
+            item.className = 'd-flex align-items-center justify-content-between dynamic-checklist-item';
+            item.innerHTML = `
+                <span class="${isFilled ? 'text-dark fw-semibold' : 'text-muted'}">${input.dataset.label}</span>
+                <span class="badge ${isFilled ? 'bg-success' : 'bg-danger'} rounded-pill">
+                    <i class="fa-solid ${isFilled ? 'fa-check' : 'fa-xmark'}"></i>
+                </span>
+            `;
+            checklistItems.appendChild(item);
+        });
+
+        submitBtn.disabled = !allValid;
     }
 
     function checkEligibility() {
@@ -371,6 +474,7 @@
 
         if (!selectedScholarshipGwa || isNaN(gwaVal)) {
             badge.style.display = 'none';
+            updateChecklist();
             return;
         }
 
@@ -378,12 +482,10 @@
 
         if (gwaVal <= selectedScholarshipGwa) {
             badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.8rem;font-weight:600;"><i class="fa-solid fa-circle-check"></i> GWA eligible — you qualify for this program</span>`;
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('disabled');
         } else {
             badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.8rem;font-weight:600;"><i class="fa-solid fa-circle-xmark"></i> GWA ${gwaVal.toFixed(2)} exceeds the max of ${selectedScholarshipGwa.toFixed(2)} for this program</span>`;
-            submitBtn.disabled = true;
         }
+        updateChecklist();
     }
 
     function handleFile(input) {
@@ -404,9 +506,11 @@
             placeholder.style.display = 'none';
             preview.style.display = 'block';
             zone.classList.add('has-file');
+            updateChecklist();
         };
         reader.readAsDataURL(file);
     }
+
 
     function clearFile(e) {
         e.stopPropagation();
@@ -416,7 +520,17 @@
         document.getElementById('uploadPreview').style.display = 'none';
         document.getElementById('uploadZone').classList.remove('has-file');
         document.getElementById('previewImg').style.display = 'none';
+        updateChecklist();
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateChecklist();
+        const dynamicBody = document.getElementById('dynamicFieldsBody');
+        if (dynamicBody) {
+            dynamicBody.addEventListener('input', updateChecklist);
+            dynamicBody.addEventListener('change', updateChecklist);
+        }
+    });
 
     // Drag and drop
     const zone = document.getElementById('uploadZone');

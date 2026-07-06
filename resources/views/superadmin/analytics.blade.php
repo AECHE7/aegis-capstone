@@ -248,6 +248,71 @@
     </div>
 </div>
 
+{{-- Phase 40: Per-Scholarship Program Breakdown Stats --}}
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card p-4" style="border-radius:16px;">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-square-poll-horizontal text-primary me-2"></i> Program Breakdown Snapshot</h6>
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle" style="font-size:0.875rem;">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Scholarship Program</th>
+                            <th class="text-center">Limit/Max</th>
+                            <th class="text-center">Applicants</th>
+                            <th class="text-center">Approved</th>
+                            <th class="text-center">Rejected</th>
+                            <th class="text-center">Pending / Review</th>
+                            <th class="text-center">Avg GWA Approved</th>
+                            <th class="pe-4 text-end">Avg AI Fraud Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($scholarshipsBreakdown as $sb)
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-semibold text-dark">{{ $sb['name'] }}</div>
+                                <div class="text-muted" style="font-size:0.75rem;">
+                                    @if($sb['status'] === 'Active')
+                                        <span class="text-success"><i class="fa-solid fa-circle-dot fs-9"></i> Open</span>
+                                    @else
+                                        <span class="text-danger"><i class="fa-solid fa-circle-dot fs-9"></i> Closed</span>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="small">Max GWA: <strong>≤ {{ $sb['min_gwa'] }}</strong></div>
+                                <div class="text-muted small">Max Renewals: <strong>{{ $sb['max_renew'] }}</strong></div>
+                            </td>
+                            <td class="text-center fw-semibold monospace-data">{{ $sb['total_apps'] }}</td>
+                            <td class="text-center text-success fw-bold monospace-data">{{ $sb['approved_count'] }}</td>
+                            <td class="text-center text-danger fw-bold monospace-data">{{ $sb['rejected_count'] }}</td>
+                            <td class="text-center text-warning fw-semibold monospace-data">{{ $sb['pending_count'] }}</td>
+                            <td class="text-center monospace-data">
+                                @if($sb['avg_gwa_approved'] > 0)
+                                    <span class="badge rounded-pill bg-light text-dark px-2.5 py-1 border border-color">{{ $sb['avg_gwa_approved'] }}</span>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
+                            <td class="pe-4 text-end">
+                                @if($sb['total_apps'] > 0)
+                                    <span class="fraud-chip monospace-data {{ $sb['avg_fraud'] >= 70 ? 'fraud-high' : ($sb['avg_fraud'] >= 40 ? 'fraud-mod' : 'fraud-low') }}">
+                                        {{ $sb['avg_fraud'] }}%
+                                    </span>
+                                @else
+                                    <span class="text-muted small">No data</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Phase 33: Audit History Log Exports Card --}}
 <div class="row g-3 mt-2 mb-4">
     <div class="col-12">

@@ -349,6 +349,73 @@
             </div>
         </div>
         @endif
+
+        {{-- Staff Notes Card --}}
+        <div class="card p-4 mt-3 border-0 shadow-sm" style="border-radius:16px;">
+            <h6 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-note-sticky text-warning me-2"></i> Staff Notes (Private)</h6>
+            <p class="text-muted mb-3" style="font-size:0.75rem;">Internal review notes. Student cannot see this. Auto-saves on focus out.</p>
+            <div class="position-relative">
+                <textarea id="staffNotesTextarea" class="form-control" rows="4" 
+                          placeholder="Write comments, cross-referencing notes, or verification details here..." 
+                          style="resize:none; font-size:0.82rem; border-radius:10px;"
+                          onblur="saveStaffNotes(this.value)">{{ $application->admin_notes }}</textarea>
+                <div id="notesSaveIndicator" class="position-absolute bottom-0 end-0 mb-2 me-2 text-success d-none" style="font-size:0.72rem; pointer-events: none;">
+                    <i class="fa-solid fa-circle-check"></i> Saved
+                </div>
+            </div>
+        </div>
+
+        {{-- Scholarship History Card --}}
+        <div class="card p-4 mt-3 border-0 shadow-sm" style="border-radius:16px;">
+            <h6 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-clock-rotate-left text-info me-2"></i> Scholarship History</h6>
+            @php
+                $histApprovedCount = $history->where('status', 'Approved')->count() + ($application->status === 'Approved' ? 1 : 0);
+                $maxRenew = $scholarship->max_renewals ?? 4;
+            @endphp
+            <p class="text-muted mb-3" style="font-size:0.75rem;">
+                Student has <strong class="text-dark">{{ $histApprovedCount }} approved</strong> application(s) of {{ $maxRenew }} max renewals.
+            </p>
+            
+            @if($history->isEmpty())
+                <div class="text-center py-3 text-muted small bg-light rounded-3">
+                    No prior applications found for this scholarship.
+                </div>
+            @else
+                <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                    <table class="table table-sm mb-0" style="font-size:0.78rem;">
+                        <thead>
+                            <tr>
+                                <th>Term</th>
+                                <th class="text-center">GWA</th>
+                                <th class="text-end">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($history as $histApp)
+                            <tr>
+                                <td class="text-muted" style="font-size: 0.72rem;">
+                                    {{ $histApp->academicTerm?->semester ?? 'N/A' }}<br>
+                                    <small>{{ $histApp->academicTerm?->academic_year ?? 'N/A' }}</small>
+                                </td>
+                                <td class="text-center monospace-data" style="vertical-align: middle;">{{ $histApp->gwa }}</td>
+                                <td class="text-end" style="vertical-align: middle;">
+                                    @if($histApp->status === 'Approved')
+                                        <span class="badge bg-success text-success bg-opacity-10 border border-success border-opacity-20 rounded-pill px-2" style="font-size:0.68rem;">Approved</span>
+                                    @elseif($histApp->status === 'Rejected')
+                                        <span class="badge bg-danger text-danger bg-opacity-10 border border-danger border-opacity-20 rounded-pill px-2" style="font-size:0.68rem;">Rejected</span>
+                                    @elseif($histApp->status === 'Under Review')
+                                        <span class="badge bg-info text-info bg-opacity-10 border border-info border-opacity-20 rounded-pill px-2" style="font-size:0.68rem;">Review</span>
+                                    @else
+                                        <span class="badge bg-secondary text-secondary bg-opacity-10 border border-secondary border-opacity-20 rounded-pill px-2" style="font-size:0.68rem;">{{ $histApp->status }}</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
     </div>
 
     {{-- RIGHT: Document Viewer --}}
@@ -713,6 +780,35 @@
                 }
             }
         });
+    }
+    async function saveStaffNotes(notes) {
+        const indicator = document.getElementById('notesSaveIndicator');
+        if (!indicator) return;
+
+        try {
+            const response = await fetch("{{ route('admin.applications.save-notes', $application->id) }}", {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    admin_notes: notes
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                indicator.classList.remove('d-none');
+                setTimeout(() => {
+                    indicator.classList.add('d-none');
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Failed to save staff notes:', error);
+        }
     }
 </script>
 @endpush

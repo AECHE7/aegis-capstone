@@ -113,11 +113,11 @@
 <div class="filter-bar mb-4">
     <form action="{{ route('admin.dashboard') }}" method="GET">
         <div class="row g-3 align-items-end">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label fw-semibold small text-muted mb-1" for="searchInput"><i class="fa-solid fa-magnifying-glass me-1"></i> Search</label>
-                <input type="text" name="search" id="searchInput" class="form-control" value="{{ request('search') }}" placeholder="Name, ID, or Program..." autocomplete="off">
+                <input type="text" name="search" id="searchInput" class="form-control" value="{{ request('search') }}" placeholder="Search..." autocomplete="off">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label fw-semibold small text-muted mb-1" for="scholarshipSelect"><i class="fa-solid fa-graduation-cap me-1"></i> Scholarship</label>
                 <select name="scholarship_id" id="scholarshipSelect" class="form-select">
                     <option value="">All Programs</option>
@@ -138,7 +138,7 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-semibold small text-muted mb-1" for="academicPeriodSelect"><i class="fa-solid fa-calendar me-1"></i> Academic Period</label>
+                <label class="form-label fw-semibold small text-muted mb-1" for="academicPeriodSelect"><i class="fa-solid fa-calendar me-1"></i> Period</label>
                 <select name="academic_term_id" id="academicPeriodSelect" class="form-select">
                     <option value="">All Periods</option>
                     @foreach($academicTerms as $term)
@@ -146,6 +146,13 @@
                             {{ $term->semester }}, SY {{ $term->academic_year }}
                         </option>
                     @endforeach
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small text-muted mb-1" for="sortSelect"><i class="fa-solid fa-arrow-down-wide-short me-1"></i> Sort By</label>
+                <select name="sort" id="sortSelect" class="form-select">
+                    <option value="">Newest</option>
+                    <option value="priority" {{ request('sort') === 'priority' ? 'selected' : '' }}>🔥 AEGIS Priority</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex gap-2">
@@ -165,6 +172,23 @@
     @include('admin.partials.application_table')
 </div>
 
+{{-- Floating Bulk Action Bar --}}
+<div id="bulkActionBar" class="position-fixed bottom-0 start-50 translate-middle-x mb-4 bg-white border border-color rounded-4 p-3 shadow-lg d-none align-items-center gap-3" style="z-index: 1050; min-width: 500px; transition: all 0.3s ease; border-width: 1.5px !important;">
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-success rounded-pill px-2.5 py-1.5 fs-7" id="selectedCountBadge">0</span>
+        <span class="small fw-semibold text-dark">selected</span>
+    </div>
+    <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+    <div class="d-flex align-items-center gap-2 flex-grow-1">
+        <select id="bulkStatusSelect" class="form-select form-select-sm" style="border-radius: 8px; width: 140px;">
+            <option value="">Choose action...</option>
+            <option value="Approved">✅ Approve</option>
+            <option value="Rejected">❌ Reject</option>
+        </select>
+        <input type="text" id="bulkRemarksInput" class="form-control form-control-sm" placeholder="Bulk process remarks (optional)..." style="border-radius: 8px;" />
+        <button class="btn btn-sm btn-success px-3 fw-bold" onclick="submitBulkAction()" style="border-radius: 8px;">Apply</button>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -209,6 +233,7 @@
     const scholarshipSelect = document.getElementById('scholarshipSelect');
     const statusSelect = document.getElementById('statusSelect');
     const academicPeriodSelect = document.getElementById('academicPeriodSelect');
+    const sortSelect = document.getElementById('sortSelect');
     
     let debounceTimer;
     let currentArchivedState = "{{ request('archived') == '1' ? '1' : '0' }}";
@@ -219,6 +244,7 @@
         if (scholarshipSelect.value) params.set('scholarship_id', scholarshipSelect.value);
         if (statusSelect.value) params.set('status', statusSelect.value);
         if (academicPeriodSelect.value) params.set('academic_term_id', academicPeriodSelect.value);
+        if (sortSelect && sortSelect.value) params.set('sort', sortSelect.value);
         if (currentArchivedState === '1') params.set('archived', '1');
         params.set('page', page);
         return params.toString();
@@ -261,6 +287,11 @@
 
             // Sync address bar
             window.history.pushState({}, '', url);
+            
+            // Reset bulk actions bar selection state
+            const selectAll = document.getElementById('selectAllCheckbox');
+            if (selectAll) selectAll.checked = false;
+            updateBulkActionBar();
         } catch (error) {
             console.error('AJAX Load Error:', error);
             tableContainer.style.opacity = '1';
@@ -278,8 +309,10 @@
         debounceTimer = setTimeout(() => reloadQueue(), 300);
     });
 
-    [scholarshipSelect, statusSelect, academicPeriodSelect].forEach(select => {
-        select.addEventListener('change', () => reloadQueue());
+    [scholarshipSelect, statusSelect, academicPeriodSelect, sortSelect].forEach(select => {
+        if (select) {
+            select.addEventListener('change', () => reloadQueue());
+        }
     });
 
     // Handle pagination links click via event delegation
@@ -360,5 +393,141 @@
             }
         }
     });
+
+    // ── Bulk Actions Handlers ──────────────────────────
+    function toggleSelectAll(selectAllInput) {
+        const checkboxes = document.querySelectorAll('.app-checkbox');
+        checkboxes.forEach(cb => {
+            cb.checked = selectAllInput.checked;
+        });
+        updateBulkActionBar();
+    }
+
+    function toggleAppSelect(checkboxInput) {
+        const selectAll = document.getElementById('selectAllCheckbox');
+        const checkboxes = document.querySelectorAll('.app-checkbox');
+        
+        // Update select all state
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        if (selectAll) selectAll.checked = allChecked;
+
+        updateBulkActionBar();
+    }
+
+    function updateBulkActionBar() {
+        const bar = document.getElementById('bulkActionBar');
+        const badge = document.getElementById('selectedCountBadge');
+        const checkedBoxes = document.querySelectorAll('.app-checkbox:checked');
+        const count = checkedBoxes.length;
+
+        if (count > 0) {
+            badge.textContent = count;
+            bar.classList.remove('d-none');
+            bar.classList.add('d-flex');
+        } else {
+            bar.classList.remove('d-flex');
+            bar.classList.add('d-none');
+        }
+    }
+
+    async function submitBulkAction() {
+        const statusSelect = document.getElementById('bulkStatusSelect');
+        const remarksInput = document.getElementById('bulkRemarksInput');
+        const checkedBoxes = document.querySelectorAll('.app-checkbox:checked');
+        
+        const status = statusSelect.value;
+        if (!status) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Action Selected',
+                text: 'Please select whether to Approve or Reject the selected applications.',
+                confirmButtonColor: '#ca8a04',
+                customClass: { popup: 'rounded-4' }
+            });
+            return;
+        }
+
+        const ids = Array.from(checkedBoxes).map(cb => cb.value);
+        
+        // Show confirm dialog
+        const result = await Swal.fire({
+            title: `Bulk Process Applications?`,
+            text: `You are about to set ${ids.length} application(s) status to "${status}". This action will notify all selected applicants.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0F5934',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, proceed',
+            customClass: { popup: 'rounded-4' }
+        });
+
+        if (!result.isConfirmed) return;
+
+        // Perform AJAX request
+        Swal.fire({
+            title: 'Processing Request',
+            html: 'Updating status and sending notification emails in background...',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            customClass: { popup: 'rounded-4' },
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch("{{ route('admin.applications.bulk-action') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    application_ids: ids,
+                    status: status,
+                    remarks: remarksInput.value
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Bulk Process Completed',
+                    text: data.message,
+                    confirmButtonColor: '#0F5934',
+                    customClass: { popup: 'rounded-4' }
+                });
+                
+                // Hide actions bar
+                document.getElementById('bulkStatusSelect').value = '';
+                document.getElementById('bulkRemarksInput').value = '';
+                updateBulkActionBar();
+                
+                // Reload current page of queue
+                const activePage = document.querySelector('.pagination .active span')?.textContent || 1;
+                reloadQueue(activePage);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Bulk Processing Failed',
+                    text: data.message || 'An error occurred while processing bulk request.',
+                    confirmButtonColor: '#dc2626',
+                    customClass: { popup: 'rounded-4' }
+                });
+            }
+        } catch (error) {
+            console.error('Bulk Action Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Request Failed',
+                text: 'A connection issue occurred. Please try again.',
+                confirmButtonColor: '#dc2626',
+                customClass: { popup: 'rounded-4' }
+            });
+        }
+    }
 </script>
 @endpush

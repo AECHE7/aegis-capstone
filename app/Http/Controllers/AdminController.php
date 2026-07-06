@@ -70,8 +70,22 @@ class AdminController extends Controller
             });
         }
 
-        $applications = $query->orderBy('created_at', 'desc')
-                            ->paginate(15)
+        if ($request->query('sort') === 'priority') {
+            $query->leftJoin('documents', function ($join) {
+                $join->on('applications.id', '=', 'documents.application_id')
+                     ->where('documents.document_type', '=', 'COG');
+            })
+            ->leftJoin('a_i_results', 'documents.id', '=', 'a_i_results.document_id')
+            ->select('applications.*')
+            ->orderByRaw('CASE WHEN a_i_results.fraud_probability >= 50.00 THEN 0 ELSE 1 END ASC')
+            ->orderByRaw('CASE WHEN applications.status = "Under Review" THEN 0 ELSE 1 END ASC')
+            ->orderByRaw('CASE WHEN applications.status = "Under Review" THEN applications.updated_at ELSE NULL END ASC')
+            ->orderBy('applications.created_at', 'desc');
+        } else {
+            $query->orderBy('applications.created_at', 'desc');
+        }
+
+        $applications = $query->paginate(15)
                             ->withQueryString();
 
         // 2. Calculate the real-time analytics for the top cards (only active applications)
@@ -188,7 +202,16 @@ class AdminController extends Controller
             $application->load('documents.aiResult');
         }
 
-        return view('admin.review', compact('application'));
+        $history = Application::where('user_id', $application->user_id)
+            ->where('scholarship_id', $application->scholarship_id)
+            ->where('id', '!=', $application->id)
+            ->with('academicTerm')
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        $scholarship = $application->scholarship;
+
+        return view('admin.review', compact('application', 'history', 'scholarship'));
     }
 
     // 2.5. Restore soft-deleted application (Admin Action)
@@ -440,5 +463,87 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dashboard')
             ->with('success', 'Application APP-' . $application->id . ' has been unarchived successfully.');
+    }
+
+    // 6. Bulk Action (Approve / Reject)
+    public function bulkAction(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'required|exists:applications,id',
+            'status' => 'required|in:Approved,Rejected',
+            'remarks' => 'nullable|string'
+        ]);
+
+        $status = $request->status;
+        $remarks = $request->remarks ?? 'Bulk processed by OSA Administrator.';
+        $evaluatorId = auth()->id() ?? 2;
+
+        $count = 0;
+        foreach ($request->application_ids as $id) {
+            $application = Application::findOrFail($id);
+            
+            try {
+                $this->validateAdminAccess($application);
+            } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+                continue; // Skip unauthorized
+            }
+
+            $application->update([
+                'status' => $status,
+                'remarks' => $remarks,
+                'evaluated_by' => $evaluatorId
+            ]);
+
+            \App\Models\StatusLog::create([
+                'application_id' => $application->id,
+                'status' => $status,
+                'remarks' => $remarks,
+                'changed_by' => $evaluatorId
+            ]);
+
+            try {
+                if ($application->user) {
+                    $application->user->notify(new \App\Notifications\ApplicationStatusNotification($application));
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send bulk database notification: ' . $e->getMessage());
+            }
+
+            try {
+                if ($application->user && $application->user->email) {
+                    \App\Jobs\SendBulkStatusEmailJob::dispatch($application->id);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to dispatch bulk email job: ' . $e->getMessage());
+            }
+
+            $count++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Successfully processed {$count} application(s) as {$status}."
+        ]);
+    }
+
+    // 7. Save Admin Notes (AJAX)
+    public function saveNotes(\Illuminate\Http\Request $request, $id)
+    {
+        $request->validate([
+            'admin_notes' => 'nullable|string'
+        ]);
+
+        $application = Application::findOrFail($id);
+        $this->validateAdminAccess($application);
+
+        $application->update([
+            'admin_notes' => $request->admin_notes
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Staff notes updated successfully.'
+        ]);
     }
 }

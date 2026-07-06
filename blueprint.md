@@ -368,12 +368,37 @@ To transition the project from its current MVP setup to a robust, production-rea
   1. Optimize `streamNotifications` in `AuthController.php` to release the session lock via `session_write_close()` before entering the loop, and limit the maximum loop execution time to 30 seconds.
   2. Modify client-side notification script in `layouts/app.blade.php` to use lightweight AJAX polling (every 20 seconds) instead of persistent SSE connection to prevent worker process starvation.
   3. Verify all changes with the existing `RealtimeNotificationsTest.php` suite.
-### Phase 37: Soft Delete & Hard Delete Management - [IN PROGRESS]
+### Phase 37: Soft Delete & Hard Delete Management - [COMPLETED]
 - **Goal:** Implement soft-delete and hard-delete operations across all user roles (Student, Admin, Director) while maintaining database referential integrity.
 - **Core Skills Applied:** Database Integrity (Skill 12), Authorization Gates (Skill 7).
 - **Steps:**
-  1. Generate database migrations adding `deleted_at` columns to `applications`, `scholarships`, and `users` tables.
-  2. Implement `SoftDeletes` traits in models and handle cache-busting triggers.
-  3. Define delete, restore, and force-delete routes and controller methods.
-  4. Create student cancellation/withdrawal workflows, admin queue filters, and a centralized superadmin trash dashboard.
-  5. Validate with feature tests.
+  1. Generate database migrations adding `deleted_at` columns to `applications`, `scholarships`, and `users` tables (completed).
+  2. Implement `SoftDeletes` traits in models and handle cache-busting triggers (completed).
+  3. Define delete, restore, and force-delete routes and controller methods (completed).
+  4. Create student cancellation/withdrawal workflows, admin queue filters, and a centralized superadmin trash dashboard (completed).
+  5. Validate with feature tests (completed).
+
+### Phase 38: Multi-Document AI Scans & Credentials Reflection - [COMPLETED]
+- **Goal:** Support dynamic AI scans across multiple custom file uploads and reflect credentials and custom fields in PDF and email outputs.
+- **Core Skills Applied:** Deep Learning Integration (Skill 9), Security & Integrity (Skill 7).
+- **Steps:**
+  1. Add `documents()` relationship to Application model supporting multiple uploads (completed).
+  2. Refactor ScanDocumentJob to iterate and run forensics analysis on all uploaded files (completed).
+  3. Add a document switcher dropdown in Admin Review view to preview ELA and fraud metrics for each file (completed).
+  4. Eager load and embed custom field answers and credentials directly inside approved email and PDF form templates (completed).
+  5. Write feature test validation (completed).
+
+### Phase 39: OSA Workload Reduction & Smart Review Portal - [COMPLETED]
+- **Goal:** Reduce OSA workloads through automatic scholarship expiry actions, real-time checklist validation, bulk approval/rejection queues, overdue flags, and renewals limit blocks.
+- **Core Skills Applied:** Cron Job Scheduling (Skill 9), Queue Optimization (Skill 11), AJAX (Skill 12).
+- **Steps:**
+  1. GWA Real-time warning on student application form (completed).
+  2. Mandatory completeness checklist verification before submission (completed).
+  3. Scheduler command to automatically close expired scholarships and archive pending applications (completed).
+  4. Bulk approve / bulk reject endpoints with authorization checks (completed).
+  5. Priority sorting (anomalies first, then oldest) and color-coded Overdue badges (3 days and 7 days) on Admin queue (completed).
+  6. Internal AJAX-saving staff notes panel on review page (completed).
+  7. Maximum renewals limit block validation and historic applications table panel in evaluation view (completed).
+  8. Interactive per-scholarship Director snapshot statistics table on the analytics dashboard (completed).
+  9. Add test suites validating all conditions (completed).
+

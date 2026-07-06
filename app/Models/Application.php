@@ -18,6 +18,7 @@ class Application extends Model
         'gwa', 
         'status',
         'remarks',
+        'admin_notes',
         'evaluated_by',
         'is_archived',
     ];

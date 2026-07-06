@@ -13,6 +13,20 @@ Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/login', [AuthController::class, 'showLogin']); 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
+Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
+    $expectedKey = env('SCHEDULER_KEY', 'aegis_cron_secret');
+    if ($request->query('key') !== $expectedKey) {
+        abort(403, 'Unauthorized');
+    }
+    \Illuminate\Support\Facades\Artisan::call('scholarships:close-expired');
+    $output = \Illuminate\Support\Facades\Artisan::output();
+    return response()->json([
+        'success' => true,
+        'message' => 'Scheduler run complete.',
+        'output' => trim($output)
+    ]);
+});
+
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
@@ -83,6 +97,8 @@ Route::middleware(['auth'])->group(function () {
         
         // Restore soft-deleted application (Admin Action)
         Route::post('/review/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.restore');
+        Route::post('/applications/bulk-action', [AdminController::class, 'bulkAction'])->name('admin.applications.bulk-action');
+        Route::patch('/applications/{id}/notes', [AdminController::class, 'saveNotes'])->name('admin.applications.save-notes');
     });
 
     // SUPER ADMIN (Scholarship Management)

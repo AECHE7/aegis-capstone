@@ -15,7 +15,8 @@ class Scholarship extends Model
         'description',
         'min_gwa_required',
         'deadline',
-        'status'
+        'status',
+        'max_renewals'
     ];
 
     public function applications()
