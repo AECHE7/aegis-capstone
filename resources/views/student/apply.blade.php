@@ -161,55 +161,14 @@
                         </div>
                     </div>
 
-                    {{-- Step 2: GWA --}}
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-dark mb-2" for="gwaInput">
-                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
-                            <span id="gwaLabelText">Declared GWA</span>
-                        </label>
-                        <input type="number" step="0.01" min="1.00" max="5.00"
-                               name="gwa" id="gwaInput"
-                               class="form-control"
-                               placeholder="e.g. 1.25"
-                               required oninput="checkEligibility()">
-                        <div class="eligibility-badge mt-2" id="eligibilityBadge"></div>
-                    </div>
-
                     {{-- Dynamic Custom Fields Container --}}
                     <div id="dynamicFieldsContainer" class="mb-4" style="display: none;">
                         <label class="form-label fw-bold text-dark mb-2">
-                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">*</span>
-                            Additional Requirements / Custom Details
+                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
+                            Configure Scholarship Parameters
                         </label>
                         <div class="p-3 bg-light border rounded-3" id="dynamicFieldsBody" style="border-radius: 12px;">
                             <!-- Dynamic inputs will be appended here via JS -->
-                        </div>
-                    </div>
-
-                    {{-- Step 3: Upload --}}
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-dark mb-2" for="documentUpload">
-                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">3</span>
-                            Upload Certificate of Grades (COG)
-                        </label>
-
-                        <div class="upload-zone" id="uploadZone">
-                            <input type="file" name="document" id="documentUpload"
-                                   accept="image/jpeg, image/png" required
-                                   onchange="handleFile(this)">
-                            <div id="uploadPlaceholder">
-                                <i class="fa-solid fa-cloud-arrow-up fs-1 mb-2 d-block" style="color:#94a3b8;"></i>
-                                <div class="fw-semibold text-dark mb-1">Drag & drop your COG here</div>
-                                <div class="text-muted small">or <span style="color:var(--clsu-green);text-decoration:underline;cursor:pointer;">browse files</span></div>
-                                <div class="text-muted mt-2" style="font-size:0.72rem;">JPEG, PNG · Max 10MB</div>
-                            </div>
-                            <div id="uploadPreview" style="display:none;">
-                                <img id="previewImg" src="#" alt="Preview" style="display:block;">
-                                <div class="mt-2 text-muted small" id="fileName"></div>
-                                <button type="button" class="btn btn-sm btn-light mt-2 rounded-pill" onclick="clearFile(event)" style="font-size:0.75rem;">
-                                    <i class="fa-solid fa-xmark me-1"></i> Remove
-                                </button>
-                            </div>
                         </div>
                     </div>
 
@@ -229,14 +188,6 @@
                 <div id="checklistItems" class="d-flex flex-column gap-2 small">
                     <div class="d-flex align-items-center justify-content-between" id="chkScholarship">
                         <span class="text-muted">1. Select Scholarship</span>
-                        <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between" id="chkGwa">
-                        <span class="text-muted">2. Declared GWA</span>
-                        <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between" id="chkDocument">
-                        <span class="text-muted">3. Upload COG</span>
                         <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>
                     </div>
                 </div>
@@ -302,8 +253,6 @@
         document.getElementById('programNameInput').value = el.dataset.name;
         document.getElementById('scholarshipIdInput').value = el.dataset.id;
         selectedScholarshipGwa = parseFloat(el.dataset.gwa);
-
-        checkEligibility();
 
         // Fetch custom fields dynamically
         fetch(`/scholarships/${el.dataset.id}/fields`)
@@ -389,8 +338,6 @@
 
     function updateChecklist() {
         const chkScholarship = document.getElementById('chkScholarship');
-        const chkGwa = document.getElementById('chkGwa');
-        const chkDocument = document.getElementById('chkDocument');
         const submitBtn = document.getElementById('submitBtn');
 
         let allValid = true;
@@ -408,63 +355,7 @@
             allValid = false;
         }
 
-        // 2. GWA check
-        const gwaVal = parseFloat(document.getElementById('gwaInput').value);
-        if (isNaN(selectedScholarshipGwa)) {
-            // GWA is optional!
-            document.getElementById('gwaInput').removeAttribute('required');
-            document.getElementById('gwaLabelText').textContent = 'Declared GWA (Optional)';
-            
-            // GWA checklist is valid by default if empty or matches 1-5 range
-            const gwaValid = isNaN(gwaVal) || (gwaVal >= 1.00 && gwaVal <= 5.00);
-            
-            if (gwaValid) {
-                chkGwa.querySelector('.badge').className = 'badge bg-success rounded-pill';
-                chkGwa.querySelector('.badge i').className = 'fa-solid fa-check';
-                chkGwa.querySelector('span').className = 'text-dark fw-semibold';
-                chkGwa.querySelector('span').textContent = '2. Declared GWA (Optional)';
-            } else {
-                chkGwa.querySelector('.badge').className = 'badge bg-danger rounded-pill';
-                chkGwa.querySelector('.badge i').className = 'fa-solid fa-xmark';
-                chkGwa.querySelector('span').className = 'text-muted';
-                chkGwa.querySelector('span').textContent = '2. Declared GWA (Invalid Range)';
-                allValid = false;
-            }
-        } else {
-            // GWA is required!
-            document.getElementById('gwaInput').setAttribute('required', 'required');
-            document.getElementById('gwaLabelText').textContent = 'Declared GWA';
-            
-            const gwaValid = !isNaN(gwaVal) && gwaVal >= 1.00 && gwaVal <= 5.00 && gwaVal <= selectedScholarshipGwa;
-            
-            if (gwaValid) {
-                chkGwa.querySelector('.badge').className = 'badge bg-success rounded-pill';
-                chkGwa.querySelector('.badge i').className = 'fa-solid fa-check';
-                chkGwa.querySelector('span').className = 'text-dark fw-semibold';
-                chkGwa.querySelector('span').textContent = '2. Declared GWA';
-            } else {
-                chkGwa.querySelector('.badge').className = 'badge bg-danger rounded-pill';
-                chkGwa.querySelector('.badge i').className = 'fa-solid fa-xmark';
-                chkGwa.querySelector('span').className = 'text-muted';
-                chkGwa.querySelector('span').textContent = '2. Declared GWA';
-                allValid = false;
-            }
-        }
-
-        // 3. Document check
-        const docUpload = document.getElementById('documentUpload');
-        if (docUpload.files && docUpload.files.length > 0) {
-            chkDocument.querySelector('.badge').className = 'badge bg-success rounded-pill';
-            chkDocument.querySelector('.badge i').className = 'fa-solid fa-check';
-            chkDocument.querySelector('span').className = 'text-dark fw-semibold';
-        } else {
-            chkDocument.querySelector('.badge').className = 'badge bg-danger rounded-pill';
-            chkDocument.querySelector('.badge i').className = 'fa-solid fa-xmark';
-            chkDocument.querySelector('span').className = 'text-muted';
-            allValid = false;
-        }
-
-        // 4. Dynamic custom fields checks
+        // 2. Dynamic custom fields checks
         const customReqFields = document.querySelectorAll('.required-custom-field');
         // Remove existing dynamic checklist items
         document.querySelectorAll('.dynamic-checklist-item').forEach(el => el.remove());
@@ -496,62 +387,6 @@
         submitBtn.disabled = !allValid;
     }
 
-    function checkEligibility() {
-        const badge = document.getElementById('eligibilityBadge');
-        const submitBtn = document.getElementById('submitBtn');
-        const gwaVal = parseFloat(document.getElementById('gwaInput').value);
-
-        if (isNaN(selectedScholarshipGwa) || isNaN(gwaVal)) {
-            badge.style.display = 'none';
-            updateChecklist();
-            return;
-        }
-
-        badge.style.display = 'block';
-
-        if (gwaVal <= selectedScholarshipGwa) {
-            badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.8rem;font-weight:600;"><i class="fa-solid fa-circle-check"></i> GWA eligible — you qualify for this program</span>`;
-        } else {
-            badge.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.8rem;font-weight:600;"><i class="fa-solid fa-circle-xmark"></i> GWA ${gwaVal.toFixed(2)} exceeds the max of ${selectedScholarshipGwa.toFixed(2)} for this program</span>`;
-        }
-        updateChecklist();
-    }
-
-    function handleFile(input) {
-        const file = input.files[0];
-        if (!file) return;
-
-        const zone = document.getElementById('uploadZone');
-        const placeholder = document.getElementById('uploadPlaceholder');
-        const preview = document.getElementById('uploadPreview');
-        const img = document.getElementById('previewImg');
-        const nameEl = document.getElementById('fileName');
-
-        const reader = new FileReader();
-        reader.onload = e => {
-            img.src = e.target.result;
-            img.style.display = 'block';
-            nameEl.textContent = `📎 ${file.name} (${(file.size/1024).toFixed(0)} KB)`;
-            placeholder.style.display = 'none';
-            preview.style.display = 'block';
-            zone.classList.add('has-file');
-            updateChecklist();
-        };
-        reader.readAsDataURL(file);
-    }
-
-
-    function clearFile(e) {
-        e.stopPropagation();
-        const input = document.getElementById('documentUpload');
-        input.value = '';
-        document.getElementById('uploadPlaceholder').style.display = 'block';
-        document.getElementById('uploadPreview').style.display = 'none';
-        document.getElementById('uploadZone').classList.remove('has-file');
-        document.getElementById('previewImg').style.display = 'none';
-        updateChecklist();
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
         updateChecklist();
         const dynamicBody = document.getElementById('dynamicFieldsBody');
@@ -561,39 +396,11 @@
         }
     });
 
-    // Drag and drop
-    const zone = document.getElementById('uploadZone');
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => {
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-        const dt = e.dataTransfer;
-        if (dt.files.length) {
-            const input = document.getElementById('documentUpload');
-            input.files = dt.files;
-            handleFile(input);
-        }
-    });
-
     // ── AJAX Application Form Submission ──────────────
     const appForm = document.getElementById('applicationForm');
     if (appForm) {
         appForm.addEventListener('submit', function(e) {
             e.preventDefault();
-
-            // Validate GWA selection
-            const gwaVal = parseFloat(document.getElementById('gwaInput').value);
-            if (!isNaN(selectedScholarshipGwa) && (isNaN(gwaVal) || gwaVal > selectedScholarshipGwa)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Ineligible GWA',
-                    text: 'Your GWA is invalid or exceeds the maximum limit for this scholarship.',
-                    confirmButtonColor: '#dc2626',
-                    customClass: { popup: 'rounded-4' }
-                });
-                return;
-            }
 
             if (!appForm.checkValidity()) {
                 appForm.reportValidity();

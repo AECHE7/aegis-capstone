@@ -77,7 +77,7 @@ class ApplicationController extends Controller
             return back()->withErrors(['renewal_limit' => $msg])->withInput();
         }
 
-        if ($request->gwa > $scholarship->min_gwa_required) {
+        if ($request->gwa && $scholarship->min_gwa_required && $request->gwa > $scholarship->min_gwa_required) {
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -92,8 +92,8 @@ class ApplicationController extends Controller
         // Build validation rules dynamically
         $rules = [
             'scholarship_id' => 'required',
-            'gwa' => $scholarship->min_gwa_required !== null ? 'required|numeric|min:1.00|max:5.00' : 'nullable|numeric|min:1.00|max:5.00',
-            'document' => 'required|image|mimes:jpeg,png|max:5120', 
+            'gwa' => 'nullable|numeric|min:1.00|max:5.00',
+            'document' => 'nullable|file|mimes:jpeg,png,pdf|max:5120', 
         ];
 
         foreach ($scholarship->fields as $field) {

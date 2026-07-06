@@ -166,7 +166,7 @@
                             
                             <div id="fieldsContainer" class="p-3 bg-light border mb-0" style="border-radius: 12px; max-height: 280px; overflow-y: auto;">
                                 <div class="text-center text-muted small py-3" id="noFieldsText">
-                                    No custom fields added yet. Only the standard GWA and COG upload will be required.
+                                    No custom fields added yet. Add custom fields (such as GWA, Profile Details, or Document Uploads) to build your application form.
                                 </div>
                             </div>
                         </div>
@@ -177,20 +177,6 @@
                                 <h6 class="fw-bold mb-3 text-secondary" style="font-size:0.82rem; letter-spacing:0.5px; text-transform:uppercase;">
                                     <i class="fa-solid fa-eye text-primary me-1"></i> Live Form Preview
                                 </h6>
-                                
-                                {{-- Standard Fields --}}
-                                <div class="mb-3 pb-3 border-bottom text-start">
-                                    <div class="small fw-bold text-muted mb-2" style="font-size: 0.72rem; letter-spacing: 0.3px; text-transform: uppercase;">Standard Requirements</div>
-                                    
-                                    <div class="mb-2">
-                                        <label class="form-label small fw-semibold text-dark mb-0">General Weighted Average (GWA) <span class="text-muted fw-normal">(Optional unless GWA set)</span></label>
-                                        <input type="text" class="form-control form-control-sm bg-white" disabled placeholder="e.g., 1.75" style="opacity: 0.75;">
-                                    </div>
-                                    <div>
-                                        <label class="form-label small fw-semibold text-dark mb-0">Certificate of Grades (COG) Upload <span class="text-danger">*</span></label>
-                                        <input type="file" class="form-control form-control-sm bg-white" disabled style="opacity: 0.75;">
-                                    </div>
-                                </div>
 
                                 {{-- Dynamic Custom Fields Preview Container --}}
                                 <div class="small fw-bold text-muted mb-2 text-start" style="font-size: 0.72rem; letter-spacing: 0.3px; text-transform: uppercase;">Custom Parameters</div>
@@ -266,7 +252,7 @@
                             
                             <div id="editFieldsContainer" class="p-3 bg-light border mb-0" style="border-radius: 12px; max-height: 280px; overflow-y: auto;">
                                 <div class="text-center text-muted small py-3" id="editNoFieldsText">
-                                    No custom fields added yet. Only the standard GWA and COG upload will be required.
+                                    No custom fields added yet. Add custom fields (such as GWA, Profile Details, or Document Uploads) to build your application form.
                                 </div>
                             </div>
                         </div>
@@ -277,20 +263,6 @@
                                 <h6 class="fw-bold mb-3 text-secondary" style="font-size:0.82rem; letter-spacing:0.5px; text-transform:uppercase;">
                                     <i class="fa-solid fa-eye text-primary me-1"></i> Live Form Preview
                                 </h6>
-                                
-                                {{-- Standard Fields --}}
-                                <div class="mb-3 pb-3 border-bottom text-start">
-                                    <div class="small fw-bold text-muted mb-2" style="font-size: 0.72rem; letter-spacing: 0.3px; text-transform: uppercase;">Standard Requirements</div>
-                                    
-                                    <div class="mb-2">
-                                        <label class="form-label small fw-semibold text-dark mb-0">General Weighted Average (GWA) <span class="text-muted fw-normal">(Optional unless GWA set)</span></label>
-                                        <input type="text" class="form-control form-control-sm bg-white" disabled placeholder="e.g., 1.75" style="opacity: 0.75;">
-                                    </div>
-                                    <div>
-                                        <label class="form-label small fw-semibold text-dark mb-0">Certificate of Grades (COG) Upload <span class="text-danger">*</span></label>
-                                        <input type="file" class="form-control form-control-sm bg-white" disabled style="opacity: 0.75;">
-                                    </div>
-                                </div>
 
                                 {{-- Dynamic Custom Fields Preview Container --}}
                                 <div class="small fw-bold text-muted mb-2 text-start" style="font-size: 0.72rem; letter-spacing: 0.3px; text-transform: uppercase;">Custom Parameters</div>
