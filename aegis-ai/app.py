@@ -172,6 +172,31 @@ def run_cnn_inference_and_gradcam(original_path, ela_path, heatmap_output_path):
     
     return fraud_probability, classification
 
+def extract_gwa_from_pdf(pdf_path: str) -> float | None:
+    """Extract a GWA (General Weighted Average) float from a PDF using pypdf."""
+    try:
+        import pypdf
+        reader = pypdf.PdfReader(pdf_path)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        
+        import re
+        text_upper = text.upper()
+        # Look for GWA patterns, e.g. "GWA: 1.75" or "GWA 1.25" or "GENERAL WEIGHTED AVERAGE: 1.50"
+        patterns = [
+            r'GWA\s*[:\-=]?\s*([0-9]\.[0-9]{2})',
+            r'GENERAL\s+WEIGHTED\s+AVERAGE\s*[:\-=]?\s*([0-9]\.[0-9]{2})',
+            r'WEIGHTED\s+AVERAGE\s*[:\-=]?\s*([0-9]\.[0-9]{2})'
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, text_upper)
+            if match:
+                return float(match.group(1))
+    except Exception as e:
+        print(f"Error extracting GWA: {e}")
+    return None
+
 @app.route('/analyze-document', methods=['POST'])
 def analyze_document():
     if 'file' not in request.files:
@@ -194,6 +219,11 @@ def analyze_document():
             generate_ela(original_path, ela_path)
             score, label = run_cnn_inference_and_gradcam(original_path, ela_path, heatmap_path)
 
+            # Try to extract GWA text if the uploaded file is a PDF
+            extracted_gwa = None
+            if original_ext == 'pdf':
+                extracted_gwa = extract_gwa_from_pdf(original_path)
+
             # Try to upload to Cloudinary for persistent storage
             heatmap_filename = os.path.basename(heatmap_path)
             cloudinary_url = upload_heatmap_to_cloudinary(heatmap_path, heatmap_filename.replace('.jpg', ''))
@@ -202,6 +232,7 @@ def analyze_document():
                 "status": "success",
                 "fraud_probability": score,
                 "classification": label,
+                "extracted_gwa": extracted_gwa,
                 "paths": {
                     # Use the permanent Cloudinary URL if available, else local filename
                     "heatmap_path": cloudinary_url if cloudinary_url else heatmap_path,

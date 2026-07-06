@@ -148,14 +148,11 @@ class ApplicationController extends Controller
 
         if ($request->hasFile('document')) {
             $file = $request->file('document');
-            $extension = $file->getClientOriginalExtension();
-            $uuid = (string) \Illuminate\Support\Str::uuid();
-            $filename = hash('sha256', $uuid) . '.' . $extension;
-            $file->storeAs('uploads', $filename, 'local');
+            $filePath = \App\Services\CloudStorageService::upload($file);
 
             \App\Models\Document::create([
                 'application_id' => $application->id,
-                'file_path' => 'uploads/' . $filename,
+                'file_path' => $filePath,
                 'original_name' => $file->getClientOriginalName(),
                 'document_type' => 'COG'
             ]);
@@ -168,16 +165,13 @@ class ApplicationController extends Controller
                 if ($field->field_type === 'file') {
                     if ($request->hasFile('custom_fields.' . $field->field_name)) {
                         $cfile = $request->file('custom_fields.' . $field->field_name);
-                        $extension = $cfile->getClientOriginalExtension();
-                        $uuid = (string) \Illuminate\Support\Str::uuid();
-                        $filename = hash('sha256', $uuid) . '.' . $extension;
-                        $cfile->storeAs('uploads', $filename, 'local');
-                        $val = 'uploads/' . $filename;
+                        $filePath = \App\Services\CloudStorageService::upload($cfile);
+                        $val = $filePath;
 
                         // Also register in documents table for AI scanning
                         \App\Models\Document::create([
                             'application_id' => $application->id,
-                            'file_path' => 'uploads/' . $filename,
+                            'file_path' => $filePath,
                             'original_name' => $cfile->getClientOriginalName(),
                             'document_type' => $field->field_label
                         ]);

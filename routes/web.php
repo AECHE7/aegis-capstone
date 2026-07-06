@@ -174,10 +174,14 @@ Route::middleware(['auth'])->group(function () {
                 abort(403, 'Unauthorized access.');
             }
         }
-        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($document->file_path)) {
+        $path = $document->file_path;
+        if (str_starts_with($path, 'http')) {
+            return redirect($path);
+        }
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
             return redirect('https://placehold.co/600x800?text=Original+File+Wiped+On+Redeploy');
         }
-        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($document->file_path));
+        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($path));
     })->name('document.view');
 
     Route::get('/document/{id}/heatmap', function ($id) {
@@ -215,8 +219,12 @@ Route::middleware(['auth'])->group(function () {
                 abort(403, 'Unauthorized access.');
             }
         }
-        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($field->field_value)) { abort(404); }
-        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($field->field_value));
+        $path = $field->field_value;
+        if (str_starts_with($path, 'http')) {
+            return redirect($path);
+        }
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) { abort(404); }
+        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($path));
     })->name('application-field.file');
 
     // UAT FEEDBACK SUBMISSION
