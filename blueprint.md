@@ -432,4 +432,11 @@ To transition the project from its current MVP setup to a robust, production-rea
   5. Enforce role authorization gates on settings routes and verify with `SystemSettingsTest.php` (completed).
   6. Run full project test suite ensuring all 107 tests are green (completed).
 
-
+### Phase 43: Single Active Application Constraint - [COMPLETED]
+- **Goal:** Prevent students from submitting multiple active applications/scholarships concurrently in a single academic term.
+- **Steps:**
+  1. Add `hasActiveApplication()` check to the `User` model (completed).
+  2. Update `ApplicationController@create` and `store` methods to enforce this restriction on the frontend and backend (completed).
+  3. Create `SingleActiveApplicationTest.php` to verify all pending, review, approved active term, approved inactive term, rejected, and cancelled status transitions (completed).
+  4. Fix historic seeders in `BulkActionTest.php` to prevent false positive triggers during renewal threshold tests (completed).
+  5. Run full test suite to guarantee 114 passing tests (completed).
