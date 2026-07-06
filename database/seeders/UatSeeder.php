@@ -23,8 +23,8 @@ class UatSeeder extends Seeder
         \App\Models\EmailLog::query()->delete();
         \App\Models\ApplicationField::query()->delete();
         StudentProfile::query()->delete();
-        Application::query()->delete();
-        User::where('role', 'student')->delete();
+        Application::withTrashed()->forceDelete();
+        User::withTrashed()->where('role', 'student')->forceDelete();
 
         // 2. Ensure Admin & Super Admin/Director exist and are verified
         User::firstOrCreate(
