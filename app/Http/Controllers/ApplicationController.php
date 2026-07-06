@@ -36,15 +36,9 @@ class ApplicationController extends Controller
     // 1. Load the Application Form
     public function create()
     {
-        $userId = auth()->id() ?? 1;
-
-        // THE FIX: Check only the MOST RECENT application!
-        $latestApplication = \App\Models\Application::where('user_id', $userId)->latest()->first();
-
-        // If their latest application is pending, block them.
-        if ($latestApplication && $latestApplication->status === 'Pending') {
+        if (auth()->user()->hasActiveApplication()) {
             return redirect()->route('student.dashboard')
-                ->with('error', 'Action Denied: Your most recent application (APP-'.$latestApplication->id.') is still pending review. Please wait for the OSA to evaluate it.');
+                ->with('error', 'Action Denied: You already have an active application or scholarship for this academic term.');
         }
 
         $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
@@ -58,13 +52,12 @@ class ApplicationController extends Controller
     {
         $userId = auth()->id() ?? 1;
 
-        // THE FIX: Backend protection checking only the latest app
-        $latestApplication = \App\Models\Application::where('user_id', $userId)->latest()->first();
-        if ($latestApplication && $latestApplication->status === 'Pending') {
+        if (auth()->user()->hasActiveApplication()) {
+            $msg = 'Action Denied: You already have an active application or scholarship for this academic term.';
             if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Your most recent application is still pending!'], 400);
+                return response()->json(['success' => false, 'message' => $msg], 400);
             }
-            return back()->withErrors(['duplicate' => 'Your most recent application is still pending!']);
+            return back()->withErrors(['duplicate' => $msg]);
         }
 
         $scholarship = \App\Models\Scholarship::with('fields')->findOrFail($request->scholarship_id);

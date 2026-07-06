@@ -101,4 +101,25 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Scholarship::class, 'scholarship_staff');
     }
+
+    /**
+     * Check if the student has an active scholarship application or active grant.
+     */
+    public function hasActiveApplication(): bool
+    {
+        $activeTerm = \App\Models\AcademicTerm::where('is_active', true)->first();
+        $activeTermId = $activeTerm ? $activeTerm->id : null;
+
+        return $this->applications()
+            ->where(function ($query) use ($activeTermId) {
+                $query->whereIn('status', ['Pending', 'Under Review'])
+                      ->orWhere(function ($q) use ($activeTermId) {
+                          $q->where('status', 'Approved');
+                          if ($activeTermId) {
+                              $q->where('academic_term_id', $activeTermId);
+                          }
+                      });
+            })
+            ->exists();
+    }
 }

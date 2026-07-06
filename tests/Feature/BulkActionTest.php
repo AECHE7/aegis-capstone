@@ -183,10 +183,16 @@ class BulkActionTest extends TestCase
         $this->scholarshipA->update(['max_renewals' => 2]);
 
         for ($i = 0; $i < 2; $i++) {
+            $inactiveTerm = AcademicTerm::create([
+                'academic_year' => '2024-2025',
+                'semester' => ($i + 1) . 'nd Semester',
+                'is_active' => false,
+            ]);
+
             Application::create([
                 'user_id' => $this->student->id,
                 'scholarship_id' => $this->scholarshipA->id,
-                'academic_term_id' => $this->academicTerm->id,
+                'academic_term_id' => $inactiveTerm->id,
                 'program_name' => $this->scholarshipA->name,
                 'gwa' => 1.50,
                 'status' => 'Approved',
