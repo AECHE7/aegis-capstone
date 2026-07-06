@@ -5,7 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="description" content="Sign in or create an account to access the A.E.G.I.S. CLSU Scholarship Management Portal.">
-        <meta name="robots" content="noindex, nofollow">
 
         <title>A.E.G.I.S. Portal — CLSU Scholarship System</title>
         <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A.E.G.I.S. | Secure Gateway</title>
     <meta name="description" content="Securely sign in to the A.E.G.I.S. CLSU Scholarship Portal to apply for grants, check your application queue, and verify grades.">
-    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
     <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
 
