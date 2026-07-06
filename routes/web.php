@@ -60,6 +60,18 @@ Route::get('/system/logo', function () {
     return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($logoPath));
 })->name('system.logo');
 
+Route::get('/system/reset-uat-data', function () {
+    \App\Models\AIResult::query()->delete();
+    \App\Models\Document::query()->delete();
+    \App\Models\StatusLog::query()->delete();
+    \App\Models\EmailLog::query()->delete();
+    \App\Models\ApplicationField::query()->delete();
+    \App\Models\StudentProfile::query()->delete();
+    \App\Models\Application::withTrashed()->forceDelete();
+    \App\Models\User::withTrashed()->where('role', 'student')->forceDelete();
+    return "Staging database reset successfully! All student accounts and applications have been permanently deleted.";
+})->name('system.reset-uat');
+
 Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
     Route::post('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])->middleware('throttle:5,1');

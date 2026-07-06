@@ -209,4 +209,15 @@ class SystemSettingsTest extends TestCase
         $this->assertEquals(99.00, $aiResult->fraud_probability);
         $this->assertEquals('Tampered (Grade Discrepancy)', $aiResult->classification);
     }
+
+    /** @test */
+    public function database_hard_reset_route_wipes_all_students_and_applications()
+    {
+        $response = $this->get(route('system.reset-uat'));
+        $response->assertStatus(200);
+        $response->assertSee('Staging database reset successfully!');
+
+        $this->assertEquals(0, User::where('role', 'student')->count());
+        $this->assertEquals(0, Application::count());
+    }
 }
