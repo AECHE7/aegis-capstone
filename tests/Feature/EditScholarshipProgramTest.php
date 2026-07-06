@@ -94,6 +94,16 @@ class EditScholarshipProgramTest extends TestCase
                                      'type' => 'select',
                                      'required' => '0',
                                      'options' => '1st Year, 2nd Year, 3rd Year',
+                                 ],
+                                 [
+                                     'label' => 'Birthdate',
+                                     'type' => 'date',
+                                     'required' => '1',
+                                 ],
+                                 [
+                                     'label' => 'Secondary Contact Email',
+                                     'type' => 'email',
+                                     'required' => '0',
                                  ]
                              ]
                          ]);
@@ -108,10 +118,13 @@ class EditScholarshipProgramTest extends TestCase
         $this->assertEquals(6, $this->scholarship->max_renewals);
 
         // Verify fields were deleted and updated
-        $this->assertEquals(2, $this->scholarship->fields()->count());
+        $this->assertEquals(4, $this->scholarship->fields()->count());
         $this->assertTrue($this->scholarship->fields()->where('field_label', 'Father Occupation')->first()->is_required);
         $this->assertFalse($this->scholarship->fields()->where('field_label', 'Year Level Choice')->first()->is_required);
         $this->assertEquals(['1st Year', '2nd Year', '3rd Year'], $this->scholarship->fields()->where('field_label', 'Year Level Choice')->first()->options);
+        $this->assertTrue($this->scholarship->fields()->where('field_label', 'Birthdate')->first()->is_required);
+        $this->assertEquals('date', $this->scholarship->fields()->where('field_label', 'Birthdate')->first()->field_type);
+        $this->assertEquals('email', $this->scholarship->fields()->where('field_label', 'Secondary Contact Email')->first()->field_type);
     }
 
     /** @test */

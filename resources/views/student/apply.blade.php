@@ -309,6 +309,15 @@
                             input.type = 'number';
                             input.step = 'any';
                             input.className = 'form-control';
+                        } else if (field.field_type === 'date') {
+                            input = document.createElement('input');
+                            input.type = 'date';
+                            input.className = 'form-control';
+                        } else if (field.field_type === 'email') {
+                            input = document.createElement('input');
+                            input.type = 'email';
+                            input.className = 'form-control';
+                            input.placeholder = 'e.g., student@example.com';
                         } else {
                             input = document.createElement('input');
                             input.type = 'text';

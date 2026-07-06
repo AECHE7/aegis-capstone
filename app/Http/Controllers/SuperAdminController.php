@@ -25,7 +25,7 @@ class SuperAdminController extends Controller
             'max_renewals' => 'nullable|integer|min:1|max:12',
             'fields' => 'nullable|array',
             'fields.*.label' => 'required|string|max:255',
-            'fields.*.type' => 'required|in:text,number,textarea,select,file',
+            'fields.*.type' => 'required|in:text,number,textarea,select,file,date,email',
             'fields.*.required' => 'nullable',
             'fields.*.options' => 'nullable|string',
         ]);
@@ -93,7 +93,7 @@ class SuperAdminController extends Controller
             'max_renewals' => 'nullable|integer|min:1|max:12',
             'fields' => 'nullable|array',
             'fields.*.label' => 'required|string|max:255',
-            'fields.*.type' => 'required|in:text,number,textarea,select,file',
+            'fields.*.type' => 'required|in:text,number,textarea,select,file,date,email',
             'fields.*.required' => 'nullable',
             'fields.*.options' => 'nullable|string',
         ]);

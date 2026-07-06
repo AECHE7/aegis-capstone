@@ -293,6 +293,23 @@
 <script>
     let fieldIndex = 0;
 
+    function reindexFields(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const rows = container.querySelectorAll('.field-row');
+        rows.forEach((row, index) => {
+            const labelInput = row.querySelector('.field-label-input');
+            const typeSelect = row.querySelector('.field-type-select');
+            const requiredCheck = row.querySelector('.field-required-check');
+            const optionsInput = row.querySelector('.field-options-input');
+
+            if (labelInput) labelInput.name = `fields[${index}][label]`;
+            if (typeSelect) typeSelect.name = `fields[${index}][type]`;
+            if (requiredCheck) requiredCheck.name = `fields[${index}][required]`;
+            if (optionsInput) optionsInput.name = `fields[${index}][options]`;
+        });
+    }
+
     function renderLivePreview() {
         const container = document.getElementById('livePreviewContainer');
         const rows = document.querySelectorAll('#fieldsContainer .field-row');
@@ -332,6 +349,10 @@
                 inputHtml = `<textarea class="form-control form-control-sm bg-white" rows="2" disabled placeholder="Long answer text" style="resize:none;"></textarea>`;
             } else if (type === 'file') {
                 inputHtml = `<input type="file" class="form-control form-control-sm bg-white" disabled>`;
+            } else if (type === 'date') {
+                inputHtml = `<input type="date" class="form-control form-control-sm bg-white" disabled>`;
+            } else if (type === 'email') {
+                inputHtml = `<input type="email" class="form-control form-control-sm bg-white" disabled placeholder="student@example.com">`;
             } else if (type === 'select') {
                 const optionsVal = optionsInput ? optionsInput.value : '';
                 const options = optionsVal ? optionsVal.split(',').map(o => o.trim()).filter(Boolean) : ['Option 1', 'Option 2'];
@@ -356,8 +377,12 @@
         row.className = 'field-row bg-white p-3 border mb-3 position-relative';
         row.style.borderRadius = '10px';
         row.innerHTML = `
-            <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-field-btn" style="font-size: 0.75rem;"></button>
-            <div class="row g-2 text-start">
+            <div class="position-absolute top-0 end-0 m-2 d-flex gap-1 align-items-center">
+                <button type="button" class="btn btn-xs btn-outline-secondary p-1 move-up-btn" style="line-height:1; font-size:0.65rem; border-radius:4px;"><i class="fa-solid fa-arrow-up"></i></button>
+                <button type="button" class="btn btn-xs btn-outline-secondary p-1 move-down-btn" style="line-height:1; font-size:0.65rem; border-radius:4px;"><i class="fa-solid fa-arrow-down"></i></button>
+                <button type="button" class="btn-close remove-field-btn" style="font-size: 0.75rem; margin-left:4px;"></button>
+            </div>
+            <div class="row g-2 text-start pt-2">
                 <div class="col-md-5">
                     <label class="form-label small fw-semibold text-muted mb-1">Field Label</label>
                     <input type="text" name="fields[${fieldIndex}][label]" class="form-control form-control-sm field-label-input" required placeholder="e.g., Annual Household Income">
@@ -370,6 +395,8 @@
                         <option value="textarea">Paragraph Text</option>
                         <option value="select">Dropdown Select</option>
                         <option value="file">File Upload</option>
+                        <option value="date">Date Picker</option>
+                        <option value="email">Email Address</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -386,6 +413,7 @@
         `;
 
         container.appendChild(row);
+        reindexFields('fieldsContainer');
 
         // Bind live preview events
         const labelInput = row.querySelector('.field-label-input');
@@ -409,13 +437,33 @@
             renderLivePreview();
         });
 
+        // Reordering arrows
+        row.querySelector('.move-up-btn').addEventListener('click', function() {
+            const prev = row.previousElementSibling;
+            if (prev && !prev.id.includes('noFieldsText') && prev.classList.contains('field-row')) {
+                prev.before(row);
+                reindexFields('fieldsContainer');
+                renderLivePreview();
+            }
+        });
+
+        row.querySelector('.move-down-btn').addEventListener('click', function() {
+            const next = row.nextElementSibling;
+            if (next && next.classList.contains('field-row')) {
+                next.after(row);
+                reindexFields('fieldsContainer');
+                renderLivePreview();
+            }
+        });
+
         // Remove row logic
         row.querySelector('.remove-field-btn').addEventListener('click', function() {
             row.remove();
+            reindexFields('fieldsContainer');
             if (container.children.length === 0) {
                 container.innerHTML = `
                     <div class="text-center text-muted small py-3" id="noFieldsText">
-                        No custom fields added yet. Only the standard GWA and COG upload will be required.
+                        No custom fields added yet. Add custom fields (such as GWA, Profile Details, or Document Uploads) to build your application form.
                     </div>
                 `;
             }
@@ -631,6 +679,10 @@
                 inputHtml = `<textarea class="form-control form-control-sm bg-white" rows="2" disabled placeholder="Long answer text" style="resize:none;"></textarea>`;
             } else if (type === 'file') {
                 inputHtml = `<input type="file" class="form-control form-control-sm bg-white" disabled>`;
+            } else if (type === 'date') {
+                inputHtml = `<input type="date" class="form-control form-control-sm bg-white" disabled>`;
+            } else if (type === 'email') {
+                inputHtml = `<input type="email" class="form-control form-control-sm bg-white" disabled placeholder="student@example.com">`;
             } else if (type === 'select') {
                 const optionsVal = optionsInput ? optionsInput.value : '';
                 const options = optionsVal ? optionsVal.split(',').map(o => o.trim()).filter(Boolean) : ['Option 1', 'Option 2'];
@@ -655,8 +707,12 @@
         row.className = 'field-row bg-white p-3 border mb-3 position-relative';
         row.style.borderRadius = '10px';
         row.innerHTML = `
-            <button type="button" class="btn-close position-absolute top-0 end-0 m-2 remove-field-btn" style="font-size: 0.75rem;"></button>
-            <div class="row g-2 text-start">
+            <div class="position-absolute top-0 end-0 m-2 d-flex gap-1 align-items-center">
+                <button type="button" class="btn btn-xs btn-outline-secondary p-1 move-up-btn" style="line-height:1; font-size:0.65rem; border-radius:4px;"><i class="fa-solid fa-arrow-up"></i></button>
+                <button type="button" class="btn btn-xs btn-outline-secondary p-1 move-down-btn" style="line-height:1; font-size:0.65rem; border-radius:4px;"><i class="fa-solid fa-arrow-down"></i></button>
+                <button type="button" class="btn-close remove-field-btn" style="font-size: 0.75rem; margin-left:4px;"></button>
+            </div>
+            <div class="row g-2 text-start pt-2">
                 <div class="col-md-5">
                     <label class="form-label small fw-semibold text-muted mb-1">Field Label</label>
                     <input type="text" name="fields[${editFieldIndex}][label]" class="form-control form-control-sm field-label-input" required placeholder="e.g., Annual Household Income" value="${escapeHtml(label)}">
@@ -669,6 +725,8 @@
                         <option value="textarea" ${type === 'textarea' ? 'selected' : ''}>Paragraph Text</option>
                         <option value="select" ${type === 'select' ? 'selected' : ''}>Dropdown Select</option>
                         <option value="file" ${type === 'file' ? 'selected' : ''}>File Upload</option>
+                        <option value="date" ${type === 'date' ? 'selected' : ''}>Date Picker</option>
+                        <option value="email" ${type === 'email' ? 'selected' : ''}>Email Address</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -685,6 +743,7 @@
         `;
 
         container.appendChild(row);
+        reindexFields('editFieldsContainer');
 
         // Bind live preview events
         const labelInput = row.querySelector('.field-label-input');
@@ -708,12 +767,32 @@
             renderEditLivePreview();
         });
 
+        // Reordering arrows
+        row.querySelector('.move-up-btn').addEventListener('click', function() {
+            const prev = row.previousElementSibling;
+            if (prev && !prev.id.includes('editNoFieldsText') && prev.classList.contains('field-row')) {
+                prev.before(row);
+                reindexFields('editFieldsContainer');
+                renderEditLivePreview();
+            }
+        });
+
+        row.querySelector('.move-down-btn').addEventListener('click', function() {
+            const next = row.nextElementSibling;
+            if (next && next.classList.contains('field-row')) {
+                next.after(row);
+                reindexFields('editFieldsContainer');
+                renderEditLivePreview();
+            }
+        });
+
         row.querySelector('.remove-field-btn').addEventListener('click', function() {
             row.remove();
+            reindexFields('editFieldsContainer');
             if (container.children.length === 0) {
                 container.innerHTML = `
                     <div class="text-center text-muted small py-3" id="editNoFieldsText">
-                        No custom fields added yet. Only the standard GWA and COG upload will be required.
+                        No custom fields added yet. Add custom fields (such as GWA, Profile Details, or Document Uploads) to build your application form.
                     </div>
                 `;
             }
