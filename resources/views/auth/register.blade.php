@@ -261,7 +261,8 @@
             box-shadow: 0 0 0 3px rgba(12,78,45,0.1);
         }
 
-        .form-floating > label { color: #334155; font-weight: 500; font-size: 0.9rem; }
+        .form-floating > label { color: #334155 !important; opacity: 1 !important; font-weight: 600; font-size: 0.9rem; }
+        .form-floating > .form-control:focus ~ label { color: var(--green) !important; opacity: 1 !important; }
 
         /* Password strength bar */
         .strength-bar {

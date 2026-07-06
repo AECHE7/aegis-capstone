@@ -322,7 +322,8 @@
             box-shadow: 0 0 0 3px rgba(12,78,45,0.1);
         }
 
-        .form-floating > label { color: #94a3b8; font-weight: 500; font-size: 0.9rem; }
+        .form-floating > label { color: #334155 !important; opacity: 1 !important; font-weight: 600; font-size: 0.9rem; }
+        .form-floating > .form-control:focus ~ label { color: var(--green) !important; opacity: 1 !important; }
 
         /* Login button */
         .btn-login {
@@ -558,7 +559,7 @@
                         <i class="fa-solid fa-lock me-2 text-muted" style="font-size: 0.8rem;"></i>Password
                     </label>
                     <button type="button" onclick="togglePwd()" aria-label="Toggle password visibility"
-                            style="position:absolute;top:50%;right:14px;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;z-index:10;">
+                            style="position:absolute;top:50%;right:14px;transform:translateY(-50%);background:none;border:none;color:#475569;cursor:pointer;z-index:10;">
                         <i class="fa-solid fa-eye" id="eyeIcon"></i>
                     </button>
                 </div>
@@ -608,7 +609,7 @@
                 @endif
             </div>
 
-            <p class="text-center mt-2 mb-0" style="font-size: 0.75rem; color: #94a3b8;">
+            <p class="text-center mt-2 mb-0" style="font-size: 0.75rem; color: #334155;">
                 <i class="fa-solid fa-circle-info me-1"></i> Click a profile above to auto-fill credentials.
             </p>
 
