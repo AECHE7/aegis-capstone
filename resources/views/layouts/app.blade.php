@@ -14,14 +14,15 @@
     <meta name="description" content="@yield('meta_description', 'A.E.G.I.S. is Central Luzon State University\'s official scholarship management portal. Apply for scholarships, track your application status, and receive real-time updates.')">
     <meta name="robots" content="noindex, nofollow">
     <title>@yield('title', 'A.E.G.I.S. Portal') — CLSU Scholarship System</title>
-    <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
+    <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
 
     {{-- Open Graph meta --}}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="A.E.G.I.S. CLSU Scholarship Portal">
     <meta property="og:title" content="@yield('title', 'A.E.G.I.S. Portal') — CLSU Scholarship System">
     <meta property="og:description" content="@yield('meta_description', 'Central Luzon State University\'s official scholarship management portal.')">
-    <meta property="og:image" content="{{ asset('logo.png') }}">
+    <meta property="og:image" content="{{ asset('logo.webp') }}">
     <meta property="og:locale" content="en_PH">
 
     {{-- Preconnect to CDN origins (reduces DNS + TLS overhead) --}}

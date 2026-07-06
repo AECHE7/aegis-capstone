@@ -18,15 +18,16 @@
     {{-- Canonical URL --}}
     <link rel="canonical" href="{{ url('/') }}">
 
-    {{-- Favicon --}}
-    <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
+    {{-- Favicon: WebP for modern browsers, PNG fallback --}}
+    <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
 
     {{-- Open Graph (Facebook, LinkedIn) --}}
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
     <meta property="og:title" content="A.E.G.I.S. — CLSU Scholarship Portal">
     <meta property="og:description" content="Apply for CLSU scholarships online. Official scholarship management portal with AI-powered grade verification and real-time application tracking.">
-    <meta property="og:image" content="{{ asset('logo.png') }}">
+    <meta property="og:image" content="{{ asset('logo.webp') }}">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
     <meta property="og:locale" content="en_PH">
@@ -36,7 +37,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="A.E.G.I.S. — CLSU Scholarship Portal">
     <meta name="twitter:description" content="Apply for CLSU scholarships online with AI-powered grade verification and real-time tracking.">
-    <meta name="twitter:image" content="{{ asset('logo.png') }}">
+    <meta name="twitter:image" content="{{ asset('logo.webp') }}">
 
     {{-- JSON-LD Structured Data --}}
     <script type="application/ld+json">
@@ -54,7 +55,7 @@
             "url": "https://www.clsu.edu.ph",
             "logo": {
                 "@type": "ImageObject",
-                "url": "{{ asset('logo.png') }}"
+                "url": "{{ asset('logo.webp') }}"
             },
             "address": {
                 "@type": "PostalAddress",
