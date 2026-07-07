@@ -450,3 +450,10 @@ To transition the project from its current MVP setup to a robust, production-rea
   4. **Support Config Caching:** Update `CloudStorageService.php` to use the cached `config()` values instead of `env()` helpers for Cloudflare R2 credentials.
   5. **Whitelist CSP framing:** Add `frame-src 'self' data: https://res.cloudinary.com https://placehold.co;` to `SecurityHeaders.php` CSP middleware.
   6. **Re-align test suite:** Update `CloudStorageTest.php` assertions to use `Http::fake` and verify faked proxy stream responses (121/121 tests pass).
+
+### Phase 45: Automatic Submission Background Scans - [COMPLETED]
+- **Goal:** Auto-dispatch the deep learning verification pipeline in the background immediately when a student submits their application, ensuring scans are complete before admin evaluation begins.
+- **Steps:**
+  1. **Dispatched Scan on Store:** Integrated `AIResult::create` placeholders and `ScanDocumentJob::dispatch` triggers directly within `ApplicationController@store` to start scanning immediately upon student submit.
+  2. **Add Integration Tests:** Added `test_student_application_submission_automatically_triggers_ai_scan` in `DocumentScanTest.php` to verify job routing and scanning status initialization (122/122 tests pass).
+  3. **Documentation:** Documented persistent file storage instructions for Cloudflare R2 and Render persistent mounts.

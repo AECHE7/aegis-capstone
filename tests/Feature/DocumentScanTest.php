@@ -213,4 +213,45 @@ class DocumentScanTest extends TestCase
             'classification' => 'scanning'
         ]);
     }
+
+    public function test_student_application_submission_automatically_triggers_ai_scan(): void
+    {
+        Queue::fake();
+
+        $student = User::create([
+            'name' => 'Verified Student',
+            'email' => 'student@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'student',
+            'email_verified_at' => now(),
+        ]);
+
+        $scholarship = Scholarship::create([
+            'name' => 'GAD Assistantship',
+            'min_gwa_required' => 2.00,
+            'status' => 'Active'
+        ]);
+
+        \Illuminate\Support\Facades\Storage::fake('local');
+        $file = \Illuminate\Http\UploadedFile::fake()->create('cog.pdf', 100);
+
+        $response = $this->actingAs($student)->post(route('student.store'), [
+            'scholarship_id' => $scholarship->id,
+            'gwa' => '1.75',
+            'document' => $file,
+        ]);
+
+        $response->assertStatus(302);
+
+        Queue::assertPushed(ScanDocumentJob::class, function ($job) {
+            return $job->applicationId !== null;
+        });
+
+        $document = Document::first();
+        $this->assertNotNull($document);
+        $this->assertDatabaseHas('a_i_results', [
+            'document_id' => $document->id,
+            'classification' => 'scanning'
+        ]);
+    }
 }

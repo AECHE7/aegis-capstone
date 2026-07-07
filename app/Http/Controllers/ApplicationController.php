@@ -182,6 +182,21 @@ class ApplicationController extends Controller
             }
         }
 
+        // Auto-trigger background AI scan immediately upon student submission
+        $application->load('documents');
+        if ($application->documents->count() > 0) {
+            foreach ($application->documents as $doc) {
+                if (!$doc->aiResult) {
+                    \App\Models\AIResult::create([
+                        'document_id' => $doc->id,
+                        'fraud_probability' => 0.00,
+                        'classification' => 'scanning'
+                    ]);
+                }
+            }
+            \App\Jobs\ScanDocumentJob::dispatch($application->id);
+        }
+
         // Dispatch database notifications to assigned staff
         try {
             $assignedStaff = \App\Models\User::where('role', 'admin')
