@@ -216,13 +216,21 @@ def analyze_document():
         file.save(original_path)
         
         try:
-            generate_ela(original_path, ela_path)
-            score, label = run_cnn_inference_and_gradcam(original_path, ela_path, heatmap_path)
-
-            # Try to extract GWA text if the uploaded file is a PDF
-            extracted_gwa = None
             if original_ext == 'pdf':
                 extracted_gwa = extract_gwa_from_pdf(original_path)
+                return jsonify({
+                    "status": "success",
+                    "fraud_probability": 0.0,
+                    "classification": "Authentic (PDF Bypass)",
+                    "extracted_gwa": extracted_gwa,
+                    "paths": {
+                        "heatmap_path": None,
+                        "ela_path": None
+                    }
+                }), 200
+
+            generate_ela(original_path, ela_path)
+            score, label = run_cnn_inference_and_gradcam(original_path, ela_path, heatmap_path)
 
             # Try to upload to Cloudinary for persistent storage
             heatmap_filename = os.path.basename(heatmap_path)
@@ -232,7 +240,7 @@ def analyze_document():
                 "status": "success",
                 "fraud_probability": score,
                 "classification": label,
-                "extracted_gwa": extracted_gwa,
+                "extracted_gwa": None,
                 "paths": {
                     # Use the permanent Cloudinary URL if available, else local filename
                     "heatmap_path": cloudinary_url if cloudinary_url else heatmap_path,

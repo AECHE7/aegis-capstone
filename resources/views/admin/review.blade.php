@@ -454,6 +454,7 @@
                         $isFailed    = $hasAiResult && $doc->aiResult->classification === 'failed';
                         $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $doc->aiResult->fraud_probability : 0;
                         $riskClass   = $fraudScore >= 70 ? 'danger' : ($fraudScore >= 40 ? 'warning' : 'success');
+                        $isPdf       = str_ends_with(strtolower($doc->original_name), '.pdf') || str_ends_with(strtolower($doc->file_path), '.pdf');
                     @endphp
                     <div class="doc-viewer-wrapper" id="viewer-doc-{{ $doc->id }}" style="display: {{ $loop->first ? 'block' : 'none' }};">
                         <div class="d-flex justify-content-end mb-3">
@@ -468,10 +469,15 @@
                             <div class="col-md-6">
                                 <div class="viewer-box">
                                     <div class="viewer-label"><i class="fa-solid fa-file me-1"></i> Original {{ $doc->document_type }}</div>
-                                    <img src="{{ route('document.view', $doc->id) }}"
-                                         alt="Original Student Document" class="img-zoomable"
-                                         onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found'"
-                                         onclick="openLightbox(this.src)">
+                                    @if($isPdf)
+                                        <iframe src="{{ route('document.view', $doc->id) }}"
+                                                style="width: 100%; height: 450px; border: none; border-radius: 8px;"></iframe>
+                                    @else
+                                        <img src="{{ route('document.view', $doc->id) }}"
+                                             alt="Original Student Document" class="img-zoomable"
+                                             onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found'"
+                                             onclick="openLightbox(this.src)">
+                                    @endif
                                 </div>
                             </div>
 
@@ -489,10 +495,18 @@
                                             <i class="fa-solid fa-triangle-exclamation fa-3x text-danger mb-2 opacity-50"></i>
                                             <small class="text-muted">Scan failed. Please retry.</small>
                                         </div>
-                                    @elseif($hasAiResult)
+                                    @elseif($hasAiResult && $doc->aiResult->heatmap_path)
                                         <img src="{{ route('document.heatmap', $doc->id) }}"
                                              alt="AI Heatmap Overlay" class="img-zoomable"
                                              onclick="openLightbox(this.src)">
+                                    @elseif($hasAiResult)
+                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px; text-align: center; padding: 20px;">
+                                            <i class="fa-solid fa-file-pdf fa-3x text-success mb-2 opacity-50"></i>
+                                            <small class="text-success fw-bold">PDF Document Bypassed AI Image Scan</small>
+                                            <span class="text-muted mt-2 d-block" style="font-size: 0.72rem; line-height: 1.4; max-width: 250px; margin: 0 auto;">
+                                                ELA pixel compression and ResNet-50 visual scan are only applicable to rasterized image formats (PNG, JPG, WebP).
+                                            </span>
+                                        </div>
                                     @else
                                         <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
                                             <i class="fa-solid fa-robot fa-3x text-danger mb-2 opacity-25"></i>
