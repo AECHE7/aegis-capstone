@@ -46,6 +46,7 @@ class SecurityHeaders
                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " .
                "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " .
                "img-src 'self' data: https://res.cloudinary.com https://placehold.co; " .
+               "frame-src 'self' data: https://res.cloudinary.com https://placehold.co; " .
                "connect-src 'self' https://cdn.jsdelivr.net; " .
                "frame-ancestors 'self';";
 

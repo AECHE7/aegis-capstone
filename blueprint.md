@@ -440,3 +440,13 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. Create `SingleActiveApplicationTest.php` to verify all pending, review, approved active term, approved inactive term, rejected, and cancelled status transitions (completed).
   4. Fix historic seeders in `BulkActionTest.php` to prevent false positive triggers during renewal threshold tests (completed).
   5. Run full test suite to guarantee 114 passing tests (completed).
+
+### Phase 44: Secure Document Proxying & Config Cache Resolution - [COMPLETED]
+- **Goal:** Fix production file retrieval errors, resolve iframe CSP frame blocks, and fix R2 uploads when configuration caching is active.
+- **Steps:**
+  1. **Resolve SweetAlert2 ReferenceError:** Reposition the SweetAlert2 CDN script tag before the views script stack in `layouts/app.blade.php` and remove the `defer` attribute.
+  2. **Stream/Proxy Remote Assets:** Refactor `document.view` and `application-field.file` routes to proxy file streams from Cloudflare R2 using Laravel Http client, keeping the URL origin as `'self'`.
+  3. **Mitigate Ephemeral Disk Loss:** Return custom CSS-styled HTML error placeholders inside the `<iframe>` if local files are missing on disk, avoiding redirect CSP violations.
+  4. **Support Config Caching:** Update `CloudStorageService.php` to use the cached `config()` values instead of `env()` helpers for Cloudflare R2 credentials.
+  5. **Whitelist CSP framing:** Add `frame-src 'self' data: https://res.cloudinary.com https://placehold.co;` to `SecurityHeaders.php` CSP middleware.
+  6. **Re-align test suite:** Update `CloudStorageTest.php` assertions to use `Http::fake` and verify faked proxy stream responses (121/121 tests pass).

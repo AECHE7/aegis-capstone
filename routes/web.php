@@ -206,10 +206,38 @@ Route::middleware(['auth'])->group(function () {
         }
         $path = $document->file_path;
         if (str_starts_with($path, 'http')) {
-            return redirect($path);
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(15)->get($path);
+                if ($response->successful()) {
+                    $mime = $response->header('Content-Type') ?: 'application/octet-stream';
+                    return response($response->body(), 200, [
+                        'Content-Type' => $mime,
+                        'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to stream remote document: " . $e->getMessage());
+            }
+            return response(
+                '<html><body style="font-family:sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:90vh; color:#64748b; background:#f8fafc; text-align:center; padding:20px;">' .
+                '<svg style="width:48px; height:48px; color:#ef4444; margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' .
+                '<h3 style="margin:0 0 6px 0; color:#0f172a; font-size:16px;">Remote Stream Failed</h3>' .
+                '<p style="margin:0; font-size:13px; max-width:280px; color:#64748b;">Could not stream the document from Cloudflare R2 bucket. Please check connection.</p>' .
+                '</body></html>',
+                200,
+                ['Content-Type' => 'text/html']
+            );
         }
         if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
-            return redirect('https://placehold.co/600x800?text=Original+File+Wiped+On+Redeploy');
+            return response(
+                '<html><body style="font-family:sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:90vh; color:#64748b; background:#f8fafc; text-align:center; padding:20px;">' .
+                '<svg style="width:48px; height:48px; color:#f59e0b; margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' .
+                '<h3 style="margin:0 0 6px 0; color:#0f172a; font-size:16px;">File Missing on Server</h3>' .
+                '<p style="margin:0; font-size:13px; max-width:280px; color:#64748b;">This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings in your environment to ensure persistent uploads.</p>' .
+                '</body></html>',
+                200,
+                ['Content-Type' => 'text/html']
+            );
         }
         return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($path));
     })->name('document.view');
@@ -251,9 +279,39 @@ Route::middleware(['auth'])->group(function () {
         }
         $path = $field->field_value;
         if (str_starts_with($path, 'http')) {
-            return redirect($path);
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(15)->get($path);
+                if ($response->successful()) {
+                    $mime = $response->header('Content-Type') ?: 'application/octet-stream';
+                    return response($response->body(), 200, [
+                        'Content-Type' => $mime,
+                        'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to stream remote document: " . $e->getMessage());
+            }
+            return response(
+                '<html><body style="font-family:sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:90vh; color:#64748b; background:#f8fafc; text-align:center; padding:20px;">' .
+                '<svg style="width:48px; height:48px; color:#ef4444; margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' .
+                '<h3 style="margin:0 0 6px 0; color:#0f172a; font-size:16px;">Remote Stream Failed</h3>' .
+                '<p style="margin:0; font-size:13px; max-width:280px; color:#64748b;">Could not stream the custom field document from Cloudflare R2 bucket. Please check connection.</p>' .
+                '</body></html>',
+                200,
+                ['Content-Type' => 'text/html']
+            );
         }
-        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) { abort(404); }
+        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
+            return response(
+                '<html><body style="font-family:sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:90vh; color:#64748b; background:#f8fafc; text-align:center; padding:20px;">' .
+                '<svg style="width:48px; height:48px; color:#f59e0b; margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' .
+                '<h3 style="margin:0 0 6px 0; color:#0f172a; font-size:16px;">File Missing on Server</h3>' .
+                '<p style="margin:0; font-size:13px; max-width:280px; color:#64748b;">This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings in your environment to ensure persistent uploads.</p>' .
+                '</body></html>',
+                200,
+                ['Content-Type' => 'text/html']
+            );
+        }
         return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($path));
     })->name('application-field.file');
 

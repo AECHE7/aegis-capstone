@@ -1309,9 +1309,9 @@
     });
 </script>
 
-@stack('scripts')
+{{-- SweetAlert2: loaded before views scripts to avoid undefined ReferenceError --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-{{-- SweetAlert2: deferred load (non-blocking — moved from <head>) --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+@stack('scripts')
 </body>
 </html>

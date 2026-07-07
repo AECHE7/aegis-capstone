@@ -17,9 +17,9 @@ class CloudStorageService
      */
     public static function upload(UploadedFile $file, string $folder = 'uploads'): string
     {
-        $hasR2 = !empty(env('CLOUDFLARE_R2_ACCESS_KEY_ID')) 
-              && !empty(env('CLOUDFLARE_R2_SECRET_ACCESS_KEY')) 
-              && !empty(env('CLOUDFLARE_R2_BUCKET'));
+        $hasR2 = !empty(config('filesystems.disks.r2.key')) 
+              && !empty(config('filesystems.disks.r2.secret')) 
+              && !empty(config('filesystems.disks.r2.bucket'));
 
         $extension = $file->getClientOriginalExtension();
         $uuid = (string) Str::uuid();
@@ -30,11 +30,11 @@ class CloudStorageService
                 // Upload to Cloudflare R2
                 $path = Storage::disk('r2')->putFileAs($folder, $file, $filename);
                 if ($path) {
-                    $baseUrl = env('CLOUDFLARE_R2_URL');
+                    $baseUrl = config('filesystems.disks.r2.url');
                     if (empty($baseUrl)) {
                         // fallback to constructing the R2 public endpoint
-                        $endpoint = env('CLOUDFLARE_R2_ENDPOINT');
-                        $baseUrl = rtrim($endpoint, '/') . '/' . env('CLOUDFLARE_R2_BUCKET');
+                        $endpoint = config('filesystems.disks.r2.endpoint');
+                        $baseUrl = rtrim($endpoint, '/') . '/' . config('filesystems.disks.r2.bucket');
                     }
                     return rtrim($baseUrl, '/') . '/' . $folder . '/' . $filename;
                 }
