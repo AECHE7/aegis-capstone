@@ -198,4 +198,59 @@ class MfaAuthenticationTest extends TestCase
         $this->assertTrue(auth()->check());
         $this->assertEquals($superadmin->id, auth()->id());
     }
+
+    public function test_user_can_view_remembered_devices_on_security_settings_page()
+    {
+        $user = User::factory()->create([
+            'email' => 'student@clsu.edu.ph',
+            'password' => Hash::make('password123'),
+            'role' => 'student',
+            'email_verified_at' => now(),
+        ]);
+
+        $device = \App\Models\UserMfaDevice::create([
+            'user_id' => $user->id,
+            'device_token' => \Illuminate\Support\Str::random(60),
+            'ip_address' => '127.0.0.1',
+            'user_agent_hash' => hash('sha256', 'Mozilla/5.0'),
+            'user_agent' => 'Mozilla/5.0 Chrome/120.0.0.0 Windows',
+            'expires_at' => now()->addDays(30),
+        ]);
+
+        $response = $this->actingAs($user)->get('/profile/security');
+        $response->assertStatus(200);
+        $response->assertSee('Chrome on Windows');
+        $response->assertSee('127.0.0.1');
+    }
+
+    public function test_user_can_revoke_trusted_device()
+    {
+        $user = User::factory()->create([
+            'email' => 'student@clsu.edu.ph',
+            'password' => Hash::make('password123'),
+            'role' => 'student',
+            'email_verified_at' => now(),
+        ]);
+
+        $device = \App\Models\UserMfaDevice::create([
+            'user_id' => $user->id,
+            'device_token' => \Illuminate\Support\Str::random(60),
+            'ip_address' => '127.0.0.1',
+            'user_agent_hash' => hash('sha256', 'Mozilla/5.0'),
+            'user_agent' => 'Mozilla/5.0 Chrome/120.0.0.0 Windows',
+            'expires_at' => now()->addDays(30),
+        ]);
+
+        $this->assertDatabaseHas('user_mfa_devices', [
+            'id' => $device->id,
+        ]);
+
+        $response = $this->actingAs($user)->delete("/profile/security/devices/{$device->id}");
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Trusted device revoked successfully!');
+
+        $this->assertDatabaseMissing('user_mfa_devices', [
+            'id' => $device->id,
+        ]);
+    }
 }

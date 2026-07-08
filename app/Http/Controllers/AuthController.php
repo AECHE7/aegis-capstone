@@ -49,6 +49,16 @@ class AuthController extends Controller
                 ])->onlyInput('email');
             }
 
+            // Check system-wide MFA enforcement settings
+            $mfaEnforcement = \App\Models\Setting::get('mfa_enforcement', 'all');
+            $shouldEnforceMfa = true;
+
+            if ($mfaEnforcement === 'none') {
+                $shouldEnforceMfa = false;
+            } elseif ($mfaEnforcement === 'students' && $user->role !== 'student') {
+                $shouldEnforceMfa = false;
+            }
+
             // Check if device is remembered (bypass MFA) or if user is an admin/superadmin (director dummy account)
             $isDummyAdminAccount = in_array($user->email, ['admin@clsu.edu.ph', 'director@clsu.edu.ph'], true);
             $deviceToken = $request->cookie('mfa_device_token');
@@ -65,7 +75,7 @@ class AuthController extends Controller
                 }
             }
 
-            if ($hasValidDevice || $isDummyAdminAccount) {
+            if (!$shouldEnforceMfa || $hasValidDevice || $isDummyAdminAccount) {
                 // Login user immediately
                 Auth::login($user);
                 $request->session()->regenerate();
@@ -174,6 +184,7 @@ class AuthController extends Controller
                     'device_token' => $deviceToken,
                     'ip_address' => $request->ip(),
                     'user_agent_hash' => $userAgentHash,
+                    'user_agent' => $request->userAgent(),
                     'expires_at' => now()->addDays(30),
                 ]);
 
@@ -202,7 +213,12 @@ class AuthController extends Controller
     // 2d. Show Security / Change Password Settings
     public function showSecurity()
     {
-        return view('auth.change_password');
+        $devices = auth()->user()->mfaDevices()
+            ->where('expires_at', '>', now())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('auth.change_password', compact('devices'));
     }
 
     // 2e. Update Password
@@ -218,6 +234,15 @@ class AuthController extends Controller
         $user->save();
 
         return back()->with('success', 'Your password has been changed successfully!');
+    }
+
+    // 2f. Revoke Trusted Device
+    public function revokeDevice(int $id)
+    {
+        $device = auth()->user()->mfaDevices()->findOrFail($id);
+        $device->delete();
+
+        return back()->with('success', 'Trusted device revoked successfully!');
     }
 
     // 3. Logout

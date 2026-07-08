@@ -102,6 +102,7 @@ Route::middleware(['auth'])->group(function () {
     // Security & Password Change
     Route::get('/profile/security', [AuthController::class, 'showSecurity'])->name('profile.security');
     Route::post('/profile/security', [AuthController::class, 'updatePassword'])->name('profile.security.update');
+    Route::delete('/profile/security/devices/{id}', [AuthController::class, 'revokeDevice'])->name('profile.security.devices.revoke');
 
     // Notifications routes
     Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');
@@ -202,6 +203,7 @@ Route::middleware(['auth'])->group(function () {
         // Dynamic System Settings Panel
         Route::get('/settings', [SuperAdminController::class, 'settings'])->name('superadmin.settings');
         Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
+        Route::post('/settings/security-reset', [SuperAdminController::class, 'revokeAllDevices'])->name('superadmin.settings.security-reset');
 
         // Email Broadcast Center
         Route::get('/broadcast', [SuperAdminController::class, 'showBroadcast'])->name('superadmin.broadcast');

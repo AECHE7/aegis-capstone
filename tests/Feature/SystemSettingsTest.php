@@ -107,6 +107,7 @@ class SystemSettingsTest extends TestCase
                                    'ai_fraud_threshold' => 75.5,
                                    'gwa_discrepancy_tolerance' => 0.05,
                                    'app_logo' => $newLogo,
+                                   'mfa_enforcement' => 'students',
                                ]);
 
         $updateResponse->assertRedirect();
@@ -116,6 +117,7 @@ class SystemSettingsTest extends TestCase
         $this->assertEquals('Custom State College', Setting::get('university_name'));
         $this->assertEquals(75.5, Setting::get('ai_fraud_threshold'));
         $this->assertEquals(0.05, Setting::get('gwa_discrepancy_tolerance'));
+        $this->assertEquals('students', Setting::get('mfa_enforcement'));
         $this->assertNotNull(Setting::get('app_logo'));
     }
 
@@ -219,5 +221,74 @@ class SystemSettingsTest extends TestCase
 
         $this->assertEquals(0, User::where('role', 'student')->count());
         $this->assertEquals(0, Application::count());
+    }
+
+    /** @test */
+    public function superadmin_can_revoke_all_trusted_devices_system_wide()
+    {
+        // Set up a trusted device
+        \App\Models\UserMfaDevice::create([
+            'user_id' => $this->student->id,
+            'device_token' => 'random_token',
+            'ip_address' => '127.0.0.1',
+            'user_agent_hash' => 'some_hash',
+            'expires_at' => now()->addDays(30),
+        ]);
+
+        $this->assertEquals(1, \App\Models\UserMfaDevice::count());
+
+        $response = $this->actingAs($this->superadmin)
+            ->post(route('superadmin.settings.security-reset'));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'All trusted devices system-wide have been successfully revoked.');
+        $this->assertEquals(0, \App\Models\UserMfaDevice::count());
+    }
+
+    /** @test */
+    public function mfa_enforcement_settings_are_respected()
+    {
+        // 1. When mfa_enforcement is 'none'
+        Setting::set('mfa_enforcement', 'none');
+
+        $response = $this->post('/login', [
+            'email' => $this->student->email,
+            'password' => 'password',
+        ]);
+
+        // Should bypass MFA and redirect to student dashboard
+        $response->assertRedirect(route('student.dashboard'));
+        $this->assertTrue(auth()->check());
+
+        auth()->logout();
+
+        // 2. When mfa_enforcement is 'students'
+        Setting::set('mfa_enforcement', 'students');
+
+        // Admin should bypass MFA
+        $admin = User::factory()->create([
+            'email' => 'customadmin@clsu.edu.ph',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $responseAdmin = $this->post('/login', [
+            'email' => 'customadmin@clsu.edu.ph',
+            'password' => 'password',
+        ]);
+
+        $responseAdmin->assertRedirect(route('admin.dashboard'));
+        $this->assertTrue(auth()->check());
+
+        auth()->logout();
+
+        // Student should STILL require MFA
+        $responseStudent = $this->post('/login', [
+            'email' => $this->student->email,
+            'password' => 'password',
+        ]);
+
+        $responseStudent->assertRedirect(route('login.mfa'));
     }
 }

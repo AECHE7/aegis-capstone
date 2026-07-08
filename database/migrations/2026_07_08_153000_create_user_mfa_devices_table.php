@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('device_token')->unique();
             $table->string('ip_address')->nullable();
             $table->string('user_agent_hash')->nullable();
+            $table->text('user_agent')->nullable();
             $table->timestamp('expires_at');
             $table->timestamps();
 

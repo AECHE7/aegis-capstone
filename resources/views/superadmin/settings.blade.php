@@ -123,6 +123,38 @@
                 </div>
             </div>
 
+            <!-- MFA & Device Security Controls -->
+            <div class="card mb-4" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+                <div class="card-header bg-transparent py-3 border-bottom border-light">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-shield-halved me-2 text-success"></i> MFA & Device Security Controls</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-6">
+                            <label for="mfa_enforcement" class="form-label fw-semibold small text-muted">System-Wide MFA Enforcement</label>
+                            <select class="form-select py-2" id="mfa_enforcement" name="mfa_enforcement" style="border-radius: 10px;">
+                                <option value="all" {{ old('mfa_enforcement', $settings['mfa_enforcement']) === 'all' ? 'selected' : '' }}>Enforced for All Users (Highest Security)</option>
+                                <option value="students" {{ old('mfa_enforcement', $settings['mfa_enforcement']) === 'students' ? 'selected' : '' }}>Enforced for Students Only</option>
+                                <option value="none" {{ old('mfa_enforcement', $settings['mfa_enforcement']) === 'none' ? 'selected' : '' }}>Disabled System-Wide</option>
+                            </select>
+                            <div class="form-text small text-muted mt-2">
+                                Control which users are required to undergo Multi-Factor Authentication upon logging in.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 text-md-end text-start">
+                            <label class="form-label fw-semibold small text-muted d-block">Emergency Security Action</label>
+                            <button type="button" class="btn btn-outline-danger py-2 fw-semibold" style="border-radius: 10px;" onclick="confirmRevokeDevices()">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i> Revoke All Devices System-Wide
+                            </button>
+                            <div class="form-text small text-muted mt-2">
+                                Revokes all remembered device tokens. All users will be forced to undergo MFA next time.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Actions -->
             <div class="d-flex justify-content-end mb-5">
                 <button type="submit" class="btn fw-bold px-4 py-2" 
@@ -131,6 +163,18 @@
                 </button>
             </div>
         </form>
+
+        <form id="revokeDevicesForm" action="{{ route('superadmin.settings.security-reset') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+
+        <script>
+            function confirmRevokeDevices() {
+                if (confirm('CAUTION: Are you sure you want to revoke all remembered trusted devices system-wide? Every user will be required to re-verify using MFA on their next login.')) {
+                    document.getElementById('revokeDevicesForm').submit();
+                }
+            }
+        </script>
     </div>
 </div>
 @endsection

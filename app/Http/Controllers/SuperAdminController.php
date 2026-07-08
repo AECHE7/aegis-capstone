@@ -624,6 +624,7 @@ class SuperAdminController extends Controller
             'ai_fraud_threshold' => \App\Models\Setting::get('ai_fraud_threshold', '50.0'),
             'gwa_discrepancy_tolerance' => \App\Models\Setting::get('gwa_discrepancy_tolerance', '0.01'),
             'app_logo' => \App\Models\Setting::get('app_logo'),
+            'mfa_enforcement' => \App\Models\Setting::get('mfa_enforcement', 'all'),
         ];
         return view('superadmin.settings', compact('settings'));
     }
@@ -636,12 +637,14 @@ class SuperAdminController extends Controller
             'ai_fraud_threshold' => 'required|numeric|min:0|max:100',
             'gwa_discrepancy_tolerance' => 'required|numeric|min:0|max:5',
             'app_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'mfa_enforcement' => 'required|in:all,students,none',
         ]);
 
         \App\Models\Setting::set('app_name', $request->app_name);
         \App\Models\Setting::set('university_name', $request->university_name);
         \App\Models\Setting::set('ai_fraud_threshold', $request->ai_fraud_threshold);
         \App\Models\Setting::set('gwa_discrepancy_tolerance', $request->gwa_discrepancy_tolerance);
+        \App\Models\Setting::set('mfa_enforcement', $request->mfa_enforcement);
 
         if ($request->boolean('reset_logo')) {
             \App\Models\Setting::set('app_logo', null);
@@ -651,6 +654,12 @@ class SuperAdminController extends Controller
         }
 
         return back()->with('success', 'System settings updated successfully.');
+    }
+
+    public function revokeAllDevices()
+    {
+        \App\Models\UserMfaDevice::truncate();
+        return back()->with('success', 'All trusted devices system-wide have been successfully revoked.');
     }
 
     public function showBroadcast()
