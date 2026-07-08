@@ -6,6 +6,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Str;
+use App\Models\UserMfaDevice;
 
 class AuthController extends Controller
 {
@@ -44,6 +47,40 @@ class AuthController extends Controller
                 return back()->withErrors([
                     'email' => 'Your account has been deactivated. Please contact the administrator.',
                 ])->onlyInput('email');
+            }
+
+            // Check if device is remembered (bypass MFA)
+            $deviceToken = $request->cookie('mfa_device_token');
+            $hasValidDevice = false;
+            if ($deviceToken) {
+                $userAgentHash = hash('sha256', $request->userAgent() ?: '');
+                $deviceExists = UserMfaDevice::where('user_id', $user->id)
+                    ->where('device_token', $deviceToken)
+                    ->where('user_agent_hash', $userAgentHash)
+                    ->where('expires_at', '>', now())
+                    ->exists();
+                if ($deviceExists) {
+                    $hasValidDevice = true;
+                }
+            }
+
+            if ($hasValidDevice) {
+                // Login user immediately
+                Auth::login($user);
+                $request->session()->regenerate();
+
+                // ROLE-BASED REDIRECTION
+                $role = $user->role;
+                if ($role === 'superadmin') {
+                    return redirect()->route('superadmin.scholarships');
+                } elseif ($role === 'admin') {
+                    return redirect()->route('admin.dashboard');
+                } else {
+                    if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
+                        return redirect()->route('verification.notice');
+                    }
+                    return redirect()->route('student.dashboard');
+                }
             }
 
             // Generate OTP
@@ -125,6 +162,22 @@ class AuthController extends Controller
             Auth::login($user);
             session()->forget('mfa_user_id');
             $request->session()->regenerate();
+
+            // Handle Remember Device Token
+            if ($request->has('remember_device')) {
+                $deviceToken = Str::random(60);
+                $userAgentHash = hash('sha256', $request->userAgent() ?: '');
+
+                UserMfaDevice::create([
+                    'user_id' => $user->id,
+                    'device_token' => $deviceToken,
+                    'ip_address' => $request->ip(),
+                    'user_agent_hash' => $userAgentHash,
+                    'expires_at' => now()->addDays(30),
+                ]);
+
+                Cookie::queue('mfa_device_token', $deviceToken, 30 * 24 * 60); // 30 days in minutes
+            }
 
             // ROLE-BASED REDIRECTION
             $role = $user->role;

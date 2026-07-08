@@ -126,6 +126,12 @@
                        maxlength="6" placeholder="000000" required autocomplete="off" autofocus
                        inputmode="numeric" pattern="[0-9]*">
             </div>
+            <div class="form-check text-start mb-4 d-flex align-items-center gap-2" style="margin-left: 2px;">
+                <input class="form-check-input" type="checkbox" name="remember_device" id="rememberDevice" checked style="cursor: pointer; width: 16px; height: 16px; margin: 0; accent-color: #0C4E2D;">
+                <label class="form-check-label" for="rememberDevice" style="cursor: pointer; color: #475569; font-size: 13.5px; user-select: none;">
+                    Remember this device for 30 days
+                </label>
+            </div>
             <button type="submit" class="btn btn-verify">
                 <i class="fa-solid fa-shield-halved me-2"></i> Verify Code
             </button>

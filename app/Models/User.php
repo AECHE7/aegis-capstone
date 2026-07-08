@@ -135,4 +135,12 @@ class User extends Authenticatable implements MustVerifyEmail
             })
             ->exists();
     }
+
+    /**
+     * A user can have many remembered MFA devices.
+     */
+    public function mfaDevices()
+    {
+        return $this->hasMany(UserMfaDevice::class);
+    }
 }

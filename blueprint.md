@@ -467,3 +467,12 @@ To transition the project from its current MVP setup to a robust, production-rea
   5. **Model Strict Mode Guard:** Enabled `Model::shouldBeStrict()` in non-production environments to audit for N+1 queries. Fixed model test instantiation missing-attribute errors by adding default `$attributes` array to the `User` model.
   6. **Validation checks:** Verified all 131 tests pass cleanly under strict mode parameters.
 
+### Phase 47: MFA "Remember Device" Trust Bypass - [COMPLETED]
+- **Goal:** Implement secure device remembering for Multi-Factor Authentication (MFA) to prevent repetitive OTP checks on the same device.
+- **Steps:**
+  1. **Database Migration**: Created `2026_07_08_153000_create_user_mfa_devices_table.php` to persist trusted device hashes.
+  2. **Model Definition**: Created `UserMfaDevice` model mapping the table and linked the `hasMany` relationship on `User.php`.
+  3. **Verification Checkbox**: Added a checkbox `remember_device` inside `mfa_verify.blade.php`.
+  4. **Bypass Checks**: Updated `AuthController@login` to check the `mfa_device_token` cookie and user agent hash against the database records to bypass MFA immediately.
+  5. **Token Generation**: Updated `AuthController@verifyMfa` to generate a secure random token, store it in the database with a 30-day expiration, and set a cookie on successful login if checked.
+  6. **Feature Tests**: Added comprehensive test assertions in `MfaAuthenticationTest.php` verifying the remember cookie sets on check, bypasses on valid cookie, and rejects on agent mismatch (134/134 tests pass).
