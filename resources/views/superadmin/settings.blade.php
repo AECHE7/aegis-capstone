@@ -47,6 +47,29 @@
                 </div>
             </div>
 
+            <!-- Financial Settings -->
+            <div class="card mb-4" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+                <div class="card-header bg-transparent py-3 border-bottom border-light">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-wallet me-2 text-success"></i> Financial & Budget Allocation</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label for="total_budget" class="form-label fw-semibold small text-muted">Total Allocated Budget (Php)</label>
+                            <input type="number" class="form-control py-2 @error('total_budget') is-invalid @enderror" 
+                                   id="total_budget" name="total_budget" min="0" step="1" 
+                                   value="{{ old('total_budget', $settings['total_budget']) }}" required style="border-radius: 10px;">
+                            <div class="form-text small text-muted mt-1">
+                                Set the global allocated budget for all scholarship programs. This value is used in the Financial & Budget Tracker dashboard widget.
+                            </div>
+                            @error('total_budget')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- AI Settings -->
             <div class="card mb-4" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
                 <div class="card-header bg-transparent py-3 border-bottom border-light">
