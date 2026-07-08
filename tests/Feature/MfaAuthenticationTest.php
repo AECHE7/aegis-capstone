@@ -171,7 +171,7 @@ class MfaAuthenticationTest extends TestCase
         ]);
 
         $superadmin = User::factory()->create([
-            'email' => 'superadmin@clsu.edu.ph',
+            'email' => 'director@clsu.edu.ph',
             'password' => Hash::make('password123'),
             'role' => 'superadmin',
             'email_verified_at' => now(),
@@ -191,7 +191,7 @@ class MfaAuthenticationTest extends TestCase
 
         // 2. Superadmin login should redirect directly to superadmin page
         $response2 = $this->post('/login', [
-            'email' => 'superadmin@clsu.edu.ph',
+            'email' => 'director@clsu.edu.ph',
             'password' => 'password123',
         ]);
         $response2->assertRedirect(route('superadmin.scholarships'));

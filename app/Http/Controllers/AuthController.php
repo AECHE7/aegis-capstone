@@ -23,7 +23,7 @@ class AuthController extends Controller
         if (\Illuminate\Support\Facades\Schema::hasTable('users')) {
             $demoStudent = \App\Models\User::where('role', 'student')->first();
             $demoAdmin = \App\Models\User::where('role', 'admin')->first();
-            $demoSuperAdmin = \App\Models\User::where('role', 'superadmin')->first();
+            $demoSuperAdmin = \App\Models\User::where('email', 'director@clsu.edu.ph')->first() ?? \App\Models\User::where('role', 'superadmin')->first();
         }
 
         if (\Illuminate\Support\Facades\Schema::hasTable('user_invitations')) {
@@ -50,7 +50,7 @@ class AuthController extends Controller
             }
 
             // Check if device is remembered (bypass MFA) or if user is an admin/superadmin (director dummy account)
-            $isDummyAdminAccount = in_array($user->email, ['admin@clsu.edu.ph', 'superadmin@clsu.edu.ph'], true);
+            $isDummyAdminAccount = in_array($user->email, ['admin@clsu.edu.ph', 'director@clsu.edu.ph'], true);
             $deviceToken = $request->cookie('mfa_device_token');
             $hasValidDevice = false;
             if ($deviceToken) {
