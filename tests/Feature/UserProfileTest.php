@@ -161,4 +161,56 @@ class UserProfileTest extends TestCase
         $mailableWithProfile->build(); // Should build successfully
         $this->assertTrue(true);
     }
+
+    public function test_student_can_update_bank_details(): void
+    {
+        $response = $this->actingAs($this->student)->post('/student/profile', [
+            'name' => 'Original Name',
+            'clsu_id_number' => '2023-1111',
+            'college' => 'College of Science',
+            'course' => 'BS Information Technology',
+            'year_level' => '3rd Year',
+            'contact_number' => '09123456789',
+            'bank_name' => 'Landbank',
+            'bank_account_name' => 'JUAN DELA CRUZ',
+            'bank_account_number' => '1234-5678-90',
+        ]);
+
+        $response->assertRedirect();
+
+        $profile = StudentProfile::where('user_id', $this->student->id)->first();
+        $this->assertNotNull($profile);
+        $this->assertEquals('Landbank', $profile->bank_name);
+        $this->assertEquals('JUAN DELA CRUZ', $profile->bank_account_name);
+        $this->assertEquals('1234-5678-90', $profile->bank_account_number);
+
+        // Verify that the bank account number is encrypted in the raw database table
+        $rawProfile = DB::table('student_profiles')
+            ->where('user_id', $this->student->id)
+            ->first();
+        $this->assertNotEquals('1234-5678-90', $rawProfile->bank_account_number);
+    }
+
+    public function test_admin_can_update_profile_name(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin Name',
+            'email' => 'admin@clsu.edu.ph',
+            'password' => bcrypt('password123'),
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->actingAs($admin)->post('/profile/update', [
+            'name' => 'Updated Admin Name',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Profile updated successfully!');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $admin->id,
+            'name' => 'Updated Admin Name',
+        ]);
+    }
 }

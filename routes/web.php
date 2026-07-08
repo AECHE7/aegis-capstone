@@ -103,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/security', [AuthController::class, 'showSecurity'])->name('profile.security');
     Route::post('/profile/security', [AuthController::class, 'updatePassword'])->name('profile.security.update');
     Route::delete('/profile/security/devices/{id}', [AuthController::class, 'revokeDevice'])->name('profile.security.devices.revoke');
+    Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
 
     // Notifications routes
     Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');

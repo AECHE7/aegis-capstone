@@ -66,9 +66,9 @@
             <div class="sidebar-label mt-2">Account</div>
             <a href="{{ route('profile.security') }}" 
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
-               data-tooltip="Security">
-                <span class="sidebar-icon"><i class="fa-solid fa-key text-secondary"></i></span>
-                <span class="sidebar-text">Change Password</span>
+               data-tooltip="Settings">
+                <span class="sidebar-icon"><i class="fa-solid fa-user-gear text-secondary"></i></span>
+                <span class="sidebar-text">Account Settings</span>
             </a>
 
         @elseif(auth()->user()->role === 'superadmin')
@@ -119,9 +119,9 @@
             <div class="sidebar-label mt-2">Account</div>
             <a href="{{ route('profile.security') }}" 
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
-               data-tooltip="Security">
-                <span class="sidebar-icon"><i class="fa-solid fa-key text-secondary"></i></span>
-                <span class="sidebar-text">Change Password</span>
+               data-tooltip="Settings">
+                <span class="sidebar-icon"><i class="fa-solid fa-user-gear text-secondary"></i></span>
+                <span class="sidebar-text">Account Settings</span>
             </a>
 
         @elseif(auth()->user()->role === 'student')
@@ -163,11 +163,11 @@
                 </a>
             @endif
 
-            <a href="{{ route('student.profile') }}" 
-               class="sidebar-link {{ request()->routeIs('student.profile') ? 'active' : '' }}"
-               data-tooltip="Profile">
-                <span class="sidebar-icon"><i class="fa-solid fa-user"></i></span>
-                <span class="sidebar-text">My Profile</span>
+            <a href="{{ route('profile.security') }}" 
+               class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
+               data-tooltip="Settings">
+                <span class="sidebar-icon"><i class="fa-solid fa-user-gear"></i></span>
+                <span class="sidebar-text">Account Settings</span>
             </a>
         @endif
     </nav>

@@ -213,12 +213,17 @@ class AuthController extends Controller
     // 2d. Show Security / Change Password Settings
     public function showSecurity()
     {
-        $devices = auth()->user()->mfaDevices()
+        $user = auth()->user();
+        if ($user->role === 'student') {
+            $user->load('profile');
+        }
+
+        $devices = $user->mfaDevices()
             ->where('expires_at', '>', now())
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('auth.change_password', compact('devices'));
+        return view('auth.change_password', compact('user', 'devices'));
     }
 
     // 2e. Update Password
@@ -243,6 +248,62 @@ class AuthController extends Controller
         $device->delete();
 
         return back()->with('success', 'Trusted device revoked successfully!');
+    }
+
+    // 2g. Update Unified Profile Information
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        if ($user->role === 'student') {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'clsu_id_number' => ['required', 'string', 'regex:/^\d{4}-\d{4}$/'],
+                'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
+                'college' => 'required|string',
+                'course' => 'required|string',
+                'year_level' => 'required|string',
+                'bank_name' => 'nullable|string|max:255',
+                'bank_account_name' => 'nullable|string|max:255',
+                'bank_account_number' => 'nullable|string|max:255',
+            ], [
+                'clsu_id_number.regex' => 'The CLSU ID number must be in the format YYYY-XXXX (e.g. 2023-1234).',
+                'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
+            ]);
+
+            $user->name = $request->name;
+            $user->save();
+
+            $user->profile()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'clsu_id_number' => $request->clsu_id_number,
+                    'contact_number' => $request->contact_number,
+                    'college' => $request->college,
+                    'course' => $request->course,
+                    'year_level' => $request->year_level,
+                    'bank_name' => $request->bank_name,
+                    'bank_account_name' => $request->bank_account_name,
+                    'bank_account_number' => $request->bank_account_number,
+                ]
+            );
+        } else {
+            $request->validate([
+                'name' => 'required|string|max:255',
+            ]);
+
+            $user->name = $request->name;
+            $user->save();
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile updated successfully!'
+            ]);
+        }
+
+        return redirect()->route('profile.security')->with('success', 'Profile updated successfully!');
     }
 
     // 3. Logout

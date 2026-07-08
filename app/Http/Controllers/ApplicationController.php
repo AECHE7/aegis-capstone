@@ -252,8 +252,17 @@ class ApplicationController extends Controller
     // 3. Render Profile Page
     public function editProfile()
     {
-        $user = auth()->user()->load('profile');
-        return view('student.profile', compact('user'));
+        $user = auth()->user();
+        if ($user->role === 'student') {
+            $user->load('profile');
+        }
+
+        $devices = $user->mfaDevices()
+            ->where('expires_at', '>', now())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('auth.change_password', compact('user', 'devices'));
     }
 
     // 4. Update Profile Info
@@ -267,7 +276,10 @@ class ApplicationController extends Controller
             'college' => 'required|string|max:255',
             'course' => 'required|string|max:255',
             'year_level' => 'required|string|max:50',
-            'contact_number' => ['required', 'string', 'regex:/^(09|\+639)\d{9}$/'],
+            'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
+            'bank_name' => 'nullable|string|max:255',
+            'bank_account_name' => 'nullable|string|max:255',
+            'bank_account_number' => 'nullable|string|max:255',
         ], [
             'clsu_id_number.regex' => 'The CLSU ID number format must be YYYY-XXXX (e.g. 2023-4567).',
             'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
@@ -285,6 +297,9 @@ class ApplicationController extends Controller
                 'course' => $request->course,
                 'year_level' => $request->year_level,
                 'contact_number' => $request->contact_number,
+                'bank_name' => $request->bank_name,
+                'bank_account_name' => $request->bank_account_name,
+                'bank_account_number' => $request->bank_account_number,
             ]
         );
 
