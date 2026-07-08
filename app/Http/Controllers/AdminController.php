@@ -56,6 +56,14 @@ class AdminController extends Controller
             $query->whereYear('created_at', $request->year);
         }
 
+        if ($request->filled('type')) {
+            if ($request->type === 'renewal') {
+                $query->where('is_renewal', true);
+            } elseif ($request->type === 'new') {
+                $query->where('is_renewal', false);
+            }
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -81,6 +89,12 @@ class AdminController extends Controller
             ->orderByRaw('CASE WHEN applications.status = "Under Review" THEN 0 ELSE 1 END ASC')
             ->orderByRaw('CASE WHEN applications.status = "Under Review" THEN applications.updated_at ELSE NULL END ASC')
             ->orderBy('applications.created_at', 'desc');
+        } elseif ($request->query('sort') === 'gwa_asc') {
+            $query->orderBy('applications.gwa', 'asc');
+        } elseif ($request->query('sort') === 'gwa_desc') {
+            $query->orderBy('applications.gwa', 'desc');
+        } elseif ($request->query('sort') === 'oldest') {
+            $query->orderBy('applications.created_at', 'asc');
         } else {
             $query->orderBy('applications.created_at', 'desc');
         }
@@ -149,6 +163,14 @@ class AdminController extends Controller
             ]);
         }
 
+        // Fetch active scholars for monitoring panel (Approved scholars)
+        $activeScholarsQuery = \App\Models\Application::with(['user.profile', 'scholarship', 'academicTerm'])
+            ->where('status', 'Approved');
+        if (auth()->user()->role === 'admin') {
+            $activeScholarsQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+        }
+        $activeScholars = $activeScholarsQuery->latest('updated_at')->take(10)->get();
+
         return view('admin.dashboard', compact(
             'applications', 
             'pendingCount',
@@ -160,7 +182,8 @@ class AdminController extends Controller
             'years',
             'academicTerms',
             'archivedCount',
-            'cancelledCount'
+            'cancelledCount',
+            'activeScholars'
         ));
     }
 

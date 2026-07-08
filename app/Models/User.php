@@ -26,6 +26,17 @@ class User extends Authenticatable implements MustVerifyEmail
         'role', // Added role so we can assign Admin/Student
         'email_verified_at',
         'is_active',
+        'otp_code',
+        'otp_expires_at',
+        'has_completed_tour',
+    ];
+
+    /**
+     * Default model attributes.
+     */
+    protected $attributes = [
+        'has_completed_tour' => false,
+        'remember_token' => null,
     ];
 
     /**
@@ -49,6 +60,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'otp_expires_at' => 'datetime',
+            'has_completed_tour' => 'boolean',
         ];
     }
 

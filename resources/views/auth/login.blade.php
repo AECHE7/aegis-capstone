@@ -551,11 +551,41 @@
                     <a href="{{ route('password.request') }}" class="text-decoration-none fw-semibold" style="font-size: 0.83rem; color: var(--green);">Forgot password?</a>
                 </div>
 
-                <button type="submit" class="btn btn-login w-100 d-flex justify-content-center align-items-center gap-2" id="loginBtn" onclick="showSpinner()">
+                <button type="submit" class="btn btn-login w-100 d-flex justify-content-center align-items-center gap-2" id="loginBtn">
                     <span id="btnText">Secure Login</span>
                     <span id="btnSpinner" class="spinner-border spinner-border-sm d-none"></span>
                     <i class="fa-solid fa-arrow-right-to-bracket" id="btnArrow"></i>
                 </button>
+
+                @if(app()->environment('local', 'testing') && ($demoStudent || $demoAdmin || $demoSuperAdmin))
+                <div class="or-divider">QUICK DEMO ACCESS</div>
+                <div class="row g-2 mb-3">
+                    @if($demoStudent)
+                    <div class="col-4">
+                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoStudent->email }}')">
+                            <i class="fa-solid fa-user-graduate text-success fs-5"></i>
+                            <span class="small fw-semibold" style="font-size:0.72rem;">Student</span>
+                        </button>
+                    </div>
+                    @endif
+                    @if($demoAdmin)
+                    <div class="col-4">
+                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoAdmin->email }}')">
+                            <i class="fa-solid fa-user-shield text-info fs-5"></i>
+                            <span class="small fw-semibold" style="font-size:0.72rem;">OSA Admin</span>
+                        </button>
+                    </div>
+                    @endif
+                    @if($demoSuperAdmin)
+                    <div class="col-4">
+                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoSuperAdmin->email }}')">
+                            <i class="fa-solid fa-crown text-warning fs-5"></i>
+                            <span class="small fw-semibold" style="font-size:0.72rem;">Director</span>
+                        </button>
+                    </div>
+                    @endif
+                </div>
+                @endif
 
                 <p class="text-center text-muted mt-3 mb-0" style="font-size: 0.83rem;">
                     New student? <a href="{{ route('register') }}" class="fw-bold text-decoration-none" style="color: var(--green);">Create an account</a>
@@ -586,7 +616,6 @@
 </div>
 
 <script>
-
     /* ── Password Toggle ────────────────────────── */
     function togglePwd() {
         const input = document.getElementById('passwordInput');
@@ -600,13 +629,28 @@
         }
     }
 
-    /* ── Login Spinner ──────────────────────────── */
-    function showSpinner() {
+    /* ── Login Form Submit Spinner ──────────────── */
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('btnText').textContent = 'Authenticating...';
+        document.getElementById('btnSpinner').classList.remove('d-none');
+        document.getElementById('btnArrow').style.display = 'none';
+        document.getElementById('loginBtn').disabled = true;
+    });
+
+    /* ── Fill Demo Helper ───────────────────────── */
+    function fillDemo(email) {
+        document.getElementById('emailInput').value = email;
+        document.getElementById('passwordInput').value = 'password';
+        
+        // Trigger submit spinner manually and submit the form
+        document.getElementById('btnText').textContent = 'Authenticating...';
+        document.getElementById('btnSpinner').classList.remove('d-none');
+        document.getElementById('btnArrow').style.display = 'none';
+        document.getElementById('loginBtn').disabled = true;
+        
         setTimeout(() => {
-            document.getElementById('btnText').textContent = 'Authenticating...';
-            document.getElementById('btnSpinner').classList.remove('d-none');
-            document.getElementById('btnArrow').style.display = 'none';
-        }, 10);
+            document.querySelector('form').submit();
+        }, 150);
     }
 </script>
 

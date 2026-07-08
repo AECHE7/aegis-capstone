@@ -12,8 +12,23 @@ class Announcement extends Model
     protected $fillable = [
         'title',
         'content',
-        'author_id'
+        'author_id',
+        'scheduled_publish_at',
+        'scheduled_delete_at',
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'scheduled_publish_at' => 'datetime',
+            'scheduled_delete_at' => 'datetime',
+        ];
+    }
 
     /**
      * Relationship: An announcement is authored by a user (admin or superadmin)

@@ -36,6 +36,7 @@ class SuperAdminController extends Controller
             'min_gwa_required' => $request->min_gwa_required,
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
+            'stipend_amount' => $request->stipend_amount ?? 0,
             'status' => 'Active'
         ]);
 
@@ -105,6 +106,7 @@ class SuperAdminController extends Controller
             'min_gwa_required' => $request->min_gwa_required,
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
+            'stipend_amount' => $request->stipend_amount ?? $scholarship->stipend_amount,
         ]);
 
         // Wipe and rebuild fields
@@ -277,6 +279,22 @@ class SuperAdminController extends Controller
             ];
         });
 
+        // 9. Financial Budget Tracker — real data
+        $totalBudget = (int) \App\Models\Setting::get('total_budget', 5000000);
+        // Compute disbursed: sum of (approved scholars × stipend_amount) per scholarship
+        $disbursed = \App\Models\Scholarship::withCount(['applications as scholars_count' => function ($q) {
+            $q->where('status', 'Approved');
+        }])->get()->sum(function ($s) {
+            return $s->scholars_count * ($s->stipend_amount ?? 0);
+        });
+        $remaining = max(0, $totalBudget - $disbursed);
+
+        // Fetch active scholars system-wide for monitoring
+        $activeScholars = \App\Models\Application::with(['user.profile', 'scholarship', 'academicTerm'])
+            ->where('status', 'Approved')
+            ->latest('updated_at')
+            ->get();
+
         // Pass the new variables to dashboard
         return view('superadmin.analytics', compact(
             'totalStudents', 
@@ -289,7 +307,11 @@ class SuperAdminController extends Controller
             'statusCounts',
             'riskTiers',
             'monthlyTrend',
-            'scholarshipsBreakdown'
+            'scholarshipsBreakdown',
+            'totalBudget',
+            'disbursed',
+            'remaining',
+            'activeScholars'
         ));
     }
 
@@ -629,5 +651,27 @@ class SuperAdminController extends Controller
         }
 
         return back()->with('success', 'System settings updated successfully.');
+    }
+
+    public function showBroadcast()
+    {
+        $scholarships = \App\Models\Scholarship::latest()->get();
+        $broadcasts = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')
+            ->latest()
+            ->paginate(10);
+        return view('superadmin.broadcast', compact('scholarships', 'broadcasts'));
+    }
+
+    public function sendBroadcast(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'body' => 'required|string',
+            'target' => 'required|string',
+        ]);
+
+        \App\Jobs\BroadcastAnnouncementEmailJob::dispatch($request->title, $request->body, $request->target);
+
+        return back()->with('success', 'Email broadcast has been queued for delivery.');
     }
 }

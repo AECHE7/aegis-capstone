@@ -21,10 +21,14 @@ class Application extends Model
         'admin_notes',
         'evaluated_by',
         'is_archived',
+        'is_renewal',
+        'previous_application_id',
+        'forfeit_reason',
     ];
 
     protected $casts = [
         'is_archived' => 'boolean',
+        'is_renewal'  => 'boolean',
     ];
 
     /**

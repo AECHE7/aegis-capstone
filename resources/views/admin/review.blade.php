@@ -151,7 +151,11 @@
         </div>
         <div>
             @if($application->trashed())
-                <span class="status-badge bg-secondary text-white"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                @if($application->forfeit_reason)
+                    <span class="status-badge bg-dark text-white" style="background-color: #475569 !important;"><i class="fa-solid fa-user-slash"></i> Forfeited</span>
+                @else
+                    <span class="status-badge bg-secondary text-white"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                @endif
             @elseif($application->status == 'Pending')
                 <span class="status-badge pending"><i class="fa-solid fa-hourglass-half"></i> Pending</span>
             @elseif($application->status == 'Under Review')
@@ -301,10 +305,18 @@
                 </div>
 
                 @if($application->trashed())
-                    <div class="alert alert-warning text-center rounded-3 mb-3 small" style="border: none; background: #fffbeb; color: #b45309;">
-                        <i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Cancelled Application</strong><br>
-                        This application was cancelled by the student and is soft-deleted.
-                    </div>
+                    @if($application->forfeit_reason)
+                        <div class="alert alert-danger text-center rounded-3 mb-3 small" style="border: none; background: #fef2f2; color: #991b1b;">
+                            <i class="fa-solid fa-user-slash me-1"></i> <strong>Forfeited / Backed Out Scholarship</strong><br>
+                            This scholar backed out / forfeited their scholarship grant.<br>
+                            <strong>Reason:</strong> <em>"{{ $application->forfeit_reason }}"</em>
+                        </div>
+                    @else
+                        <div class="alert alert-warning text-center rounded-3 mb-3 small" style="border: none; background: #fffbeb; color: #b45309;">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Cancelled Application</strong><br>
+                            This application was cancelled by the student and is soft-deleted.
+                        </div>
+                    @endif
                     <button type="button" id="restoreReviewBtn" class="btn btn-success fw-bold w-100 py-2 text-white" style="border-radius:10px;">
                         <i class="fa-solid fa-trash-arrow-up me-1"></i> Restore Application
                     </button>

@@ -72,6 +72,17 @@
                 </td>
                 <td>
                     <div class="fw-medium text-dark" style="font-size:0.875rem;">{{ $app->program_name }}</div>
+                    <div class="mt-0.5">
+                        @if($app->is_renewal)
+                            <span class="badge text-dark bg-warning" style="font-size: 0.65rem; font-weight: 600; background-color: #fef3c7;">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i> Renewal
+                            </span>
+                        @else
+                            <span class="badge text-muted bg-light" style="font-size: 0.65rem; font-weight: 600; border: 1px solid #e2e8f0;">
+                                <i class="fa-solid fa-star me-1"></i> First Time
+                            </span>
+                        @endif
+                    </div>
                 </td>
                 <td class="text-center">
                     <span class="badge rounded-pill px-2 py-1 fw-bold monospace-data" style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid var(--border-color);">{{ $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A' }}</span>
@@ -91,7 +102,11 @@
                 </td>
                 <td class="text-center">
                     @if($app->trashed())
-                        <span class="status-badge bg-secondary text-white"><i class="fa-solid fa-ban" style="font-size:0.65rem;"></i> Cancelled</span>
+                        @if($app->forfeit_reason)
+                            <span class="status-badge bg-dark text-white" style="background-color: #475569 !important;"><i class="fa-solid fa-user-slash" style="font-size:0.65rem;"></i> Forfeited</span>
+                        @else
+                            <span class="status-badge bg-secondary text-white"><i class="fa-solid fa-ban" style="font-size:0.65rem;"></i> Cancelled</span>
+                        @endif
                     @elseif($app->status == 'Pending')
                         <span class="status-badge pending"><i class="fa-solid fa-hourglass-half" style="font-size:0.65rem;"></i> Pending</span>
                     @elseif($app->status == 'Under Review')

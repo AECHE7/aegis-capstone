@@ -12,6 +12,9 @@ use App\Http\Controllers\AuthController;
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/login', [AuthController::class, 'showLogin']); 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
+Route::get('/login/mfa', [AuthController::class, 'showMfa'])->name('login.mfa');
+Route::post('/login/mfa', [AuthController::class, 'verifyMfa'])->middleware('throttle:5,1')->name('login.mfa.verify');
+Route::post('/login/mfa/resend', [AuthController::class, 'resendMfa'])->middleware('throttle:3,1')->name('login.mfa.resend');
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
 Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
     $expectedKey = env('SCHEDULER_KEY', 'aegis_cron_secret');
@@ -96,6 +99,10 @@ Route::middleware(['auth'])->group(function () {
     // Logout is secured
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // Security & Password Change
+    Route::get('/profile/security', [AuthController::class, 'showSecurity'])->name('profile.security');
+    Route::post('/profile/security', [AuthController::class, 'updatePassword'])->name('profile.security.update');
+
     // Notifications routes
     Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');
     Route::get('/notifications/stream', [AuthController::class, 'streamNotifications'])->name('notifications.stream');
@@ -125,6 +132,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/application/{id}/cancel', [ApplicationController::class, 'cancel'])->name('student.application.cancel');
         Route::post('/application/{id}/withdraw', [ApplicationController::class, 'withdraw'])->name('student.application.withdraw');
         Route::post('/application/{id}/restore', [ApplicationController::class, 'restore'])->name('student.application.restore');
+
+        // Onboarding Tour & Forfeiture
+        Route::post('/student/complete-tour', [ApplicationController::class, 'completeTour'])->name('student.complete-tour');
+        Route::post('/application/{id}/forfeit', [ApplicationController::class, 'forfeit'])->name('student.application.forfeit');
     });
 
     // OSA ADMIN DASHBOARD
@@ -147,6 +158,7 @@ Route::middleware(['auth'])->group(function () {
         // Announcement Board Management
         Route::get('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('admin.announcements.index');
         Route::post('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'store'])->name('admin.announcements.store');
+        Route::patch('/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'update'])->name('admin.announcements.update');
         Route::delete('/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'destroy'])->name('admin.announcements.destroy');
     });
 
@@ -190,6 +202,10 @@ Route::middleware(['auth'])->group(function () {
         // Dynamic System Settings Panel
         Route::get('/settings', [SuperAdminController::class, 'settings'])->name('superadmin.settings');
         Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
+
+        // Email Broadcast Center
+        Route::get('/broadcast', [SuperAdminController::class, 'showBroadcast'])->name('superadmin.broadcast');
+        Route::post('/broadcast', [SuperAdminController::class, 'sendBroadcast'])->name('superadmin.broadcast.send');
     });
 
     // SECURE FILE VIEWING

@@ -49,15 +49,54 @@
                         </div>
                     </td>
                     <td>
-                        <span class="text-muted small monospace-data">
-                            {{ $announcement->created_at->format('M d, Y h:i A') }}
-                        </span>
+                        <div>
+                            <span class="text-muted small monospace-data">
+                                {{ $announcement->created_at->format('M d, Y h:i A') }}
+                            </span>
+                        </div>
+                        @if($announcement->scheduled_publish_at)
+                            <div class="mt-1">
+                                @if($announcement->scheduled_publish_at->isFuture())
+                                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">
+                                        <i class="fa-solid fa-clock me-1"></i> Publish: {{ $announcement->scheduled_publish_at->format('M d, Y h:i A') }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-success" style="font-size: 0.65rem;">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Published: {{ $announcement->scheduled_publish_at->format('M d, Y h:i A') }}
+                                    </span>
+                                @endif
+                            </div>
+                        @endif
+                        @if($announcement->scheduled_delete_at)
+                            <div class="mt-1">
+                                @if($announcement->scheduled_delete_at->isPast())
+                                    <span class="badge bg-secondary" style="font-size: 0.65rem;">
+                                        <i class="fa-solid fa-eye-slash me-1"></i> Expired: {{ $announcement->scheduled_delete_at->format('M d, Y h:i A') }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-danger" style="font-size: 0.65rem;">
+                                        <i class="fa-solid fa-hourglass-half me-1"></i> Expires: {{ $announcement->scheduled_delete_at->format('M d, Y h:i A') }}
+                                    </span>
+                                @endif
+                            </div>
+                        @endif
                     </td>
                     <td class="pe-4 text-end">
-                        <button type="button" class="btn btn-sm btn-outline-danger fw-semibold rounded-pill px-3"
-                                onclick="deleteAnnouncement({{ $announcement->id }})" style="font-size:0.78rem;">
-                            <i class="fa-solid fa-trash-can me-1"></i> Delete
-                        </button>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3"
+                                    data-id="{{ $announcement->id }}"
+                                    data-title="{{ $announcement->title }}"
+                                    data-content="{{ $announcement->content }}"
+                                    data-publish="{{ $announcement->scheduled_publish_at ? $announcement->scheduled_publish_at->format('Y-m-d\TH:i') : '' }}"
+                                    data-delete="{{ $announcement->scheduled_delete_at ? $announcement->scheduled_delete_at->format('Y-m-d\TH:i') : '' }}"
+                                    onclick="openEditModal(this)" style="font-size:0.78rem;">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> Edit
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger fw-semibold rounded-pill px-3"
+                                    onclick="deleteAnnouncement({{ $announcement->id }})" style="font-size:0.78rem;">
+                                <i class="fa-solid fa-trash-can me-1"></i> Delete
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 @empty
@@ -104,15 +143,79 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold small text-muted" for="announcementContent">Content Details</label>
-                        <textarea name="content" id="announcementContent" class="form-control" rows="8" required 
+                        <textarea name="content" id="announcementContent" class="form-control" rows="6" required 
                                   placeholder="Provide the complete announcement announcement detail text here..."
                                   style="resize: none;"></textarea>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted" for="scheduledPublishAt">Publish Date & Time (Optional)</label>
+                            <input type="datetime-local" name="scheduled_publish_at" id="scheduledPublishAt" class="form-control">
+                            <small class="text-muted" style="font-size: 0.72rem;">Leave blank to publish instantly.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted" for="scheduledDeleteAt">Expiration/Delete Date & Time (Optional)</label>
+                            <input type="datetime-local" name="scheduled_delete_at" id="scheduledDeleteAt" class="form-control">
+                            <small class="text-muted" style="font-size: 0.72rem;">Auto-hide from student feed after this time.</small>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
                     <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
                     <button type="submit" id="submitBtn" class="btn text-white fw-bold px-4" style="background: var(--clsu-green); border-radius: 8px;">
                         Publish Broadcast
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Edit Announcement Modal --}}
+<div class="modal fade" id="editAnnouncementModal" tabindex="-1" aria-labelledby="editAnnouncementModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header border-0 text-white" style="background: linear-gradient(135deg, #0f1f12, #0F5934); padding: 1.5rem;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0" id="editAnnouncementModalLabel">
+                        <i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Announcement
+                    </h5>
+                    <small class="text-white-50">Modify announcement guidelines or reschedule publish/expiration dates</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editAnnouncementForm" onsubmit="submitEditAnnouncement(event)">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="id" id="editAnnouncementId">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted" for="editAnnouncementTitle">Announcement Title</label>
+                        <input type="text" name="title" id="editAnnouncementTitle" class="form-control" required placeholder="e.g., Mandatory Guidelines Update for GAD Scholarship Applications" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted" for="editAnnouncementContent">Content Details</label>
+                        <textarea name="content" id="editAnnouncementContent" class="form-control" rows="6" required 
+                                  placeholder="Provide the complete announcement announcement detail text here..."
+                                  style="resize: none;"></textarea>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted" for="editScheduledPublishAt">Publish Date & Time (Optional)</label>
+                            <input type="datetime-local" name="scheduled_publish_at" id="editScheduledPublishAt" class="form-control">
+                            <small class="text-muted" style="font-size: 0.72rem;">Leave blank to publish instantly.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-muted" for="editScheduledDeleteAt">Expiration/Delete Date & Time (Optional)</label>
+                            <input type="datetime-local" name="scheduled_delete_at" id="editScheduledDeleteAt" class="form-control">
+                            <small class="text-muted" style="font-size: 0.72rem;">Auto-hide from student feed after this time.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+                    <button type="submit" id="editSubmitBtn" class="btn text-white fw-bold px-4" style="background: var(--clsu-green); border-radius: 8px;">
+                        Save Changes
                     </button>
                 </div>
             </form>
@@ -170,6 +273,73 @@
             });
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Publish Broadcast';
+        }
+    }
+
+    function openEditModal(btn) {
+        const id = btn.dataset.id;
+        const title = btn.dataset.title;
+        const content = btn.dataset.content;
+        const publish = btn.dataset.publish;
+        const delTime = btn.dataset.delete;
+
+        document.getElementById('editAnnouncementId').value = id;
+        document.getElementById('editAnnouncementTitle').value = title;
+        document.getElementById('editAnnouncementContent').value = content;
+        document.getElementById('editScheduledPublishAt').value = publish;
+        document.getElementById('editScheduledDeleteAt').value = delTime;
+
+        const modal = new bootstrap.Modal(document.getElementById('editAnnouncementModal'));
+        modal.show();
+    }
+
+    async function submitEditAnnouncement(event) {
+        event.preventDefault();
+        const form = document.getElementById('editAnnouncementForm');
+        const id = document.getElementById('editAnnouncementId').value;
+        const submitBtn = document.getElementById('editSubmitBtn');
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
+
+        try {
+            const response = await fetch(`/admin/announcements/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: new FormData(form)
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Saved!',
+                    text: data.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: data.message || 'An error occurred.'
+                });
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Save Changes';
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An unexpected connection error occurred.'
+            });
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Save Changes';
         }
     }
 

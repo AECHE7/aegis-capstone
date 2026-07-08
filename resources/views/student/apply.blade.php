@@ -133,6 +133,10 @@
                     @csrf
                     <input type="hidden" name="program_name" id="programNameInput">
                     <input type="hidden" name="scholarship_id" id="scholarshipIdInput">
+                    @if(isset($prevApp))
+                        <input type="hidden" name="is_renewal" value="1">
+                        <input type="hidden" name="previous_application_id" value="{{ $prevApp->id }}">
+                    @endif
 
                     {{-- Step 1: Scholarship --}}
                     <div class="mb-4">
@@ -173,9 +177,10 @@
                     </div>
 
                     {{-- Submit --}}
-                    <button type="submit" class="btn-submit-app w-100" id="submitBtn" onclick="showLoading()">
+                    <button type="submit" class="btn-submit-app w-100" id="submitBtn" aria-describedby="submitHelpText">
                         <i class="fa-solid fa-paper-plane me-2"></i> Submit Application to OSA
                     </button>
+                    <div id="submitHelpText" class="text-danger small mt-2 text-center fw-semibold" style="display:none;" role="alert"></div>
                 </form>
             </div>
         </div>
@@ -350,8 +355,10 @@
     function updateChecklist() {
         const chkScholarship = document.getElementById('chkScholarship');
         const submitBtn = document.getElementById('submitBtn');
+        const submitHelpText = document.getElementById('submitHelpText');
 
         let allValid = true;
+        let missingFields = [];
 
         // 1. Scholarship selected check
         const schId = document.getElementById('scholarshipIdInput').value;
@@ -364,6 +371,7 @@
             chkScholarship.querySelector('.badge i').className = 'fa-solid fa-xmark';
             chkScholarship.querySelector('span').className = 'text-muted';
             allValid = false;
+            missingFields.push("Select a Scholarship Program");
         }
 
         // 2. Dynamic custom fields checks
@@ -383,6 +391,7 @@
 
             if (isRequired && !isFilled) {
                 allValid = false;
+                missingFields.push(input.dataset.label);
             }
 
             const checklistItems = document.getElementById('checklistItems');
@@ -417,7 +426,29 @@
             checklistItems.appendChild(item);
         });
 
-        submitBtn.disabled = !allValid;
+        // Accessible disabled states: Button remains focusable but styled disabled
+        if (allValid) {
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+            submitBtn.style.filter = 'none';
+            submitBtn.setAttribute('aria-disabled', 'false');
+            if (submitHelpText) {
+                submitHelpText.style.display = 'none';
+                submitHelpText.textContent = '';
+            }
+        } else {
+            submitBtn.style.opacity = '0.6';
+            submitBtn.style.cursor = 'not-allowed';
+            submitBtn.style.filter = 'grayscale(30%)';
+            submitBtn.setAttribute('aria-disabled', 'true');
+            if (submitHelpText) {
+                submitHelpText.style.display = 'block';
+                submitHelpText.innerHTML = `<i class="fa-solid fa-circle-exclamation me-1"></i> Please complete: ${missingFields.join(', ')}`;
+            }
+        }
+        
+        // Cache the validation status on the form element
+        document.getElementById('applicationForm').dataset.valid = allValid ? '1' : '0';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -427,6 +458,13 @@
             dynamicBody.addEventListener('input', updateChecklist);
             dynamicBody.addEventListener('change', updateChecklist);
         }
+        
+        @if(isset($prevApp))
+            const prevCard = document.querySelector('.scholarship-card-select[data-id="{{ $prevApp->scholarship_id }}"]');
+            if (prevCard) {
+                selectScholarship(prevCard);
+            }
+        @endif
     });
 
     // ── AJAX Application Form Submission ──────────────
@@ -434,6 +472,17 @@
     if (appForm) {
         appForm.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Perform accessibility and completion validation check
+            if (appForm.dataset.valid !== '1') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Form Incomplete',
+                    text: 'Please complete all required fields on the application form first.',
+                    confirmButtonColor: '#0C4E2D'
+                });
+                return;
+            }
 
             if (!appForm.checkValidity()) {
                 appForm.reportValidity();

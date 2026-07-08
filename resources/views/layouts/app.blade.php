@@ -1,14 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    {{-- Inline theme init (non-blocking, before first paint) --}}
-    <script>
-        (function () {
-            const savedTheme = localStorage.getItem('aegis-theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="@yield('meta_description', 'A.E.G.I.S. is Central Luzon State University\'s official scholarship management portal. Apply for scholarships, track your application status, and receive real-time updates.')">
@@ -71,17 +64,6 @@
             --transition: border-color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
         }
 
-        [data-theme="dark"] {
-            --clsu-bg: #0b0f19;
-            --card-bg: #111827;
-            --text-main: #94a3b8;
-            --text-title: #f8fafc;
-            --border-color: rgba(255, 255, 255, 0.07);
-            --clsu-dark: #070a10;
-            --shadow-sm: none;
-            --shadow-md: none;
-            --shadow-lg: none;
-        }
 
         /* ══════════════════════════════════════════
            SKELETON LOADER & MICRO-INTERACTIONS
@@ -784,144 +766,7 @@
          SIDEBAR LAYOUT (ADMIN / SUPERADMIN)
     ═══════════════════════════════════════════ --}}
     
-    <!-- Sidebar -->
-    <aside class="sidebar" id="mainSidebar" role="complementary" aria-label="Application navigation sidebar">
-        <!-- Brand -->
-        <a href="#" class="sidebar-brand text-decoration-none">
-            <div class="sidebar-brand-icon d-flex align-items-center justify-content-center">
-                @if(\App\Models\Setting::get('app_logo'))
-                    <img src="{{ route('system.logo') }}" style="width: 24px; height: 24px; object-fit: contain;">
-                @else
-                    <i class="fa-solid fa-shield-halved text-dark fs-5"></i>
-                @endif
-            </div>
-            <div class="sidebar-brand-text">
-                <span class="sidebar-brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}</span>
-                <span class="sidebar-brand-sub">OSA Portal</span>
-            </div>
-        </a>
-
-        <!-- Role Badge -->
-        <div class="sidebar-role">
-            <div class="sidebar-role-badge">
-                @if(auth()->user()->role === 'superadmin')
-                    <i class="fa-solid fa-crown text-warning" style="min-width: 14px;"></i>
-                    <span class="role-text fw-bold text-warning" style="overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</span>
-                @elseif(auth()->user()->role === 'admin')
-                    <i class="fa-solid fa-user-shield text-info" style="min-width: 14px;"></i>
-                    <span class="role-text" style="overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</span>
-                @else
-                    <i class="fa-solid fa-user-graduate text-success" style="min-width: 14px;"></i>
-                    <span class="role-text text-success" style="overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</span>
-                @endif
-            </div>
-        </div>
-
-        <!-- Navigation -->
-        <nav class="sidebar-nav" aria-label="Main navigation">
-            @if(auth()->user()->role === 'admin')
-                <div class="sidebar-label">Main Menu</div>
-                <a href="{{ route('admin.dashboard') }}" 
-                   class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
-                   data-tooltip="Queue">
-                    <span class="sidebar-icon"><i class="fa-solid fa-layer-group"></i></span>
-                    <span class="sidebar-text">Application Queue</span>
-                </a>
-
-                <a href="{{ route('admin.announcements.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
-                   data-tooltip="Announcements">
-                    <span class="sidebar-icon"><i class="fa-solid fa-bullhorn text-warning"></i></span>
-                    <span class="sidebar-text">Announcements</span>
-                </a>
-
-                <div class="sidebar-label mt-2">Reports</div>
-                <a href="{{ route('admin.export') }}" 
-                   class="sidebar-link"
-                   data-tooltip="CSV">
-                    <span class="sidebar-icon"><i class="fa-solid fa-file-csv text-success"></i></span>
-                    <span class="sidebar-text">Export CSV</span>
-                </a>
-                <a href="{{ route('admin.exportPdf') }}" 
-                   class="sidebar-link"
-                   data-tooltip="PDF">
-                    <span class="sidebar-icon"><i class="fa-solid fa-file-pdf text-danger"></i></span>
-                    <span class="sidebar-text">Export PDF</span>
-                </a>
-
-            @elseif(auth()->user()->role === 'superadmin')
-                <div class="sidebar-label">Director</div>
-                <a href="{{ route('superadmin.analytics') }}" 
-                   class="sidebar-link {{ request()->routeIs('superadmin.analytics') ? 'active' : '' }}"
-                   data-tooltip="Analytics">
-                    <span class="sidebar-icon"><i class="fa-solid fa-chart-line"></i></span>
-                    <span class="sidebar-text">Analytics</span>
-                </a>
-                <a href="{{ route('superadmin.scholarships') }}" 
-                   class="sidebar-link {{ request()->routeIs('superadmin.scholarships') ? 'active' : '' }}"
-                   data-tooltip="Programs">
-                    <span class="sidebar-icon"><i class="fa-solid fa-list-check"></i></span>
-                    <span class="sidebar-text">Scholarship Programs</span>
-                </a>
-                <a href="{{ route('superadmin.staff') }}" 
-                   class="sidebar-link {{ request()->routeIs('superadmin.staff') ? 'active' : '' }}"
-                   data-tooltip="Staff">
-                    <span class="sidebar-icon"><i class="fa-solid fa-users-gear"></i></span>
-                    <span class="sidebar-text">Staff Accounts</span>
-                </a>
-                <a href="{{ route('admin.announcements.index') }}" 
-                   class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
-                   data-tooltip="Announcements">
-                    <span class="sidebar-icon"><i class="fa-solid fa-bullhorn text-warning"></i></span>
-                    <span class="sidebar-text">Announcements</span>
-                </a>
-                <a href="{{ route('superadmin.trash') }}" 
-                   class="sidebar-link {{ request()->routeIs('superadmin.trash') ? 'active' : '' }}"
-                   data-tooltip="Trash">
-                    <span class="sidebar-icon"><i class="fa-solid fa-trash-can"></i></span>
-                    <span class="sidebar-text">System Trash</span>
-                </a>
-                <a href="{{ route('superadmin.settings') }}" 
-                   class="sidebar-link {{ request()->routeIs('superadmin.settings') ? 'active' : '' }}"
-                   data-tooltip="Settings">
-                    <span class="sidebar-icon"><i class="fa-solid fa-gears text-success"></i></span>
-                    <span class="sidebar-text">System Settings</span>
-                </a>
-
-            @elseif(auth()->user()->role === 'student')
-                <div class="sidebar-label">Student Menu</div>
-                <a href="{{ route('student.dashboard') }}" 
-                   class="sidebar-link {{ request()->routeIs('student.dashboard') ? 'active' : '' }}"
-                   data-tooltip="My Application">
-                    <span class="sidebar-icon"><i class="fa-solid fa-house"></i></span>
-                    <span class="sidebar-text">My Application</span>
-                </a>
-                <a href="{{ route('student.apply') }}" 
-                   class="sidebar-link {{ request()->routeIs('student.apply') ? 'active' : '' }}"
-                   data-tooltip="Apply">
-                    <span class="sidebar-icon"><i class="fa-solid fa-plus"></i></span>
-                    <span class="sidebar-text">Apply for Scholarship</span>
-                </a>
-                <a href="{{ route('student.profile') }}" 
-                   class="sidebar-link {{ request()->routeIs('student.profile') ? 'active' : '' }}"
-                   data-tooltip="Profile">
-                    <span class="sidebar-icon"><i class="fa-solid fa-user"></i></span>
-                    <span class="sidebar-text">My Profile</span>
-                </a>
-            @endif
-        </nav>
-
-        <!-- Logout -->
-        <div class="sidebar-footer">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="sidebar-logout-btn">
-                    <i class="fa-solid fa-right-from-bracket" style="min-width: 16px;"></i>
-                    <span class="sidebar-text">Logout</span>
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('layouts.sidebar')
 
     <!-- Sidebar Backdrop for Mobile -->
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
@@ -946,10 +791,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <!-- Theme Switcher -->
-                <button class="btn btn-link topbar-icon-btn p-1 me-1" id="themeToggleBtn" type="button" style="box-shadow: none;" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
-                    <i class="fa-solid fa-moon fs-5" id="themeToggleIcon"></i>
-                </button>
+
 
                 <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-1">
@@ -1269,43 +1111,33 @@
         .catch(err => console.error('Error clearing notifications:', err));
     }
 
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('aegis-theme', newTheme);
-        
-        updateThemeToggleIcons(newTheme);
-    }
-
-    function updateThemeToggleIcons(theme) {
-        const icons = [
-            document.getElementById('themeToggleIcon'),
-            document.getElementById('themeToggleIconStudent')
-        ];
-        
-        icons.forEach(icon => {
-            if (icon) {
-                if (theme === 'dark') {
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
-                } else {
-                    icon.classList.remove('fa-sun');
-                    icon.classList.add('fa-moon');
-                }
-            }
-        });
-    }
-    
     document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('aegis-theme') || 'light';
-        updateThemeToggleIcons(savedTheme);
-        
         fetchNotifications();
 
         // Use standard AJAX polling instead of EventSource/SSE to prevent PHP worker exhaustion and session locking
         setInterval(fetchNotifications, 20000);
+
+        // SweetAlert2 Logout Confirmation
+        const logoutLink = document.getElementById('logoutLink');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Confirm Logout',
+                    text: 'Are you sure you want to log out of your session?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0C4E2D',
+                    cancelButtonColor: '#475569',
+                    confirmButtonText: 'Yes, Logout',
+                    customClass: { popup: 'rounded-4' }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById('logoutForm').submit();
+                    }
+                });
+            });
+        }
     });
 </script>
 

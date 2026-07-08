@@ -87,6 +87,56 @@
                 <i class="fa-solid fa-shield-virus"></i>
             </div>
         </div>
+</div>
+
+{{-- Financial & Budget Tracker Panel --}}
+<div class="card p-4 border-0 shadow-sm mb-4" style="border-radius:16px;">
+    <h5 class="fw-bold text-dark mb-1"><i class="fa-solid fa-calculator text-success me-2"></i> Financial & Budget Tracker</h5>
+    <p class="text-muted small mb-4">Real-time monitoring of fund allocation and stipend disbursements based on approved scholars per scholarship program.</p>
+    
+    @php
+        $utilizationRate = $totalBudget > 0 ? min(100, ($disbursed / $totalBudget) * 100) : 0;
+        $activeScholarsCount = $statusCounts['Approved'] ?? 0;
+    @endphp
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="p-3 bg-light rounded-3" style="border-left: 4px solid #0C4E2D;">
+                <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.8px;">Total Allocated Budget</div>
+                <div class="fw-bold text-dark fs-4 monospace-data">Php {{ number_format($totalBudget, 2) }}</div>
+                <small class="text-muted">Configurable in System Settings</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 bg-light rounded-3" style="border-left: 4px solid #D97706;">
+                <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.8px;">Disbursed Stipends</div>
+                <div class="fw-bold text-dark fs-4 monospace-data" style="color: #0C4E2D !important;">
+                    Php {{ number_format($disbursed, 2) }}
+                </div>
+                <small class="text-muted">Across {{ $activeScholarsCount }} Approved Scholars</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 bg-light rounded-3" style="border-left: 4px solid #b91c1c;">
+                <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.8px;">Remaining Balance</div>
+                <div class="fw-bold text-dark fs-4 monospace-data">
+                    Php {{ number_format($remaining, 2) }}
+                </div>
+                <small class="text-muted">Unallocated Funds</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="small fw-semibold text-dark">Budget Utilization Rate</span>
+            <span class="fw-bold text-dark small">{{ number_format($utilizationRate, 1) }}%</span>
+        </div>
+        <div class="progress" style="height: 10px; border-radius: 50px; background-color: #e2e8f0; overflow: hidden;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                 style="width: {{ $utilizationRate }}%; background: linear-gradient(90deg, #0C4E2D, #16a34a); border-radius: 50px;" 
+                 aria-valuenow="{{ $utilizationRate }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
     </div>
 </div>
 
@@ -306,6 +356,92 @@
                             </td>
                         </tr>
                         @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Active Scholars System-wide Monitoring Panel --}}
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card p-4" style="border-radius:16px;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-user-check text-success me-2"></i> System Scholars Monitoring Hub</h6>
+                <span class="badge bg-success text-white px-2.5 py-1 rounded-pill fw-semibold small">
+                    Total Scholars: {{ $activeScholars->count() }}
+                </span>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0 align-middle" style="font-size:0.875rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-main);">
+                            <th class="ps-4">Scholar Name</th>
+                            <th>Scholarship Program</th>
+                            <th>Active Term</th>
+                            <th class="text-center">Min GWA Required</th>
+                            <th class="text-center">Current Student GWA</th>
+                            <th class="text-center">Active Stipend</th>
+                            <th class="pe-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($activeScholars as $scholar)
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="eval-avatar" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #15803d; width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">
+                                        {{ strtoupper(substr($scholar->user->name ?? 'U', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold text-dark">{{ $scholar->user->name ?? 'Unknown' }}</div>
+                                        <div class="text-muted small monospace-data" style="font-size: 0.7rem;">{{ $scholar->user->profile?->clsu_id_number ?? 'N/A' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-medium text-dark">{{ $scholar->scholarship->name ?? $scholar->program_name }}</span>
+                            </td>
+                            <td>
+                                <span class="text-muted small">
+                                    @if($scholar->academicTerm)
+                                        {{ $scholar->academicTerm->semester }} Sem, AY {{ $scholar->academicTerm->academic_year }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="monospace-data text-muted">{{ $scholar->scholarship->min_gwa_required ?? 'N/A' }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill px-2.5 py-1 fw-bold monospace-data" 
+                                      style="background: #f0fdf4; color: var(--clsu-green); border: 1px solid #bcf0da; font-size: 0.78rem;">
+                                    {{ $scholar->gwa !== null ? number_format($scholar->gwa, 2) : 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold text-dark monospace-data">Php {{ number_format($scholar->scholarship->stipend_amount ?? 0, 2) }}</span>
+                            </td>
+                            <td class="pe-4 text-center">
+                                @php
+                                    $isGwaValid = !$scholar->scholarship || !$scholar->scholarship->min_gwa_required || ($scholar->gwa <= $scholar->scholarship->min_gwa_required);
+                                @endphp
+                                @if($isGwaValid)
+                                    <span class="badge bg-success px-2 py-1 rounded-pill" style="font-size: 0.68rem;"><i class="fa-solid fa-circle-check me-1"></i> Compliant</span>
+                                @else
+                                    <span class="badge bg-danger px-2 py-1 rounded-pill" style="font-size: 0.68rem;" title="Student's GWA exceeds the maximum allowed limit for this scholarship program"><i class="fa-solid fa-circle-exclamation me-1"></i> GWA Violation</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted small">
+                                <i class="fa-solid fa-circle-info me-1"></i> No approved scholars currently registered in this tracking term.
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

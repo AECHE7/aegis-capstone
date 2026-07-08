@@ -112,12 +112,12 @@
 {{-- Filter Bar --}}
 <div class="filter-bar mb-4">
     <form action="{{ route('admin.dashboard') }}" method="GET">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-2">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-2 col-lg">
                 <label class="form-label fw-semibold small text-muted mb-1" for="searchInput"><i class="fa-solid fa-magnifying-glass me-1"></i> Search</label>
                 <input type="text" name="search" id="searchInput" class="form-control" value="{{ request('search') }}" placeholder="Search..." autocomplete="off">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-lg">
                 <label class="form-label fw-semibold small text-muted mb-1" for="scholarshipSelect"><i class="fa-solid fa-graduation-cap me-1"></i> Scholarship</label>
                 <select name="scholarship_id" id="scholarshipSelect" class="form-select">
                     <option value="">All Programs</option>
@@ -126,7 +126,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-lg">
                 <label class="form-label fw-semibold small text-muted mb-1" for="statusSelect"><i class="fa-solid fa-circle-half-stroke me-1"></i> Status</label>
                 <select name="status" id="statusSelect" class="form-select">
                     <option value="">All Statuses</option>
@@ -137,7 +137,15 @@
                     <option value="Cancelled" {{ request('status') === 'Cancelled' ? 'selected' : '' }}>🗑️ Cancelled / Trash</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-lg">
+                <label class="form-label fw-semibold small text-muted mb-1" for="typeSelect"><i class="fa-solid fa-arrows-spin me-1"></i> Type</label>
+                <select name="type" id="typeSelect" class="form-select">
+                    <option value="">All Types</option>
+                    <option value="new" {{ request('type') === 'new' ? 'selected' : '' }}>🆕 First Time</option>
+                    <option value="renewal" {{ request('type') === 'renewal' ? 'selected' : '' }}>🔄 Renewal</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-lg">
                 <label class="form-label fw-semibold small text-muted mb-1" for="academicPeriodSelect"><i class="fa-solid fa-calendar me-1"></i> Period</label>
                 <select name="academic_term_id" id="academicPeriodSelect" class="form-select">
                     <option value="">All Periods</option>
@@ -148,15 +156,18 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-lg">
                 <label class="form-label fw-semibold small text-muted mb-1" for="sortSelect"><i class="fa-solid fa-arrow-down-wide-short me-1"></i> Sort By</label>
                 <select name="sort" id="sortSelect" class="form-select">
                     <option value="">Newest</option>
                     <option value="priority" {{ request('sort') === 'priority' ? 'selected' : '' }}>🔥 AEGIS Priority</option>
+                    <option value="gwa_asc" {{ request('sort') === 'gwa_asc' ? 'selected' : '' }}>📈 GWA (Lowest First)</option>
+                    <option value="gwa_desc" {{ request('sort') === 'gwa_desc' ? 'selected' : '' }}>📉 GWA (Highest First)</option>
+                    <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>⏳ Oldest</option>
                 </select>
             </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn fw-bold flex-grow-1" style="background: var(--clsu-green); color: white; border-radius: 8px; font-size:0.875rem;">
+            <div class="col-md-2 col-lg-auto d-flex gap-2">
+                <button type="submit" class="btn fw-bold px-3" style="background: var(--clsu-green); color: white; border-radius: 8px; font-size:0.875rem;">
                     Filter
                 </button>
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-light fw-bold" style="border-radius:8px;font-size:0.875rem;" title="Clear">
@@ -168,8 +179,96 @@
 </div>
 
 {{-- Application Queue Table --}}
-<div class="queue-table shadow-sm" id="tableContainer">
+<div class="queue-table shadow-sm mb-4" id="tableContainer">
     @include('admin.partials.application_table')
+</div>
+
+{{-- Active Scholars Monitoring Panel --}}
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-graduation-cap text-success me-2"></i> Current Term Scholars Monitoring</h5>
+                <small class="text-muted">Direct oversight of active approved scholars and grade performance</small>
+            </div>
+            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold small" style="background-color: #dcfce7; color: #14532d;">
+                Active Grants: {{ $activeScholars->count() }}
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table mb-0 align-middle">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-main);">
+                        <th class="ps-3">Scholar</th>
+                        <th>Scholarship Program</th>
+                        <th>Active Term</th>
+                        <th class="text-center">Min GWA</th>
+                        <th class="text-center">Student GWA</th>
+                        <th class="text-center">Stipend Amount</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($activeScholars as $scholar)
+                        <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.85rem;">
+                            <td class="ps-3 py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="student-avatar" style="width: 32px; height: 32px; font-size: 0.8rem; background-color: #f0fdf4; color: var(--clsu-green);">
+                                        {{ strtoupper(substr($scholar->user->name ?? 'U', 0, 2)) }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold text-dark">{{ $scholar->user->name ?? 'Unknown' }}</div>
+                                        <div class="text-muted small monospace-data" style="font-size: 0.7rem;">{{ $scholar->user->profile?->clsu_id_number ?? 'N/A' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-medium text-dark">{{ $scholar->scholarship->name ?? $scholar->program_name }}</span>
+                            </td>
+                            <td>
+                                <span class="text-muted small">
+                                    @if($scholar->academicTerm)
+                                        {{ $scholar->academicTerm->semester }} Sem, AY {{ $scholar->academicTerm->academic_year }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="monospace-data text-muted">{{ $scholar->scholarship->min_gwa_required ?? 'N/A' }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill px-2.5 py-1 fw-bold monospace-data" 
+                                      style="background: #f0fdf4; color: var(--clsu-green); border: 1px solid #bcf0da; font-size: 0.78rem;">
+                                    {{ $scholar->gwa !== null ? number_format($scholar->gwa, 2) : 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold text-dark monospace-data">Php {{ number_format($scholar->scholarship->stipend_amount ?? 0, 2) }}</span>
+                            </td>
+                            <td class="text-center">
+                                @php
+                                    $isGwaValid = !$scholar->scholarship || !$scholar->scholarship->min_gwa_required || ($scholar->gwa <= $scholar->scholarship->min_gwa_required);
+                                @endphp
+                                @if($isGwaValid)
+                                    <span class="badge bg-success px-2 py-1 rounded-pill" style="font-size: 0.68rem;"><i class="fa-solid fa-circle-check me-1"></i> Compliant</span>
+                                @else
+                                    <span class="badge bg-danger px-2 py-1 rounded-pill" style="font-size: 0.68rem;" title="Student's GWA exceeds the maximum allowed limit for this scholarship program"><i class="fa-solid fa-circle-exclamation me-1"></i> GWA Violation</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted small">
+                                <i class="fa-solid fa-circle-info me-1"></i> No approved scholars currently registered in this tracking term.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 {{-- Floating Bulk Action Bar --}}

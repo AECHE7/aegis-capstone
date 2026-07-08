@@ -51,12 +51,9 @@ class StaffInvitationNotification extends Notification
 
         return (new MailMessage)
             ->subject('[A.E.G.I.S.] Staff Account Invitation')
-            ->greeting('Hello, ' . $notifiable->name . '!')
-            ->line('You have been invited by the Super Admin to join the CLSU A.E.G.I.S. Portal as an OSA Staff member.')
-            ->line('Please click the button below to set up your password and activate your account.')
-            ->action('Activate Account', $activationUrl)
-            ->line('This invitation link will expire in 3 days.')
-            ->line('If you did not expect this invitation, no further action is required.')
-            ->salutation('Best regards, CLSU Office of Student Affairs');
+            ->view('emails.staff_invite', [
+                'name' => $notifiable->name,
+                'activationUrl' => $activationUrl
+            ]);
     }
 }

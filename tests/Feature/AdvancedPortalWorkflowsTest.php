@@ -73,11 +73,21 @@ class AdvancedPortalWorkflowsTest extends TestCase
     public function test_deactivated_staff_cannot_login(): void
     {
         // 1. Attempt login with active staff
+        $this->admin->otp_code = '123456';
+        $this->admin->otp_expires_at = now()->addMinutes(10);
+        $this->admin->save();
+
         $response = $this->post('/login', [
             'email' => 'staff@clsu.edu.ph',
             'password' => 'password',
         ]);
-        $response->assertRedirect(route('admin.dashboard'));
+        $response->assertRedirect(route('login.mfa'));
+
+        $mfaResponse = $this->withSession(['mfa_user_id' => $this->admin->id])
+            ->post('/login/mfa', [
+                'code' => '123456',
+            ]);
+        $mfaResponse->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($this->admin);
 
         $this->post('/logout');

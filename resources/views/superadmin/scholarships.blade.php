@@ -26,6 +26,7 @@
                     <th>Description</th>
                     <th class="text-center">Max GWA</th>
                     <th class="text-center">Max Renewals</th>
+                    <th class="text-center">Stipend</th>
                     <th class="text-center">Status</th>
                     <th class="pe-4 text-end">Action</th>
                 </tr>
@@ -54,6 +55,9 @@
                         <span style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
                             <i class="fa-solid fa-rotate me-1" style="font-size:0.6rem;"></i> {{ $scholarship->max_renewals ?? 4 }}
                         </span>
+                    </td>
+                    <td class="text-center fw-bold text-dark monospace-data" style="font-size: 0.82rem;">
+                        Php {{ number_format($scholarship->stipend_amount ?? 0, 2) }}
                     </td>
                     <td class="text-center">
                         @if($scholarship->status == 'Active')
@@ -136,13 +140,17 @@
                         {{-- Left Column: Form Builder --}}
                         <div class="col-lg-7 border-end pe-lg-4">
                             <div class="row g-3 mb-3">
-                                <div class="col-md-8">
+                                <div class="col-md-5">
                                     <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
                                     <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label fw-semibold small text-muted" for="maxRenewals">Max Renewals</label>
                                     <input type="number" min="1" max="12" name="max_renewals" id="maxRenewals" class="form-control" required value="4" placeholder="e.g., 4">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold small text-muted" for="stipendAmount">Monthly Stipend (Php)</label>
+                                    <input type="number" min="0" name="stipend_amount" id="stipendAmount" class="form-control" required value="0" placeholder="e.g., 5000">
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -218,13 +226,17 @@
                         {{-- Left Column: Form Builder --}}
                         <div class="col-lg-7 border-end pe-lg-4">
                             <div class="row g-3 mb-3">
-                                <div class="col-md-8">
+                                <div class="col-md-5">
                                     <label class="form-label fw-semibold small text-muted" for="editProgramName">Program Name</label>
                                     <input type="text" name="name" id="editProgramName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label fw-semibold small text-muted" for="editMaxRenewals">Max Renewals</label>
                                     <input type="number" min="1" max="12" name="max_renewals" id="editMaxRenewals" class="form-control" required placeholder="e.g., 4">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold small text-muted" for="editStipendAmount">Monthly Stipend (Php)</label>
+                                    <input type="number" min="0" name="stipend_amount" id="editStipendAmount" class="form-control" required placeholder="e.g., 5000">
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -835,6 +847,7 @@
                     const s = data.scholarship;
                     document.getElementById('editProgramName').value = s.name;
                     document.getElementById('editMaxRenewals').value = s.max_renewals ?? 4;
+                    document.getElementById('editStipendAmount').value = s.stipend_amount ?? 0;
                     document.getElementById('editProgramDesc').value = s.description;
 
                     // Set form update URL action

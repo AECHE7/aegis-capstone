@@ -60,12 +60,11 @@ class UiUxHealthCheckTest extends TestCase
         ]);
     }
 
-    public function test_page_renders_with_theme_initialization_scripts(): void
+    public function test_page_renders_with_clsu_theme_standardization(): void
     {
         $response = $this->actingAs($this->student)->get('/student/dashboard');
 
         $response->assertStatus(200);
-        $response->assertSee("localStorage.getItem('aegis-theme')", false);
-        $response->assertSee('toggleTheme()', false);
+        $response->assertSee('data-theme="light"', false);
     }
 }

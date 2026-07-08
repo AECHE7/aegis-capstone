@@ -108,7 +108,9 @@ class UserRegistrationTest extends TestCase
             'email' => 'unverified@clsu.edu.ph',
             'password' => bcrypt('password123'),
             'role' => 'student',
-            'email_verified_at' => null
+            'email_verified_at' => null,
+            'otp_code' => '123456',
+            'otp_expires_at' => now()->addMinutes(10),
         ]);
 
         $response = $this->post('/login', [
@@ -116,7 +118,14 @@ class UserRegistrationTest extends TestCase
             'password' => 'password123'
         ]);
 
-        $response->assertRedirect(route('verification.notice'));
+        $response->assertRedirect(route('login.mfa'));
+
+        $mfaResponse = $this->withSession(['mfa_user_id' => $user->id])
+            ->post('/login/mfa', [
+                'code' => '123456',
+            ]);
+
+        $mfaResponse->assertRedirect(route('verification.notice'));
     }
 
     public function test_verified_student_login_redirects_to_dashboard(): void
@@ -126,7 +135,9 @@ class UserRegistrationTest extends TestCase
             'email' => 'verified@clsu.edu.ph',
             'password' => bcrypt('password123'),
             'role' => 'student',
-            'email_verified_at' => now()
+            'email_verified_at' => now(),
+            'otp_code' => '123456',
+            'otp_expires_at' => now()->addMinutes(10),
         ]);
 
         $response = $this->post('/login', [
@@ -134,6 +145,13 @@ class UserRegistrationTest extends TestCase
             'password' => 'password123'
         ]);
 
-        $response->assertRedirect(route('student.dashboard'));
+        $response->assertRedirect(route('login.mfa'));
+
+        $mfaResponse = $this->withSession(['mfa_user_id' => $user->id])
+            ->post('/login/mfa', [
+                'code' => '123456',
+            ]);
+
+        $mfaResponse->assertRedirect(route('student.dashboard'));
     }
 }

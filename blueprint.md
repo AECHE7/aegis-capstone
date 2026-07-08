@@ -456,4 +456,14 @@ To transition the project from its current MVP setup to a robust, production-rea
 - **Steps:**
   1. **Dispatched Scan on Store:** Integrated `AIResult::create` placeholders and `ScanDocumentJob::dispatch` triggers directly within `ApplicationController@store` to start scanning immediately upon student submit.
   2. **Add Integration Tests:** Added `test_student_application_submission_automatically_triggers_ai_scan` in `DocumentScanTest.php` to verify job routing and scanning status initialization (122/122 tests pass).
-  3. **Documentation:** Documented persistent file storage instructions for Cloudflare R2 and Render persistent mounts.
+
+### Phase 46: Zero-Cost 6-Layer Infrastructure & Programming Best Practices - [COMPLETED]
+- **Goal:** Set up configurations and implement code-level best practices to allow deploying A.E.G.I.S. on a completely free-tier production environment with strict typing and strict Eloquent model checks.
+- **Steps:**
+  1. **Production Configuration template:** Created `env.example.production` outlining TLS Redis sessions/queues (Upstash), pooled serverless Postgres (Supabase/Neon), R2 private storage (Cloudflare R2), and SMTP mail routing (Brevo).
+  2. **PgBouncer Transaction Compatibility:** Added emulation settings support to `pgsql` driver in `config/database.php`.
+  3. **Strict Typing Enforcement:** Applied `declare(strict_types=1);` to all recently created/edited controllers and services.
+  4. **Decoupled Form Requests:** Refactored Announcement validations out of `AnnouncementController` into individual Form Request classes.
+  5. **Model Strict Mode Guard:** Enabled `Model::shouldBeStrict()` in non-production environments to audit for N+1 queries. Fixed model test instantiation missing-attribute errors by adding default `$attributes` array to the `User` model.
+  6. **Validation checks:** Verified all 131 tests pass cleanly under strict mode parameters.
+

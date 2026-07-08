@@ -28,7 +28,18 @@ class ApplicationController extends Controller
             ->orderBy('deleted_at', 'desc')
             ->get();
 
-        $announcements = \App\Models\Announcement::with('author')->latest()->take(3)->get();
+        $announcements = \App\Models\Announcement::with('author')
+            ->where(function($q) {
+                $q->whereNull('scheduled_publish_at')
+                  ->orWhere('scheduled_publish_at', '<=', now());
+            })
+            ->where(function($q) {
+                $q->whereNull('scheduled_delete_at')
+                  ->orWhere('scheduled_delete_at', '>', now());
+            })
+            ->latest()
+            ->take(3)
+            ->get();
 
         return view('student.dashboard', compact('application', 'cancelledApplications', 'announcements'));
     }
@@ -41,10 +52,17 @@ class ApplicationController extends Controller
                 ->with('error', 'Action Denied: You already have an active application or scholarship for this academic term.');
         }
 
+        $prevApp = null;
+        if (request()->has('renew_from')) {
+            $prevApp = Application::where('user_id', auth()->id())
+                ->where('status', 'Approved')
+                ->findOrFail(request('renew_from'));
+        }
+
         $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
             return \App\Models\Scholarship::where('status', 'Active')->get();
         });
-        return view('student.apply', compact('scholarships'));
+        return view('student.apply', compact('scholarships', 'prevApp'));
     }
 
     // 2. Save the Submitted Data
@@ -128,7 +146,9 @@ class ApplicationController extends Controller
             'academic_term_id' => $activeTerm ? $activeTerm->id : null,
             'program_name' => $scholarship->name, 
             'gwa' => $request->gwa,
-            'status' => 'Pending'
+            'status' => 'Pending',
+            'is_renewal' => $request->boolean('is_renewal') || !empty($request->previous_application_id),
+            'previous_application_id' => $request->previous_application_id ?: null,
         ]);
 
         // Log the initial status transition
@@ -329,22 +349,20 @@ class ApplicationController extends Controller
             ], 403);
         }
 
-        // Permanently delete document files if any
-        if ($application->document) {
-            $filePath = $application->document->file_path;
-            if (\Illuminate\Support\Facades\Storage::disk('local')->exists($filePath)) {
-                \Illuminate\Support\Facades\Storage::disk('local')->delete($filePath);
-            }
-            $application->document->forceDelete();
+        // Permanently delete all document files (COG + custom uploads) — works for both R2 and local
+        $application->load('documents', 'customFields');
+
+        foreach ($application->documents as $doc) {
+            \App\Services\CloudStorageService::delete($doc->file_path);
+            $doc->forceDelete();
         }
 
         // Permanently delete custom fields file uploads if any
         if ($application->customFields) {
             foreach ($application->customFields as $field) {
-                if (\Illuminate\Support\Str::startsWith($field->field_value, 'uploads/')) {
-                    if (\Illuminate\Support\Facades\Storage::disk('local')->exists($field->field_value)) {
-                        \Illuminate\Support\Facades\Storage::disk('local')->delete($field->field_value);
-                    }
+                if (!empty($field->field_value) &&
+                    (str_starts_with($field->field_value, 'http') || \Illuminate\Support\Str::startsWith($field->field_value, 'uploads/'))) {
+                    \App\Services\CloudStorageService::delete($field->field_value);
                 }
                 $field->delete();
             }
@@ -399,5 +417,63 @@ class ApplicationController extends Controller
         }
 
         return redirect()->route('student.dashboard')->with('success', 'Application restored successfully.');
+    }
+
+    // 8. Complete Guided Onboarding Tour
+    public function completeTour()
+    {
+        $user = auth()->user();
+        $user->has_completed_tour = true;
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    // 9. Forfeit / Backout Scholarship
+    public function forfeit(Request $request, $id)
+    {
+        $userId = auth()->id() ?? 1;
+        $application = Application::where('user_id', $userId)
+            ->where('status', 'Approved')
+            ->findOrFail($id);
+
+        $request->validate([
+            'reason' => 'required|string|min:5'
+        ]);
+
+        // Update status
+        $application->status = 'Cancelled'; // Mark status as Cancelled
+        $application->forfeit_reason = $request->reason;
+        $application->save();
+
+        // Log the change in status_logs
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => 'Cancelled',
+            'remarks' => 'Scholarship was forfeited/backed-out by the scholar. Reason: ' . $request->reason,
+            'changed_by' => $userId
+        ]);
+
+        // Send email notifications
+        try {
+            // Send status mail
+            \Illuminate\Support\Facades\Mail::to($application->user->email)->send(new \App\Mail\ApplicationStatusMail($application));
+            
+            // Also notify Director (superadmin)
+            $director = \App\Models\User::where('role', 'superadmin')->first();
+            if ($director) {
+                // Log audit trail email to director
+                \App\Models\EmailLog::create([
+                    'application_id' => $application->id,
+                    'recipient' => $director->email,
+                    'subject' => '[A.E.G.I.S. Alert] Scholar Forfeiture',
+                    'content' => "Scholar {$application->user->name} has backed out from the {$application->program_name} scholarship. Reason: {$request->reason}"
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to notify on forfeiture: ' . $e->getMessage());
+        }
+
+        return redirect()->route('student.dashboard')->with('success', 'You have successfully backed out of the scholarship.');
     }
 }
