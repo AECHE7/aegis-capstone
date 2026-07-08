@@ -379,7 +379,21 @@ class SuperAdminController extends Controller
         ]);
 
         // Send invitation notification
-        $user->notify(new \App\Notifications\StaffInvitationNotification($token));
+        try {
+            $user->notify(new \App\Notifications\StaffInvitationNotification($token));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to send staff invitation email to {$user->email}: " . $e->getMessage());
+            
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Staff account created and assigned successfully, but the invitation email could not be delivered. Please verify your SMTP config.',
+                    'staff' => $user->load('scholarships'),
+                    'warning' => true
+                ]);
+            }
+            return back()->with('warning', 'Staff account created and assigned successfully, but the invitation email could not be delivered. Please verify your SMTP settings.');
+        }
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([

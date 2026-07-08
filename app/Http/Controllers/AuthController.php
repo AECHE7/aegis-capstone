@@ -101,14 +101,20 @@ class AuthController extends Controller
             $user->save();
 
             // Send OTP Email
+            $mailSent = true;
             try {
                 \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\MfaOtpMail($otp));
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to send MFA OTP: ' . $e->getMessage());
+                $mailSent = false;
             }
 
             // Store user ID in session
             session(['mfa_user_id' => $user->id]);
+
+            if (!$mailSent) {
+                return redirect()->route('login.mfa')->with('warning', 'MFA initialization succeeded, but we failed to deliver the verification code to your email. Please check back in a few moments.');
+            }
 
             return redirect()->route('login.mfa')->with('success', 'A verification code has been sent to your email.');
         }
@@ -141,10 +147,19 @@ class AuthController extends Controller
         $user->otp_expires_at = now()->addMinutes(10);
         $user->save();
 
+        $mailSent = true;
         try {
             \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\MfaOtpMail($otp));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to resend MFA OTP: ' . $e->getMessage());
+            $mailSent = false;
+        }
+
+        if (!$mailSent) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to deliver the verification email. Please check your connection or try again later.'
+            ], 500);
         }
 
         return response()->json(['success' => true, 'message' => 'A new verification code has been sent to your email.']);

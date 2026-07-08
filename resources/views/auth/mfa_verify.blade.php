@@ -113,6 +113,12 @@
             </div>
         @endif
 
+        @if(session('warning'))
+            <div class="alert alert-warning border-0 small mb-4 py-2" style="background-color: #fffbeb; color: #78350f;">
+                <i class="fa-solid fa-circle-exclamation me-1"></i> {{ session('warning') }}
+            </div>
+        @endif
+
         @if($errors->has('code'))
             <div class="alert alert-danger border-0 small mb-4 py-2" style="background-color: #fee2e2; color: #7f1d1d;">
                 <i class="fa-solid fa-circle-exclamation me-1"></i> {{ $errors->first('code') }}
