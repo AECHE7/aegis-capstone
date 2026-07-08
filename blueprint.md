@@ -476,3 +476,15 @@ To transition the project from its current MVP setup to a robust, production-rea
   4. **Bypass Checks**: Updated `AuthController@login` to check the `mfa_device_token` cookie and user agent hash against the database records to bypass MFA immediately.
   5. **Token Generation**: Updated `AuthController@verifyMfa` to generate a secure random token, store it in the database with a 30-day expiration, and set a cookie on successful login if checked.
   6. **Feature Tests**: Added comprehensive test assertions in `MfaAuthenticationTest.php` verifying the remember cookie sets on check, bypasses on valid cookie, and rejects on agent mismatch (134/134 tests pass).
+
+### Phase 48: Global MFA Settings & Unified Account Settings Manager - [COMPLETED]
+- **Goal:** Provide SuperAdmins with global controls over MFA requirements and design a unified Account Settings view where all users can edit profiles (including encrypted bank accounts for student stipends).
+- **Steps:**
+  1. **Global MFA Configurations**: Added dropdown selector in SuperAdmin settings for System-wide MFA Enforcement levels (Enforced for all, Students only, or Disabled system-wide).
+  2. **Emergency Revocation Trigger**: Integrated a system-wide trusted device flush that truncates active tokens, forcing all users to complete MFA on next login.
+  3. **Database Migration**: Created migration adding `bank_name`, `bank_account_name`, and `bank_account_number` to `student_profiles` table.
+  4. **Model Encryption Casts**: Added fills and encrypted casts for the Landbank account number to guarantee compliance with AES-256 data protection guidelines.
+  5. **Unified Blade View**: Redesigned `change_password.blade.php` as a role-aware "Account Settings" page. Students can modify profile and banking details, while admins manage their display name. Change password forms and trusted devices are seamlessly side-by-side.
+  6. **Navigation Link Mappings**: Updated the main sidebar to point My Profile and Change Password options to the new unified Account Settings page.
+  7. **Feature Integration Tests**: Added test cases in `SystemSettingsTest.php` and `UserProfileTest.php` to assert global settings validation, encrypted database fields saving, and admin name edits (141/141 tests pass).
+
