@@ -488,3 +488,12 @@ To transition the project from its current MVP setup to a robust, production-rea
   6. **Navigation Link Mappings**: Updated the main sidebar to point My Profile and Change Password options to the new unified Account Settings page.
   7. **Feature Integration Tests**: Added test cases in `SystemSettingsTest.php` and `UserProfileTest.php` to assert global settings validation, encrypted database fields saving, and admin name edits (141/141 tests pass).
 
+### Phase 49: System-Wide SQLite & SMTP Error Mitigation - [COMPLETED]
+- **Goal:** Safeguard the application against database lock exceptions and SMTP connection timeouts which can manifest as HTTP 500 or 502 Bad Gateway responses.
+- **Steps:**
+  1. **SQLite Concurrency Optimization**: Configured `busy_timeout` to `10000` (10s) and set journal mode to `WAL` in `config/database.php` to optimize multi-process file access.
+  2. **Global Exception Rendering**: Registered custom exception handlers for database `QueryException` and `PDOException` in `bootstrap/app.php` to return a clean retry landing page (`db_error.blade.php`) instead of proxy failures.
+  3. **Synchronous Email Dispatch Protection**: Wrapped notification sends in `SuperAdminController` and `AuthController` in try-catch loops.
+  4. **Dynamic Warning Alerts**: Intercepted mail transmission failures, logging details and displaying clear, friendly session warning banners to the user.
+
+
