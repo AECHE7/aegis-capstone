@@ -49,7 +49,8 @@ class AuthController extends Controller
                 ])->onlyInput('email');
             }
 
-            // Check if device is remembered (bypass MFA)
+            // Check if device is remembered (bypass MFA) or if user is an admin/superadmin (director dummy account)
+            $isDummyAdminAccount = in_array($user->email, ['admin@clsu.edu.ph', 'superadmin@clsu.edu.ph'], true);
             $deviceToken = $request->cookie('mfa_device_token');
             $hasValidDevice = false;
             if ($deviceToken) {
@@ -64,7 +65,7 @@ class AuthController extends Controller
                 }
             }
 
-            if ($hasValidDevice) {
+            if ($hasValidDevice || $isDummyAdminAccount) {
                 // Login user immediately
                 Auth::login($user);
                 $request->session()->regenerate();

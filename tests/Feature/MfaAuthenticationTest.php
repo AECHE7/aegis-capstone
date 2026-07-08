@@ -160,4 +160,42 @@ class MfaAuthenticationTest extends TestCase
         $response->assertRedirect(route('login.mfa'));
         $this->assertFalse(auth()->check());
     }
+
+    public function test_admin_and_superadmin_logins_bypass_mfa_completely()
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin@clsu.edu.ph',
+            'password' => Hash::make('password123'),
+            'role' => 'admin',
+            'email_verified_at' => now(),
+        ]);
+
+        $superadmin = User::factory()->create([
+            'email' => 'superadmin@clsu.edu.ph',
+            'password' => Hash::make('password123'),
+            'role' => 'superadmin',
+            'email_verified_at' => now(),
+        ]);
+
+        // 1. Admin login should redirect directly to admin dashboard
+        $response1 = $this->post('/login', [
+            'email' => 'admin@clsu.edu.ph',
+            'password' => 'password123',
+        ]);
+        $response1->assertRedirect(route('admin.dashboard'));
+        $this->assertTrue(auth()->check());
+        $this->assertEquals($admin->id, auth()->id());
+
+        // Logout
+        auth()->logout();
+
+        // 2. Superadmin login should redirect directly to superadmin page
+        $response2 = $this->post('/login', [
+            'email' => 'superadmin@clsu.edu.ph',
+            'password' => 'password123',
+        ]);
+        $response2->assertRedirect(route('superadmin.scholarships'));
+        $this->assertTrue(auth()->check());
+        $this->assertEquals($superadmin->id, auth()->id());
+    }
 }
