@@ -496,4 +496,12 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. **Synchronous Email Dispatch Protection**: Wrapped notification sends in `SuperAdminController` and `AuthController` in try-catch loops.
   4. **Dynamic Warning Alerts**: Intercepted mail transmission failures, logging details and displaying clear, friendly session warning banners to the user.
 
+### Phase 50: Dynamic Total Allocated Budget Configuration - [COMPLETED]
+- **Goal:** Make the "Total Allocated Budget" widget on the Analytics Dashboard fully configurable by SuperAdmins via the System Settings panel instead of being hardcoded at 5,000,000.
+- **Steps:**
+  1. **Controller Settings Retrieval**: Added `'total_budget' => Setting::get('total_budget', '5000000')` to `SuperAdminController@settings()` to pass the current budget to the view.
+  2. **Controller Update Validation**: Added `'total_budget' => 'required|numeric|min:0'` to the `updateSettings()` validator and `Setting::set('total_budget', $request->total_budget)` to persist changes.
+  3. **Settings View Card**: Inserted a new **Financial & Budget Allocation** card in `resources/views/superadmin/settings.blade.php` with a number input (step=1, min=0) for the budget value.
+  4. **Test Assertions**: Updated `SystemSettingsTest` setup to seed a `total_budget` default and the update test to POST `total_budget=6000000` and assert the correct persisted value (141 tests, 577 assertions).
+
 
