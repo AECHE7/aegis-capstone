@@ -278,9 +278,6 @@ class AuthController extends Controller
                 'college' => 'required|string',
                 'course' => 'required|string',
                 'year_level' => 'required|string',
-                'bank_name' => 'nullable|string|max:255',
-                'bank_account_name' => 'nullable|string|max:255',
-                'bank_account_number' => 'nullable|string|max:255',
             ], [
                 'clsu_id_number.regex' => 'The CLSU ID number must be in the format YYYY-XXXX (e.g. 2023-1234).',
                 'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
@@ -297,9 +294,6 @@ class AuthController extends Controller
                     'college' => $request->college,
                     'course' => $request->course,
                     'year_level' => $request->year_level,
-                    'bank_name' => $request->bank_name,
-                    'bank_account_name' => $request->bank_account_name,
-                    'bank_account_number' => $request->bank_account_number,
                 ]
             );
         } else {

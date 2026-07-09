@@ -205,7 +205,6 @@
                         <th>Active Term</th>
                         <th class="text-center">Min GWA</th>
                         <th class="text-center">Student GWA</th>
-                        <th class="text-center">Stipend Amount</th>
                         <th class="text-center">Status</th>
                     </tr>
                 </thead>
@@ -244,9 +243,7 @@
                                     {{ $scholar->gwa !== null ? number_format($scholar->gwa, 2) : 'N/A' }}
                                 </span>
                             </td>
-                            <td class="text-center">
-                                <span class="fw-bold text-dark monospace-data">Php {{ number_format($scholar->scholarship->stipend_amount ?? 0, 2) }}</span>
-                            </td>
+
                             <td class="text-center">
                                 @php
                                     $isGwaValid = !$scholar->scholarship || !$scholar->scholarship->min_gwa_required || ($scholar->gwa <= $scholar->scholarship->min_gwa_required);
@@ -260,7 +257,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted small">
+                            <td colspan="6" class="text-center py-4 text-muted small">
                                 <i class="fa-solid fa-circle-info me-1"></i> No approved scholars currently registered in this tracking term.
                             </td>
                         </tr>

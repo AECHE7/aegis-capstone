@@ -277,9 +277,6 @@ class ApplicationController extends Controller
             'course' => 'required|string|max:255',
             'year_level' => 'required|string|max:50',
             'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-            'bank_name' => 'nullable|string|max:255',
-            'bank_account_name' => 'nullable|string|max:255',
-            'bank_account_number' => 'nullable|string|max:255',
         ], [
             'clsu_id_number.regex' => 'The CLSU ID number format must be YYYY-XXXX (e.g. 2023-4567).',
             'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
@@ -297,9 +294,6 @@ class ApplicationController extends Controller
                 'course' => $request->course,
                 'year_level' => $request->year_level,
                 'contact_number' => $request->contact_number,
-                'bank_name' => $request->bank_name,
-                'bank_account_name' => $request->bank_account_name,
-                'bank_account_number' => $request->bank_account_number,
             ]
         );
 

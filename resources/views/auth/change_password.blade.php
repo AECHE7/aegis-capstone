@@ -19,7 +19,7 @@
                     </div>
                 @endif
 
-                @if($errors->any() && ($errors->has('name') || $errors->has('clsu_id_number') || $errors->has('contact_number') || $errors->has('college') || $errors->has('course') || $errors->has('year_level') || $errors->has('bank_name') || $errors->has('bank_account_name') || $errors->has('bank_account_number')))
+                @if($errors->any() && ($errors->has('name') || $errors->has('clsu_id_number') || $errors->has('contact_number') || $errors->has('college') || $errors->has('course') || $errors->has('year_level')))
                     <div class="alert alert-danger border-0 small mb-4" style="background-color: #fee2e2; color: #7f1d1d; border-radius: 12px;">
                         <ul class="mb-0 ps-3">
                             @foreach($errors->all() as $error)
@@ -129,26 +129,7 @@
                                 </div>
                             </div>
 
-                            <!-- Bank Stipend Details -->
-                            <div class="col-12 mt-3 pt-3 border-top">
-                                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-money-bill-transfer text-success me-2"></i> Landbank Stipend Release Details</h6>
-                                <p class="text-muted small mb-3">Provide your Landbank account details to receive stipend releases upon scholarship payouts.</p>
-                            </div>
 
-                            <div class="col-md-4">
-                                <label for="bank_name" class="form-label fw-semibold text-dark small mb-1">Bank Name</label>
-                                <input type="text" name="bank_name" id="bank_name" class="form-control py-2" placeholder="e.g. Landbank" value="{{ old('bank_name', $user->profile->bank_name ?? '') }}" style="border-radius: 10px;">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="bank_account_name" class="form-label fw-semibold text-dark small mb-1">Account Name</label>
-                                <input type="text" name="bank_account_name" id="bank_account_name" class="form-control py-2" placeholder="e.g. JUAN DELA CRUZ" value="{{ old('bank_account_name', $user->profile->bank_account_name ?? '') }}" style="border-radius: 10px;">
-                            </div>
-
-                            <div class="col-md-4">
-                                <label for="bank_account_number" class="form-label fw-semibold text-dark small mb-1">Account Number</label>
-                                <input type="text" name="bank_account_number" id="bank_account_number" class="form-control py-2" placeholder="e.g. 1234-5678-90" value="{{ old('bank_account_number', $user->profile->bank_account_number ?? '') }}" style="border-radius: 10px;">
-                            </div>
                         @else
                             <!-- Admin / SuperAdmin Role Badge -->
                             <div class="col-12 mt-2">

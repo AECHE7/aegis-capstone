@@ -36,7 +36,6 @@ class SuperAdminController extends Controller
             'min_gwa_required' => $request->min_gwa_required,
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
-            'stipend_amount' => $request->stipend_amount ?? 0,
             'status' => 'Active'
         ]);
 
@@ -106,7 +105,6 @@ class SuperAdminController extends Controller
             'min_gwa_required' => $request->min_gwa_required,
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
-            'stipend_amount' => $request->stipend_amount ?? $scholarship->stipend_amount,
         ]);
 
         // Wipe and rebuild fields
@@ -279,16 +277,6 @@ class SuperAdminController extends Controller
             ];
         });
 
-        // 9. Financial Budget Tracker — real data
-        $totalBudget = (int) \App\Models\Setting::get('total_budget', 5000000);
-        // Compute disbursed: sum of (approved scholars × stipend_amount) per scholarship
-        $disbursed = \App\Models\Scholarship::withCount(['applications as scholars_count' => function ($q) {
-            $q->where('status', 'Approved');
-        }])->get()->sum(function ($s) {
-            return $s->scholars_count * ($s->stipend_amount ?? 0);
-        });
-        $remaining = max(0, $totalBudget - $disbursed);
-
         // Fetch active scholars system-wide for monitoring
         $activeScholars = \App\Models\Application::with(['user.profile', 'scholarship', 'academicTerm'])
             ->where('status', 'Approved')
@@ -308,9 +296,6 @@ class SuperAdminController extends Controller
             'riskTiers',
             'monthlyTrend',
             'scholarshipsBreakdown',
-            'totalBudget',
-            'disbursed',
-            'remaining',
             'activeScholars'
         ));
     }

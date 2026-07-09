@@ -89,56 +89,7 @@
         </div>
 </div>
 
-{{-- Financial & Budget Tracker Panel --}}
-<div class="card p-4 border-0 shadow-sm mb-4" style="border-radius:16px;">
-    <h5 class="fw-bold text-dark mb-1"><i class="fa-solid fa-calculator text-success me-2"></i> Financial & Budget Tracker</h5>
-    <p class="text-muted small mb-4">Real-time monitoring of fund allocation and stipend disbursements based on approved scholars per scholarship program.</p>
-    
-    @php
-        $utilizationRate = $totalBudget > 0 ? min(100, ($disbursed / $totalBudget) * 100) : 0;
-        $activeScholarsCount = $statusCounts['Approved'] ?? 0;
-    @endphp
 
-    <div class="row g-3">
-        <div class="col-md-4">
-            <div class="p-3 bg-light rounded-3" style="border-left: 4px solid #0C4E2D;">
-                <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.8px;">Total Allocated Budget</div>
-                <div class="fw-bold text-dark fs-4 monospace-data">Php {{ number_format($totalBudget, 2) }}</div>
-                <small class="text-muted">Configurable in System Settings</small>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="p-3 bg-light rounded-3" style="border-left: 4px solid #D97706;">
-                <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.8px;">Disbursed Stipends</div>
-                <div class="fw-bold text-dark fs-4 monospace-data" style="color: #0C4E2D !important;">
-                    Php {{ number_format($disbursed, 2) }}
-                </div>
-                <small class="text-muted">Across {{ $activeScholarsCount }} Approved Scholars</small>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="p-3 bg-light rounded-3" style="border-left: 4px solid #b91c1c;">
-                <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size: 0.65rem; letter-spacing: 0.8px;">Remaining Balance</div>
-                <div class="fw-bold text-dark fs-4 monospace-data">
-                    Php {{ number_format($remaining, 2) }}
-                </div>
-                <small class="text-muted">Unallocated Funds</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="small fw-semibold text-dark">Budget Utilization Rate</span>
-            <span class="fw-bold text-dark small">{{ number_format($utilizationRate, 1) }}%</span>
-        </div>
-        <div class="progress" style="height: 10px; border-radius: 50px; background-color: #e2e8f0; overflow: hidden;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
-                 style="width: {{ $utilizationRate }}%; background: linear-gradient(90deg, #0C4E2D, #16a34a); border-radius: 50px;" 
-                 aria-valuenow="{{ $utilizationRate }}" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-    </div>
-</div>
 
 {{-- Chart Row --}}
 <div class="row g-4 mb-4">
@@ -382,7 +333,6 @@
                             <th>Active Term</th>
                             <th class="text-center">Min GWA Required</th>
                             <th class="text-center">Current Student GWA</th>
-                            <th class="text-center">Active Stipend</th>
                             <th class="pe-4 text-center">Status</th>
                         </tr>
                     </thead>
@@ -421,9 +371,7 @@
                                     {{ $scholar->gwa !== null ? number_format($scholar->gwa, 2) : 'N/A' }}
                                 </span>
                             </td>
-                            <td class="text-center">
-                                <span class="fw-bold text-dark monospace-data">Php {{ number_format($scholar->scholarship->stipend_amount ?? 0, 2) }}</span>
-                            </td>
+
                             <td class="pe-4 text-center">
                                 @php
                                     $isGwaValid = !$scholar->scholarship || !$scholar->scholarship->min_gwa_required || ($scholar->gwa <= $scholar->scholarship->min_gwa_required);
@@ -437,7 +385,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted small">
+                            <td colspan="6" class="text-center py-4 text-muted small">
                                 <i class="fa-solid fa-circle-info me-1"></i> No approved scholars currently registered in this tracking term.
                             </td>
                         </tr>

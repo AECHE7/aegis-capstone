@@ -17,7 +17,6 @@ class Scholarship extends Model
         'deadline',
         'status',
         'max_renewals',
-        'stipend_amount',
     ];
 
     public function applications()
