@@ -172,6 +172,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/scholarships/{id}', [SuperAdminController::class, 'show'])->name('superadmin.scholarships.show');
         Route::put('/scholarships/{id}', [SuperAdminController::class, 'update'])->name('superadmin.scholarships.update');
         Route::get('/analytics', [SuperAdminController::class, 'analytics'])->name('superadmin.analytics');
+        Route::post('/analytics/seed-mock', [SuperAdminController::class, 'seedMockData'])->name('superadmin.analytics.seed-mock');
         Route::get('/staff', [SuperAdminController::class, 'listStaff'])->name('superadmin.staff');
         Route::post('/staff/invite', [SuperAdminController::class, 'inviteStaff'])->name('superadmin.staff.invite');
         Route::post('/staff/{id}/revoke', [SuperAdminController::class, 'revokeStaff'])->name('superadmin.staff.revoke');

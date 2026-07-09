@@ -48,7 +48,15 @@
 
 {{-- Filter Action Bar --}}
 <div class="card p-4 border-0 shadow-sm mb-4" style="border-radius: 16px;">
-    <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-filter text-success me-2"></i> Scoped Analytics Filtering</h6>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-filter text-success me-2"></i> Scoped Analytics Filtering</h6>
+        <form action="{{ route('superadmin.analytics.seed-mock') }}" method="POST" onsubmit="return confirm('Are you sure you want to seed the database with 40 mock student profiles and audit logs? This will clean up existing student records first.');">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-outline-success fw-semibold px-3" style="border-radius: 50px; border-color: #16a34a; color: #16a34a;">
+                <i class="fa-solid fa-database me-1"></i> Seed Mock Data
+            </button>
+        </form>
+    </div>
     <form action="{{ route('superadmin.analytics') }}" method="GET" class="row g-3 align-items-end">
         <div class="col-md-5">
             <label class="form-label fw-semibold text-dark small mb-1">Academic Year / Semester</label>
