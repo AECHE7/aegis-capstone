@@ -167,7 +167,9 @@ class ApplicationController extends Controller
                 'application_id' => $application->id,
                 'file_path' => $filePath,
                 'original_name' => $file->getClientOriginalName(),
-                'document_type' => 'COG'
+                'document_type' => 'COG',
+                'upload_event' => 'initial',
+                'uploaded_by' => $userId,
             ]);
         }
 
@@ -186,7 +188,9 @@ class ApplicationController extends Controller
                             'application_id' => $application->id,
                             'file_path' => $filePath,
                             'original_name' => $cfile->getClientOriginalName(),
-                            'document_type' => $field->field_label
+                            'document_type' => $field->field_label,
+                            'upload_event' => 'initial',
+                            'uploaded_by' => $userId,
                         ]);
                     }
                 } else {

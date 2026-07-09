@@ -44,6 +44,15 @@ class AuthController extends Controller
         $user = \App\Models\User::where('email', $request->email)->first();
         if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
             if (isset($user->is_active) && !$user->is_active) {
+                \App\Models\AuthLog::create([
+                    'user_id' => $user->id,
+                    'email_attempted' => $request->email,
+                    'event_type' => 'login_failed',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'status' => 'failed',
+                    'metadata' => ['reason' => 'account_deactivated'],
+                ]);
                 return back()->withErrors([
                     'email' => 'Your account has been deactivated. Please contact the administrator.',
                 ])->onlyInput('email');
@@ -79,6 +88,20 @@ class AuthController extends Controller
                 // Login user immediately
                 Auth::login($user);
                 $request->session()->regenerate();
+
+                \App\Models\AuthLog::create([
+                    'user_id' => $user->id,
+                    'email_attempted' => $request->email,
+                    'event_type' => 'login_success',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'status' => 'success',
+                    'metadata' => [
+                        'mfa_enforced' => $shouldEnforceMfa,
+                        'device_remembered' => $hasValidDevice,
+                        'dummy_account' => $isDummyAdminAccount
+                    ],
+                ]);
 
                 // ROLE-BASED REDIRECTION
                 $role = $user->role;
@@ -118,6 +141,16 @@ class AuthController extends Controller
 
             return redirect()->route('login.mfa')->with('success', 'A verification code has been sent to your email.');
         }
+
+        \App\Models\AuthLog::create([
+            'user_id' => $user ? $user->id : null,
+            'email_attempted' => $request->email,
+            'event_type' => 'login_failed',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'status' => 'failed',
+            'metadata' => ['reason' => 'invalid_credentials'],
+        ]);
 
         return back()->withErrors([
             'email' => 'Invalid email or password. Please try again.',
@@ -189,6 +222,25 @@ class AuthController extends Controller
             session()->forget('mfa_user_id');
             $request->session()->regenerate();
 
+            \App\Models\AuthLog::create([
+                'user_id' => $user->id,
+                'email_attempted' => $user->email,
+                'event_type' => 'mfa_verified',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'status' => 'success',
+            ]);
+
+            \App\Models\AuthLog::create([
+                'user_id' => $user->id,
+                'email_attempted' => $user->email,
+                'event_type' => 'login_success',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'status' => 'success',
+                'metadata' => ['mfa_verified' => true],
+            ]);
+
             // Handle Remember Device Token
             if ($request->has('remember_device')) {
                 $deviceToken = Str::random(60);
@@ -201,6 +253,15 @@ class AuthController extends Controller
                     'user_agent_hash' => $userAgentHash,
                     'user_agent' => $request->userAgent(),
                     'expires_at' => now()->addDays(30),
+                ]);
+
+                \App\Models\AuthLog::create([
+                    'user_id' => $user->id,
+                    'email_attempted' => $user->email,
+                    'event_type' => 'device_trusted',
+                    'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'status' => 'success',
                 ]);
 
                 Cookie::queue('mfa_device_token', $deviceToken, 30 * 24 * 60); // 30 days in minutes
@@ -219,6 +280,15 @@ class AuthController extends Controller
                 return redirect()->route('student.dashboard');
             }
         }
+
+        \App\Models\AuthLog::create([
+            'user_id' => $user->id,
+            'email_attempted' => $user->email,
+            'event_type' => 'mfa_failed',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'status' => 'failed',
+        ]);
 
         return back()->withErrors([
             'code' => 'The verification code is invalid or has expired.',
@@ -318,6 +388,18 @@ class AuthController extends Controller
     // 3. Logout
     public function logout(Request $request)
     {
+        $user = auth()->user();
+        if ($user) {
+            \App\Models\AuthLog::create([
+                'user_id' => $user->id,
+                'email_attempted' => $user->email,
+                'event_type' => 'logout',
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'status' => 'success',
+            ]);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

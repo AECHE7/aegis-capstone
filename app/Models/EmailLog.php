@@ -14,6 +14,8 @@ class EmailLog extends Model
         'recipient',
         'subject',
         'content',
+        'status',       // sent, failed
+        'error_message',
     ];
 
     /**

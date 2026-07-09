@@ -195,11 +195,30 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/staff/{id}/restore', [SuperAdminController::class, 'restoreStaff'])->name('superadmin.staff.restore');
         Route::delete('/staff/{id}/force-delete', [SuperAdminController::class, 'forceDeleteStaff'])->name('superadmin.staff.force-delete');
 
-        // Phase 33: Audit History Log Exports (Skill 7 – API Gateway: superadmin-only gate)
+        // Phase 33 & 55: Audit History Log Exports
         Route::get('/audit-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportAuditCsv'])->name('superadmin.audit.csv');
         Route::get('/audit-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportAuditPdf'])->name('superadmin.audit.pdf');
         Route::get('/email-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportEmailLogCsv'])->name('superadmin.emaillog.csv');
         Route::get('/email-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportEmailLogPdf'])->name('superadmin.emaillog.pdf');
+
+        Route::get('/ai-scan-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportAiScanCsv'])->name('superadmin.export.ai-scan.csv');
+        Route::get('/ai-scan-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportAiScanPdf'])->name('superadmin.export.ai-scan.pdf');
+        Route::get('/evaluation-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportEvaluationDecisionCsv'])->name('superadmin.export.evaluation.csv');
+        Route::get('/evaluation-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportEvaluationDecisionPdf'])->name('superadmin.export.evaluation.pdf');
+        Route::get('/auth-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportAuthLogCsv'])->name('superadmin.export.auth-log.csv');
+        Route::get('/auth-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportAuthLogPdf'])->name('superadmin.export.auth-log.pdf');
+        Route::get('/admin-action-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportAdminActionCsv'])->name('superadmin.export.admin-action.csv');
+        Route::get('/admin-action-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportAdminActionPdf'])->name('superadmin.export.admin-action.pdf');
+        Route::get('/config-change-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportConfigChangeCsv'])->name('superadmin.export.config-change.csv');
+        Route::get('/config-change-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportConfigChangePdf'])->name('superadmin.export.config-change.pdf');
+        Route::get('/scholarship-change-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportScholarshipChangeCsv'])->name('superadmin.export.scholarship-change.csv');
+        Route::get('/scholarship-change-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportScholarshipChangePdf'])->name('superadmin.export.scholarship-change.pdf');
+        Route::get('/export-access-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportExportAccessLogCsv'])->name('superadmin.export.export-access.csv');
+        Route::get('/export-access-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportExportAccessLogPdf'])->name('superadmin.export.export-access.pdf');
+        Route::get('/student-timeline-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportStudentTimelineCsv'])->name('superadmin.export.student-timeline.csv');
+        Route::get('/student-timeline-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportStudentTimelinePdf'])->name('superadmin.export.student-timeline.pdf');
+        Route::get('/doc-upload-logs/csv', [\App\Http\Controllers\ReportController::class, 'exportDocumentUploadCsv'])->name('superadmin.export.doc-upload.csv');
+        Route::get('/doc-upload-logs/pdf', [\App\Http\Controllers\ReportController::class, 'exportDocumentUploadPdf'])->name('superadmin.export.doc-upload.pdf');
 
         // Dynamic System Settings Panel
         Route::get('/settings', [SuperAdminController::class, 'settings'])->name('superadmin.settings');

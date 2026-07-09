@@ -23,4 +23,10 @@ class Document extends Model
         return $this->belongsTo(Application::class);
     }
 
+    // The user who uploaded this document
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
 }

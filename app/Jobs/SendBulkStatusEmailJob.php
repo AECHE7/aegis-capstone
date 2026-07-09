@@ -29,15 +29,29 @@ class SendBulkStatusEmailJob implements ShouldQueue
         
         if ($application->user && $application->user->email) {
             $mailSubject = "[A.E.G.I.S.] Official Update: Application " . strtoupper($application->status);
-            Mail::to($application->user->email)->send(new ApplicationStatusMail($application));
+            
+            try {
+                Mail::to($application->user->email)->send(new ApplicationStatusMail($application));
 
-            // Log email in EmailLog
-            EmailLog::create([
-                'application_id' => $application->id,
-                'recipient' => $application->user->email,
-                'subject' => $mailSubject,
-                'content' => "Status updated to: {$application->status}. Remarks: " . ($application->remarks ?? 'None')
-            ]);
+                // Log email in EmailLog
+                EmailLog::create([
+                    'application_id' => $application->id,
+                    'recipient' => $application->user->email,
+                    'subject' => $mailSubject,
+                    'content' => "Status updated to: {$application->status}. Remarks: " . ($application->remarks ?? 'None'),
+                    'status' => 'sent',
+                ]);
+            } catch (\Exception $e) {
+                EmailLog::create([
+                    'application_id' => $application->id,
+                    'recipient' => $application->user->email,
+                    'subject' => $mailSubject,
+                    'content' => "Status updated to: {$application->status}. Remarks: " . ($application->remarks ?? 'None'),
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                ]);
+                throw $e;
+            }
         }
     }
 }

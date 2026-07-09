@@ -268,13 +268,13 @@
     
     {{-- Audit Log Export Actions Panel --}}
     <div class="col-lg-5">
-        <div class="export-card h-100 d-flex flex-column justify-content-between">
+        <div class="export-card h-100 d-flex flex-column justify-content-between" style="border-radius:16px;">
             <div>
                 <h6>Compliance Export Hub</h6>
                 <h5>Generate System Audit Logs</h5>
-                <p>Select date ranges to export evaluations or email transmission traces for administrative and compliance audits.</p>
+                <p class="mb-3" style="font-size: 0.85rem; opacity: 0.85;">Select date ranges to export evaluations or security traces for administrative and compliance audits.</p>
                 
-                <div class="date-filter-row">
+                <div class="date-filter-row mb-3">
                     <div>
                         <label for="exportDateFrom">From</label>
                         <input type="date" id="exportDateFrom" style="color-scheme: dark;">
@@ -286,28 +286,156 @@
                 </div>
             </div>
 
-            <div class="d-flex flex-column gap-3">
-                <div class="export-group">
-                    <h6 class="group-label">System Audit Logs</h6>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('superadmin.audit.csv') }}" id="auditCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
-                            <i class="fa-solid fa-file-csv"></i> Export CSV
-                        </a>
-                        <a href="{{ route('superadmin.audit.pdf') }}" id="auditPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
-                            <i class="fa-solid fa-file-pdf"></i> Export PDF
-                        </a>
+            <div class="d-flex flex-column gap-3" style="max-height: 380px; overflow-y: auto; padding-right: 6px;">
+                <!-- TIER 1 -->
+                <div class="border-bottom pb-2 mb-1">
+                    <span class="badge bg-success-subtle text-success mb-2" style="font-size:0.75rem;">Tier 1 — Critical Compliance Logs</span>
+                    
+                    <div class="export-group mb-2">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Application Status Logs</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.audit.csv') }}" id="auditCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.audit.pdf') }}" id="auditPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="export-group mb-2">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">AI Document Scan Results</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.ai-scan.csv') }}" id="aiScanCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.ai-scan.pdf') }}" id="aiScanPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="export-group">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Admin Evaluation Decisions</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.evaluation.csv') }}" id="evalCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.evaluation.pdf') }}" id="evalPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="export-group">
-                    <h6 class="group-label">Communication Transmissions</h6>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('superadmin.emaillog.csv') }}" id="emailCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
-                            <i class="fa-solid fa-file-csv"></i> Export CSV
-                        </a>
-                        <a href="{{ route('superadmin.emaillog.pdf') }}" id="emailPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
-                            <i class="fa-solid fa-file-pdf"></i> Export PDF
-                        </a>
+                <!-- TIER 2 -->
+                <div class="border-bottom pb-2 mb-1">
+                    <span class="badge bg-info-subtle text-info mb-2" style="font-size:0.75rem;">Tier 2 — Security & Access Logs</span>
+
+                    <div class="export-group mb-2">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Login & Authentication Logs</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.auth-log.csv') }}" id="authCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.auth-log.pdf') }}" id="authPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="export-group mb-2">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Admin Action Audit Trail</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.admin-action.csv') }}" id="adminCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.admin-action.pdf') }}" id="adminPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="export-group">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">System Settings Changes</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.config-change.csv') }}" id="configCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.config-change.pdf') }}" id="configPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TIER 3 -->
+                <div class="border-bottom pb-2 mb-1">
+                    <span class="badge bg-warning-subtle text-warning mb-2" style="font-size:0.75rem;">Tier 3 — Operational Oversight</span>
+
+                    <div class="export-group mb-2">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Email Notification Logs</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.emaillog.csv') }}" id="emailCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.emaillog.pdf') }}" id="emailPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="export-group mb-2">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Scholarship Program Changes</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.scholarship-change.csv') }}" id="scholarshipCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.scholarship-change.pdf') }}" id="scholarshipPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="export-group">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Data Export Access History</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.export-access.csv') }}" id="exportCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.export-access.pdf') }}" id="exportPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TIER 4 -->
+                <div>
+                    <span class="badge bg-secondary-subtle text-secondary mb-2" style="font-size:0.75rem;">Tier 4 — Student Activity Logs</span>
+
+                    <div class="export-group mb-2">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Student Lifecycle Timeline</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.student-timeline.csv') }}" id="timelineCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.student-timeline.pdf') }}" id="timelinePdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="export-group">
+                        <h6 class="group-label" style="font-size: 0.8rem; font-weight: 600; color: #475569;">Document Upload History</h6>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('superadmin.export.doc-upload.csv') }}" id="uploadCsvBtn" class="export-btn export-btn-csv flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </a>
+                            <a href="{{ route('superadmin.export.doc-upload.pdf') }}" id="uploadPdfBtn" class="export-btn export-btn-pdf flex-grow-1 text-center justify-content-center">
+                                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -788,7 +916,19 @@
         const from = document.getElementById('exportDateFrom')?.value ?? '';
         const to   = document.getElementById('exportDateTo')?.value ?? '';
 
-        ['auditCsvBtn','auditPdfBtn','emailCsvBtn','emailPdfBtn'].forEach(id => {
+        [
+            'auditCsvBtn', 'auditPdfBtn',
+            'emailCsvBtn', 'emailPdfBtn',
+            'aiScanCsvBtn', 'aiScanPdfBtn',
+            'evalCsvBtn', 'evalPdfBtn',
+            'authCsvBtn', 'authPdfBtn',
+            'adminCsvBtn', 'adminPdfBtn',
+            'configCsvBtn', 'configPdfBtn',
+            'scholarshipCsvBtn', 'scholarshipPdfBtn',
+            'exportCsvBtn', 'exportPdfBtn',
+            'timelineCsvBtn', 'timelinePdfBtn',
+            'uploadCsvBtn', 'uploadPdfBtn'
+        ].forEach(id => {
             const btn = document.getElementById(id);
             if (!btn) return;
             const base = btn.dataset.base || btn.href.split('?')[0];

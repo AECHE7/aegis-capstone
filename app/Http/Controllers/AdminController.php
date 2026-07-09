@@ -404,6 +404,15 @@ class AdminController extends Controller
             'changed_by' => $evaluatorId
         ]);
 
+        \App\Models\AdminActionLog::create([
+            'user_id' => $evaluatorId,
+            'action' => strtolower($request->status) === 'approved' ? 'approve_application' : 'reject_application',
+            'target_type' => 'Application',
+            'target_id' => $application->id,
+            'description' => "Evaluated application APP-{$application->id} (Status: {$request->status})",
+            'ip_address' => $request->ip(),
+        ]);
+
         // Dispatch database notification
         try {
             if ($application->user) {
@@ -414,10 +423,10 @@ class AdminController extends Controller
         }
 
         // 4. Send automated email notification
-        try {
-            $application->load(['user.profile', 'document.aiResult', 'evaluator']);
-            if ($application->user && $application->user->email) {
-                $mailSubject = "[A.E.G.I.S.] Official Update: Application " . strtoupper($application->status);
+        if ($application->user && $application->user->email) {
+            $mailSubject = "[A.E.G.I.S.] Official Update: Application " . strtoupper($application->status);
+            try {
+                $application->load(['user.profile', 'document.aiResult', 'evaluator']);
                 Mail::to($application->user->email)->send(new ApplicationStatusMail($application));
 
                 // Log email in EmailLog
@@ -425,11 +434,20 @@ class AdminController extends Controller
                     'application_id' => $application->id,
                     'recipient' => $application->user->email,
                     'subject' => $mailSubject,
-                    'content' => "Status updated to: {$application->status}. Remarks: " . ($application->remarks ?? 'None')
+                    'content' => "Status updated to: {$application->status}. Remarks: " . ($application->remarks ?? 'None'),
+                    'status' => 'sent',
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send application status email: ' . $e->getMessage());
+                \App\Models\EmailLog::create([
+                    'application_id' => $application->id,
+                    'recipient' => $application->user->email,
+                    'subject' => $mailSubject,
+                    'content' => "Status updated to: {$application->status}. Remarks: " . ($application->remarks ?? 'None'),
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
                 ]);
             }
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send application status email: ' . $e->getMessage());
         }
 
         // 5. SECURE REDIRECT: Kick the user back to the dashboard immediately 
@@ -523,6 +541,15 @@ class AdminController extends Controller
                 'status' => $status,
                 'remarks' => $remarks,
                 'changed_by' => $evaluatorId
+            ]);
+
+            \App\Models\AdminActionLog::create([
+                'user_id' => $evaluatorId,
+                'action' => strtolower($status) === 'approved' ? 'bulk_approve_application' : 'bulk_reject_application',
+                'target_type' => 'Application',
+                'target_id' => $application->id,
+                'description' => "Bulk evaluated application APP-{$application->id} (Status: {$status})",
+                'ip_address' => $request->ip(),
             ]);
 
             try {
