@@ -362,8 +362,13 @@ class SuperAdminController extends Controller
         $anomalyCounts = array_slice($anomalyCounts, 0, 5, true);
 
         // 14. Top Performing Programs — sorted by highest avg approved GWA (Scoped)
+        // Cast gwa to numeric explicitly — PostgreSQL cannot avg() a varchar column.
+        $gwaCastExpr = config('database.default') === 'pgsql'
+            ? 'scholarship_id, program_name, count(*) as total_apps, avg(gwa::numeric) as avg_gwa'
+            : 'scholarship_id, program_name, count(*) as total_apps, avg(CAST(gwa AS REAL)) as avg_gwa';
+
         $topPrograms = (clone $query)
-            ->selectRaw('scholarship_id, program_name, count(*) as total_apps, avg(gwa) as avg_gwa')
+            ->selectRaw($gwaCastExpr)
             ->where('status', 'Approved')
             ->whereNotNull('gwa')
             ->groupBy('scholarship_id', 'program_name')
