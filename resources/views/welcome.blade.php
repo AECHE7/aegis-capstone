@@ -94,21 +94,24 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet"></noscript>
     <style>
         :root {
-            --bg-main: #f8fafc;
-            --bg-section: #f1f5f9;
+            --bg-main: #f2f0eb; /* Neutral Warm canvas */
+            --bg-section: #edebe9; /* Ceramic alternate */
             --card-bg: #ffffff;
-            --text-main: #475569;
-            --text-title: #0f172a;
-            --border-color: #e2e8f0;
+            --text-main: rgba(0, 0, 0, 0.87); /* Text Black Soft */
+            --text-title: #0C4E2D; /* Starbucks/CLSU Green primary title */
+            --border-color: #edebe9; /* Ceramic alternate */
             --clsu-green: #0C4E2D;
             --clsu-green-dark: #072F1B;
             --clsu-green-muted: rgba(12, 78, 45, 0.08);
             --clsu-gold: #D97706;
             --clsu-gold-light: #fcd34d;
-            --transition: all 0.2s ease;
+            --transition: all 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
             --radius-lg: 16px;
-            --radius-md: 10px;
-            --radius-sm: 7px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --radius-pill: 50px;
+            --shadow-card: 0 0 0.5px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.18);
+            --shadow-elevated: 0 0 6px rgba(0,0,0,0.18), 0 8px 16px rgba(0,0,0,0.12);
         }
 
         [data-theme="dark"] {
@@ -119,6 +122,7 @@
             --text-title: #f1f5f9;
             --border-color: rgba(255,255,255,0.07);
             --clsu-green-muted: rgba(20, 83, 45, 0.15);
+            --shadow-card: 0 0 0.5px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.45);
         }
 
         *, *::before, *::after { box-sizing: border-box; }
@@ -131,11 +135,13 @@
             color: var(--text-main);
             transition: background-color 0.2s, color 0.2s;
             overflow-x: hidden;
+            letter-spacing: -0.01em; /* Tight layout tracking */
         }
 
         h1, h2, h3, h4, h5 {
             font-family: 'Poppins', sans-serif;
             color: var(--text-title);
+            letter-spacing: -0.02em; /* Heading tracking */
         }
 
         .mono {
@@ -243,8 +249,8 @@
             background: var(--clsu-green);
             color: white;
             border: none;
-            border-radius: var(--radius-sm);
-            padding: 7px 18px;
+            border-radius: var(--radius-pill); /* Pill button shape */
+            padding: 7px 20px;
             font-size: 0.85rem;
             font-weight: 600;
             text-decoration: none;
@@ -258,6 +264,9 @@
         .btn-nav-primary:hover {
             background: var(--clsu-green-dark);
             color: var(--clsu-gold-light);
+        }
+        .btn-nav-primary:active {
+            transform: scale(0.95) !important;
         }
 
         .nav-hamburger {
@@ -356,47 +365,50 @@
             background: var(--clsu-green);
             color: white;
             border: 1px solid var(--clsu-green);
-            border-radius: var(--radius-sm);
-            padding: 12px 26px;
+            border-radius: var(--radius-pill); /* Pill button shape */
+            padding: 12px 28px;
             font-weight: 600;
             font-size: 0.9rem;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 12px rgba(12, 78, 45, 0.15);
+            transition: var(--transition);
+            box-shadow: var(--shadow-card);
         }
 
         .btn-hero-primary:hover {
             background: var(--clsu-green-dark);
             border-color: var(--clsu-green-dark);
             color: var(--clsu-gold-light);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(12, 78, 45, 0.25);
+            box-shadow: var(--shadow-elevated);
+        }
+        .btn-hero-primary:active {
+            transform: scale(0.95) !important;
         }
 
         .btn-hero-outline {
             background: transparent;
             color: var(--text-title);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 12px 26px;
+            border: 1px solid var(--clsu-green);
+            border-radius: var(--radius-pill); /* Pill button shape */
+            padding: 12px 28px;
             font-weight: 600;
             font-size: 0.9rem;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: var(--transition);
         }
 
         .btn-hero-outline:hover {
-            border-color: var(--text-title);
-            background: rgba(0,0,0,0.03);
-            color: var(--text-title);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+            border-color: var(--clsu-green-dark);
+            background: rgba(12, 78, 45, 0.05);
+            color: var(--clsu-green-dark);
+        }
+        .btn-hero-outline:active {
+            transform: scale(0.95) !important;
         }
 
         [data-theme="dark"] .btn-hero-outline:hover { background: rgba(255,255,255,0.04); box-shadow: 0 6px 16px rgba(255,255,255,0.02); }

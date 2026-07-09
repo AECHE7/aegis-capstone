@@ -30,22 +30,28 @@
 
     <style>
         :root {
-            --green: #0C4E2D;
-            --green-dark: #07331c;
+            --green: #0C4E2D; /* Starbucks/CLSU Green primary */
+            --green-dark: #07331c; /* Solid House Green */
+            --green-accent: #00754A; /* Accent Green for CTAs */
             --gold: #D97706;
-            --gold-light: #fbbf24;
+            --gold-light: #fcd34d;
+            --bg-warm: #f2f0eb; /* Neutral Warm canvas */
         }
 
         * { box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #fff;
+            background: var(--bg-warm);
             margin: 0;
             overflow-x: hidden;
+            letter-spacing: -0.01em;
         }
 
-        h1,h2,h3,h4,h5 { font-family: 'Poppins', sans-serif; }
+        h1,h2,h3,h4,h5 {
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: -0.02em;
+        }
 
         /* ── SPLIT LAYOUT ─────────────────────────── */
         .split {
@@ -57,7 +63,7 @@
         /* ── LEFT HERO PANEL ──────────────────────── */
         .hero-panel {
             width: 55%;
-            background: var(--green);
+            background: var(--green-dark); /* Solid brand green, no gradient */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -243,7 +249,7 @@
             align-items: center;
             justify-content: center;
             padding: 3rem 2.5rem;
-            background: #fff;
+            background: var(--bg-warm); /* Neutral Warm canvas */
             overflow-y: auto;
         }
 
@@ -253,6 +259,10 @@
             animation: fadeUp 0.6s ease-out both;
             opacity: 0;
             transform: translateY(16px);
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 0 0.5px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.18);
         }
 
         @keyframes fadeUp {
@@ -261,21 +271,21 @@
 
         /* Inputs */
         .form-floating > .form-control {
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            background: #f8fafc;
+            border: 1.5px solid #d6dbde;
+            border-radius: 8px; /* Standard input radius */
+            background: #ffffff;
             font-size: 0.9rem;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .form-floating > .form-control:focus {
-            border-color: var(--green);
+            border-color: var(--green-accent);
             background: #fff;
-            box-shadow: 0 0 0 3px rgba(12,78,45,0.1);
+            box-shadow: 0 0 0 3px rgba(0,117,74,0.12);
         }
 
-        .form-floating > label { color: #334155 !important; opacity: 1 !important; font-weight: 600; font-size: 0.9rem; }
-        .form-floating > .form-control:focus ~ label { color: var(--green) !important; opacity: 1 !important; }
+        .form-floating > label { color: #475569 !important; opacity: 1 !important; font-weight: 600; font-size: 0.9rem; }
+        .form-floating > .form-control:focus ~ label { color: var(--green-accent) !important; opacity: 1 !important; }
 
         /* Password strength bar */
         .strength-bar {
@@ -302,24 +312,30 @@
 
         /* Submit button */
         .btn-register {
-            background: var(--green);
+            background: var(--green-accent);
             color: white;
             border: none;
-            border-radius: 10px;
-            padding: 13px;
+            border-radius: var(--radius-pill, 50px); /* Starbucks full pill standard */
+            padding: 13px 28px;
             font-weight: 600;
             font-size: 0.95rem;
-            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 117, 74, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-register:hover {
-            background: var(--green-dark);
-            color: var(--gold-light);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(12,78,45,0.25);
+            background: var(--green);
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 117, 74, 0.25);
         }
 
-        .btn-register:active { transform: translateY(0); }
+        .btn-register:active {
+            transform: scale(0.95) !important;
+        }
 
         /* Email hint */
         .email-hint {

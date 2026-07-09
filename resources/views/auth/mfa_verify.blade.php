@@ -25,25 +25,25 @@
 
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%);
+            font-family: 'Inter', sans-serif;
+            background-color: #07331c; /* Solid House Green background */
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #334155;
             padding: 20px;
+            letter-spacing: -0.01em;
         }
         .mfa-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 0 0.5px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.18);
             width: 100%;
             max-width: 440px;
             padding: 40px 30px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: none;
         }
         .logo-container {
             margin-bottom: 25px;
@@ -57,6 +57,7 @@
             font-weight: 700;
             font-size: 24px;
             margin-bottom: 10px;
+            letter-spacing: -0.02em;
         }
         .mfa-desc {
             color: #64748b;
@@ -69,34 +70,37 @@
             font-size: 28px;
             font-weight: 700;
             text-align: center;
-            border-radius: 12px;
-            border: 2px solid #cbd5e1;
+            border-radius: 8px; /* Standard input radius */
+            border: 1.5px solid #d6dbde;
             padding: 12px 5px 12px 15px;
             font-family: monospace;
             transition: all 0.2s ease;
             color: #0C4E2D;
         }
         .otp-input-field:focus {
-            border-color: #0C4E2D;
-            box-shadow: 0 0 0 3px rgba(12, 78, 45, 0.15);
+            border-color: #00754A;
+            box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.12);
             outline: none;
         }
         .btn-verify {
-            background-color: #0C4E2D;
+            background-color: #00754A; /* Accent green CTA */
             color: white;
-            border-radius: 50px;
-            padding: 12px 30px;
+            border-radius: 50px; /* Starbucks pill standard */
+            padding: 13px 30px;
             font-weight: 600;
             font-size: 15px;
             border: none;
             width: 100%;
-            box-shadow: 0 4px 10px rgba(12, 78, 45, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 117, 74, 0.15);
             transition: all 0.2s ease;
         }
         .btn-verify:hover {
-            background-color: #07331c;
+            background-color: #0C4E2D;
             color: white;
-            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0, 117, 74, 0.25);
+        }
+        .btn-verify:active {
+            transform: scale(0.95) !important;
         }
         .btn-cancel {
             color: #64748b;

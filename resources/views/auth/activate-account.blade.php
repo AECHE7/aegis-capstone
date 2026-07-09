@@ -31,17 +31,20 @@
     
     <style>
         :root { 
-            --clsu-green: #0F5934; 
-            --clsu-green-dark: #0a4025;
-            --clsu-gold: #F2A900; 
+            --clsu-green: #0C4E2D; /* Starbucks/CLSU Green primary */
+            --clsu-green-dark: #07331c; /* Solid House Green */
+            --clsu-green-accent: #00754A; /* Accent Green for CTAs */
+            --clsu-gold: #D97706; 
             --clsu-gold-light: #fcd570;
+            --bg-warm: #f2f0eb; /* Neutral Warm canvas */
         }
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #ffffff;
+            background-color: var(--bg-warm);
             margin: 0;
             overflow-x: hidden;
+            letter-spacing: -0.01em;
         }
 
         h1, h2, h3, h4, h5 {
@@ -57,8 +60,7 @@
 
         /* Left Side: Hero / Landing Graphic */
         .hero-section {
-            background: linear-gradient(135deg, rgba(15, 89, 52, 0.92) 0%, rgba(10, 64, 37, 0.98) 100%), 
-                        url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            background: var(--clsu-green-dark); /* Solid House Green, no gradient */
             color: white;
             display: flex;
             flex-direction: column;
@@ -86,7 +88,7 @@
             align-items: center;
             justify-content: center;
             padding: 3rem;
-            background-color: #ffffff;
+            background-color: var(--bg-warm); /* Neutral Warm canvas */
         }
 
         .form-container {
@@ -95,42 +97,52 @@
             animation: fadeUp 0.8s ease-out forwards;
             opacity: 0;
             transform: translateY(20px);
+            background: #ffffff;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 0 0.5px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.18);
         }
 
         /* Floating Labels & Inputs */
         .form-floating > .form-control {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            background-color: #f8fafc;
-            transition: all 0.3s ease;
+            border: 1.5px solid #d6dbde;
+            border-radius: 8px; /* Standard input radius */
+            background-color: #ffffff;
+            transition: all 0.2s ease;
         }
         .form-floating > .form-control:focus {
-            border-color: var(--clsu-green);
+            border-color: var(--clsu-green-accent);
             background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(15, 89, 52, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 117, 74, 0.12);
         }
         .form-floating > label {
-            color: #64748b;
+            color: #475569;
             font-weight: 500;
         }
 
         /* Buttons */
         .btn-register {
-            background-color: var(--clsu-green);
+            background-color: var(--clsu-green-accent);
             color: white;
             border: none;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 13px 28px;
+            border-radius: var(--radius-pill, 50px); /* Starbucks full pill standard */
             font-weight: 600;
             font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(15, 89, 52, 0.15);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 117, 74, 0.15);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         .btn-register:hover {
-            background-color: var(--clsu-green-dark);
+            background-color: var(--clsu-green);
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(15, 89, 52, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 117, 74, 0.25);
+        }
+        .btn-register:active {
+            transform: scale(0.95) !important;
         }
 
         @keyframes fadeUp {

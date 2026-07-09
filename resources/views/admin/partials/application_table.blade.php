@@ -39,23 +39,23 @@
     <table class="table mb-0" style="border-collapse: separate;">
         <thead>
             <tr>
-                <th class="ps-4" style="width: 45px; text-align: center; vertical-align: middle;">
+                <th class="ps-4 d-none d-sm-table-cell" style="width: 45px; text-align: center; vertical-align: middle;">
                     <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="cursor: pointer; transform: scale(1.15);">
                 </th>
                 <th>Ref ID</th>
                 <th>Applicant</th>
-                <th>Program / Grant</th>
-                <th class="text-center">GWA</th>
-                <th class="text-center">AI Risk</th>
+                <th class="d-none d-md-table-cell">Program / Grant</th>
+                <th class="text-center d-none d-lg-table-cell">GWA</th>
+                <th class="text-center d-none d-sm-table-cell">AI Risk</th>
                 <th class="text-center">Status</th>
-                <th>Submitted</th>
-                <th class="pe-4 text-end">Action</th>
+                <th class="d-none d-xl-table-cell">Submitted</th>
+                <th class="pe-4 text-end d-none d-md-table-cell">Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach($applications as $app)
             <tr onclick="window.location='{{ route('admin.review', $app->id) }}'" style="cursor:pointer;" class="app-row" data-id="{{ $app->id }}">
-                <td class="ps-4 text-center" onclick="event.stopPropagation();" style="vertical-align: middle;">
+                <td class="ps-4 text-center d-none d-sm-table-cell" onclick="event.stopPropagation();" style="vertical-align: middle;">
                     <input type="checkbox" class="app-checkbox" value="{{ $app->id }}" onchange="toggleAppSelect(this)" style="cursor: pointer; transform: scale(1.15);">
                 </td>
                 <td>
@@ -70,7 +70,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td class="d-none d-md-table-cell">
                     <div class="fw-medium text-dark" style="font-size:0.875rem;">{{ $app->program_name }}</div>
                     <div class="mt-0.5">
                         @if($app->is_renewal)
@@ -84,10 +84,10 @@
                         @endif
                     </div>
                 </td>
-                <td class="text-center">
+                <td class="text-center d-none d-lg-table-cell">
                     <span class="badge rounded-pill px-2 py-1 fw-bold monospace-data" style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid var(--border-color);">{{ $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A' }}</span>
                 </td>
-                <td class="text-center">
+                <td class="text-center d-none d-sm-table-cell">
                     @if($app->document && $app->document->aiResult && !in_array($app->document->aiResult->classification, ['scanning','failed']))
                         @php $score = $app->document->aiResult->fraud_probability; @endphp
                         <span class="fraud-chip monospace-data {{ $score >= 70 ? 'fraud-high' : ($score >= 40 ? 'fraud-mod' : 'fraud-low') }}">
@@ -123,11 +123,11 @@
                         <span class="status-badge rejected"><i class="fa-solid fa-times" style="font-size:0.65rem;"></i> Rejected</span>
                     @endif
                 </td>
-                <td>
+                <td class="d-none d-xl-table-cell">
                     <div class="monospace-data" style="font-size:0.82rem;color:#64748b;">{{ $app->created_at->format('M d, Y') }}</div>
                     <div style="font-size:0.72rem;color:#94a3b8;">{{ $app->created_at->format('h:i A') }}</div>
                 </td>
-                <td class="pe-4 text-end" onclick="event.stopPropagation()">
+                <td class="pe-4 text-end d-none d-md-table-cell" onclick="event.stopPropagation()">
                     <div class="d-flex justify-content-end align-items-center gap-2">
                         @if($app->trashed())
                             <a href="{{ route('admin.review', $app->id) }}" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;">

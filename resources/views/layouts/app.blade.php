@@ -54,26 +54,38 @@
             --clsu-green: #0C4E2D;
             --clsu-green-dark: #07331c;
             --clsu-green-light: #126b3f;
+            --clsu-green-muted: rgba(12, 78, 45, 0.08);
             --clsu-gold: #D97706;
             --clsu-gold-light: #fcd34d;
             --clsu-dark: #0f172a;
-            --clsu-bg: #f8fafc;
+            --clsu-bg: #f2f0eb; /* Neutral Warm canvas */
             --card-bg: #ffffff;
-            --text-main: #334155;
-            --text-title: #0f172a;
-            --border-color: #e2e8f0;
+            --text-main: rgba(0, 0, 0, 0.87); /* Text Black Soft */
+            --text-title: #0C4E2D; /* Starbucks/CLSU Green primary title */
+            --border-color: #edebe9; /* Ceramic alternate */
             --sidebar-width: 260px;
             --sidebar-collapsed: 72px;
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
             --radius-xl: 20px;
-            --shadow-sm: none;
-            --shadow-md: none;
-            --shadow-lg: none;
-            --transition: border-color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+            --radius-pill: 50px;
+            --shadow-card: 0 0 0.5px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.18);
+            --shadow-nav: 0 1px 3px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.05), 0 0 2px rgba(0,0,0,0.06);
+            --shadow-elevated: 0 0 6px rgba(0,0,0,0.18), 0 8px 16px rgba(0,0,0,0.12);
+            --transition: border-color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
         }
 
+        [data-theme="dark"] {
+            --clsu-bg: #0b0f19;
+            --card-bg: #111827;
+            --text-main: #94a3b8;
+            --text-title: #f1f5f9;
+            --border-color: rgba(255,255,255,0.07);
+            --clsu-green-muted: rgba(20, 83, 45, 0.15);
+            --shadow-card: 0 0 0.5px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.45);
+            --shadow-nav: 0 1px 3px rgba(0,0,0,0.25), 0 2px 2px rgba(0,0,0,0.15), 0 0 2px rgba(0,0,0,0.18);
+        }
 
         /* ══════════════════════════════════════════
            SKELETON LOADER & MICRO-INTERACTIONS
@@ -133,6 +145,7 @@
         .dropdown-menu {
             background-color: var(--card-bg) !important;
             border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-elevated) !important;
         }
         .dropdown-item {
             color: var(--text-main) !important;
@@ -155,15 +168,16 @@
             border-color: var(--border-color) !important;
         }
         .form-control:focus, .form-select:focus {
-            border-color: var(--clsu-green) !important;
-            box-shadow: 0 0 0 3px rgba(15, 89, 52, 0.15) !important;
+            border-color: var(--clsu-green-light) !important;
+            box-shadow: 0 0 0 3px rgba(18, 107, 63, 0.15) !important;
         }
 
         /* Modals inside theme */
         .modal-content {
             background-color: var(--card-bg) !important;
             color: var(--text-main) !important;
-            border: 1px solid var(--border-color) !important;
+            border: none !important;
+            box-shadow: var(--shadow-elevated) !important;
         }
         .modal-header, .modal-footer {
             border-color: var(--border-color) !important;
@@ -197,7 +211,7 @@
         }
 
         /* ══════════════════════════════════════════
-           GLOBAL BASE
+           GLOBAL BASE & TYPOGRAPHY
         ══════════════════════════════════════════ */
         *, *::before, *::after { box-sizing: border-box; }
 
@@ -207,31 +221,72 @@
             color: var(--text-main);
             margin: 0;
             overflow-x: hidden;
+            letter-spacing: -0.01em; /* SoDoSans tight layout tracking */
             transition: background-color 0.25s, color 0.25s;
         }
 
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Poppins', sans-serif;
             color: var(--text-title);
+            letter-spacing: -0.02em; /* Heading tracking */
+        }
+
+        /* ══════════════════════════════════════════
+           GLOBAL PILL BUTTONS SYSTEM
+        ══════════════════════════════════════════ */
+        .btn {
+            border-radius: var(--radius-pill) !important;
+            font-weight: 600 !important;
+            padding: 0.55rem 1.6rem !important;
+            letter-spacing: -0.01em !important;
+            transition: var(--transition) !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        /* Mobile Touch-Target scale and padding boost */
+        @media (max-width: 767.98px) {
+            .btn {
+                padding: 0.7rem 1.8rem !important; /* WCAG 48px touch target height */
+            }
+        }
+        .btn:active, .btn:focus:active {
+            transform: scale(0.95) !important;
+        }
+        .btn-success, .btn-primary {
+            background-color: var(--clsu-green-cta, #00754A) !important;
+            border-color: var(--clsu-green-cta, #00754A) !important;
+            color: #ffffff !important;
+        }
+        .btn-success:hover, .btn-primary:hover {
+            background-color: var(--clsu-green, #0C4E2D) !important;
+            border-color: var(--clsu-green, #0C4E2D) !important;
+        }
+        .btn-outline-success, .btn-outline-primary {
+            color: var(--clsu-green-cta, #00754A) !important;
+            border-color: var(--clsu-green-cta, #00754A) !important;
+            background: transparent !important;
+        }
+        .btn-outline-success:hover, .btn-outline-primary:hover {
+            background-color: var(--clsu-green-cta, #00754A) !important;
+            color: #ffffff !important;
         }
 
         /* ══════════════════════════════════════════
            CARD SYSTEM
         ══════════════════════════════════════════ */
         .card {
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            box-shadow: none;
-            transition: var(--transition);
-            background: var(--card-bg);
+            border: none !important; /* No hard borders, elevated with shadows */
+            border-radius: var(--radius-md) !important;
+            box-shadow: var(--shadow-card) !important;
+            transition: var(--transition) !important;
+            background: var(--card-bg) !important;
         }
 
         .card-hover:hover {
-            border-color: #cbd5e1;
-        }
-
-        [data-theme="dark"] .card-hover:hover {
-            border-color: #334155;
+            box-shadow: var(--shadow-elevated) !important;
+            transform: translateY(-2px);
         }
 
         .monospace-data {
@@ -245,17 +300,18 @@
         ══════════════════════════════════════════ */
         .form-control, .form-select {
             border-radius: var(--radius-sm);
-            border: 1.5px solid #e2e8f0;
-            padding: 0.55rem 0.85rem;
+            border: 1.5px solid #d6dbde; /* Input border */
+            padding: 0.65rem 1rem;
             font-size: 0.9rem;
             transition: var(--transition);
         }
 
         .form-control:focus, .form-select:focus {
-            border-color: var(--clsu-green);
-            box-shadow: 0 0 0 3px rgba(15, 89, 52, 0.12);
+            border-color: var(--clsu-green-light);
+            box-shadow: 0 0 0 3px rgba(18, 107, 63, 0.12);
             outline: none;
         }
+
 
         /* ══════════════════════════════════════════
            SIDEBAR — ADMIN & SUPERADMIN
@@ -269,7 +325,7 @@
             left: 0;
             height: 100vh;
             width: var(--sidebar-width);
-            background: linear-gradient(180deg, #0f1f12 0%, #0F5934 100%);
+            background: var(--clsu-green-dark); /* Solid House Green, no gradient */
             z-index: 1030;
             display: flex;
             flex-direction: column;
@@ -298,12 +354,12 @@
             width: 38px;
             height: 38px;
             min-width: 38px;
-            background: linear-gradient(135deg, var(--clsu-gold), #e09500);
+            background: var(--clsu-green-light); /* Solid brand color */
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(242, 169, 0, 0.35);
+            box-shadow: 0 4px 12px rgba(18, 107, 63, 0.25);
         }
 
         .sidebar-brand-text {
@@ -394,9 +450,9 @@
         }
 
         .sidebar-link.active {
-            background: rgba(242, 169, 0, 0.15);
-            color: var(--clsu-gold-light);
-            border: 1px solid rgba(242, 169, 0, 0.2);
+            background: rgba(0, 117, 74, 0.2); /* Soft green backdrop */
+            color: #86efac;
+            border: 1px solid rgba(0, 117, 74, 0.3);
         }
 
         .sidebar-link.active::before {
@@ -407,7 +463,7 @@
             transform: translateY(-50%);
             width: 3px;
             height: 60%;
-            background: var(--clsu-gold);
+            background: var(--clsu-green-cta, #00754A); /* Bright green indicator */
             border-radius: 0 3px 3px 0;
         }
 

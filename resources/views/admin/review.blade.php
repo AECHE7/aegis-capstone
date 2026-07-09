@@ -85,22 +85,26 @@
 
     /* Decision buttons */
     .btn-approve {
-        background: var(--clsu-green);
+        background: var(--clsu-green-cta, #00754A);
         color: white; border: none;
-        padding: 12px; border-radius: 8px;
+        padding: 12px 24px; border-radius: var(--radius-pill, 50px);
         font-weight: 700; font-size: 0.95rem;
         transition: var(--transition);
+        box-shadow: 0 4px 12px rgba(0, 117, 74, 0.15);
     }
-    .btn-approve:hover { background: var(--clsu-green-light); color: white; }
+    .btn-approve:hover { background: var(--clsu-green, #0C4E2D); color: white; box-shadow: 0 8px 24px rgba(0, 117, 74, 0.25); }
+    .btn-approve:active { transform: scale(0.95); }
 
     .btn-reject {
-        background: #dc2626;
+        background: #c82014; /* Crimson accent */
         color: white; border: none;
-        padding: 12px; border-radius: 8px;
+        padding: 12px 24px; border-radius: var(--radius-pill, 50px);
         font-weight: 700; font-size: 0.95rem;
         transition: var(--transition);
+        box-shadow: 0 4px 12px rgba(200, 32, 20, 0.15);
     }
-    .btn-reject:hover { background: #b91c1c; color: white; }
+    .btn-reject:hover { background: #991b1b; color: white; box-shadow: 0 8px 24px rgba(200, 32, 20, 0.25); }
+    .btn-reject:active { transform: scale(0.95); }
 
     /* Applicant info card */
     .applicant-card {

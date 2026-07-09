@@ -171,8 +171,7 @@
                         @else
                             <div></div>
                         @endif
-                        <button type="submit" class="btn text-white px-4 py-2 fw-semibold rounded-3 animate-hover" 
-                                style="background-color: #0C4E2D; box-shadow: 0 4px 12px rgba(12, 78, 45, 0.15); border-radius: 10px !important;">
+                        <button type="submit" class="btn btn-primary text-white px-4 py-2 fw-semibold shadow-sm">
                             <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
                         </button>
                     </div>
@@ -232,8 +231,7 @@
                         <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" style="border-radius: 10px;" required>
                     </div>
 
-                    <button type="submit" class="btn text-white w-100 py-2 fw-semibold animate-hover" 
-                            style="background-color: #0C4E2D; box-shadow: 0 4px 6px rgba(12, 78, 45, 0.15); border-radius: 10px;">
+                    <button type="submit" class="btn btn-primary text-white w-100 py-2 fw-semibold shadow-sm">
                         <i class="fa-solid fa-save me-1"></i> Save Password
                     </button>
                 </form>

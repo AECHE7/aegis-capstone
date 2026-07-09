@@ -31,22 +31,24 @@
     
     <style>
         :root { 
-            --clsu-green: #0F5934; 
-            --clsu-green-dark: #0a4025;
-            --clsu-gold: #F2A900; 
+            --clsu-green: #0C4E2D; /* Starbucks/CLSU Green primary */
+            --clsu-green-dark: #07331c; /* Solid House Green */
+            --clsu-green-accent: #00754A; /* Accent Green for CTAs */
+            --clsu-gold: #D97706; 
             --clsu-gold-light: #fcd570;
+            --bg-warm: #f2f0eb; /* Neutral Warm canvas */
         }
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, rgba(15, 89, 52, 0.95) 0%, rgba(10, 64, 37, 0.98) 100%), 
-                        url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            background-color: var(--clsu-green-dark); /* Solid House Green background */
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 1.5rem;
             margin: 0;
+            letter-spacing: -0.01em;
         }
 
         h3, h5 {
@@ -75,21 +77,38 @@
             color: var(--clsu-green);
         }
 
+        .verify-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 0 0.5px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.18);
+            max-width: 480px;
+            width: 100%;
+            padding: 3rem 2.5rem;
+            border: none;
+        }
+
         .btn-resend {
-            background-color: var(--clsu-green);
+            background-color: var(--clsu-green-accent);
             color: white;
-            border-radius: 12px;
-            padding: 12px 20px;
+            border-radius: 50px; /* Starbucks pill standard */
+            padding: 12px 24px;
             font-weight: 600;
             border: none;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(15, 89, 52, 0.2);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 117, 74, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
         }
         .btn-resend:hover {
-            background-color: var(--clsu-green-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(15, 89, 52, 0.3);
-            color: var(--clsu-gold);
+            background-color: var(--clsu-green);
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 117, 74, 0.25);
+        }
+        .btn-resend:active {
+            transform: scale(0.95) !important;
         }
     </style>
 </head>
