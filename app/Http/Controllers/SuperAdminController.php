@@ -173,28 +173,75 @@ class SuperAdminController extends Controller
     // ==========================================
     public function analytics()
     {
-        // 1. High-Level System Metrics
-        $totalStudents = \App\Models\User::where('role', 'student')->count();
-        
-        // RENAMED VARIABLE TO FORCE A CACHE REFRESH
-        $submissionCount = \App\Models\Application::count(); 
-        
-        $totalScholarships = \App\Models\Scholarship::count();
-        $anomaliesDetected = \App\Models\Application::where('status', 'Rejected')->count();
+        $termId = request('academic_term_id');
+        $scholarshipId = request('scholarship_id');
 
-        // 2. The Audit Trail
-        $recentEvaluations = \App\Models\Application::with(['user'])
+        // Scoped Application Query
+        $query = \App\Models\Application::query();
+        if ($termId) {
+            $query->where('academic_term_id', $termId);
+        }
+        if ($scholarshipId) {
+            $query->where('scholarship_id', $scholarshipId);
+        }
+
+        // 1. High-Level System Metrics (Scoped)
+        $studentQuery = \App\Models\User::where('role', 'student');
+        if ($termId || $scholarshipId) {
+            $studentQuery->whereHas('applications', function ($q) use ($termId, $scholarshipId) {
+                if ($termId) $q->where('academic_term_id', $termId);
+                if ($scholarshipId) $q->where('scholarship_id', $scholarshipId);
+            });
+        }
+        $totalStudents = $studentQuery->count();
+        $submissionCount = (clone $query)->count();
+        $totalScholarships = \App\Models\Scholarship::count();
+        $anomaliesDetected = (clone $query)->where('status', 'Rejected')->count();
+
+        // 2. The Audit Trail (Scoped)
+        $recentEvaluations = (clone $query)->with(['user'])
             ->whereNotNull('evaluated_by')
             ->whereIn('status', ['Approved', 'Rejected'])
             ->latest('updated_at')
             ->take(10)
             ->get();
 
-        // 3. Average Fraud Score
-        $avgFraudScore = \App\Models\AIResult::avg('fraud_probability') ?? 0;
+        // 3. Average Fraud Score (Scoped)
+        $avgFraudQuery = \App\Models\AIResult::query();
+        if ($termId || $scholarshipId) {
+            $avgFraudQuery->whereHas('document.application', function ($q) use ($termId, $scholarshipId) {
+                if ($termId) $q->where('academic_term_id', $termId);
+                if ($scholarshipId) $q->where('scholarship_id', $scholarshipId);
+            });
+        }
+        $avgFraudScore = $avgFraudQuery->avg('fraud_probability') ?? 0;
         $avgFraudScore = round($avgFraudScore, 1);
 
-        // 4. Aggregate UAT Evaluator Feedbacks (ISO/IEC 25010)
+        // 4. Grade Integrity Index (Scoped)
+        $approvedFraudQuery = \App\Models\AIResult::whereHas('document.application', function ($q) use ($termId, $scholarshipId) {
+            $q->where('status', 'Approved');
+            if ($termId) $q->where('academic_term_id', $termId);
+            if ($scholarshipId) $q->where('scholarship_id', $scholarshipId);
+        });
+        $avgApprovedFraud = $approvedFraudQuery->avg('fraud_probability') ?? 0;
+        $gradeIntegrityIndex = round(100 - $avgApprovedFraud, 1);
+
+        // 5. Average Evaluation Cycle Time in Days (Scoped)
+        $cycleTimeQuery = (clone $query)->whereIn('status', ['Approved', 'Rejected']);
+        $averageCycleDays = 0;
+        if (config('database.default') === 'sqlite') {
+            $averageCycleDays = $cycleTimeQuery->selectRaw('avg(julianday(updated_at) - julianday(created_at)) as avg_days')->value('avg_days') ?? 0;
+        } else {
+            $averageCycleDays = $cycleTimeQuery->selectRaw('avg(extract(epoch from (updated_at - created_at)) / 86400) as avg_days')->value('avg_days') ?? 0;
+        }
+        $averageCycleDays = round((float)$averageCycleDays, 1);
+
+        // 6. GWA Compliance Rate (Scoped)
+        $totalEvaluated = (clone $query)->whereIn('status', ['Approved', 'Rejected'])->count();
+        $compliantCount = (clone $query)->where('status', 'Approved')->count();
+        $complianceRate = $totalEvaluated > 0 ? round(($compliantCount / $totalEvaluated) * 100, 1) : 0;
+
+        // 7. Aggregate UAT Evaluator Feedbacks (ISO/IEC 25010)
         $uatCount = \App\Models\UatFeedback::count();
         
         $avgFs = \App\Models\UatFeedback::avg('functional_suitability') ?? 0;
@@ -219,34 +266,121 @@ class SuperAdminController extends Controller
             'overall_mean' => $overallMean
         ];
 
-        // 5. Chart Data: Application Status Distribution
+        // 8. Chart Data: Application Status Distribution (Scoped)
         $statusCounts = [
-            'Pending'      => \App\Models\Application::where('status', 'Pending')->count(),
-            'Under Review' => \App\Models\Application::where('status', 'Under Review')->count(),
-            'Approved'     => \App\Models\Application::where('status', 'Approved')->count(),
-            'Rejected'     => \App\Models\Application::where('status', 'Rejected')->count(),
+            'Pending'      => (clone $query)->where('status', 'Pending')->count(),
+            'Under Review' => (clone $query)->where('status', 'Under Review')->count(),
+            'Approved'     => (clone $query)->where('status', 'Approved')->count(),
+            'Rejected'     => (clone $query)->where('status', 'Rejected')->count(),
         ];
 
-        // 6. Chart Data: Fraud Risk Tier Distribution (based on fraud_probability)
-        $lowRisk      = \App\Models\AIResult::where('fraud_probability', '<', 40)->count();
-        $moderateRisk = \App\Models\AIResult::whereBetween('fraud_probability', [40, 69.99])->count();
-        $highRisk     = \App\Models\AIResult::where('fraud_probability', '>=', 70)->count();
-        $riskTiers = [
-            'Low Risk (0-39%)'       => $lowRisk,
-            'Moderate Risk (40-69%)' => $moderateRisk,
-            'High Risk (70-100%)'    => $highRisk,
-        ];
+        // 9. Chart Data: Fraud Risk Tier Distribution (Scoped)
+        $lowRiskQuery = \App\Models\AIResult::where('fraud_probability', '<', 40);
+        $moderateRiskQuery = \App\Models\AIResult::whereBetween('fraud_probability', [40, 69.99]);
+        $highRiskQuery = \App\Models\AIResult::where('fraud_probability', '>=', 70);
 
-        // 7. Chart Data: Monthly Application Trend (last 6 months)
-        $monthlyTrend = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $monthlyTrend[$date->format('M Y')] = \App\Models\Application::whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
+        if ($termId || $scholarshipId) {
+            $scopeFilter = function ($q) use ($termId, $scholarshipId) {
+                if ($termId) $q->where('academic_term_id', $termId);
+                if ($scholarshipId) $q->where('scholarship_id', $scholarshipId);
+            };
+            $lowRiskQuery->whereHas('document.application', $scopeFilter);
+            $moderateRiskQuery->whereHas('document.application', $scopeFilter);
+            $highRiskQuery->whereHas('document.application', $scopeFilter);
         }
 
-        // 8. Per-Scholarship Program Breakdown Stats
+        $riskTiers = [
+            'Low Risk (0-39%)'       => $lowRiskQuery->count(),
+            'Moderate Risk (40-69%)' => $moderateRiskQuery->count(),
+            'High Risk (70-100%)'    => $highRiskQuery->count(),
+        ];
+
+        // 10. Chart Data: Monthly Application Trend & Processing Speed (Scoped)
+        $monthlyTrend = [];
+        $monthlyProcessingDays = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $label = $date->format('M Y');
+            $monthlyTrend[$label] = (clone $query)->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+
+            $monthQuery = (clone $query)->whereIn('status', ['Approved', 'Rejected'])
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month);
+            if (config('database.default') === 'sqlite') {
+                $avgDays = $monthQuery->selectRaw('avg(julianday(updated_at) - julianday(created_at)) as avg_days')->value('avg_days') ?? 0;
+            } else {
+                $avgDays = $monthQuery->selectRaw('avg(extract(epoch from (updated_at - created_at)) / 86400) as avg_days')->value('avg_days') ?? 0;
+            }
+            $monthlyProcessingDays[$label] = round((float)$avgDays, 1);
+        }
+
+        // 11. Chart Data: College & Course Distribution (Scoped)
+        $collegeStats = (clone $query)
+            ->join('student_profiles', 'applications.user_id', '=', 'student_profiles.user_id')
+            ->selectRaw('student_profiles.college, count(applications.id) as app_count')
+            ->groupBy('student_profiles.college')
+            ->get()
+            ->pluck('app_count', 'college')
+            ->toArray();
+
+        // 12. Chart Data: GWA Distribution Density (Scoped)
+        $gwaBrackets = [
+            'excellent' => ['min' => 1.00, 'max' => 1.25],
+            'very_good' => ['min' => 1.26, 'max' => 1.50],
+            'good'      => ['min' => 1.51, 'max' => 1.75],
+            'satisfactory'=>['min' => 1.76, 'max' => 2.00],
+            'others'    => ['min' => 2.01, 'max' => 5.00]
+        ];
+
+        $applicantGwaCounts = [];
+        $approvedGwaCounts = [];
+        foreach ($gwaBrackets as $key => $range) {
+            $applicantGwaCounts[$key] = (clone $query)->whereBetween('gwa', [$range['min'], $range['max']])->count();
+            $approvedGwaCounts[$key] = (clone $query)->where('status', 'Approved')->whereBetween('gwa', [$range['min'], $range['max']])->count();
+        }
+
+        // 13. Chart Data: AI Anomaly Indicator Frequencies (Scoped)
+        $anomalyResults = \App\Models\AIResult::whereHas('document.application', function ($q) use ($termId, $scholarshipId) {
+                if ($termId) $q->where('academic_term_id', $termId);
+                if ($scholarshipId) $q->where('scholarship_id', $scholarshipId);
+            })
+            ->whereNotNull('anomaly_indicators')
+            ->pluck('anomaly_indicators');
+
+        $anomalyCounts = [];
+        foreach ($anomalyResults as $indicators) {
+            $array = is_string($indicators) ? json_decode($indicators, true) : $indicators;
+            if (is_array($array)) {
+                foreach ($array as $indicator) {
+                    $anomalyCounts[$indicator] = ($anomalyCounts[$indicator] ?? 0) + 1;
+                }
+            }
+        }
+        arsort($anomalyCounts);
+        $anomalyCounts = array_slice($anomalyCounts, 0, 5, true);
+
+        // 14. Top Performing Programs — sorted by highest avg approved GWA (Scoped)
+        $topPrograms = (clone $query)
+            ->selectRaw('scholarship_id, program_name, count(*) as total_apps, avg(gwa) as avg_gwa')
+            ->where('status', 'Approved')
+            ->whereNotNull('gwa')
+            ->groupBy('scholarship_id', 'program_name')
+            ->orderBy('avg_gwa', 'asc')
+            ->take(5)
+            ->get();
+
+        // 15. Process Audit Timeline — stage transition counts (Scoped)
+        $processTimeline = [
+            'total' => (clone $query)->count(),
+            'pending' => (clone $query)->where('status', 'Pending')->count(),
+            'under_review' => (clone $query)->where('status', 'Under Review')->count(),
+            'approved' => (clone $query)->where('status', 'Approved')->count(),
+            'rejected' => (clone $query)->where('status', 'Rejected')->count(),
+        ];
+
+        // 14. Per-Scholarship Program Breakdown Stats (Scoped)
         $scholarshipsBreakdown = \App\Models\Scholarship::with(['applications.documents.aiResult'])->get()->map(function($scholarship) {
             $apps = $scholarship->applications;
             
@@ -278,12 +412,21 @@ class SuperAdminController extends Controller
         });
 
         // Fetch active scholars system-wide for monitoring
-        $activeScholars = \App\Models\Application::with(['user.profile', 'scholarship', 'academicTerm'])
-            ->where('status', 'Approved')
-            ->latest('updated_at')
-            ->get();
+        $activeScholarsQuery = \App\Models\Application::with(['user.profile', 'scholarship', 'academicTerm'])
+            ->where('status', 'Approved');
+        if ($termId) {
+            $activeScholarsQuery->where('academic_term_id', $termId);
+        }
+        if ($scholarshipId) {
+            $activeScholarsQuery->where('scholarship_id', $scholarshipId);
+        }
+        $activeScholars = $activeScholarsQuery->latest('updated_at')->get();
 
-        // Pass the new variables to dashboard
+        // Dropdowns for Filter Panel
+        $allTerms = \App\Models\AcademicTerm::orderBy('academic_year', 'desc')->orderBy('semester', 'desc')->get();
+        $allScholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
+
+        // Pass the variables to dashboard
         return view('superadmin.analytics', compact(
             'totalStudents', 
             'submissionCount', 
@@ -291,12 +434,26 @@ class SuperAdminController extends Controller
             'anomaliesDetected', 
             'recentEvaluations',
             'avgFraudScore',
+            'gradeIntegrityIndex',
+            'averageCycleDays',
+            'complianceRate',
             'uatStats',
             'statusCounts',
             'riskTiers',
             'monthlyTrend',
+            'monthlyProcessingDays',
+            'topPrograms',
+            'processTimeline',
+            'collegeStats',
+            'applicantGwaCounts',
+            'approvedGwaCounts',
+            'anomalyCounts',
             'scholarshipsBreakdown',
-            'activeScholars'
+            'activeScholars',
+            'allTerms',
+            'allScholarships',
+            'termId',
+            'scholarshipId'
         ));
     }
 

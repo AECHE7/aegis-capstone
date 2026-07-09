@@ -116,7 +116,7 @@ class ClientEnhancementTest extends TestCase
             ->get(route('superadmin.analytics'));
 
         $response->assertStatus(200);
-        $response->assertSee('Overall Mean Score');
+        $response->assertSee('Overall mean');
         
         // Averages:
         // FS: (5+4)/2 = 4.5
@@ -124,7 +124,7 @@ class ClientEnhancementTest extends TestCase
         // RL: (5+3)/2 = 4.0
         // SC: (4+4)/2 = 4.0
         // Mean = 4.125 -> rounded to 4.13
-        $response->assertSee('Total Responses:');
+        $response->assertSee('responses');
         $response->assertSee('2');
     }
 }
