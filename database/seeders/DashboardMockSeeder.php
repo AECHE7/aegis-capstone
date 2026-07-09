@@ -24,30 +24,19 @@ class DashboardMockSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Wipe all existing transactional and log data to start fresh
-        if (DB::getDriverName() === 'sqlite') {
-            DB::statement('PRAGMA foreign_keys = OFF;');
-        } else {
-            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        }
-
-        AIResult::truncate();
-        Document::truncate();
-        StatusLog::truncate();
-        EmailLog::truncate();
-        AuthLog::truncate();
-        AdminActionLog::truncate();
-        ConfigChangeLog::truncate();
-        ExportAccessLog::truncate();
+        // 1. Wipe all existing transactional and log data in child-to-parent order to avoid foreign key issues
+        AIResult::query()->delete();
+        Document::query()->delete();
+        StatusLog::query()->delete();
+        EmailLog::query()->delete();
+        AuthLog::query()->delete();
+        AdminActionLog::query()->delete();
+        ConfigChangeLog::query()->delete();
+        ExportAccessLog::query()->delete();
         Application::withTrashed()->forceDelete();
-        StudentProfile::truncate();
+        StudentProfile::query()->delete();
         User::withTrashed()->where('role', 'student')->forceDelete();
 
-        if (DB::getDriverName() === 'sqlite') {
-            DB::statement('PRAGMA foreign_keys = ON;');
-        } else {
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        }
 
         // 2. Ensure Admin and Superadmin accounts exist
         $admin = User::firstOrCreate(
