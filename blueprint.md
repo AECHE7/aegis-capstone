@@ -530,3 +530,13 @@ To transition the project from its current MVP setup to a robust, production-rea
   4. **Front-End Templates Update**: Deleted the Landbank/disbursement account details input section from `change_password.blade.php`. Removed active stipend columns and budget panels from superadmin scholarships, analytics, and admin dashboard tables.
   5. **Feature Test Re-Alignment**: Removed `test_student_can_update_bank_details` unit test from `UserProfileTest.php` and verified that all 140 feature tests pass cleanly with 571 assertions.
 
+### Phase 54: Descriptive Analytical Dashboard for the OSA Director - [COMPLETED]
+- **Goal:** Transform the SuperAdmin analytics page from a basic metric overview into a full-featured, interactive descriptive analytical dashboard that gives the OSA Director deep insights into academic profiles, college distribution, grade integrity, and document fraud patterns.
+- **Steps:**
+  1. **Interactive Filter Panel**: Added a sticky filter card at the top of the analytics page with Academic Term and Scholarship Program dropdowns. All charts, KPIs, and tables respond to the selected scope, making the entire dashboard dynamic without full page reload logic.
+  2. **New KPI Cards**: Added Grade Integrity Index (`100 - avg fraud probability` of approved scholars), Average Evaluation Cycle Time in days (submit to decision), and GWA Compliance Rate, all scoped to the active filter selection.
+  3. **College & Department Distribution Chart**: Added a new doughnut chart visualizing application volume by CLSU college — giving the Director clear visibility into which departments are utilizing the scholarship system the most.
+  4. **GWA Academic Profile Density Chart**: Added a grouped bar chart comparing Applicant GWA vs. Approved Scholar GWA across five academic performance brackets (Excellent 1.00-1.25, Very Good 1.26-1.50, Good 1.51-1.75, Satisfactory 1.76-2.00, Others >2.00).
+  5. **AI Anomaly Indicator Frequency Chart**: Added a horizontal bar chart aggregating the top 5 most frequently occurring tampering anomaly flags from the `anomaly_indicators` JSON field across all scanned documents in the current scope.
+  6. **Backend Refactor**: Fully rewrote `SuperAdminController@analytics()` to support dynamic scope queries using `$termId` and `$scholarshipId` request parameters. All 14 computed metrics are now properly scoped.
+  7. **Feature Tests**: Updated `AnalyticsDashboardTest.php` with 8 tests (13 assertions) verifying page access control, filter scoping, empty-state graceful handling, and all new view components. Full suite: 148/148 tests passed (584 assertions).
