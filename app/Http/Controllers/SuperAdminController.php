@@ -476,6 +476,7 @@ class SuperAdminController extends Controller
             'allTerms',
             'allScholarships',
             'termId',
+            'scholarshipId'
         ));
     }
 
