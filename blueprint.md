@@ -520,3 +520,13 @@ To transition the project from its current MVP setup to a robust, production-rea
   2. **Global Pill Buttons System**: Override Bootstrap button base styling globally to enforce `50px` pill-shaped border radius with `scale(0.95)` click micro-interactions. Boosted vertical button height to 48px on mobile viewports for optimal tap target sizes.
   3. **Solid Block Brand Color Schemes**: Cleaned up excessive gradients by setting solid brand green (`#07331c`) on login, registration, verify-email, reset-password, activate-account, and mfa-verify screens. Set solid dark green sidebar background with bright green active menu selectors.
   4. **Responsive Column Prioritization**: Added breakpoint-specific visibility display classes (`d-none d-md-table-cell`, etc.) to application tables to keep columns readable on phone screens, and verified table-responsive overflow wrapping across all dashboards.
+
+### Phase 53: Stipend & Banking/Disbursement Removal - [COMPLETED]
+- **Goal:** Safely remove all banking details and stipend amount tracking from the application to streamline the system focus purely on grade integrity and scholarship screening.
+- **Steps:**
+  1. **Database Migration**: Created migration `2026_07_09_102000_remove_stipend_and_disbursement_fields.php` to drop all bank/disbursement columns (`bank_name`, `bank_account_name`, `bank_account_number`) from the `student_profiles` table, and drop the `stipend_amount` column from the `scholarships` table.
+  2. **Model Refactoring**: Removed `stipend_amount` and bank details attributes from the `Scholarship` and `StudentProfile` models, including fillable attributes and encryption casts.
+  3. **Controller Cleanups**: Removed validation rules and parameter saves for bank details inside `updateProfile` methods in `AuthController` and `ApplicationController`. Cleared out disbursed stipend calculations and compact outputs from `SuperAdminController`'s analytics action.
+  4. **Front-End Templates Update**: Deleted the Landbank/disbursement account details input section from `change_password.blade.php`. Removed active stipend columns and budget panels from superadmin scholarships, analytics, and admin dashboard tables.
+  5. **Feature Test Re-Alignment**: Removed `test_student_can_update_bank_details` unit test from `UserProfileTest.php` and verified that all 140 feature tests pass cleanly with 571 assertions.
+
