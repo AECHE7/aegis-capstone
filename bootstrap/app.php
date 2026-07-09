@@ -30,7 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 503);
             }
             return response()->view('errors.db_error', [
-                'message' => 'The database connection is temporarily busy or locked under heavy load. Please reload the page to retry.'
+                'message' => 'The database connection is temporarily busy or locked under heavy load. Please reload the page to retry.',
+                'exception' => $e
             ], 503);
         });
 
@@ -42,7 +43,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], 503);
             }
             return response()->view('errors.db_error', [
-                'message' => 'The database driver is temporarily busy or locked under heavy load. Please reload the page to retry.'
+                'message' => 'The database driver is temporarily busy or locked under heavy load. Please reload the page to retry.',
+                'exception' => $e
             ], 503);
         });
     })->create();

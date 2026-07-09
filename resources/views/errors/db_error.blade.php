@@ -124,6 +124,14 @@
         <p>
             {{ $message ?? 'The database connection is temporarily busy or locked under heavy load. Please reload the page to retry your request.' }}
         </p>
+
+        @if(config('app.debug') && isset($exception))
+            <div class="alert alert-danger text-start mt-1 mb-4 p-3 small" style="background: #fef2f2; color: #991b1b; border-radius: 8px; font-family: monospace; overflow-x: auto; white-space: pre-wrap; border: 1px solid rgba(153, 27, 27, 0.2);">
+                <strong style="color: #991b1b;"><i class="fa-solid fa-bug me-1"></i> Diagnostic Message:</strong><br>
+                <span style="font-size: 0.8rem;">{{ $exception->getMessage() }}</span>
+            </div>
+        @endif
+
         <button onclick="window.location.reload();" class="btn-reload">
             <i class="fa-solid fa-rotate-right"></i> Reload Page
         </button>
