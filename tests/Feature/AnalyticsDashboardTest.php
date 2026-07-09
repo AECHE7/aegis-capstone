@@ -135,21 +135,21 @@ class AnalyticsDashboardTest extends TestCase
         $response->assertSee('0');
     }
 
-    public function test_top_programs_appears_in_view(): void
+    public function test_program_breakdown_appears_in_view(): void
     {
         $response = $this->actingAs($this->superadmin)
             ->get(route('superadmin.analytics'));
 
         $response->assertStatus(200);
-        $response->assertSee('Top Performing Programs');
+        $response->assertSee('Program Breakdown Snapshot');
     }
 
-    public function test_process_timeline_data_is_present(): void
+    public function test_scholars_monitoring_hub_is_present(): void
     {
         $response = $this->actingAs($this->superadmin)
             ->get(route('superadmin.analytics'));
 
         $response->assertStatus(200);
-        $response->assertSee('Process Audit Timeline');
+        $response->assertSee('System Scholars Monitoring Hub');
     }
 }
