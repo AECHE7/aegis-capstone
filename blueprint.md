@@ -504,4 +504,13 @@ To transition the project from its current MVP setup to a robust, production-rea
   3. **Settings View Card**: Inserted a new **Financial & Budget Allocation** card in `resources/views/superadmin/settings.blade.php` with a number input (step=1, min=0) for the budget value.
   4. **Test Assertions**: Updated `SystemSettingsTest` setup to seed a `total_budget` default and the update test to POST `total_budget=6000000` and assert the correct persisted value (141 tests, 577 assertions).
 
+### Phase 51: PageSpeed Insights Performance & Accessibility Fixes - [COMPLETED]
+- **Goal:** Address all four issues flagged by Google PageSpeed Insights (Mobile) on the public landing page — render-blocking CSS from Bootstrap and Font Awesome CDN, missing `font-display:swap` on icon webfonts, and a heading hierarchy accessibility violation in the login page.
+- **Steps:**
+  1. **Non-Blocking Bootstrap CSS**: Converted all 9 Blade templates (`welcome.blade.php`, `layouts/app.blade.php`, and 7 auth views) from `<link rel="stylesheet">` (render-blocking) to `<link rel="preload" as="style" onload>` + `<noscript>` fallback pattern — eliminating the 1,210ms Bootstrap render block.
+  2. **Non-Blocking Font Awesome CSS**: Applied the same preload defer pattern to the Font Awesome CDN stylesheet — eliminating the 900ms Font Awesome render block. Total estimated FCP improvement: ~780ms.
+  3. **Font Display Swap**: Added inline `@font-face { font-display: swap; }` overrides for Font Awesome 6 Free, Solid, and Brands in all 9 templates to prevent Flash of Invisible Text (FOIT).
+  4. **MFA Page Preconnect**: Added missing `<link rel="preconnect">` hints for jsdelivr.net and cloudflare.com to `mfa_verify.blade.php` (was the only auth page without them).
+  5. **Heading Hierarchy Fix**: Changed the decorative `<h3>How to Get Started</h3>` info-box label in `login.blade.php` to a `<p>` with identical styling classes — resolving the h1→h3 skip that caused the Lighthouse accessibility deduction.
+
 
