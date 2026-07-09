@@ -11,6 +11,10 @@ class AIResult extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'anomaly_indicators' => 'array',
+    ];
+
     /** AIResult belongs to the Document it was generated for. */
     public function document()
     {
