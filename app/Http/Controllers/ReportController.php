@@ -129,14 +129,14 @@ class ReportController extends Controller
 
     private function logExportAccess(Request $request, string $type, string $format)
     {
-        \App\Models\ExportAccessLog::create([
-            'user_id' => auth()->id() ?? 1,
-            'export_type' => $type,
-            'date_from' => $request->filled('date_from') ? $request->date_from : null,
-            'date_to' => $request->filled('date_to') ? $request->date_to : null,
-            'format' => $format,
-            'ip_address' => $request->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logExportAccess(
+            auth()->id() ?? 1,
+            $type,
+            $request->filled('date_from') ? $request->date_from : null,
+            $request->filled('date_to') ? $request->date_to : null,
+            $format,
+            $request->ip()
+        );
     }
 
     private function buildAuditQuery(Request $request)

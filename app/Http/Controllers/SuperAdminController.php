@@ -39,14 +39,14 @@ class SuperAdminController extends Controller
             'status' => 'Active'
         ]);
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'scholarship_created',
-            'target_type' => 'Scholarship',
-            'target_id' => $scholarship->id,
-            'description' => "Created scholarship program: {$scholarship->name}",
-            'ip_address' => $request->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'scholarship_created',
+            'Scholarship',
+            $scholarship->id,
+            "Created scholarship program: {$scholarship->name}",
+            ['ip_address' => $request->ip()]
+        );
 
         if ($request->has('fields')) {
             foreach ($request->fields as $field) {
@@ -116,14 +116,14 @@ class SuperAdminController extends Controller
             'max_renewals' => $request->max_renewals ?? 4,
         ]);
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'scholarship_updated',
-            'target_type' => 'Scholarship',
-            'target_id' => $scholarship->id,
-            'description' => "Updated scholarship program: {$scholarship->name}",
-            'ip_address' => $request->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'scholarship_updated',
+            'Scholarship',
+            $scholarship->id,
+            "Updated scholarship program: {$scholarship->name}",
+            ['ip_address' => $request->ip()]
+        );
 
         // Wipe and rebuild fields
         $scholarship->fields()->delete();
@@ -545,14 +545,14 @@ class SuperAdminController extends Controller
             $user->scholarships()->sync($request->scholarship_ids);
         }
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'staff_invited',
-            'target_type' => 'User',
-            'target_id' => $user->id,
-            'description' => "Invited staff member: {$user->name} ({$user->email})",
-            'ip_address' => $request->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'staff_invited',
+            'User',
+            $user->id,
+            "Invited staff member: {$user->name} ({$user->email})",
+            ['ip_address' => $request->ip()]
+        );
 
         // Generate invitation token
         $token = \Illuminate\Support\Str::random(40);
@@ -599,14 +599,14 @@ class SuperAdminController extends Controller
         $staff->is_active = false;
         $staff->save();
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'staff_deactivated',
-            'target_type' => 'User',
-            'target_id' => $staff->id,
-            'description' => "Revoked staff access for: {$staff->name}",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'staff_deactivated',
+            'User',
+            $staff->id,
+            "Revoked staff access for: {$staff->name}",
+            ['ip_address' => request()->ip()]
+        );
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
@@ -626,14 +626,14 @@ class SuperAdminController extends Controller
         $staff->is_active = true;
         $staff->save();
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'staff_reactivated',
-            'target_type' => 'User',
-            'target_id' => $staff->id,
-            'description' => "Reactivated staff access for: {$staff->name}",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'staff_reactivated',
+            'User',
+            $staff->id,
+            "Reactivated staff access for: {$staff->name}",
+            ['ip_address' => request()->ip()]
+        );
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
@@ -658,14 +658,14 @@ class SuperAdminController extends Controller
 
         $staff->scholarships()->sync($request->scholarship_ids ?? []);
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'staff_assignments_updated',
-            'target_type' => 'User',
-            'target_id' => $staff->id,
-            'description' => "Updated scholarship program assignments for: {$staff->name}",
-            'ip_address' => $request->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'staff_assignments_updated',
+            'User',
+            $staff->id,
+            "Updated scholarship program assignments for: {$staff->name}",
+            ['ip_address' => $request->ip()]
+        );
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
@@ -704,14 +704,14 @@ class SuperAdminController extends Controller
             'changed_by' => auth()->id() ?? 1
         ]);
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'application_restored',
-            'target_type' => 'Application',
-            'target_id' => $application->id,
-            'description' => "Restored application APP-{$application->id} from trash",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'application_restored',
+            'Application',
+            $application->id,
+            "Restored application APP-{$application->id} from trash",
+            ['ip_address' => request()->ip()]
+        );
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'Application restored successfully.']);
@@ -723,14 +723,14 @@ class SuperAdminController extends Controller
     {
         $application = \App\Models\Application::onlyTrashed()->findOrFail($id);
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'application_force_deleted',
-            'target_type' => 'Application',
-            'target_id' => $application->id,
-            'description' => "Permanently deleted application APP-{$application->id} (student: " . ($application->user->name ?? 'Unknown') . ")",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'application_force_deleted',
+            'Application',
+            $application->id,
+            "Permanently deleted application APP-{$application->id} (student: " . ($application->user->name ?? 'Unknown') . ")",
+            ['ip_address' => request()->ip()]
+        );
 
         // Delete COG document file
         if ($application->document) {
@@ -772,14 +772,14 @@ class SuperAdminController extends Controller
         $scholarship = \App\Models\Scholarship::findOrFail($id);
         $scholarship->delete();
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'scholarship_deleted',
-            'target_type' => 'Scholarship',
-            'target_id' => $scholarship->id,
-            'description' => "Soft-deleted scholarship program: {$scholarship->name}",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'scholarship_deleted',
+            'Scholarship',
+            $scholarship->id,
+            "Soft-deleted scholarship program: {$scholarship->name}",
+            ['ip_address' => request()->ip()]
+        );
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'Scholarship program soft-deleted successfully.']);
@@ -792,14 +792,14 @@ class SuperAdminController extends Controller
         $scholarship = \App\Models\Scholarship::onlyTrashed()->findOrFail($id);
         $scholarship->restore();
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'scholarship_restored',
-            'target_type' => 'Scholarship',
-            'target_id' => $scholarship->id,
-            'description' => "Restored scholarship program: {$scholarship->name}",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'scholarship_restored',
+            'Scholarship',
+            $scholarship->id,
+            "Restored scholarship program: {$scholarship->name}",
+            ['ip_address' => request()->ip()]
+        );
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'Scholarship program restored successfully.']);
@@ -826,14 +826,14 @@ class SuperAdminController extends Controller
         // Dissociate staff pivot
         $scholarship->staff()->detach();
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'scholarship_force_deleted',
-            'target_type' => 'Scholarship',
-            'target_id' => $scholarship->id,
-            'description' => "Permanently deleted scholarship program: {$scholarship->name}",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'scholarship_force_deleted',
+            'Scholarship',
+            $scholarship->id,
+            "Permanently deleted scholarship program: {$scholarship->name}",
+            ['ip_address' => request()->ip()]
+        );
 
         // Permanently delete
         $scholarship->forceDelete();
@@ -850,14 +850,14 @@ class SuperAdminController extends Controller
         $staff = \App\Models\User::where('role', 'admin')->findOrFail($id);
         $staff->delete();
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'staff_deleted',
-            'target_type' => 'User',
-            'target_id' => $staff->id,
-            'description' => "Soft-deleted staff member: {$staff->name}",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'staff_deleted',
+            'User',
+            $staff->id,
+            "Soft-deleted staff member: {$staff->name}",
+            ['ip_address' => request()->ip()]
+        );
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'Staff member account soft-deleted successfully.']);
@@ -870,14 +870,14 @@ class SuperAdminController extends Controller
         $staff = \App\Models\User::onlyTrashed()->where('role', 'admin')->findOrFail($id);
         $staff->restore();
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'staff_restored',
-            'target_type' => 'User',
-            'target_id' => $staff->id,
-            'description' => "Restored staff member: {$staff->name}",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'staff_restored',
+            'User',
+            $staff->id,
+            "Restored staff member: {$staff->name}",
+            ['ip_address' => request()->ip()]
+        );
 
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json(['success' => true, 'message' => 'Staff member account restored successfully.']);
@@ -897,14 +897,14 @@ class SuperAdminController extends Controller
             $staff->invitation->delete();
         }
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'staff_force_deleted',
-            'target_type' => 'User',
-            'target_id' => $staff->id,
-            'description' => "Permanently deleted staff member: {$staff->name}",
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'staff_force_deleted',
+            'User',
+            $staff->id,
+            "Permanently deleted staff member: {$staff->name}",
+            ['ip_address' => request()->ip()]
+        );
 
         // Permanently delete
         $staff->forceDelete();
@@ -974,43 +974,45 @@ class SuperAdminController extends Controller
         foreach ($keys as $key) {
             $newValue = \App\Models\Setting::get($key);
             if ($oldValues[$key] !== $newValue) {
-                \App\Models\ConfigChangeLog::create([
-                    'user_id' => auth()->id(),
-                    'setting_key' => $key,
-                    'old_value' => $oldValues[$key],
-                    'new_value' => $newValue,
-                    'ip_address' => $request->ip(),
-                ]);
+                \App\Services\AuditLoggerService::logConfigChange(
+                    auth()->id() ?? 1,
+                    $key,
+                    $oldValues[$key],
+                    $newValue,
+                    $request->ip(),
+                    $request->userAgent() ?? ''
+                );
 
-                \App\Models\AdminActionLog::create([
-                    'user_id' => auth()->id(),
-                    'action' => 'update_setting',
-                    'target_type' => 'Setting',
-                    'target_id' => null,
-                    'description' => "Changed setting '{$key}' from '{$oldValues[$key]}' to '{$newValue}'",
-                    'ip_address' => $request->ip(),
-                ]);
+                \App\Services\AuditLoggerService::logAdminAction(
+                    auth()->id() ?? 1,
+                    'update_setting',
+                    'Setting',
+                    null,
+                    "Changed setting '{$key}' from '{$oldValues[$key]}' to '{$newValue}'",
+                    ['ip_address' => $request->ip()]
+                );
             }
         }
 
         $newLogo = \App\Models\Setting::get('app_logo');
         if ($oldLogo !== $newLogo) {
-            \App\Models\ConfigChangeLog::create([
-                'user_id' => auth()->id(),
-                'setting_key' => 'app_logo',
-                'old_value' => $oldLogo,
-                'new_value' => $newLogo,
-                'ip_address' => $request->ip(),
-            ]);
+            \App\Services\AuditLoggerService::logConfigChange(
+                auth()->id() ?? 1,
+                'app_logo',
+                $oldLogo,
+                $newLogo,
+                $request->ip(),
+                $request->userAgent() ?? ''
+            );
 
-            \App\Models\AdminActionLog::create([
-                'user_id' => auth()->id(),
-                'action' => 'update_setting',
-                'target_type' => 'Setting',
-                'target_id' => null,
-                'description' => "Updated application logo",
-                'ip_address' => $request->ip(),
-            ]);
+            \App\Services\AuditLoggerService::logAdminAction(
+                auth()->id() ?? 1,
+                'update_setting',
+                'Setting',
+                null,
+                "Updated application logo",
+                ['ip_address' => $request->ip()]
+            );
         }
 
         return back()->with('success', 'System settings updated successfully.');
@@ -1020,14 +1022,14 @@ class SuperAdminController extends Controller
     {
         \App\Models\UserMfaDevice::truncate();
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'mfa_revoked_all',
-            'target_type' => 'System',
-            'target_id' => null,
-            'description' => 'Revoked all trusted devices system-wide',
-            'ip_address' => request()->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'mfa_revoked_all',
+            'System',
+            null,
+            'Revoked all trusted devices system-wide',
+            ['ip_address' => request()->ip()]
+        );
 
         return back()->with('success', 'All trusted devices system-wide have been successfully revoked.');
     }

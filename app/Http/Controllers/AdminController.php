@@ -404,14 +404,14 @@ class AdminController extends Controller
             'changed_by' => $evaluatorId
         ]);
 
-        \App\Models\AdminActionLog::create([
-            'user_id' => $evaluatorId,
-            'action' => strtolower($request->status) === 'approved' ? 'approve_application' : 'reject_application',
-            'target_type' => 'Application',
-            'target_id' => $application->id,
-            'description' => "Evaluated application APP-{$application->id} (Status: {$request->status})",
-            'ip_address' => $request->ip(),
-        ]);
+        \App\Services\AuditLoggerService::logAdminAction(
+            $evaluatorId,
+            strtolower($request->status) === 'approved' ? 'approve_application' : 'reject_application',
+            'Application',
+            $application->id,
+            "Evaluated application APP-{$application->id} (Status: {$request->status})",
+            ['ip_address' => $request->ip()]
+        );
 
         // Dispatch database notification
         try {
@@ -543,14 +543,14 @@ class AdminController extends Controller
                 'changed_by' => $evaluatorId
             ]);
 
-            \App\Models\AdminActionLog::create([
-                'user_id' => $evaluatorId,
-                'action' => strtolower($status) === 'approved' ? 'bulk_approve_application' : 'bulk_reject_application',
-                'target_type' => 'Application',
-                'target_id' => $application->id,
-                'description' => "Bulk evaluated application APP-{$application->id} (Status: {$status})",
-                'ip_address' => $request->ip(),
-            ]);
+            \App\Services\AuditLoggerService::logAdminAction(
+                $evaluatorId,
+                strtolower($status) === 'approved' ? 'bulk_approve_application' : 'bulk_reject_application',
+                'Application',
+                $application->id,
+                "Bulk evaluated application APP-{$application->id} (Status: {$status})",
+                ['ip_address' => $request->ip()]
+            );
 
             try {
                 if ($application->user) {
