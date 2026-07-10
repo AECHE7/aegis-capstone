@@ -102,3 +102,5 @@ When deploying updates to Render/Supabase, follow these guidelines to prevent en
 
 For a complete breakdown of all files, folders, and controllers in the project, see the [A.E.G.I.S. Directory Structure Reference](file:///E:/aegis-capstone/.agents/skills/aegis-architecture/references/directory_structure.md).
 
+For the full infrastructure architecture, dev/prod parity analysis, security layers, and optimization roadmap, see the [A.E.G.I.S. Architecture Reference](file:///E:/aegis-capstone/.agents/skills/aegis-architecture/references/architecture_reference.md).
+
