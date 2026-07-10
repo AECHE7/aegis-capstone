@@ -179,7 +179,7 @@ class DeletionManagementTest extends TestCase
 
         // 1. Verify index returns soft-deleted app when status=Cancelled is passed
         $response = $this->actingAs($this->admin)
-            ->getJson(route('admin.dashboard', ['status' => 'Cancelled']));
+            ->getJson(route('admin.dashboard', ['status' => 'Cancelled', 'assignment' => 'all']));
 
         $response->assertStatus(200);
         $this->assertStringContainsString('APP-' . $application->id, $response->json('html'));

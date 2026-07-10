@@ -207,11 +207,11 @@ class AdvancedPortalWorkflowsTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        // Load dashboard
-        $response = $this->get(route('admin.dashboard'));
+        // Load dashboard (use assignment=all to test scholarship-level filtering)
+        $response = $this->get(route('admin.dashboard', ['assignment' => 'all']));
         $response->assertStatus(200);
 
-        // Staff should see app1 but NOT app2
+        // Staff should see app1 (assigned scholarship) but NOT app2 (not assigned)
         $applications = $response->viewData('applications');
         $this->assertTrue($applications->contains($app1));
         $this->assertFalse($applications->contains($app2));

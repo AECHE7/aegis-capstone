@@ -42,7 +42,9 @@ class SystemSettingsTest extends TestCase
         Setting::set('university_name', 'Central Luzon State University');
         Setting::set('ai_fraud_threshold', '50.0');
         Setting::set('gwa_discrepancy_tolerance', '0.01');
-        Setting::set('total_budget', '5000000');
+        Setting::set('auto_approval_enabled', '0');
+        Setting::set('auto_approval_min_confidence', '95.0');
+        Setting::set('auto_approval_max_anomalies', '0');
 
         // Create standard application resources
         $this->scholarship = Scholarship::create(['name' => 'Test Scholarship', 'min_gwa_required' => 2.0, 'status' => 'Active']);
@@ -109,7 +111,9 @@ class SystemSettingsTest extends TestCase
                                    'gwa_discrepancy_tolerance' => 0.05,
                                    'app_logo' => $newLogo,
                                    'mfa_enforcement' => 'students',
-                                   'total_budget' => 6000000,
+                                   'auto_approval_enabled' => '1',
+                                   'auto_approval_min_confidence' => 90.0,
+                                   'auto_approval_max_anomalies' => 1,
                                ]);
 
         $updateResponse->assertRedirect();
@@ -120,7 +124,9 @@ class SystemSettingsTest extends TestCase
         $this->assertEquals(75.5, Setting::get('ai_fraud_threshold'));
         $this->assertEquals(0.05, Setting::get('gwa_discrepancy_tolerance'));
         $this->assertEquals('students', Setting::get('mfa_enforcement'));
-        $this->assertEquals(6000000, Setting::get('total_budget'));
+        $this->assertEquals('1', Setting::get('auto_approval_enabled'));
+        $this->assertEquals('90', Setting::get('auto_approval_min_confidence'));
+        $this->assertEquals('1', Setting::get('auto_approval_max_anomalies'));
         $this->assertNotNull(Setting::get('app_logo'));
     }
 

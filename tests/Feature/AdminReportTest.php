@@ -82,30 +82,30 @@ class AdminReportTest extends TestCase
 
     public function test_admin_can_filter_applications_on_dashboard(): void
     {
-        // 1. Unfiltered request should return both
+        // 1. Unfiltered request should return both (use assignment=all to bypass default mine filter)
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.dashboard'));
+            ->get(route('admin.dashboard', ['assignment' => 'all']));
         $response->assertStatus(200);
         $response->assertSee('APP-' . $this->app1->id);
         $response->assertSee('APP-' . $this->app2->id);
 
         // 2. Filter by scholarship_id
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.dashboard', ['scholarship_id' => $this->scholarship1->id]));
+            ->get(route('admin.dashboard', ['assignment' => 'all', 'scholarship_id' => $this->scholarship1->id]));
         $response->assertStatus(200);
         $response->assertSee('APP-' . $this->app1->id);
         $response->assertDontSee('APP-' . $this->app2->id);
 
         // 3. Filter by status
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.dashboard', ['status' => 'Approved']));
+            ->get(route('admin.dashboard', ['assignment' => 'all', 'status' => 'Approved']));
         $response->assertStatus(200);
         $response->assertDontSee('APP-' . $this->app1->id);
         $response->assertSee('APP-' . $this->app2->id);
 
         // 4. Filter by year
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.dashboard', ['year' => '2025']));
+            ->get(route('admin.dashboard', ['assignment' => 'all', 'year' => '2025']));
         $response->assertStatus(200);
         $response->assertDontSee('APP-' . $this->app1->id);
         $response->assertSee('APP-' . $this->app2->id);

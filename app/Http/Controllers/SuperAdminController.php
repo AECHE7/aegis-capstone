@@ -927,7 +927,9 @@ class SuperAdminController extends Controller
             'gwa_discrepancy_tolerance' => \App\Models\Setting::get('gwa_discrepancy_tolerance', '0.01'),
             'app_logo' => \App\Models\Setting::get('app_logo'),
             'mfa_enforcement' => \App\Models\Setting::get('mfa_enforcement', 'all'),
-            'total_budget' => \App\Models\Setting::get('total_budget', '5000000'),
+            'auto_approval_enabled' => \App\Models\Setting::get('auto_approval_enabled', '0'),
+            'auto_approval_min_confidence' => \App\Models\Setting::get('auto_approval_min_confidence', '95.0'),
+            'auto_approval_max_anomalies' => \App\Models\Setting::get('auto_approval_max_anomalies', '0'),
         ];
         return view('superadmin.settings', compact('settings'));
     }
@@ -941,7 +943,9 @@ class SuperAdminController extends Controller
             'gwa_discrepancy_tolerance' => 'required|numeric|min:0|max:5',
             'app_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'mfa_enforcement' => 'required|in:all,students,none',
-            'total_budget' => 'required|numeric|min:0',
+            'auto_approval_enabled' => 'nullable|string|in:0,1',
+            'auto_approval_min_confidence' => 'required|numeric|min:0|max:100',
+            'auto_approval_max_anomalies' => 'required|integer|min:0',
         ]);
 
         $keys = [
@@ -950,7 +954,9 @@ class SuperAdminController extends Controller
             'ai_fraud_threshold',
             'gwa_discrepancy_tolerance',
             'mfa_enforcement',
-            'total_budget',
+            'auto_approval_enabled',
+            'auto_approval_min_confidence',
+            'auto_approval_max_anomalies',
         ];
 
         $oldValues = [];
@@ -964,7 +970,9 @@ class SuperAdminController extends Controller
         \App\Models\Setting::set('ai_fraud_threshold', $request->ai_fraud_threshold);
         \App\Models\Setting::set('gwa_discrepancy_tolerance', $request->gwa_discrepancy_tolerance);
         \App\Models\Setting::set('mfa_enforcement', $request->mfa_enforcement);
-        \App\Models\Setting::set('total_budget', $request->total_budget);
+        \App\Models\Setting::set('auto_approval_enabled', $request->input('auto_approval_enabled', '0'));
+        \App\Models\Setting::set('auto_approval_min_confidence', $request->auto_approval_min_confidence);
+        \App\Models\Setting::set('auto_approval_max_anomalies', $request->auto_approval_max_anomalies);
 
         if ($request->boolean('reset_logo')) {
             \App\Models\Setting::set('app_logo', null);
@@ -982,8 +990,7 @@ class SuperAdminController extends Controller
                     $key,
                     $oldValues[$key],
                     $newValue,
-                    $request->ip(),
-                    $request->userAgent() ?? ''
+                    $request->ip()
                 );
 
                 \App\Services\AuditLoggerService::logAdminAction(
@@ -1004,8 +1011,7 @@ class SuperAdminController extends Controller
                 'app_logo',
                 $oldLogo,
                 $newLogo,
-                $request->ip(),
-                $request->userAgent() ?? ''
+                $request->ip()
             );
 
             \App\Services\AuditLoggerService::logAdminAction(

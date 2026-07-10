@@ -37,7 +37,9 @@ class ComplianceLogTest extends TestCase
         \App\Models\Setting::set('ai_fraud_threshold', 50.0);
         \App\Models\Setting::set('gwa_discrepancy_tolerance', 0.01);
         \App\Models\Setting::set('mfa_enforcement', 'all');
-        \App\Models\Setting::set('total_budget', 5000000);
+        \App\Models\Setting::set('auto_approval_enabled', '0');
+        \App\Models\Setting::set('auto_approval_min_confidence', '95.0');
+        \App\Models\Setting::set('auto_approval_max_anomalies', '0');
 
         $this->superadmin = User::create([
             'name' => 'OSA Director',
@@ -131,7 +133,9 @@ class ComplianceLogTest extends TestCase
             'ai_fraud_threshold' => 60.0,
             'gwa_discrepancy_tolerance' => 0.05,
             'mfa_enforcement' => 'students',
-            'total_budget' => 6000000,
+            'auto_approval_enabled' => '1',
+            'auto_approval_min_confidence' => 90.0,
+            'auto_approval_max_anomalies' => 1,
         ]);
 
         $this->assertDatabaseHas('config_change_logs', [

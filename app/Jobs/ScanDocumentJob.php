@@ -115,9 +115,13 @@ class ScanDocumentJob implements ShouldQueue
                             'fraud_probability' => $fraudProbability,
                             'classification' => $classification,
                             'heatmap_path' => $result['paths']['heatmap_path'] ?? null,
+                            'anomaly_indicators' => $result['anomaly_indicators'] ?? [],
                         ]
                     );
                 } else {
+                    if (app()->environment('testing')) {
+                        dd('Response not successful', $response->status(), $response->body());
+                    }
                     Log::error("ScanDocumentJob API error: " . $response->body());
                     AIResult::updateOrCreate(
                         ['document_id' => $document->id],
@@ -143,5 +147,8 @@ class ScanDocumentJob implements ShouldQueue
                 );
             }
         }
+
+        // Evaluate smart auto-approval after scanning completes
+        \App\Services\ApplicationAutoApprovalService::evaluate($application);
     }
 }

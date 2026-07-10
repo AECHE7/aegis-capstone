@@ -47,22 +47,46 @@
                 </div>
             </div>
 
-            <!-- Financial Settings -->
+            <!-- Smart Auto-Approval Settings -->
             <div class="card mb-4" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
                 <div class="card-header bg-transparent py-3 border-bottom border-light">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-wallet me-2 text-success"></i> Financial & Budget Allocation</h5>
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-wand-magic-sparkles me-2 text-success"></i> Smart Auto-Approval Engine</h5>
                 </div>
                 <div class="card-body p-4">
                     <div class="row g-3">
                         <div class="col-md-12">
-                            <label for="total_budget" class="form-label fw-semibold small text-muted">Total Allocated Budget (Php)</label>
-                            <input type="number" class="form-control py-2 @error('total_budget') is-invalid @enderror" 
-                                   id="total_budget" name="total_budget" min="0" step="1" 
-                                   value="{{ old('total_budget', $settings['total_budget']) }}" required style="border-radius: 10px;">
-                            <div class="form-text small text-muted mt-1">
-                                Set the global allocated budget for all scholarship programs. This value is used in the Financial & Budget Tracker dashboard widget.
+                            <div class="form-check form-switch mb-3">
+                                <input type="hidden" name="auto_approval_enabled" value="0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="auto_approval_enabled" name="auto_approval_enabled" value="1" {{ old('auto_approval_enabled', $settings['auto_approval_enabled']) === '1' ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold text-dark" for="auto_approval_enabled">Enable Smart Auto-Approval</label>
                             </div>
-                            @error('total_budget')
+                            <div class="form-text small text-muted mb-4">
+                                Automatically approve applications with 100% GWA match, zero anomaly flags, and high confidence scores. Applications with custom uploads or any AI fraud flag will bypass this and enter the manual review queue.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="auto_approval_min_confidence" class="form-label fw-semibold small text-muted">Minimum Auto-Approval AI Confidence (%)</label>
+                            <input type="number" class="form-control py-2 @error('auto_approval_min_confidence') is-invalid @enderror" 
+                                   id="auto_approval_min_confidence" name="auto_approval_min_confidence" min="0" max="100" step="0.1" 
+                                   value="{{ old('auto_approval_min_confidence', $settings['auto_approval_min_confidence']) }}" required style="border-radius: 10px;">
+                            <div class="form-text small text-muted mt-1">
+                                Minimum AI confidence score required (calculated as 100 - fraud probability) to qualify for auto-approval.
+                            </div>
+                            @error('auto_approval_min_confidence')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="auto_approval_max_anomalies" class="form-label fw-semibold small text-muted">Maximum Allowed Anomaly Flags</label>
+                            <input type="number" class="form-control py-2 @error('auto_approval_max_anomalies') is-invalid @enderror" 
+                                   id="auto_approval_max_anomalies" name="auto_approval_max_anomalies" min="0" step="1" 
+                                   value="{{ old('auto_approval_max_anomalies', $settings['auto_approval_max_anomalies']) }}" required style="border-radius: 10px;">
+                            <div class="form-text small text-muted mt-1">
+                                Maximum count of minor AI scanner anomaly flags (like blurry pages) allowed. Recommend 0 for maximum safety.
+                            </div>
+                            @error('auto_approval_max_anomalies')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

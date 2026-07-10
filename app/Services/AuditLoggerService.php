@@ -85,7 +85,6 @@ class AuditLoggerService
      * @param string|null $oldValue
      * @param string|null $newValue
      * @param string $ipAddress
-     * @param string $userAgent
      * @return ConfigChangeLog
      */
     public static function logConfigChange(
@@ -93,8 +92,7 @@ class AuditLoggerService
         string $settingKey,
         ?string $oldValue,
         ?string $newValue,
-        string $ipAddress,
-        string $userAgent
+        string $ipAddress
     ): ConfigChangeLog {
         $userId = $user instanceof User ? $user->id : $user;
 
@@ -104,7 +102,6 @@ class AuditLoggerService
             'old_value' => $oldValue,
             'new_value' => $newValue,
             'ip_address' => $ipAddress,
-            'user_agent' => $userAgent,
         ]);
     }
 
