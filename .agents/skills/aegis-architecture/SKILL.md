@@ -45,7 +45,6 @@ A.E.G.I.S. uses a structured relation schema. Key models include:
   * `mfa_enforcement`: MFA levels (`all`, `students`, `none`).
   * `ai_fraud_threshold`: Minimum confidence score before flagging fraud risk.
   * `gwa_discrepancy_tolerance`: GWA mathematical mismatch tolerance (default `0.01`).
-  * `total_budget`: Global annual funding limit.
 
 ### 5. Compliance & Logging
 * `AuthLog`: Captures authentication events (`login_success`, `login_failed`, `mfa_verified`, `device_trusted`).
