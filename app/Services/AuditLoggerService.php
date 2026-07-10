@@ -54,7 +54,7 @@ class AuditLoggerService
      * @param string $targetType
      * @param string|int|null $targetId
      * @param string $description
-     * @param array $metadata
+     * @param string|null $ipAddress
      * @return AdminActionLog
      */
     public static function logAdminAction(
@@ -63,7 +63,7 @@ class AuditLoggerService
         string $targetType,
         $targetId,
         string $description,
-        array $metadata = []
+        ?string $ipAddress = null
     ): AdminActionLog {
         $userId = $user instanceof User ? $user->id : $user;
 
@@ -73,7 +73,7 @@ class AuditLoggerService
             'target_type' => $targetType,
             'target_id' => $targetId !== null ? (string) $targetId : null,
             'description' => $description,
-            'metadata' => $metadata,
+            'ip_address' => $ipAddress,
         ]);
     }
 

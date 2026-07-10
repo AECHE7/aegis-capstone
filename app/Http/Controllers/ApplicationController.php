@@ -221,15 +221,19 @@ class ApplicationController extends Controller
             \App\Jobs\ScanDocumentJob::dispatch($application->id);
         }
 
+        // Auto-assign application to staff member
+        $assignedStaff = \App\Services\ApplicationAssignmentService::assign($application);
+
         // Dispatch database notifications to assigned staff
         try {
-            $assignedStaff = \App\Models\User::where('role', 'admin')
-                ->whereHas('scholarships', function($q) use($application) {
-                    $q->where('scholarships.id', $application->scholarship_id);
-                })->get();
-
-            foreach ($assignedStaff as $staff) {
-                $staff->notify(new \App\Notifications\NewApplicationNotification($application));
+            if ($assignedStaff) {
+                $assignedStaff->notify(new \App\Notifications\NewApplicationNotification($application));
+            } else {
+                // Fallback: notify all active admins if none assigned
+                $admins = \App\Models\User::where('role', 'admin')->where('is_active', true)->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new \App\Notifications\NewApplicationNotification($application));
+                }
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to notify staff on new application: ' . $e->getMessage());

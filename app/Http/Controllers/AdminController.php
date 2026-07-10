@@ -34,6 +34,19 @@ class AdminController extends Controller
         if (auth()->user()->role === 'admin') {
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
             $query->whereIn('scholarship_id', $assignedScholarshipIds);
+
+            $assignmentFilter = $request->query('assignment', 'mine');
+            if ($assignmentFilter === 'mine') {
+                $query->where('assigned_to', auth()->id());
+            } elseif ($assignmentFilter === 'unassigned') {
+                $query->whereNull('assigned_to');
+            }
+        } elseif ($request->filled('assigned_to_staff')) {
+            if ($request->assigned_to_staff === 'unassigned') {
+                $query->whereNull('assigned_to');
+            } else {
+                $query->where('assigned_to', $request->assigned_to_staff);
+            }
         }
 
         if ($request->query('archived') == '1') {
@@ -171,6 +184,8 @@ class AdminController extends Controller
         }
         $activeScholars = $activeScholarsQuery->latest('updated_at')->take(10)->get();
 
+        $staffMembers = \App\Models\User::where('role', 'admin')->where('is_active', true)->orderBy('name', 'asc')->get();
+
         return view('admin.dashboard', compact(
             'applications', 
             'pendingCount',
@@ -183,7 +198,8 @@ class AdminController extends Controller
             'academicTerms',
             'archivedCount',
             'cancelledCount',
-            'activeScholars'
+            'activeScholars',
+            'staffMembers'
         ));
     }
 
@@ -410,7 +426,7 @@ class AdminController extends Controller
             'Application',
             $application->id,
             "Evaluated application APP-{$application->id} (Status: {$request->status})",
-            ['ip_address' => $request->ip()]
+            $request->ip()
         );
 
         // Dispatch database notification
@@ -549,7 +565,7 @@ class AdminController extends Controller
                 'Application',
                 $application->id,
                 "Bulk evaluated application APP-{$application->id} (Status: {$status})",
-                ['ip_address' => $request->ip()]
+                $request->ip()
             );
 
             try {

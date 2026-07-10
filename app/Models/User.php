@@ -116,6 +116,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * A staff member can have many applications assigned to them for review
+     */
+    public function assignedApplications()
+    {
+        return $this->hasMany(Application::class, 'assigned_to');
+    }
+
+    /**
      * Check if the student has an active scholarship application or active grant.
      */
     public function hasActiveApplication(): bool

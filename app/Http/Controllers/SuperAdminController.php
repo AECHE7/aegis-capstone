@@ -45,7 +45,7 @@ class SuperAdminController extends Controller
             'Scholarship',
             $scholarship->id,
             "Created scholarship program: {$scholarship->name}",
-            ['ip_address' => $request->ip()]
+            $request->ip()
         );
 
         if ($request->has('fields')) {
@@ -122,7 +122,7 @@ class SuperAdminController extends Controller
             'Scholarship',
             $scholarship->id,
             "Updated scholarship program: {$scholarship->name}",
-            ['ip_address' => $request->ip()]
+            $request->ip()
         );
 
         // Wipe and rebuild fields
@@ -551,7 +551,7 @@ class SuperAdminController extends Controller
             'User',
             $user->id,
             "Invited staff member: {$user->name} ({$user->email})",
-            ['ip_address' => $request->ip()]
+            $request->ip()
         );
 
         // Generate invitation token
@@ -599,13 +599,16 @@ class SuperAdminController extends Controller
         $staff->is_active = false;
         $staff->save();
 
+        // Reassign all active pending/under-review applications assigned to this staff
+        \App\Services\ApplicationAssignmentService::reassignPending($staff);
+
         \App\Services\AuditLoggerService::logAdminAction(
             auth()->id() ?? 1,
             'staff_deactivated',
             'User',
             $staff->id,
             "Revoked staff access for: {$staff->name}",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         if (request()->expectsJson() || request()->ajax()) {
@@ -632,7 +635,7 @@ class SuperAdminController extends Controller
             'User',
             $staff->id,
             "Reactivated staff access for: {$staff->name}",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         if (request()->expectsJson() || request()->ajax()) {
@@ -664,7 +667,7 @@ class SuperAdminController extends Controller
             'User',
             $staff->id,
             "Updated scholarship program assignments for: {$staff->name}",
-            ['ip_address' => $request->ip()]
+            $request->ip()
         );
 
         if ($request->expectsJson() || $request->ajax()) {
@@ -710,7 +713,7 @@ class SuperAdminController extends Controller
             'Application',
             $application->id,
             "Restored application APP-{$application->id} from trash",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         if (request()->expectsJson() || request()->ajax()) {
@@ -729,7 +732,7 @@ class SuperAdminController extends Controller
             'Application',
             $application->id,
             "Permanently deleted application APP-{$application->id} (student: " . ($application->user->name ?? 'Unknown') . ")",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         // Delete COG document file
@@ -778,7 +781,7 @@ class SuperAdminController extends Controller
             'Scholarship',
             $scholarship->id,
             "Soft-deleted scholarship program: {$scholarship->name}",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         if (request()->expectsJson() || request()->ajax()) {
@@ -798,7 +801,7 @@ class SuperAdminController extends Controller
             'Scholarship',
             $scholarship->id,
             "Restored scholarship program: {$scholarship->name}",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         if (request()->expectsJson() || request()->ajax()) {
@@ -832,7 +835,7 @@ class SuperAdminController extends Controller
             'Scholarship',
             $scholarship->id,
             "Permanently deleted scholarship program: {$scholarship->name}",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         // Permanently delete
@@ -856,7 +859,7 @@ class SuperAdminController extends Controller
             'User',
             $staff->id,
             "Soft-deleted staff member: {$staff->name}",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         if (request()->expectsJson() || request()->ajax()) {
@@ -876,7 +879,7 @@ class SuperAdminController extends Controller
             'User',
             $staff->id,
             "Restored staff member: {$staff->name}",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         if (request()->expectsJson() || request()->ajax()) {
@@ -903,7 +906,7 @@ class SuperAdminController extends Controller
             'User',
             $staff->id,
             "Permanently deleted staff member: {$staff->name}",
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         // Permanently delete
@@ -989,7 +992,7 @@ class SuperAdminController extends Controller
                     'Setting',
                     null,
                     "Changed setting '{$key}' from '{$oldValues[$key]}' to '{$newValue}'",
-                    ['ip_address' => $request->ip()]
+                    $request->ip()
                 );
             }
         }
@@ -1011,7 +1014,7 @@ class SuperAdminController extends Controller
                 'Setting',
                 null,
                 "Updated application logo",
-                ['ip_address' => $request->ip()]
+                $request->ip()
             );
         }
 
@@ -1028,7 +1031,7 @@ class SuperAdminController extends Controller
             'System',
             null,
             'Revoked all trusted devices system-wide',
-            ['ip_address' => request()->ip()]
+            request()->ip()
         );
 
         return back()->with('success', 'All trusted devices system-wide have been successfully revoked.');

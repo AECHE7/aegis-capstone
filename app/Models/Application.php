@@ -20,6 +20,7 @@ class Application extends Model
         'remarks',
         'admin_notes',
         'evaluated_by',
+        'assigned_to',
         'is_archived',
         'is_renewal',
         'previous_application_id',
@@ -29,6 +30,7 @@ class Application extends Model
     protected $casts = [
         'is_archived' => 'boolean',
         'is_renewal'  => 'boolean',
+        'assigned_to' => 'integer',
     ];
 
     /**
@@ -93,6 +95,14 @@ class Application extends Model
     public function evaluator()
     {
         return $this->belongsTo(User::class, 'evaluated_by');
+    }
+
+    /**
+     * Identifies the staff member assigned to review this application
+     */
+    public function assignedTo()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     /**
