@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Application;
 use App\Models\StatusLog;
 use App\Models\Setting;
+use App\Models\User;
 use App\Mail\ApplicationStatusMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
@@ -89,17 +90,20 @@ class ApplicationAutoApprovalService
             'evaluated_by' => null, // Approved by system
         ]);
 
+        $systemUser = User::where('role', 'superadmin')->first();
+        $systemUserId = $systemUser ? $systemUser->id : $application->user_id;
+
         // Status log
         StatusLog::create([
             'application_id' => $application->id,
             'status' => 'Approved',
             'remarks' => 'Application auto-approved by Smart Verification Engine (Zero anomalies detected).',
-            'changed_by' => 1, // System administrator user ID
+            'changed_by' => $systemUserId,
         ]);
 
         // Audit log
         AuditLoggerService::logAdminAction(
-            1, // System user ID
+            $systemUserId,
             'system_auto_approved',
             'Application',
             $application->id,
