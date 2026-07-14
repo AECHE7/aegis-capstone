@@ -55,6 +55,7 @@ class ReportController extends Controller
     // Generate and Download CSV Report
     public function exportCsv(Request $request)
     {
+        $this->logExportAccess($request, 'applications_list', 'csv');
         $applications = $this->buildReportQuery($request)->get();
         $filename = "aegis_scholarship_report_" . date('Y-m-d') . ".csv";
 
@@ -95,6 +96,7 @@ class ReportController extends Controller
     // Generate and Download PDF Report
     public function exportPdf(Request $request)
     {
+        $this->logExportAccess($request, 'applications_list', 'pdf');
         $applications = $this->buildReportQuery($request)->get();
 
         // Calculate statistics for the summary block

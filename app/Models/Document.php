@@ -20,7 +20,7 @@ class Document extends Model
     // A Document belongs to an Application
     public function application()
     {
-        return $this->belongsTo(Application::class);
+        return $this->belongsTo(Application::class)->withTrashed();
     }
 
     // The user who uploaded this document

@@ -320,12 +320,12 @@ class AdminController extends Controller
     public function downloadDocument($id)
     {
         $document = \App\Models\Document::findOrFail($id);
-        $application = $document->application 
-                       ?? \App\Models\Application::where('id', $document->application_id)->first()
-                       ?? \App\Models\Application::where('document_id', $document->id)->first()
-                       ?? \App\Models\Application::whereHas('document', fn($q) => $q->where('id', $document->id))->first();
+        $application = $document->application;
+        
         if ($application) {
             $this->validateAdminAccess($application);
+        } else {
+            abort(404, 'Application not found.');
         }
 
         // Make sure the file actually exists in storage
