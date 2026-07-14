@@ -86,7 +86,9 @@ class DashboardMockSeeder extends Seeder
         \App\Models\Setting::set('ai_fraud_threshold', '50.0');
         \App\Models\Setting::set('gwa_discrepancy_tolerance', '0.01');
         \App\Models\Setting::set('mfa_enforcement', 'all');
-        \App\Models\Setting::set('total_budget', '5000000');
+        \App\Models\Setting::set('auto_approval_enabled', '0');
+        \App\Models\Setting::set('auto_approval_min_confidence', '95.0');
+        \App\Models\Setting::set('auto_approval_max_anomalies', '0');
 
         // 6. Generate 40 Mock Students with Profiles and Applications
         $colleges = ['CVSM', 'CEA', 'CAS', 'CBAA', 'CAG', 'COEd', 'CF', 'CHed'];
@@ -283,7 +285,7 @@ class DashboardMockSeeder extends Seeder
             ['key' => 'ai_fraud_threshold', 'old' => '45.0', 'new' => '50.0'],
             ['key' => 'gwa_discrepancy_tolerance', 'old' => '0.02', 'new' => '0.01'],
             ['key' => 'mfa_enforcement', 'old' => 'students', 'new' => 'all'],
-            ['key' => 'total_budget', 'old' => '4000000', 'new' => '5000000']
+            ['key' => 'auto_approval_enabled', 'old' => '0', 'new' => '1']
         ];
 
         foreach ($configKeys as $i => $conf) {
