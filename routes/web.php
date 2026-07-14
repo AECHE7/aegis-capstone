@@ -17,7 +17,7 @@ Route::post('/login/mfa', [AuthController::class, 'verifyMfa'])->middleware('thr
 Route::post('/login/mfa/resend', [AuthController::class, 'resendMfa'])->middleware('throttle:3,1')->name('login.mfa.resend');
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
 Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
-    $expectedKey = env('SCHEDULER_KEY', 'aegis_cron_secret');
+    $expectedKey = config('services.scheduler.key', 'aegis_cron_secret');
     if ($request->query('key') !== $expectedKey) {
         abort(403, 'Unauthorized');
     }
@@ -63,17 +63,6 @@ Route::get('/system/logo', function () {
     return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($logoPath));
 })->name('system.logo');
 
-Route::get('/system/reset-uat-data', function () {
-    \App\Models\AIResult::query()->delete();
-    \App\Models\Document::query()->delete();
-    \App\Models\StatusLog::query()->delete();
-    \App\Models\EmailLog::query()->delete();
-    \App\Models\ApplicationField::query()->delete();
-    \App\Models\StudentProfile::query()->delete();
-    \App\Models\Application::withTrashed()->forceDelete();
-    \App\Models\User::withTrashed()->where('role', 'student')->forceDelete();
-    return "Staging database reset successfully! All student accounts and applications have been permanently deleted.";
-})->name('system.reset-uat');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
@@ -229,6 +218,24 @@ Route::middleware(['auth'])->group(function () {
         // Email Broadcast Center
         Route::get('/broadcast', [SuperAdminController::class, 'showBroadcast'])->name('superadmin.broadcast');
         Route::post('/broadcast', [SuperAdminController::class, 'sendBroadcast'])->name('superadmin.broadcast.send');
+
+        // Staging/UAT database hard reset (prohibited in production)
+        Route::get('/system/reset-uat-data', function () {
+            if (app()->isProduction()) {
+                abort(403, 'Database resets are prohibited in production environments.');
+            }
+
+            \App\Models\AIResult::query()->delete();
+            \App\Models\Document::query()->delete();
+            \App\Models\StatusLog::query()->delete();
+            \App\Models\EmailLog::query()->delete();
+            \App\Models\ApplicationField::query()->delete();
+            \App\Models\StudentProfile::query()->delete();
+            \App\Models\Application::withTrashed()->forceDelete();
+            \App\Models\User::withTrashed()->where('role', 'student')->forceDelete();
+
+            return "Staging database reset successfully! All student accounts and applications have been permanently deleted.";
+        })->name('system.reset-uat');
     });
 
     // SECURE FILE VIEWING

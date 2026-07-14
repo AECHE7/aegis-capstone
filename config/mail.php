@@ -77,6 +77,7 @@ return [
 
         'brevo_api' => [
             'transport' => 'brevo_api',
+            'key' => env('BREVO_API_KEY') ?: env('MAIL_PASSWORD'),
         ],
 
         'array' => [
@@ -86,6 +87,7 @@ return [
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
+                'brevo_api',
                 'smtp',
                 'log',
             ],

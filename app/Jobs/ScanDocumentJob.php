@@ -14,6 +14,13 @@ class ScanDocumentJob implements ShouldQueue
 {
     use Queueable;
 
+    public $tries = 5;
+
+    public function backoff(): array
+    {
+        return [15, 45, 90, 180, 360];
+    }
+
     /**
      * Create a new job instance.
      */
@@ -119,24 +126,27 @@ class ScanDocumentJob implements ShouldQueue
                         ]
                     );
                 } else {
-                    if (app()->environment('testing')) {
-                        dd('Response not successful', $response->status(), $response->body());
-                    }
                     Log::error("ScanDocumentJob API error: " . $response->body());
-                    AIResult::updateOrCreate(
-                        ['document_id' => $document->id],
-                        [
-                            'fraud_probability' => 0.00,
-                            'classification' => 'failed',
-                            'heatmap_path' => null
-                        ]
-                    );
+                    throw new \Exception("AI Service returned HTTP " . $response->status() . ": " . $response->body());
                 }
             } catch (\Exception $e) {
                 Log::error("ScanDocumentJob exception: " . $e->getMessage());
-                if (app()->environment('testing')) {
-                    throw $e;
-                }
+                throw $e;
+            }
+        }
+
+        // Evaluate smart auto-approval after scanning completes
+        \App\Services\ApplicationAutoApprovalService::evaluate($application);
+    }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        $application = Application::with('documents')->find($this->applicationId);
+        if ($application) {
+            foreach ($application->documents as $document) {
                 AIResult::updateOrCreate(
                     ['document_id' => $document->id],
                     [
@@ -147,8 +157,5 @@ class ScanDocumentJob implements ShouldQueue
                 );
             }
         }
-
-        // Evaluate smart auto-approval after scanning completes
-        \App\Services\ApplicationAutoApprovalService::evaluate($application);
     }
 }

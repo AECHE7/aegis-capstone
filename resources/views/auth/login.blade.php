@@ -516,6 +516,16 @@
     <div class="form-panel">
         <div class="form-box">
 
+            @if(isset($emergencyReadOnly) && $emergencyReadOnly)
+                <div class="alert border-0 rounded-3 mb-4 p-3 animate-fade-in" style="background: #fffbeb; color: #b45309; border-left: 4px solid #d97706 !important;">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <strong>Emergency Read-Only Mode</strong>
+                    </div>
+                    <p class="small mb-0">The application database is temporarily offline. Sign in is disabled, but you can review portal layouts and configurations.</p>
+                </div>
+            @endif
+
             @auth
                 <div class="alert border-0 rounded-3 mb-4 p-3" style="background: #ecfdf5; color: #065f46;">
                     <div class="d-flex align-items-center gap-2 mb-2">

@@ -19,7 +19,7 @@ class Setting extends Model
                 $setting = self::where('key', $key)->first();
                 return $setting ? $setting->value : $default;
             });
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (\Throwable $e) {
             return $default;
         }
     }

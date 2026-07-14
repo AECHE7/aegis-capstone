@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
         Model::shouldBeStrict(! $this->app->isProduction());
 
         \Illuminate\Support\Facades\Mail::extend('brevo_api', function (array $config) {
-            return new \App\Mail\Transport\BrevoTransport(env('BREVO_API_KEY') ?: env('MAIL_PASSWORD'));
+            return new \App\Mail\Transport\BrevoTransport($config['key'] ?? null);
         });
 
         \Illuminate\Validation\Rules\Password::defaults(function () {

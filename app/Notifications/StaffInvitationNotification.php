@@ -6,7 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class StaffInvitationNotification extends Notification
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class StaffInvitationNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

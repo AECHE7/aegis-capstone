@@ -29,6 +29,16 @@ return Application::configure(basePath: dirname(__DIR__))
                     'message' => 'Database connection timeout or busy lockout. Please retry in a few moments.'
                 ], 503);
             }
+            if ($request->is('/') || $request->is('login')) {
+                return response()->view('auth.login', [
+                    'demoStudent' => null,
+                    'demoAdmin' => null,
+                    'demoSuperAdmin' => null,
+                    'latestInvitation' => null,
+                    'emergencyReadOnly' => true,
+                    'errors' => new \Illuminate\Support\ViewErrorBag()
+                ]);
+            }
             return response()->view('errors.db_error', [
                 'message' => 'The database connection is temporarily busy or locked under heavy load. Please reload the page to retry.',
                 'exception' => $e
@@ -41,6 +51,16 @@ return Application::configure(basePath: dirname(__DIR__))
                     'success' => false,
                     'message' => 'Database driver timeout or busy lockout. Please retry in a few moments.'
                 ], 503);
+            }
+            if ($request->is('/') || $request->is('login')) {
+                return response()->view('auth.login', [
+                    'demoStudent' => null,
+                    'demoAdmin' => null,
+                    'demoSuperAdmin' => null,
+                    'latestInvitation' => null,
+                    'emergencyReadOnly' => true,
+                    'errors' => new \Illuminate\Support\ViewErrorBag()
+                ]);
             }
             return response()->view('errors.db_error', [
                 'message' => 'The database driver is temporarily busy or locked under heavy load. Please reload the page to retry.',

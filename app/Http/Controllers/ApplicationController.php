@@ -161,7 +161,8 @@ class ApplicationController extends Controller
 
         if ($request->hasFile('document')) {
             $file = $request->file('document');
-            $filePath = \App\Services\CloudStorageService::upload($file);
+            $isSynced = true;
+            $filePath = \App\Services\CloudStorageService::upload($file, 'uploads', $isSynced);
 
             \App\Models\Document::create([
                 'application_id' => $application->id,
@@ -170,6 +171,7 @@ class ApplicationController extends Controller
                 'document_type' => 'COG',
                 'upload_event' => 'initial',
                 'uploaded_by' => $userId,
+                'is_synced' => $isSynced,
             ]);
         }
 
@@ -177,10 +179,11 @@ class ApplicationController extends Controller
         if ($request->has('custom_fields')) {
             foreach ($scholarship->fields as $field) {
                 $val = null;
+                $isSynced = true;
                 if ($field->field_type === 'file') {
                     if ($request->hasFile('custom_fields.' . $field->field_name)) {
                         $cfile = $request->file('custom_fields.' . $field->field_name);
-                        $filePath = \App\Services\CloudStorageService::upload($cfile);
+                        $filePath = \App\Services\CloudStorageService::upload($cfile, 'uploads', $isSynced);
                         $val = $filePath;
 
                         // Also register in documents table for AI scanning
@@ -191,6 +194,7 @@ class ApplicationController extends Controller
                             'document_type' => $field->field_label,
                             'upload_event' => 'initial',
                             'uploaded_by' => $userId,
+                            'is_synced' => $isSynced,
                         ]);
                     }
                 } else {
@@ -200,7 +204,8 @@ class ApplicationController extends Controller
                 if ($val !== null) {
                     $application->customFields()->create([
                         'field_name' => $field->field_label,
-                        'field_value' => $val
+                        'field_value' => $val,
+                        'is_synced' => $isSynced
                     ]);
                 }
             }

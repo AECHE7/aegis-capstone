@@ -15,9 +15,10 @@ class CloudStorageService
      *
      * @param UploadedFile $file
      * @param string $folder
+     * @param bool|null $isSynced  Passed by reference, tracks if the file was successfully written to cloud storage (or local if cloud is disabled).
      * @return string The public URL or local storage path
      */
-    public static function upload(UploadedFile $file, string $folder = 'uploads'): string
+    public static function upload(UploadedFile $file, string $folder = 'uploads', &$isSynced = null): string
     {
         $hasR2 = !empty(config('filesystems.disks.r2.key')) 
               && !empty(config('filesystems.disks.r2.secret')) 
@@ -26,6 +27,8 @@ class CloudStorageService
         $extension = $file->getClientOriginalExtension();
         $uuid = (string) Str::uuid();
         $filename = hash('sha256', $uuid) . '.' . $extension;
+
+        $isSynced = true;
 
         if ($hasR2) {
             try {
@@ -42,6 +45,7 @@ class CloudStorageService
                 }
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("CloudStorageService upload to R2 failed: " . $e->getMessage() . ". Falling back to local storage.");
+                $isSynced = false;
             }
         }
 

@@ -572,4 +572,22 @@ To transition the project from its current MVP setup to a robust, production-rea
   7. **Feature Tests**: Added `ApplicationAutoApprovalTest.php` with 6 test cases covering auto-approval success, low confidence bypass, anomaly flag bypass, custom field bypass, global disable bypass, and tampered classification bypass.
   8. **Fixed Test Regressions**: Updated `SystemSettingsTest`, `ComplianceLogTest`, `AdminReportTest`, `DeletionManagementTest`, and `AdvancedPortalWorkflowsTest` to align with the new auto-approval settings and assignment filter defaults. Full suite: 162/162 tests passed (632 assertions).
 
+### Phase 57: Security Hardening & Config Caching Compliance - [COMPLETED]
+- **Goal:** Secure the staging database reset route and eliminate configuration caching bugs.
+- **Steps:**
+  1. **Staging Reset Route Security**: Moved `/system/reset-uat-data` inside the superadmin middleware group and added an environment guard (`if (app()->isProduction()) abort(403)`) to prevent accidental or malicious data wipes in production.
+  2. **Config Caching Compatibility**: Refactored direct `env()` helper calls in routes (`routes/web.php` for `SCHEDULER_KEY`) and services (`AppServiceProvider.php` for `BREVO_API_KEY` / `MAIL_PASSWORD` in custom mail driver registry) to fetch values through configuration cache-safe arrays (`config('services.scheduler.key')` and `$config['key']`), ensuring the application stays stable in high-performance production caches.
+  3. **Refactored Security Tests**: Updated `SystemSettingsTest.php` to assert guest redirection, student 403 authorization blocks, and successful execution by an authenticated superadmin on the reset endpoint.
+  4. **Verified Performance**: Verified functional stability by running all 163 tests with config caching enabled, achieving 100% test completion.
+
+### Phase 58: Emergency Recovery & Resilience System - [COMPLETED]
+- **Goal:** Build key resilience mechanisms to defend against database, email, AI scan, and cloud storage outages.
+- **Steps:**
+  1. **Database Outage Graceful Fallback**: Configured global exception hooks in `bootstrap/app.php` to intercept database outages on public gateway routes and fallback to rendering the login page in `Emergency Read-Only Mode` (passing an empty ViewErrorBag). Added an amber warning alert banner in `auth/login.blade.php`.
+  2. **Safe Setting Retrieval**: Refactored `Setting::get` to catch any `Throwable` during cache-miss lookups, making it immune to query crashes.
+  3. **Queue Notification & Mailer Failover**: Configured failover driver stacks in `config/mail.php` prioritizing `brevo_api`. Added `ShouldQueue` to non-urgent mailables and notifications (`ApplicationStatusMail`, `AnnouncementMail`, `StaffInvitationNotification`, `CustomVerifyEmailNotification`, `CustomResetPasswordNotification`) to survive SMTP downtime.
+  4. **AI Forensics Retry Pipeline**: Configured exponential queue retries (`$tries = 5` and `backoff = [15, 45, 90, 180, 360]`) in `ScanDocumentJob.php` to handle service downtime.
+  5. **Cloud Storage Fallback & Sync**: Updated `CloudStorageService::upload` to write files to local storage and return `is_synced = false` on S3/R2 upload failures. Added database migrations adding `is_synced` to documents and custom application fields, and created an Artisan command `storage:sync-r2` scheduled to run hourly to synchronize fallback files to R2.
+  6. **Feature Verification**: Added `EmergencyRecoveryTest.php` validating all fallback routes, retry backoffs, and command sync operations. All 167 tests passed (652 assertions).
+
 

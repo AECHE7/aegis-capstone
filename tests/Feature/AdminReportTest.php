@@ -146,8 +146,8 @@ class AdminReportTest extends TestCase
 
         $response->assertRedirect(route('admin.dashboard'));
         
-        // Assert email was sent with the PDF attachment
-        Mail::assertSent(ApplicationStatusMail::class, function ($mail) {
+        // Assert email was queued with the PDF attachment
+        Mail::assertQueued(ApplicationStatusMail::class, function ($mail) {
             $mail->build();
             
             $hasPdfAttachment = false;

@@ -224,9 +224,18 @@ class SystemSettingsTest extends TestCase
     /** @test */
     public function database_hard_reset_route_wipes_all_students_and_applications()
     {
-        $response = $this->get(route('system.reset-uat'));
-        $response->assertStatus(200);
-        $response->assertSee('Staging database reset successfully!');
+        // 1. Guest request should redirect to login
+        $responseGuest = $this->get(route('system.reset-uat'));
+        $responseGuest->assertRedirect(route('login'));
+
+        // 2. Student request should be aborted with 403 Forbidden
+        $responseStudent = $this->actingAs($this->student)->get(route('system.reset-uat'));
+        $responseStudent->assertStatus(403);
+
+        // 3. SuperAdmin request should succeed
+        $responseSuper = $this->actingAs($this->superadmin)->get(route('system.reset-uat'));
+        $responseSuper->assertStatus(200);
+        $responseSuper->assertSee('Staging database reset successfully!');
 
         $this->assertEquals(0, User::where('role', 'student')->count());
         $this->assertEquals(0, Application::count());

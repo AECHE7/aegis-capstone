@@ -13,6 +13,7 @@ class ApplicationField extends Model
         'application_id',
         'field_name',
         'field_value',
+        'is_synced',
     ];
 
     /**
