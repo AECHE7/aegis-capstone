@@ -148,6 +148,44 @@
         }
     }
 
+    @media (max-width: 575.98px) {
+        .scholar-card {
+            padding: 1.25rem 1rem !important;
+        }
+        .scholar-card .d-flex.justify-content-between {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 4px !important;
+            margin-bottom: 0.75rem !important;
+        }
+        .scholar-card .d-flex.justify-content-between:last-child {
+            margin-bottom: 0 !important;
+        }
+        .scholar-card .d-flex.justify-content-between span:last-child {
+            text-align: left !important;
+        }
+        .container-fluid {
+            padding: 1rem 0.25rem 2rem !important;
+        }
+        .status-hero-icon {
+            width: 48px !important;
+            height: 48px !important;
+            font-size: 1.35rem !important;
+        }
+        .scholar-actions-card {
+            padding: 1.25rem 1rem !important;
+        }
+        .scholar-actions-card .d-flex.flex-wrap {
+            flex-direction: column !important;
+            width: 100% !important;
+        }
+        .scholar-actions-card .d-flex.flex-wrap a,
+        .scholar-actions-card .d-flex.flex-wrap button {
+            width: 100% !important;
+            text-align: center !important;
+        }
+    }
+
     /* Scholar Mode Styling */
     .scholar-banner {
         background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%);
