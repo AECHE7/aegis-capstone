@@ -11,18 +11,18 @@ class RealtimeNotificationsTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Test that guest is redirected.
+     * Test that guest is redirected from notifications endpoint.
      */
-    public function test_guest_is_redirected_from_notification_stream(): void
+    public function test_guest_is_redirected_from_notifications(): void
     {
-        $response = $this->get(route('notifications.stream'));
+        $response = $this->get(route('notifications.index'));
         $response->assertStatus(302);
     }
 
     /**
-     * Test that authenticated user receives streamed SSE response.
+     * Test that authenticated user can poll notifications via JSON.
      */
-    public function test_authenticated_user_can_access_notification_stream(): void
+    public function test_authenticated_user_can_access_notifications(): void
     {
         $user = User::create([
             'name' => 'John Doe',
@@ -41,17 +41,25 @@ class RealtimeNotificationsTest extends TestCase
             'data' => ['title' => 'Test', 'message' => 'Test message'],
         ]);
 
-        $response = $this->actingAs($user)->get(route('notifications.stream'));
+        $response = $this->actingAs($user)->get(route('notifications.index'));
 
         $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'text/event-stream; charset=UTF-8');
-        $response->assertHeader('Cache-Control', 'no-cache, private');
-        $response->assertHeader('Connection', 'keep-alive');
+        $response->assertJsonStructure([
+            'notifications' => [
+                '*' => [
+                    'id',
+                    'title',
+                    'message',
+                    'created_at'
+                ]
+            ],
+            'count'
+        ]);
 
-        // Capture and assert streamed contents
-        $content = $response->streamedContent();
-        $this->assertStringContainsString('data:', $content);
-        $this->assertStringContainsString('"count":1', $content);
-        $this->assertStringContainsString('"refresh":true', $content);
+        $response->assertJsonFragment([
+            'count' => 1,
+            'title' => 'Test',
+            'message' => 'Test message'
+        ]);
     }
 }

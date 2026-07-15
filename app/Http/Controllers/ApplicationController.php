@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\Scholarship;
 use App\Models\Document;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreApplicationRequest;
 
 class ApplicationController extends Controller
 {
@@ -14,7 +15,7 @@ class ApplicationController extends Controller
     // Change the name from index() to dashboard() right here!
     public function dashboard()
     {
-        $userId = auth()->id() ?? 1; // Fallback to user 1 for testing
+        $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
         $application = Application::with(['document.aiResult', 'customFields', 'academicTerm', 'statusLogs' => function($q) {
             $q->orderBy('created_at', 'asc');
         }])
@@ -66,9 +67,9 @@ class ApplicationController extends Controller
     }
 
     // 2. Save the Submitted Data
-    public function store(\Illuminate\Http\Request $request)
+    public function store(StoreApplicationRequest $request)
     {
-        $userId = auth()->id() ?? 1;
+        $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
 
         if (auth()->user()->hasActiveApplication()) {
             $msg = 'Action Denied: You already have an active application or scholarship for this academic term.';
@@ -107,36 +108,10 @@ class ApplicationController extends Controller
                 ->withInput(); 
         }
 
-        // Build validation rules dynamically
-        $rules = [
-            'scholarship_id' => 'required',
-            'gwa' => 'nullable|numeric|min:1.00|max:5.00',
-            'document' => 'nullable|file|mimes:jpeg,png,pdf|max:5120', 
-        ];
+        // Validation is handled by StoreApplicationRequest
 
-        foreach ($scholarship->fields as $field) {
-            $fieldRule = [];
-            if ($field->is_required) {
-                $fieldRule[] = 'required';
-            } else {
-                $fieldRule[] = 'nullable';
-            }
-
-            if ($field->field_type === 'number') {
-                $fieldRule[] = 'numeric';
-            } elseif ($field->field_type === 'file') {
-                $fieldRule[] = 'file';
-                $fieldRule[] = 'max:5120';
-            } else {
-                $fieldRule[] = 'string';
-            }
-
-            $rules['custom_fields.' . $field->field_name] = $fieldRule;
-        }
-
-        $request->validate($rules);
-
-        $activeTerm = \Illuminate\Support\Facades\Cache::remember('active_academic_term', 86400, function () {
+        // HIGH-05: Reduced TTL from 86400 (24hr) to 300 (5min) — prevents stale term after admin switches active term
+        $activeTerm = \Illuminate\Support\Facades\Cache::remember('active_academic_term', 300, function () {
             return \App\Models\AcademicTerm::where('is_active', true)->first();
         });
 
@@ -323,7 +298,7 @@ class ApplicationController extends Controller
     // 5. Cancel application (Soft Delete)
     public function cancel($id)
     {
-        $userId = auth()->id() ?? 1;
+        $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
         $application = Application::where('user_id', $userId)->findOrFail($id);
 
         if (!in_array($application->status, ['Pending', 'Under Review'])) {
@@ -357,7 +332,7 @@ class ApplicationController extends Controller
     // 6. Permanently Withdraw application (Hard Delete)
     public function withdraw($id)
     {
-        $userId = auth()->id() ?? 1;
+        $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
         // Search in soft-deleted models
         $application = Application::onlyTrashed()
             ->where('user_id', $userId)
@@ -406,7 +381,7 @@ class ApplicationController extends Controller
     // 7. Restore cancelled application (Soft Delete Restore)
     public function restore($id)
     {
-        $userId = auth()->id() ?? 1;
+        $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
         $application = Application::onlyTrashed()
             ->where('user_id', $userId)
             ->findOrFail($id);
@@ -454,7 +429,7 @@ class ApplicationController extends Controller
     // 9. Forfeit / Backout Scholarship
     public function forfeit(Request $request, $id)
     {
-        $userId = auth()->id() ?? 1;
+        $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
         $application = Application::where('user_id', $userId)
             ->where('status', 'Approved')
             ->findOrFail($id);

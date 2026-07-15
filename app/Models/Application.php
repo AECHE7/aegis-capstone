@@ -112,4 +112,23 @@ class Application extends Model
     {
         return $this->hasMany(ApplicationField::class);
     }
+
+    /**
+     * Invalidate analytics cache when applications are saved, deleted, or restored.
+     */
+    protected static function booted()
+    {
+        $invalidateCache = function () {
+            try {
+                $version = \Illuminate\Support\Facades\Cache::get('analytics_cache_version', 1);
+                \Illuminate\Support\Facades\Cache::put('analytics_cache_version', $version + 1, 2592000);
+            } catch (\Exception $e) {
+                // Fail-safe
+            }
+        };
+
+        static::saved($invalidateCache);
+        static::deleted($invalidateCache);
+        static::restored($invalidateCache);
+    }
 }

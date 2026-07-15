@@ -5,6 +5,10 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\HealthController;
 
 // ==========================================
 // 🔓 PUBLIC ROUTES (The Front Door)
@@ -18,7 +22,8 @@ Route::post('/login/mfa/resend', [AuthController::class, 'resendMfa'])->middlewa
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
 Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
     $expectedKey = config('services.scheduler.key', 'aegis_cron_secret');
-    if ($request->query('key') !== $expectedKey) {
+    // hash_equals prevents timing-based attacks on the secret key (MED-06)
+    if (!hash_equals((string) $expectedKey, (string) $request->query('key', ''))) {
         abort(403, 'Unauthorized');
     }
     \Illuminate\Support\Facades\Artisan::call('scholarships:close-expired');
@@ -96,7 +101,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Notifications routes
     Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');
-    Route::get('/notifications/stream', [AuthController::class, 'streamNotifications'])->name('notifications.stream');
     Route::post('/notifications/{id}/read', [AuthController::class, 'markNotificationAsRead'])->name('notifications.read');
     Route::post('/notifications/clear', [AuthController::class, 'clearNotifications'])->name('notifications.clear');
 
@@ -220,9 +224,18 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/broadcast', [SuperAdminController::class, 'sendBroadcast'])->name('superadmin.broadcast.send');
 
         // Staging/UAT database hard reset (prohibited in production)
-        Route::get('/system/reset-uat-data', function () {
+        // CRIT-02: Changed from GET to POST. Requires typed confirmation token.
+        Route::post('/system/reset-uat-data', function (\Illuminate\Http\Request $request) {
             if (app()->isProduction()) {
                 abort(403, 'Database resets are prohibited in production environments.');
+            }
+
+            // Server-side confirmation guard — prevents accidental/CSRF-triggered resets
+            if ($request->input('confirm') !== 'CONFIRM_RESET') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Confirmation token required. Send confirm=CONFIRM_RESET in the request body.'
+                ], 422);
             }
 
             \App\Models\AIResult::query()->delete();
@@ -234,132 +247,19 @@ Route::middleware(['auth'])->group(function () {
             \App\Models\Application::withTrashed()->forceDelete();
             \App\Models\User::withTrashed()->where('role', 'student')->forceDelete();
 
-            return "Staging database reset successfully! All student accounts and applications have been permanently deleted.";
+            \Illuminate\Support\Facades\Log::warning('UAT database reset triggered by superadmin: ' . auth()->id() . ' from IP: ' . $request->ip());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Staging database reset successfully. All student accounts and applications have been permanently deleted.'
+            ]);
         })->name('system.reset-uat');
     });
 
-    // SECURE FILE VIEWING
-    Route::get('/document/{id}/image', function ($id) {
-        $document = \App\Models\Document::with('application')->findOrFail($id);
-        if (auth()->user()->role === 'student' && ($document->application->user_id ?? null) !== auth()->id()) {
-            abort(403, 'Unauthorized access.');
-        }
-        if (auth()->user()->role === 'admin') {
-            $assignedIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            if (!in_array($document->application->scholarship_id, $assignedIds)) {
-                abort(403, 'Unauthorized access.');
-            }
-        }
-        $path = $document->file_path;
-        if (str_starts_with($path, 'http')) {
-            try {
-                $response = \Illuminate\Support\Facades\Http::timeout(15)->get($path);
-                if ($response->successful()) {
-                    $mime = $response->header('Content-Type') ?: 'application/octet-stream';
-                    return response($response->body(), 200, [
-                        'Content-Type' => $mime,
-                        'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
-                    ]);
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error("Failed to stream remote document: " . $e->getMessage());
-            }
-            return response(
-                '<html><body style="font-family:sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:90vh; color:#64748b; background:#f8fafc; text-align:center; padding:20px;">' .
-                '<svg style="width:48px; height:48px; color:#ef4444; margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' .
-                '<h3 style="margin:0 0 6px 0; color:#0f172a; font-size:16px;">Remote Stream Failed</h3>' .
-                '<p style="margin:0; font-size:13px; max-width:280px; color:#64748b;">Could not stream the document from Cloudflare R2 bucket. Please check connection.</p>' .
-                '</body></html>',
-                200,
-                ['Content-Type' => 'text/html']
-            );
-        }
-        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
-            return response(
-                '<html><body style="font-family:sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:90vh; color:#64748b; background:#f8fafc; text-align:center; padding:20px;">' .
-                '<svg style="width:48px; height:48px; color:#f59e0b; margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' .
-                '<h3 style="margin:0 0 6px 0; color:#0f172a; font-size:16px;">File Missing on Server</h3>' .
-                '<p style="margin:0; font-size:13px; max-width:280px; color:#64748b;">This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings in your environment to ensure persistent uploads.</p>' .
-                '</body></html>',
-                200,
-                ['Content-Type' => 'text/html']
-            );
-        }
-        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($path));
-    })->name('document.view');
-
-    Route::get('/document/{id}/heatmap', function ($id) {
-        $aiResult = \App\Models\AIResult::with('document.application')->where('document_id', $id)->firstOrFail();
-        if (auth()->user()->role === 'student' && ($aiResult->document->application->user_id ?? null) !== auth()->id()) {
-            abort(403, 'Unauthorized access.');
-        }
-        if (auth()->user()->role === 'admin') {
-            $assignedIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            if (!in_array($aiResult->document->application->scholarship_id, $assignedIds)) {
-                abort(403, 'Unauthorized access.');
-            }
-        }
-        $path = $aiResult->heatmap_path;
-        if (empty($path)) {
-            return redirect('https://placehold.co/600x800?text=Scan+Failed+Placeholder');
-        }
-        // If Cloudinary (or any full URL) — redirect straight to CDN
-        if (str_starts_with($path, 'http')) {
-            return redirect($path);
-        }
-        // Fallback: proxy via the AI microservice /heatmap/ endpoint
-        $aiUrl = rtrim(config('services.ai.url'), '/');
-        return redirect($aiUrl . '/heatmap/' . basename($path));
-    })->name('document.heatmap');
-
-    Route::get('/application-field/{id}/file', function ($id) {
-        $field = \App\Models\ApplicationField::with('application')->findOrFail($id);
-        if (auth()->user()->role === 'student' && ($field->application->user_id ?? null) !== auth()->id()) {
-            abort(403, 'Unauthorized access.');
-        }
-        if (auth()->user()->role === 'admin') {
-            $assignedIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            if (!in_array($field->application->scholarship_id, $assignedIds)) {
-                abort(403, 'Unauthorized access.');
-            }
-        }
-        $path = $field->field_value;
-        if (str_starts_with($path, 'http')) {
-            try {
-                $response = \Illuminate\Support\Facades\Http::timeout(15)->get($path);
-                if ($response->successful()) {
-                    $mime = $response->header('Content-Type') ?: 'application/octet-stream';
-                    return response($response->body(), 200, [
-                        'Content-Type' => $mime,
-                        'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
-                    ]);
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error("Failed to stream remote document: " . $e->getMessage());
-            }
-            return response(
-                '<html><body style="font-family:sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:90vh; color:#64748b; background:#f8fafc; text-align:center; padding:20px;">' .
-                '<svg style="width:48px; height:48px; color:#ef4444; margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' .
-                '<h3 style="margin:0 0 6px 0; color:#0f172a; font-size:16px;">Remote Stream Failed</h3>' .
-                '<p style="margin:0; font-size:13px; max-width:280px; color:#64748b;">Could not stream the custom field document from Cloudflare R2 bucket. Please check connection.</p>' .
-                '</body></html>',
-                200,
-                ['Content-Type' => 'text/html']
-            );
-        }
-        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($path)) {
-            return response(
-                '<html><body style="font-family:sans-serif; display:flex; flex-direction:column; justify-content:center; align-items:center; height:90vh; color:#64748b; background:#f8fafc; text-align:center; padding:20px;">' .
-                '<svg style="width:48px; height:48px; color:#f59e0b; margin-bottom:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>' .
-                '<h3 style="margin:0 0 6px 0; color:#0f172a; font-size:16px;">File Missing on Server</h3>' .
-                '<p style="margin:0; font-size:13px; max-width:280px; color:#64748b;">This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings in your environment to ensure persistent uploads.</p>' .
-                '</body></html>',
-                200,
-                ['Content-Type' => 'text/html']
-            );
-        }
-        return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($path));
-    })->name('application-field.file');
+    // SECURE FILE VIEWING — extracted from route closures to DocumentController (HIGH-01)
+    Route::get('/document/{id}/image', [DocumentController::class, 'view'])->name('document.view');
+    Route::get('/document/{id}/heatmap', [DocumentController::class, 'heatmap'])->name('document.heatmap');
+    Route::get('/application-field/{id}/file', [DocumentController::class, 'fieldFile'])->name('application-field.file');
 
     // UAT FEEDBACK SUBMISSION
     Route::post('/uat-feedback', [\App\Http\Controllers\UatFeedbackController::class, 'store'])->name('uat.store');

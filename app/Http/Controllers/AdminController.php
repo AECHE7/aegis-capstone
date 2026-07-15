@@ -217,7 +217,7 @@ class AdminController extends Controller
                 'application_id' => $application->id,
                 'status' => 'Under Review',
                 'remarks' => 'Application opened for verification review.',
-                'changed_by' => auth()->id() ?? 2
+                'changed_by' => auth()->id() // role middleware guarantees non-null (CRIT-05)
             ]);
         }
 
@@ -266,7 +266,7 @@ class AdminController extends Controller
             'application_id' => $application->id,
             'status' => $application->status,
             'remarks' => 'Application restored by OSA Admin.',
-            'changed_by' => auth()->id() ?? 2
+            'changed_by' => auth()->id() // role middleware guarantees non-null (CRIT-05)
         ]);
 
         if (request()->expectsJson() || request()->ajax()) {
@@ -403,7 +403,7 @@ class AdminController extends Controller
         $application = \App\Models\Application::findOrFail($id);
         $this->validateAdminAccess($application);
         
-        $evaluatorId = auth()->id() ?? 2; // Default to admin user 2 if none logged in
+        $evaluatorId = auth()->id(); // role middleware guarantees non-null (CRIT-05)
 
         // 3. Update the status and attach the Audit Trail data!
         $application->update([
@@ -534,7 +534,7 @@ class AdminController extends Controller
 
         $status = $request->status;
         $remarks = $request->remarks ?? 'Bulk processed by OSA Administrator.';
-        $evaluatorId = auth()->id() ?? 2;
+        $evaluatorId = auth()->id(); // role middleware guarantees non-null (CRIT-05)
 
         $count = 0;
         foreach ($request->application_ids as $id) {

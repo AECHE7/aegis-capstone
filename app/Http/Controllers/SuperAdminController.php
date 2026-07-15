@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Scholarship;
+use App\Http\Requests\StoreScholarshipRequest;
+use App\Http\Requests\UpdateScholarshipRequest;
+use App\Http\Requests\UpdateSettingsRequest;
 
 class SuperAdminController extends Controller
 {
@@ -15,20 +18,9 @@ class SuperAdminController extends Controller
     }
 
     // 2. Save a New Scholarship
-    public function store(Request $request)
+    public function store(StoreScholarshipRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'min_gwa_required' => 'nullable|numeric|min:1.00|max:5.00',
-            'deadline' => 'nullable|date',
-            'max_renewals' => 'nullable|integer|min:1|max:12',
-            'fields' => 'nullable|array',
-            'fields.*.label' => 'required|string|max:255',
-            'fields.*.type' => 'required|in:text,number,textarea,select,file,date,email',
-            'fields.*.required' => 'nullable',
-            'fields.*.options' => 'nullable|string',
-        ]);
+        // Validation is handled by StoreScholarshipRequest
 
         $scholarship = Scholarship::create([
             'name' => $request->name,
@@ -40,7 +32,7 @@ class SuperAdminController extends Controller
         ]);
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'scholarship_created',
             'Scholarship',
             $scholarship->id,
@@ -92,20 +84,9 @@ class SuperAdminController extends Controller
     }
 
     // Save Scholarship Updates
-    public function update(Request $request, $id)
+    public function update(UpdateScholarshipRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'min_gwa_required' => 'nullable|numeric|min:1.00|max:5.00',
-            'deadline' => 'nullable|date',
-            'max_renewals' => 'nullable|integer|min:1|max:12',
-            'fields' => 'nullable|array',
-            'fields.*.label' => 'required|string|max:255',
-            'fields.*.type' => 'required|in:text,number,textarea,select,file,date,email',
-            'fields.*.required' => 'nullable',
-            'fields.*.options' => 'nullable|string',
-        ]);
+        // Validation is handled by UpdateScholarshipRequest
 
         $scholarship = Scholarship::findOrFail($id);
         $scholarship->update([
@@ -117,7 +98,7 @@ class SuperAdminController extends Controller
         ]);
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'scholarship_updated',
             'Scholarship',
             $scholarship->id,
@@ -194,7 +175,11 @@ class SuperAdminController extends Controller
         $termId = request('academic_term_id');
         $scholarshipId = request('scholarship_id');
 
-        // Scoped Application Query
+        $version = \Illuminate\Support\Facades\Cache::get('analytics_cache_version', 1);
+        $cacheKey = "analytics_v{$version}_{$termId}_{$scholarshipId}";
+
+        $analyticsData = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($termId, $scholarshipId) {
+            // Scoped Application Query
         $query = \App\Models\Application::query();
         if ($termId) {
             $query->where('academic_term_id', $termId);
@@ -445,6 +430,34 @@ class SuperAdminController extends Controller
         }
         $activeScholars = $activeScholarsQuery->latest('updated_at')->get();
 
+            return compact(
+                'totalStudents', 
+                'submissionCount', 
+                'totalScholarships', 
+                'anomaliesDetected', 
+                'recentEvaluations',
+                'avgFraudScore',
+                'gradeIntegrityIndex',
+                'averageCycleDays',
+                'complianceRate',
+                'uatStats',
+                'statusCounts',
+                'riskTiers',
+                'monthlyTrend',
+                'monthlyProcessingDays',
+                'topPrograms',
+                'processTimeline',
+                'collegeStats',
+                'applicantGwaCounts',
+                'approvedGwaCounts',
+                'anomalyCounts',
+                'scholarshipsBreakdown',
+                'activeScholars'
+            );
+        });
+
+        extract($analyticsData);
+
         // Dropdowns for Filter Panel
         $allTerms = \App\Models\AcademicTerm::orderBy('academic_year', 'desc')->orderBy('semester', 'desc')->get();
         $allScholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
@@ -546,7 +559,7 @@ class SuperAdminController extends Controller
         }
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'staff_invited',
             'User',
             $user->id,
@@ -603,7 +616,7 @@ class SuperAdminController extends Controller
         \App\Services\ApplicationAssignmentService::reassignPending($staff);
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'staff_deactivated',
             'User',
             $staff->id,
@@ -630,7 +643,7 @@ class SuperAdminController extends Controller
         $staff->save();
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'staff_reactivated',
             'User',
             $staff->id,
@@ -662,7 +675,7 @@ class SuperAdminController extends Controller
         $staff->scholarships()->sync($request->scholarship_ids ?? []);
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'staff_assignments_updated',
             'User',
             $staff->id,
@@ -704,11 +717,11 @@ class SuperAdminController extends Controller
             'application_id' => $application->id,
             'status' => $application->status,
             'remarks' => 'Application restored from Trash by Director.',
-            'changed_by' => auth()->id() ?? 1
+            'changed_by' => auth()->id()
         ]);
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'application_restored',
             'Application',
             $application->id,
@@ -727,7 +740,7 @@ class SuperAdminController extends Controller
         $application = \App\Models\Application::onlyTrashed()->findOrFail($id);
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'application_force_deleted',
             'Application',
             $application->id,
@@ -735,22 +748,18 @@ class SuperAdminController extends Controller
             request()->ip()
         );
 
-        // Delete COG document file
+        // Delete COG document file — CloudStorageService handles both local & R2 (LOW-06)
         if ($application->document) {
-            $filePath = $application->document->file_path;
-            if (\Illuminate\Support\Facades\Storage::disk('local')->exists($filePath)) {
-                \Illuminate\Support\Facades\Storage::disk('local')->delete($filePath);
-            }
+            \App\Services\CloudStorageService::delete($application->document->file_path);
             $application->document->forceDelete();
         }
 
-        // Delete custom fields file uploads
+        // Delete custom field file uploads — handles both local paths and R2 URLs (LOW-06)
         if ($application->customFields) {
             foreach ($application->customFields as $field) {
-                if (\Illuminate\Support\Str::startsWith($field->field_value, 'uploads/')) {
-                    if (\Illuminate\Support\Facades\Storage::disk('local')->exists($field->field_value)) {
-                        \Illuminate\Support\Facades\Storage::disk('local')->delete($field->field_value);
-                    }
+                if (!empty($field->field_value) &&
+                    (str_starts_with($field->field_value, 'http') || \Illuminate\Support\Str::startsWith($field->field_value, 'uploads/'))) {
+                    \App\Services\CloudStorageService::delete($field->field_value);
                 }
                 $field->delete();
             }
@@ -776,7 +785,7 @@ class SuperAdminController extends Controller
         $scholarship->delete();
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'scholarship_deleted',
             'Scholarship',
             $scholarship->id,
@@ -796,7 +805,7 @@ class SuperAdminController extends Controller
         $scholarship->restore();
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'scholarship_restored',
             'Scholarship',
             $scholarship->id,
@@ -830,7 +839,7 @@ class SuperAdminController extends Controller
         $scholarship->staff()->detach();
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'scholarship_force_deleted',
             'Scholarship',
             $scholarship->id,
@@ -854,7 +863,7 @@ class SuperAdminController extends Controller
         $staff->delete();
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'staff_deleted',
             'User',
             $staff->id,
@@ -874,7 +883,7 @@ class SuperAdminController extends Controller
         $staff->restore();
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'staff_restored',
             'User',
             $staff->id,
@@ -901,7 +910,7 @@ class SuperAdminController extends Controller
         }
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'staff_force_deleted',
             'User',
             $staff->id,
@@ -934,19 +943,9 @@ class SuperAdminController extends Controller
         return view('superadmin.settings', compact('settings'));
     }
 
-    public function updateSettings(Request $request)
+    public function updateSettings(UpdateSettingsRequest $request)
     {
-        $request->validate([
-            'app_name' => 'required|string|max:255',
-            'university_name' => 'required|string|max:255',
-            'ai_fraud_threshold' => 'required|numeric|min:0|max:100',
-            'gwa_discrepancy_tolerance' => 'required|numeric|min:0|max:5',
-            'app_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'mfa_enforcement' => 'required|in:all,students,none',
-            'auto_approval_enabled' => 'nullable|string|in:0,1',
-            'auto_approval_min_confidence' => 'required|numeric|min:0|max:100',
-            'auto_approval_max_anomalies' => 'required|integer|min:0',
-        ]);
+        // Validation is handled by UpdateSettingsRequest
 
         $keys = [
             'app_name',
@@ -986,7 +985,7 @@ class SuperAdminController extends Controller
             $newValue = \App\Models\Setting::get($key);
             if ($oldValues[$key] !== $newValue) {
                 \App\Services\AuditLoggerService::logConfigChange(
-                    auth()->id() ?? 1,
+                    auth()->id(),
                     $key,
                     $oldValues[$key],
                     $newValue,
@@ -994,7 +993,7 @@ class SuperAdminController extends Controller
                 );
 
                 \App\Services\AuditLoggerService::logAdminAction(
-                    auth()->id() ?? 1,
+                    auth()->id(),
                     'update_setting',
                     'Setting',
                     null,
@@ -1007,7 +1006,7 @@ class SuperAdminController extends Controller
         $newLogo = \App\Models\Setting::get('app_logo');
         if ($oldLogo !== $newLogo) {
             \App\Services\AuditLoggerService::logConfigChange(
-                auth()->id() ?? 1,
+                auth()->id(),
                 'app_logo',
                 $oldLogo,
                 $newLogo,
@@ -1015,7 +1014,7 @@ class SuperAdminController extends Controller
             );
 
             \App\Services\AuditLoggerService::logAdminAction(
-                auth()->id() ?? 1,
+                auth()->id(),
                 'update_setting',
                 'Setting',
                 null,
@@ -1032,7 +1031,7 @@ class SuperAdminController extends Controller
         \App\Models\UserMfaDevice::truncate();
 
         \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id() ?? 1,
+            auth()->id(),
             'mfa_revoked_all',
             'System',
             null,

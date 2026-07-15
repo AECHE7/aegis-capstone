@@ -224,22 +224,32 @@ class SystemSettingsTest extends TestCase
     /** @test */
     public function database_hard_reset_route_wipes_all_students_and_applications()
     {
-        // 1. Guest request should redirect to login
-        $responseGuest = $this->get(route('system.reset-uat'));
+        // CRIT-02: Route changed from GET to POST with confirmation token.
+
+        // 1. Guest POST request should redirect to login (auth middleware)
+        $responseGuest = $this->post(route('system.reset-uat'), ['confirm' => 'CONFIRM_RESET']);
         $responseGuest->assertRedirect(route('login'));
 
-        // 2. Student request should be aborted with 403 Forbidden
-        $responseStudent = $this->actingAs($this->student)->get(route('system.reset-uat'));
+        // 2. Student POST request should be rejected (role middleware)
+        $responseStudent = $this->actingAs($this->student)
+            ->post(route('system.reset-uat'), ['confirm' => 'CONFIRM_RESET']);
         $responseStudent->assertStatus(403);
 
-        // 3. SuperAdmin request should succeed
-        $responseSuper = $this->actingAs($this->superadmin)->get(route('system.reset-uat'));
+        // 3. Missing confirm token should return 422
+        $responseMissingToken = $this->actingAs($this->superadmin)
+            ->post(route('system.reset-uat'), ['confirm' => 'wrong_value']);
+        $responseMissingToken->assertStatus(422);
+
+        // 4. SuperAdmin POST with correct confirm token should succeed
+        $responseSuper = $this->actingAs($this->superadmin)
+            ->post(route('system.reset-uat'), ['confirm' => 'CONFIRM_RESET']);
         $responseSuper->assertStatus(200);
-        $responseSuper->assertSee('Staging database reset successfully!');
+        $responseSuper->assertJson(['success' => true]);
 
         $this->assertEquals(0, User::where('role', 'student')->count());
         $this->assertEquals(0, Application::count());
     }
+
 
     /** @test */
     public function superadmin_can_revoke_all_trusted_devices_system_wide()

@@ -56,7 +56,7 @@ class ReportController extends Controller
     public function exportCsv(Request $request)
     {
         $this->logExportAccess($request, 'applications_list', 'csv');
-        $applications = $this->buildReportQuery($request)->get();
+        $query = $this->buildReportQuery($request);
         $filename = "aegis_scholarship_report_" . date('Y-m-d') . ".csv";
 
         $headers = [
@@ -69,24 +69,28 @@ class ReportController extends Controller
 
         $columns = ['Ref ID', 'Student Name', 'CLSU ID', 'Course', 'Year Level', 'Program/Grant', 'GWA', 'Status', 'Date Submitted'];
 
-        $callback = function() use($applications, $columns) {
+        $callback = function() use($query, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
-            foreach ($applications as $app) {
-                $row = [
-                    'APP-' . $app->id,
-                    $app->user->name ?? 'Unknown',
-                    $app->user->profile?->clsu_id_number ?? 'N/A',
-                    $app->user->profile?->course ?? 'N/A',
-                    $app->user->profile?->year_level ?? 'N/A',
-                    $app->program_name,
-                    $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A',
-                    $app->status,
-                    $app->created_at->format('Y-m-d')
-                ];
-                fputcsv($file, $row);
-            }
+            // Chunk by 500 records to prevent memory exhaustion (HIGH-03)
+            $query->chunk(500, function ($applications) use ($file) {
+                foreach ($applications as $app) {
+                    $row = [
+                        'APP-' . $app->id,
+                        $app->user->name ?? 'Unknown',
+                        $app->user->profile?->clsu_id_number ?? 'N/A',
+                        $app->user->profile?->course ?? 'N/A',
+                        $app->user->profile?->year_level ?? 'N/A',
+                        $app->program_name,
+                        $app->gwa !== null ? number_format((float)$app->gwa, 2) : 'N/A',
+                        $app->status,
+                        $app->created_at->format('Y-m-d')
+                    ];
+                    fputcsv($file, $row);
+                }
+            });
+
             fclose($file);
         };
 

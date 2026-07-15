@@ -68,8 +68,9 @@ class AuthController extends Controller
                 $shouldEnforceMfa = false;
             }
 
-            // Check if device is remembered (bypass MFA) or if user is an admin/superadmin (director dummy account)
-            $isDummyAdminAccount = in_array($user->email, ['admin@clsu.edu.ph', 'director@clsu.edu.ph'], true);
+            // Check if device is remembered (bypass MFA)
+            // NOTE: Hardcoded email bypass removed (CRIT-03). Use mfa_enforcement='none' in settings for UAT/dev.
+            $isDummyAdminAccount = false;
             $deviceToken = $request->cookie('mfa_device_token');
             $hasValidDevice = false;
             if ($deviceToken) {
@@ -117,8 +118,8 @@ class AuthController extends Controller
                 }
             }
 
-            // Generate OTP
-            $otp = app()->runningUnitTests() ? '123456' : sprintf("%06d", mt_rand(100000, 999999));
+            // Generate OTP — random_int() is cryptographically secure (CRIT-04)
+            $otp = app()->runningUnitTests() ? '123456' : sprintf("%06d", random_int(100000, 999999));
             $user->otp_code = $otp;
             $user->otp_expires_at = now()->addMinutes(10);
             $user->save();
@@ -175,7 +176,8 @@ class AuthController extends Controller
 
         $user = \App\Models\User::findOrFail(session('mfa_user_id'));
 
-        $otp = app()->runningUnitTests() ? '123456' : sprintf("%06d", mt_rand(100000, 999999));
+        // random_int() is cryptographically secure (CRIT-04)
+        $otp = app()->runningUnitTests() ? '123456' : sprintf("%06d", random_int(100000, 999999));
         $user->otp_code = $otp;
         $user->otp_expires_at = now()->addMinutes(10);
         $user->save();
@@ -440,55 +442,5 @@ class AuthController extends Controller
         auth()->user()->unreadNotifications->markAsRead();
 
         return response()->json(['success' => true]);
-    }
-
-    public function streamNotifications()
-    {
-        $user = auth()->user();
-        if (!$user) {
-            abort(403);
-        }
-
-        $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($user) {
-            // Release session lock to prevent blocking concurrent requests
-            session_write_close();
-
-            set_time_limit(0);
-            $lastChecked = now()->toDateTimeString();
-
-            // Send initial state
-            $initialCount = $user->unreadNotifications()->count();
-            echo "data: " . json_encode(['count' => $initialCount, 'refresh' => true]) . "\n\n";
-            if (ob_get_level() > 0) { ob_flush(); }
-            flush();
-
-            $maxCycles = 15; // 30 seconds total (15 * 2s) to prevent worker exhaustion
-            $cycle = 0;
-            while ($cycle < $maxCycles) {
-                if (connection_aborted() || app()->runningUnitTests()) {
-                    break;
-                }
-
-                $newCount = $user->unreadNotifications()->where('created_at', '>', $lastChecked)->count();
-
-                if ($newCount > 0) {
-                    $lastChecked = now()->toDateTimeString();
-                    $totalCount = $user->unreadNotifications()->count();
-                    echo "data: " . json_encode(['count' => $totalCount, 'refresh' => true]) . "\n\n";
-                    if (ob_get_level() > 0) { ob_flush(); }
-                    flush();
-                }
-
-                sleep(2);
-                $cycle++;
-            }
-        });
-
-        $response->headers->set('Content-Type', 'text/event-stream');
-        $response->headers->set('Cache-Control', 'no-cache');
-        $response->headers->set('Connection', 'keep-alive');
-        $response->headers->set('X-Accel-Buffering', 'no');
-
-        return $response;
     }
 }

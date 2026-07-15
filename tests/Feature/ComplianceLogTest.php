@@ -93,7 +93,10 @@ class ComplianceLogTest extends TestCase
             'status' => 'failed',
         ]);
 
-        // 2. Test Login Success (bypass MFA for admin test dummy)
+        // 2. Test Login Success — disable MFA globally (correct mechanism for test bypass)
+        // The hardcoded email bypass was removed (CRIT-03); use mfa_enforcement='none' instead.
+        \App\Models\Setting::set('mfa_enforcement', 'none');
+
         $response = $this->post(route('login.submit'), [
             'email' => 'director@clsu.edu.ph',
             'password' => 'password',
@@ -105,6 +108,7 @@ class ComplianceLogTest extends TestCase
             'status' => 'success',
         ]);
     }
+
 
     public function test_admin_action_logging_on_scholarship_creation(): void
     {

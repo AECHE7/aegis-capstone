@@ -161,8 +161,12 @@ class MfaAuthenticationTest extends TestCase
         $this->assertFalse(auth()->check());
     }
 
-    public function test_admin_and_superadmin_logins_bypass_mfa_completely()
+    public function test_admin_and_superadmin_accounts_now_require_mfa_like_all_users()
     {
+        // SECURITY: The hardcoded email bypass for admin@clsu.edu.ph and director@clsu.edu.ph
+        // was removed (CRIT-03). These accounts now go through MFA like all other users.
+        // Use mfa_enforcement='none' setting for test environments instead.
+
         $admin = User::factory()->create([
             'email' => 'admin@clsu.edu.ph',
             'password' => Hash::make('password123'),
@@ -177,27 +181,33 @@ class MfaAuthenticationTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        // 1. Admin login should redirect directly to admin dashboard
+        // 1. Admin login should now redirect to MFA (no longer bypassed)
         $response1 = $this->post('/login', [
             'email' => 'admin@clsu.edu.ph',
             'password' => 'password123',
         ]);
-        $response1->assertRedirect(route('admin.dashboard'));
-        $this->assertTrue(auth()->check());
-        $this->assertEquals($admin->id, auth()->id());
+        $response1->assertRedirect(route('login.mfa'));
+        $this->assertFalse(auth()->check());
 
-        // Logout
-        auth()->logout();
-
-        // 2. Superadmin login should redirect directly to superadmin page
+        // 2. Superadmin login should also redirect to MFA (no longer bypassed)
         $response2 = $this->post('/login', [
             'email' => 'director@clsu.edu.ph',
             'password' => 'password123',
         ]);
-        $response2->assertRedirect(route('superadmin.scholarships'));
+        $response2->assertRedirect(route('login.mfa'));
+        $this->assertFalse(auth()->check());
+
+        // 3. Correct bypass: mfa_enforcement='none' setting bypasses MFA for ALL users
+        \App\Models\Setting::set('mfa_enforcement', 'none');
+
+        $response3 = $this->post('/login', [
+            'email' => 'admin@clsu.edu.ph',
+            'password' => 'password123',
+        ]);
+        $response3->assertRedirect(route('admin.dashboard'));
         $this->assertTrue(auth()->check());
-        $this->assertEquals($superadmin->id, auth()->id());
     }
+
 
     public function test_user_can_view_remembered_devices_on_security_settings_page()
     {

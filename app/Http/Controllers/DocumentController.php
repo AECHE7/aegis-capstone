@@ -1,0 +1,162 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
+/**
+ * DocumentController
+ *
+ * Handles secure file viewing for document images, AI heatmaps,
+ * and custom application field file uploads.
+ *
+ * Extracted from route closures in web.php (HIGH-01).
+ * Authorization is enforced per user role in authorizeDocumentAccess().
+ */
+class DocumentController extends Controller
+{
+    /**
+     * Enforce role-based access to a resource linked to an application.
+     *
+     * @param  int|null  $applicationUserId  The user_id on the Application record
+     * @param  int|null  $scholarshipId      The scholarship_id on the Application record
+     */
+    private function authorizeDocumentAccess(?int $applicationUserId, ?int $scholarshipId): void
+    {
+        $user = auth()->user();
+
+        if ($user->role === 'student' && $applicationUserId !== auth()->id()) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        if ($user->role === 'admin') {
+            $assignedIds = $user->scholarships()->pluck('scholarships.id')->toArray();
+            if (!in_array($scholarshipId, $assignedIds)) {
+                abort(403, 'Unauthorized access.');
+            }
+        }
+    }
+
+    /**
+     * Stream or proxy the raw document file (COG image / PDF).
+     * Route: GET /document/{id}/image
+     */
+    public function view(int $id)
+    {
+        $document = \App\Models\Document::with('application')->findOrFail($id);
+
+        $this->authorizeDocumentAccess(
+            $document->application->user_id ?? null,
+            $document->application->scholarship_id ?? null
+        );
+
+        $path = $document->file_path;
+
+        if (str_starts_with($path, 'http')) {
+            return $this->proxyRemoteFile($path, 'Remote Stream Failed', 'Could not stream the document from Cloudflare R2 bucket. Please check connection.');
+        }
+
+        if (!Storage::disk('local')->exists($path)) {
+            return $this->localFileMissingResponse('This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings.');
+        }
+
+        return response()->file(Storage::disk('local')->path($path));
+    }
+
+    /**
+     * Redirect to the AI-generated heatmap image.
+     * Route: GET /document/{id}/heatmap
+     */
+    public function heatmap(int $id)
+    {
+        $aiResult = \App\Models\AIResult::with('document.application')->where('document_id', $id)->firstOrFail();
+
+        $this->authorizeDocumentAccess(
+            $aiResult->document->application->user_id ?? null,
+            $aiResult->document->application->scholarship_id ?? null
+        );
+
+        $path = $aiResult->heatmap_path;
+
+        if (empty($path)) {
+            return redirect('https://placehold.co/600x800?text=Scan+Failed+Placeholder');
+        }
+
+        if (str_starts_with($path, 'http')) {
+            return redirect($path);
+        }
+
+        $aiUrl = rtrim(config('services.ai.url'), '/');
+        return redirect($aiUrl . '/heatmap/' . basename($path));
+    }
+
+    /**
+     * Stream or proxy a custom application field file upload.
+     * Route: GET /application-field/{id}/file
+     */
+    public function fieldFile(int $id)
+    {
+        $field = \App\Models\ApplicationField::with('application')->findOrFail($id);
+
+        $this->authorizeDocumentAccess(
+            $field->application->user_id ?? null,
+            $field->application->scholarship_id ?? null
+        );
+
+        $path = $field->field_value;
+
+        if (str_starts_with($path, 'http')) {
+            return $this->proxyRemoteFile($path, 'Remote Stream Failed', 'Could not stream the custom field document from Cloudflare R2 bucket. Please check connection.');
+        }
+
+        if (!Storage::disk('local')->exists($path)) {
+            return $this->localFileMissingResponse('This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings.');
+        }
+
+        return response()->file(Storage::disk('local')->path($path));
+    }
+
+    /**
+     * Proxy a remote (R2/CDN) file through the server response.
+     */
+    private function proxyRemoteFile(string $url, string $title, string $description)
+    {
+        try {
+            $response = Http::timeout(15)->get($url);
+            if ($response->successful()) {
+                $mime = $response->header('Content-Type') ?: 'application/octet-stream';
+                return response($response->body(), 200, [
+                    'Content-Type'        => $mime,
+                    'Content-Disposition' => 'inline; filename="' . basename($url) . '"',
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error("DocumentController: Failed to stream remote document [{$url}]: " . $e->getMessage());
+        }
+
+        return $this->remoteStreamFailedResponse($title, $description);
+    }
+
+    /**
+     * Return a styled HTML error response for a failed remote stream.
+     * Returns HTTP 503 (Service Unavailable) — not 200 (MED-07 fix).
+     */
+    private function remoteStreamFailedResponse(string $title, string $description)
+    {
+        return response()->view('errors.document_stream_failed', compact('title', 'description'), 503);
+    }
+
+    /**
+     * Return a styled HTML error response when a local file is missing.
+     * Returns HTTP 404 (MED-07 fix).
+     */
+    private function localFileMissingResponse(string $message)
+    {
+        return response()->view('errors.document_missing', compact('message'), 404);
+    }
+}
