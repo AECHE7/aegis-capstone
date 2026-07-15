@@ -10,8 +10,14 @@
     .dark-stat { background: linear-gradient(145deg, #07331c, #1e3932); border-radius: 16px; padding: 1.25rem 1.5rem; color: white; border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; transition: all 0.25s; }
     .dark-stat:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(7, 51, 28, 0.2); }
     .dark-stat::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.03); }
-    .dark-stat-num { font-family: 'Poppins', sans-serif; font-size: 2.25rem; font-weight: 800; line-height: 1; }
+    .dark-stat-num { font-family: 'Poppins', sans-serif; font-size: clamp(1.5rem, 4vw + 0.5rem, 2.25rem); font-weight: 800; line-height: 1; }
     .dark-stat-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+
+    @media (max-width: 480px) {
+        .dark-stat { padding: 0.85rem 1rem !important; }
+        .dark-stat::before { display: none; }
+        .dark-stat i { display: none; }
+    }
 
     /* Chart cards */
     .chart-card { border: 1px solid #e2e8f0; border-radius: 16px; background: white; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -95,7 +101,7 @@
 
 {{-- Scoped KPI Cards Row --}}
 <div class="row g-3 mb-4">
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-6 col-sm-6 col-xl-3">
         <div class="dark-stat">
             <div class="dark-stat-label">Student Scholars</div>
             <div class="dark-stat-num count-up" data-target="{{ $totalStudents }}">0</div>
@@ -105,7 +111,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-6 col-sm-6 col-xl-3">
         <div class="dark-stat">
             <div class="dark-stat-label">Submissions</div>
             <div class="dark-stat-num count-up" data-target="{{ $submissionCount }}">0</div>
@@ -115,7 +121,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-6 col-sm-6 col-xl-3">
         <div class="dark-stat" style="background: linear-gradient(145deg, #1e3932, #0d5c34) !important;">
             <div class="dark-stat-label">Grade Integrity Index</div>
             <div class="dark-stat-num"><span class="count-up" data-target="{{ round($gradeIntegrityIndex) }}">0</span>%</div>
@@ -125,7 +131,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-6 col-sm-6 col-xl-3">
         <div class="dark-stat">
             <div class="dark-stat-label">Avg Cycle Time</div>
             <div class="dark-stat-num"><span>{{ $averageCycleDays }}</span>d</div>

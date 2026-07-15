@@ -947,6 +947,66 @@
             -webkit-box-shadow: 0 0 0 1000px #111827 inset !important;
             -webkit-text-fill-color: #94a3b8 !important;
         }
+
+        /* --- AWWWARDS-CALIBER MOTION DESIGN & INTERACTIVE FEEDBACK --- */
+
+        /* Smooth scroll-reveal effect for dashboard cards */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(24px) scale(0.98);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-on-scroll.revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Glowing interactive outline on active sidebar items */
+        .sidebar-link.active {
+            position: relative;
+            background: linear-gradient(90deg, rgba(12, 78, 45, 0.1) 0%, rgba(12, 78, 45, 0.02) 100%) !important;
+            box-shadow: inset 3px 0 0 var(--clsu-green);
+        }
+
+        /* Tactical micro-interaction: Button click active state feedback */
+        .btn-animate-click {
+            transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .btn-animate-click:active {
+            transform: scale(0.96) !important;
+        }
+
+        /* --- Slide-in Floating Toast Notifications (WCAG 4.1.3 / Awwwards Polish) --- */
+        .toast-container-custom {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            max-width: 360px;
+            width: calc(100% - 48px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .toast-custom {
+            animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 12px !important;
+            border: none;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.05) !important;
+            pointer-events: auto;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(110%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* --- WCAG 1.4.10 Reflow: Badge label text wrap override --- */
+        .badge, .status-badge, .fraud-chip {
+            white-space: normal !important;
+            word-break: break-word;
+            text-align: left;
+        }
     </style>
     
     @stack('styles')
@@ -1044,20 +1104,29 @@
 
         {{-- W3C Semantic Landmark: <main> (WCAG 1.3.1 Info and Relationships, Level A) --}}
         <main id="main-content" class="page-content" role="main" tabindex="-1">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" aria-live="polite" aria-atomic="true"
-                     style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important; border-left-style: solid !important;">
-                    <i class="fa-solid fa-circle-check me-2" aria-hidden="true"></i> {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" aria-live="assertive" aria-atomic="true"
-                     style="background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444 !important; border-left-style: solid !important;">
-                    <i class="fa-solid fa-circle-exclamation me-2" aria-hidden="true"></i> {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
+            {{-- Toast Container for Slide-in Notifications (WCAG 4.1.3 Status Messages) --}}
+            <div class="toast-container-custom">
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show border-0 toast-custom mb-0" role="status" aria-live="polite" aria-atomic="true"
+                         style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-circle-check me-2 fs-5" aria-hidden="true"></i>
+                            <div>{{ session('success') }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss success message"></button>
+                    </div>
+                @endif
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show border-0 toast-custom mb-0" role="alert" aria-live="assertive" aria-atomic="true"
+                         style="background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444 !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-circle-exclamation me-2 fs-5" aria-hidden="true"></i>
+                            <div>{{ session('error') }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss error message"></button>
+                    </div>
+                @endif
+            </div>
 
             @yield('content')
         </main>
@@ -1345,6 +1414,26 @@
                 });
             });
         }
+        // Awwwards-caliber scroll-reveal observer
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.05 });
+
+        // Select all cards, tables, panels for elegant scroll reveal
+        document.querySelectorAll('.card, .dark-stat, .chart-card, .ai-panel-doc, .empty-card').forEach(el => {
+            el.classList.add('reveal-on-scroll');
+            revealObserver.observe(el);
+        });
+
+        // Attach tactical click animations to all main buttons
+        document.querySelectorAll('.btn, .btn-submit-app, .sidebar-link, .topbar-icon-btn').forEach(btn => {
+            btn.classList.add('btn-animate-click');
+        });
     });
 </script>
 

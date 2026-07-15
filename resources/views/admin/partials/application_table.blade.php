@@ -39,17 +39,17 @@
     <table class="table mb-0" style="border-collapse: separate;">
         <thead>
             <tr>
-                <th class="ps-4 d-none d-sm-table-cell" style="width: 45px; text-align: center; vertical-align: middle;">
-                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="cursor: pointer; transform: scale(1.15);">
+                <th class="ps-4 d-none d-sm-table-cell" scope="col" style="width: 45px; text-align: center; vertical-align: middle;">
+                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="cursor: pointer; transform: scale(1.15);" aria-label="Select all applications">
                 </th>
-                <th>Ref ID</th>
-                <th>Applicant</th>
-                <th class="d-none d-md-table-cell">Program / Grant</th>
-                <th class="text-center d-none d-lg-table-cell">GWA</th>
-                <th class="text-center d-none d-sm-table-cell">AI Risk</th>
-                <th class="text-center">Status</th>
-                <th class="d-none d-xl-table-cell">Submitted</th>
-                <th class="pe-4 text-end d-none d-md-table-cell">Action</th>
+                <th scope="col">Ref ID</th>
+                <th scope="col">Applicant</th>
+                <th class="d-none d-md-table-cell" scope="col">Program / Grant</th>
+                <th class="text-center d-none d-lg-table-cell" scope="col">GWA</th>
+                <th class="text-center d-none d-sm-table-cell" scope="col">AI Risk</th>
+                <th class="text-center" scope="col">Status</th>
+                <th class="d-none d-xl-table-cell" scope="col">Submitted</th>
+                <th class="pe-4 text-end d-none d-md-table-cell" scope="col">Action</th>
             </tr>
         </thead>
         <tbody>

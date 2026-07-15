@@ -629,23 +629,27 @@
         </a>
     </div>
 
-    <div class="empty-card">
-        <div style="width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
-            <i class="fa-solid fa-folder-open fa-2x" style="color:#94a3b8;"></i>
+    <div class="empty-card p-5 border-0 shadow-sm position-relative" style="background: white; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0 !important;">
+        <!-- Glowing gradient accent -->
+        <div style="position: absolute; top: -50px; left: 50%; transform: translateX(-50%); width: 220px; height: 100px; background: radial-gradient(circle, rgba(15,89,52,0.06) 0%, transparent 70%); pointer-events: none;"></div>
+        
+        <div style="width:100px; height:100px; border-radius:24px; background: linear-gradient(135deg, rgba(15,89,52,0.1) 0%, rgba(34,197,94,0.1) 100%); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; position: relative;">
+            <div style="position: absolute; inset: 6px; border-radius: 20px; border: 2px dashed rgba(15,89,52,0.2);"></div>
+            <i class="fa-solid fa-graduation-cap fa-3x" style="color:var(--clsu-green); position: relative; z-index: 2;"></i>
         </div>
-        <h4 class="fw-bold mb-2">No Active Applications</h4>
-        <p class="text-muted mx-auto mb-4" style="max-width: 380px; font-size: 0.9rem;">
-            You haven't submitted any scholarship applications yet. Check out the available grants and start your journey!
+        <h4 class="fw-bold mb-2 text-dark" style="font-family:'Poppins', sans-serif; font-size: 1.5rem;">No Active Applications</h4>
+        <p class="text-muted mx-auto mb-4" style="max-width: 420px; font-size: 0.88rem; line-height: 1.6;">
+            Your gateway to CLSU scholarship grants is active. You haven't submitted any applications yet. View the available programs and start your application today!
         </p>
-        <a href="{{ route('student.apply') }}" class="btn fw-bold px-5 py-3 rounded-pill"
-           style="background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; font-size: 1rem;">
-            <i class="fa-solid fa-paper-plane me-2"></i> Submit an Application
+        <a href="{{ route('student.apply') }}" class="btn fw-bold px-5 py-3 rounded-pill text-white btn-submit-app d-inline-flex align-items-center gap-2"
+           style="background: linear-gradient(135deg, var(--clsu-green), #16703f); font-size: 0.95rem; border: none; box-shadow: var(--shadow-md);">
+            <i class="fa-solid fa-paper-plane"></i> Submit an Application
         </a>
     </div>
     @endif
 
     @if(isset($cancelledApplications) && $cancelledApplications->count() > 0)
-        <div class="card p-4 mt-4" style="border-radius:12px; border: 1px solid var(--border-color); background: var(--card-bg); box-shadow: none;">
+        <div class="card p-4 mt-4" style="border-radius:16px; border: 1px solid var(--border-color); background: var(--card-bg); box-shadow: none;">
             <h6 class="fw-bold text-dark mb-3">
                 <i class="fa-solid fa-trash-can text-danger me-2"></i> My Cancelled Applications (History)
             </h6>
@@ -653,12 +657,12 @@
                 <table class="table mb-0 align-middle">
                     <thead>
                         <tr class="text-muted small">
-                            <th>Ref ID</th>
-                            <th>Scholarship Program</th>
-                            <th>GWA</th>
-                            <th>Status When Cancelled</th>
-                            <th>Cancelled Date</th>
-                            <th class="text-end">Actions</th>
+                            <th scope="col">Ref ID</th>
+                            <th scope="col">Scholarship Program</th>
+                            <th scope="col">GWA</th>
+                            <th scope="col">Status When Cancelled</th>
+                            <th scope="col">Cancelled Date</th>
+                            <th class="text-end" scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>

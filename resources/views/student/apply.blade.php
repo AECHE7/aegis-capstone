@@ -171,7 +171,7 @@
                             <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
                             Configure Scholarship Parameters
                         </label>
-                        <div class="p-3 bg-light border rounded-3" id="dynamicFieldsBody" style="border-radius: 12px;">
+                        <div class="p-3 bg-light border row g-3 mx-0" id="dynamicFieldsBody" style="border-radius: 12px;">
                             <!-- Dynamic inputs will be appended here via JS -->
                         </div>
                     </div>
@@ -271,10 +271,14 @@
                     container.style.display = 'block';
                     fields.forEach(field => {
                         const formGroup = document.createElement('div');
-                        formGroup.className = 'mb-3 text-start';
+                        // Use 2-column grid layout for desktop, full-width for textareas
+                        formGroup.className = (field.field_type === 'textarea') ? 'col-12 mb-3 text-start' : 'col-md-6 mb-3 text-start';
+                        
+                        const uniqueId = `custom_field_${field.field_name}`;
                         
                         const label = document.createElement('label');
                         label.className = 'form-label fw-semibold small text-muted mb-1';
+                        label.setAttribute('for', uniqueId);
                         label.innerHTML = field.field_label;
                         if (field.is_required) {
                             label.innerHTML += ' <span class="text-danger">*</span>';
@@ -314,6 +318,8 @@
                             input.type = 'number';
                             input.step = 'any';
                             input.className = 'form-control';
+                            // GWA, Income, and other numeric inputs get decimal keypad on mobile
+                            input.setAttribute('inputmode', 'decimal');
                         } else if (field.field_type === 'date') {
                             input = document.createElement('input');
                             input.type = 'date';
@@ -329,12 +335,14 @@
                             input.className = 'form-control';
                         }
                         
+                        input.id = uniqueId;
                         input.name = `custom_fields[${field.field_name}]`;
                         input.classList.add('custom-field-input');
                         input.dataset.label = field.field_label;
                         input.dataset.required = field.is_required ? '1' : '0';
                         if (field.is_required) {
                             input.setAttribute('required', 'required');
+                            input.setAttribute('aria-required', 'true');
                             input.classList.add('required-custom-field');
                         }
                         

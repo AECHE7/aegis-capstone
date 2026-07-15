@@ -173,11 +173,11 @@
     </div>
 </div>
 
-{{-- Main 2-column layout --}}
+{{-- Main 2-column layout (Document viewer first on mobile, on the right on desktop) --}}
 <div class="row g-4">
 
     {{-- LEFT: AI Panel + Decision --}}
-    <div class="col-lg-4">
+    <div class="col-lg-4 order-last order-lg-first">
 
         @foreach($application->documents as $doc)
             @php
@@ -440,7 +440,7 @@
     </div>
 
     {{-- RIGHT: Document Viewer --}}
-    <div class="col-lg-8">
+    <div class="col-lg-8 order-first order-lg-last">
         <div class="card p-4 h-100">
             @if($application->documents->isEmpty())
                 <div class="text-center py-5 my-auto">
