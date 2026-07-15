@@ -582,6 +582,38 @@
             .sidebar.mobile-show {
                 transform: translateX(0);
             }
+
+            /* Mobile Sidebar: force show all text, branding and badges even if collapsed class exists (Image 2 fix) */
+            .sidebar.collapsed .sidebar-brand-text {
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            .sidebar.collapsed .sidebar-role {
+                padding: 0.75rem 1.2rem !important;
+            }
+            .sidebar.collapsed .sidebar-role-badge .role-text {
+                display: inline-block !important;
+            }
+            .sidebar.collapsed .sidebar-label {
+                opacity: 1 !important;
+            }
+            .sidebar.collapsed .sidebar-text {
+                opacity: 1 !important;
+                width: auto !important;
+                display: inline-block !important;
+            }
+
+            /* WCAG 2.2: Enlarge mobile hamburger toggle touch target to 44px */
+            #mobileSidebarToggle {
+                width: 44px !important;
+                height: 44px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                border-radius: 50% !important;
+                background-color: var(--clsu-green-muted) !important;
+                color: var(--clsu-green) !important;
+            }
             
             .sidebar-toggle {
                 display: none !important;
