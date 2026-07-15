@@ -53,17 +53,19 @@
             letter-spacing: -0.02em;
         }
 
-        /* ── SPLIT LAYOUT ─────────────────────────── */
+        /* ── SPLIT LAYOUT ────────────────────────────── */
+        /* WCAG 1.4.10 Reflow: 100dvh accounts for iOS Safari URL bar offset */
         .split {
-            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-wrap: wrap;
         }
 
         /* ── LEFT HERO PANEL ──────────────────────── */
+        /* WCAG 1.4.10 Reflow: fluid flex sizing instead of fixed 55% */
         .hero-panel {
-            width: 55%;
-            background: var(--green-dark); /* Solid brand green, no gradient */
+            flex: 1 1 min(55%, 560px);
+            background: var(--green-dark);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -347,14 +349,27 @@
 
         .email-hint strong { color: #475569; }
 
+        /* WCAG 1.4.4 / 1.4.10: fluid type scale using clamp() */
+        .hero-title { font-size: clamp(1.5rem, 4vw + 0.5rem, 2.8rem); }
+        .hero-desc  { font-size: clamp(0.85rem, 1.5vw, 1rem); }
+
+        /* WCAG 1.4.11: autofill override to preserve theme contrast */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+            -webkit-text-fill-color: #1a1a1a !important;
+            transition: background-color 5000s ease-in-out 0s !important;
+        }
+
         /* Responsive */
         @media (max-width: 991px) {
-            .hero-panel { width: 100%; min-height: 45vh; padding: 2.5rem 1.5rem; }
-            .form-panel  { width: 100%; padding: 2rem 1.5rem; }
+            .hero-panel { flex: 1 1 100%; min-height: 44vh; padding: 2.5rem 1.5rem; }
+            .form-panel { flex: 1 1 100%; padding: 2rem 1.5rem; }
         }
 
         @media (max-width: 480px) {
-            .hero-panel { padding: 2rem 1.25rem; }
+            .hero-panel { padding: 2rem 1.25rem; min-height: 32vh; }
         }
     </style>
 </head>

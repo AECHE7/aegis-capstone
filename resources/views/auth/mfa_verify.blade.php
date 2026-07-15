@@ -150,8 +150,11 @@
             @csrf
             <div class="mb-4">
                 <input type="text" name="code" id="otpInput" class="form-control otp-input-field" 
-                       maxlength="6" placeholder="000000" required autocomplete="off" autofocus
-                       inputmode="numeric" pattern="[0-9]*">
+                       maxlength="6" placeholder="000000" required
+                       autocomplete="one-time-code"
+                       autofocus
+                       inputmode="numeric" pattern="[0-9]*"
+                       aria-label="One-time verification code">
             </div>
             <div class="form-check text-start mb-4 d-flex align-items-center gap-2" style="margin-left: 2px;">
                 <input class="form-check-input" type="checkbox" name="remember_device" id="rememberDevice" checked style="cursor: pointer; width: 16px; height: 16px; margin: 0; accent-color: #0C4E2D;">

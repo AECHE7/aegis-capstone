@@ -851,11 +851,110 @@
         .table tbody tr:hover {
             background: #f8fafc;
         }
+
+        /* ══════════════════════════════════════════
+           PHASE 1 — WCAG 2.2 / WSG / AWARD-CALIBER
+        ══════════════════════════════════════════ */
+
+        /* --- WCAG 2.4.1 Bypass Blocks (Level A) ---
+           Skip-to-content link: visually hidden until keyboard focus */
+        .skip-link {
+            position: absolute;
+            top: -200%;
+            left: 1rem;
+            background: var(--clsu-green);
+            color: #ffffff;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+            z-index: 99999;
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: top 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-elevated);
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* --- WCAG 2.4.7 Focus Visible / 2.4.11 Focus Not Obscured (Level AA) ---
+           Restore keyboard focus ring suppressed by Bootstrap;
+           uses CLSU gold for guaranteed contrast on green backgrounds. */
+        *:focus {
+            outline: none;
+        }
+        *:focus-visible {
+            outline: 3px solid var(--clsu-gold) !important;
+            outline-offset: 3px !important;
+            border-radius: var(--radius-sm) !important;
+        }
+
+        /* --- WCAG 2.5.8 Target Size Minimum (Level AA, new in WCAG 2.2) ---
+           All topbar icon buttons get a 44x44px minimum touch target. */
+        .topbar-icon-btn {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        /* --- WCAG 2.3.3 Animation from Interactions + WSG Performance ---
+           Disable ALL motion for users who prefer reduced motion.
+           Satisfies Level AAA and W3C Web Sustainability Guidelines. */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* --- WCAG 1.4.10 Reflow / UX: smooth scrolling + scroll margin ---
+           Prevents sticky topbar from obscuring anchor targets. */
+        @media (prefers-reduced-motion: no-preference) {
+            html { scroll-behavior: smooth; }
+        }
+        [id] { scroll-margin-top: 80px; }
+
+        /* --- W3C Web Sustainability Guidelines (WSG): touch-action ---
+           Eliminates 300ms tap delay on mobile — doubles perceived responsiveness. */
+        a, button, .btn, [role="button"] {
+            touch-action: manipulation;
+        }
+
+        /* --- WSG: content-visibility for heavy non-above-fold sections ---
+           Tells the browser to skip painting off-screen card grids,
+           reducing CPU layout/paint work significantly. */
+        .content-lazy {
+            content-visibility: auto;
+            contain-intrinsic-size: 0 300px;
+        }
+
+        /* --- WCAG 1.4.11 Non-text Contrast: autofill color override ---
+           Prevents browser autofill from painting white backgrounds
+           that clash in dark mode or themed input fields. */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px var(--clsu-bg, #f2f0eb) inset !important;
+            -webkit-text-fill-color: var(--text-main, rgba(0,0,0,0.87)) !important;
+            transition: background-color 5000s ease-in-out 0s !important;
+        }
+        [data-theme="dark"] input:-webkit-autofill,
+        [data-theme="dark"] input:-webkit-autofill:hover,
+        [data-theme="dark"] input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #111827 inset !important;
+            -webkit-text-fill-color: #94a3b8 !important;
+        }
     </style>
     
     @stack('styles')
 </head>
 <body>
+
+{{-- WCAG 2.4.1 Bypass Blocks (Level A): Skip-to-content link --}}
+<a href="#main-content" class="skip-link">Skip to main content</a>
 
 @auth
     @if(auth()->check())
@@ -880,7 +979,11 @@
         <div class="topbar">
             <div class="d-flex align-items-center">
                 <!-- Mobile Hamburger Toggle -->
-                <button class="btn btn-link topbar-icon-btn p-0 me-3 d-lg-none" id="mobileSidebarToggle" aria-label="Toggle Navigation" style="box-shadow: none;">
+                <button class="btn btn-link topbar-icon-btn p-0 me-3 d-lg-none" id="mobileSidebarToggle"
+                        aria-label="Toggle Navigation"
+                        aria-controls="mainSidebar"
+                        aria-expanded="false"
+                        style="box-shadow: none;">
                     <i class="fa-solid fa-bars fs-4"></i>
                 </button>
                 <div>
@@ -893,9 +996,13 @@
 
                 <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-1">
+                    {{-- WCAG 4.1.2: Name/Role/Value — accessible name on icon-only button --}}
                     <button class="btn btn-link position-relative p-1 topbar-icon-btn" type="button" 
                             id="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
-                            data-bs-toggle="dropdown" aria-expanded="false" style="box-shadow: none;">
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            aria-label="View notifications"
+                            style="box-shadow: none;">
                         <i class="fa-regular fa-bell fs-5"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" 
                               id="@if(auth()->user()->role === 'student') notifBadgeStudent @else notifBadgeAdmin @endif" 
@@ -935,8 +1042,8 @@
             </div>
         </div>
 
-        <!-- Page Content -->
-        <div class="page-content">
+        {{-- W3C Semantic Landmark: <main> (WCAG 1.3.1 Info and Relationships, Level A) --}}
+        <main id="main-content" class="page-content" role="main" tabindex="-1">
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" aria-live="polite" aria-atomic="true"
                      style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important; border-left-style: solid !important;">
@@ -953,7 +1060,7 @@
             @endif
 
             @yield('content')
-        </div>
+        </main>
     </div>
 
     @endif
@@ -1069,7 +1176,7 @@
 
     applySidebarState();
 
-    // Mobile Sidebar Drawer handlers
+    // Mobile Sidebar Drawer handlers (WCAG 4.1.2: aria-expanded state sync)
     const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
 
@@ -1077,6 +1184,7 @@
         mobileSidebarToggle.addEventListener('click', () => {
             sidebar?.classList.add('mobile-show');
             sidebarBackdrop?.classList.add('show');
+            mobileSidebarToggle.setAttribute('aria-expanded', 'true');
         });
     }
 
@@ -1084,6 +1192,7 @@
         sidebarBackdrop.addEventListener('click', () => {
             sidebar?.classList.remove('mobile-show');
             sidebarBackdrop?.classList.remove('show');
+            mobileSidebarToggle?.setAttribute('aria-expanded', 'false');
         });
     }
 

@@ -200,12 +200,12 @@
             <table class="table mb-0 align-middle">
                 <thead>
                     <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-main);">
-                        <th class="ps-3">Scholar</th>
-                        <th>Scholarship Program</th>
-                        <th>Active Term</th>
-                        <th class="text-center">Min GWA</th>
-                        <th class="text-center">Student GWA</th>
-                        <th class="text-center">Status</th>
+                        <th class="ps-3" scope="col">Scholar</th>
+                        <th scope="col">Scholarship Program</th>
+                        <th scope="col">Active Term</th>
+                        <th class="text-center" scope="col">Min GWA</th>
+                        <th class="text-center" scope="col">Student GWA</th>
+                        <th class="text-center" scope="col">Status</th>
                     </tr>
                 </thead>
                 <tbody>

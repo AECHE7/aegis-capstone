@@ -232,10 +232,10 @@
                 <table class="table mb-0">
                     <thead>
                         <tr>
-                            <th style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Applicant</th>
-                            <th style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Program</th>
-                            <th style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Decision</th>
-                            <th style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;text-align:right;">Evaluator</th>
+                            <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Applicant</th>
+                            <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Program</th>
+                            <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Decision</th>
+                            <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;text-align:right;">Evaluator</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -460,14 +460,14 @@
                 <table class="table mb-0 align-middle" style="font-size:0.875rem;">
                     <thead>
                         <tr>
-                            <th class="ps-4">Scholarship Program</th>
-                            <th class="text-center">Limit/Max</th>
-                            <th class="text-center">Applicants</th>
-                            <th class="text-center">Approved</th>
-                            <th class="text-center">Rejected</th>
-                            <th class="text-center">Pending / Review</th>
-                            <th class="text-center">Avg GWA Approved</th>
-                            <th class="pe-4 text-end">Avg AI Fraud Score</th>
+                            <th class="ps-4" scope="col">Scholarship Program</th>
+                            <th class="text-center" scope="col">Limit/Max</th>
+                            <th class="text-center" scope="col">Applicants</th>
+                            <th class="text-center" scope="col">Approved</th>
+                            <th class="text-center" scope="col">Rejected</th>
+                            <th class="text-center" scope="col">Pending / Review</th>
+                            <th class="text-center" scope="col">Avg GWA Approved</th>
+                            <th class="pe-4 text-end" scope="col">Avg AI Fraud Score</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -527,10 +527,10 @@
                 <table class="table mb-0 align-middle" style="font-size:0.875rem;">
                     <thead>
                         <tr>
-                            <th class="ps-2">#</th>
-                            <th>Program</th>
-                            <th class="text-center">Approved Scholars</th>
-                            <th class="text-center">Avg GWA</th>
+                            <th class="ps-2" scope="col">#</th>
+                            <th scope="col">Program</th>
+                            <th class="text-center" scope="col">Approved Scholars</th>
+                            <th class="text-center" scope="col">Avg GWA</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -582,12 +582,12 @@
                 <table class="table mb-0 align-middle" style="font-size:0.875rem;">
                     <thead>
                         <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-main);">
-                            <th class="ps-4">Scholar Name</th>
-                            <th>Scholarship Program</th>
-                            <th>Active Term</th>
-                            <th class="text-center">Min GWA Required</th>
-                            <th class="text-center">Current Student GWA</th>
-                            <th class="pe-4 text-center">Status</th>
+                            <th class="ps-4" scope="col">Scholar Name</th>
+                            <th scope="col">Scholarship Program</th>
+                            <th scope="col">Active Term</th>
+                            <th class="text-center" scope="col">Min GWA Required</th>
+                            <th class="text-center" scope="col">Current Student GWA</th>
+                            <th class="pe-4 text-center" scope="col">Status</th>
                         </tr>
                     </thead>
                     <tbody>

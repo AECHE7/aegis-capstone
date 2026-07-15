@@ -22,12 +22,12 @@
         <table class="table mb-0">
             <thead>
                 <tr>
-                    <th class="ps-4">Program Name</th>
-                    <th>Description</th>
-                    <th class="text-center">Max GWA</th>
-                    <th class="text-center">Max Renewals</th>
-                    <th class="text-center">Status</th>
-                    <th class="pe-4 text-end">Action</th>
+                    <th class="ps-4" scope="col">Program Name</th>
+                    <th scope="col">Description</th>
+                    <th class="text-center" scope="col">Max GWA</th>
+                    <th class="text-center" scope="col">Max Renewals</th>
+                    <th class="text-center" scope="col">Status</th>
+                    <th class="pe-4 text-end" scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>

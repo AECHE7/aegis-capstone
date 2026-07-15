@@ -406,9 +406,9 @@
                     <table class="table table-sm mb-0" style="font-size:0.78rem;">
                         <thead>
                             <tr>
-                                <th>Term</th>
-                                <th class="text-center">GWA</th>
-                                <th class="text-end">Status</th>
+                                <th scope="col">Term</th>
+                                <th class="text-center" scope="col">GWA</th>
+                                <th class="text-end" scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody>

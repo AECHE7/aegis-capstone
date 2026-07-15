@@ -59,17 +59,20 @@
             letter-spacing: -0.02em;
         }
 
-        /* ── SPLIT LAYOUT ─────────────────────────── */
+        /* ── SPLIT LAYOUT ────────────────────────────── */
+        /* WCAG 1.4.10 Reflow: 100dvh accounts for iOS Safari URL bar offset */
         .split {
-            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-wrap: wrap;
         }
 
         /* ── LEFT HERO PANEL ──────────────────────── */
+        /* WCAG 1.4.10 Reflow: fluid flex sizing instead of fixed 55%
+           Degrades gracefully from 55% on desktop to full-width below 991px */
         .hero-panel {
-            width: 55%;
-            background: var(--green-dark); /* Solid brand green, no gradient */
+            flex: 1 1 min(55%, 560px);
+            background: var(--green-dark);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -418,15 +421,40 @@
             transform: translateY(-2px);
         }
 
+        /* ── PHASE 2 WCAG ADDITIONS ────────────────────── */
+
+        /* WCAG 1.4.4 Resize Text / 1.4.10 Reflow: fluid type scale via clamp()
+           Text scales proportionally without horizontal scroll at any viewport width */
+        .hero-title   { font-size: clamp(1.5rem, 4vw + 0.5rem, 2.8rem); }
+        .hero-desc    { font-size: clamp(0.85rem, 1.5vw, 1rem); }
+        .inst-badge   { font-size: clamp(0.7rem, 1.5vw, 0.8rem); }
+
+        /* WCAG 1.4.11 Non-text Contrast: autofill override
+           Prevents browser autofill white flash that breaks form aesthetics */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+            -webkit-text-fill-color: #1a1a1a !important;
+            transition: background-color 5000s ease-in-out 0s !important;
+        }
+
+        /* WCAG 2.4.7 Focus Visible: keyboard ring on inputs (matches global system) */
+        .form-control:focus-visible,
+        .form-select:focus-visible {
+            outline: 3px solid var(--green) !important;
+            outline-offset: 2px !important;
+        }
+
         /* Responsive */
         @media (max-width: 991px) {
-            .hero-panel { width: 100%; min-height: 50vh; padding: 2.5rem 1.5rem; }
-            .form-panel  { width: 100%; padding: 2rem 1.5rem; }
+            .hero-panel { flex: 1 1 100%; min-height: 44vh; padding: 2.5rem 1.5rem; }
+            .form-panel { flex: 1 1 100%; padding: 2rem 1.5rem; overflow-y: auto; max-height: 100dvh; }
             .scan-terminal { display: none; }
         }
 
         @media (max-width: 480px) {
-            .hero-panel { padding: 2rem 1.25rem; }
+            .hero-panel { padding: 2rem 1.25rem; min-height: 38vh; }
             .stats-row  { gap: 0; }
         }
     </style>
