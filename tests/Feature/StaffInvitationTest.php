@@ -220,7 +220,7 @@ class StaffInvitationTest extends TestCase
         ]);
 
         // 2. Perform login request
-        $response = $this->post(route('login'), [
+        $response = $this->post(route('login.submit'), [
             'email' => 'director@clsu.edu.ph',
             'password' => 'password',
         ]);

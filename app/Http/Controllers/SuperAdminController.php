@@ -525,7 +525,7 @@ class SuperAdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'role' => 'required|string|in:admin,superadmin',
+            'role' => 'nullable|string|in:admin,superadmin',
             'email' => [
                 'required',
                 'string',
@@ -534,7 +534,8 @@ class SuperAdminController extends Controller
                 'max:255',
                 'unique:users',
                 function ($attribute, $value, $fail) use ($request) {
-                    if ($request->role === 'admin') {
+                    $role = $request->input('role', 'admin');
+                    if ($role === 'admin') {
                         $domain = substr(strrchr($value, "@"), 1);
                         if (!in_array($domain, ['clsu.edu.ph', 'clsu2.edu.ph'])) {
                             $fail('Staff email must be a CLSU institutional email (@clsu.edu.ph or @clsu2.edu.ph).');
@@ -551,7 +552,7 @@ class SuperAdminController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
-            'role' => $request->role,
+            'role' => $request->input('role', 'admin'),
             'email_verified_at' => null, // must set password first to activate
             'is_active' => true,
         ]);

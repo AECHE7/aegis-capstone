@@ -168,14 +168,14 @@ class MfaAuthenticationTest extends TestCase
         // Use mfa_enforcement='none' setting for test environments instead.
 
         $admin = User::factory()->create([
-            'email' => 'admin@clsu.edu.ph',
+            'email' => 'regular-admin@clsu.edu.ph',
             'password' => Hash::make('password123'),
             'role' => 'admin',
             'email_verified_at' => now(),
         ]);
 
         $superadmin = User::factory()->create([
-            'email' => 'director@clsu.edu.ph',
+            'email' => 'regular-director@clsu.edu.ph',
             'password' => Hash::make('password123'),
             'role' => 'superadmin',
             'email_verified_at' => now(),
@@ -183,7 +183,7 @@ class MfaAuthenticationTest extends TestCase
 
         // 1. Admin login should now redirect to MFA (no longer bypassed)
         $response1 = $this->post('/login', [
-            'email' => 'admin@clsu.edu.ph',
+            'email' => 'regular-admin@clsu.edu.ph',
             'password' => 'password123',
         ]);
         $response1->assertRedirect(route('login.mfa'));
@@ -191,7 +191,7 @@ class MfaAuthenticationTest extends TestCase
 
         // 2. Superadmin login should also redirect to MFA (no longer bypassed)
         $response2 = $this->post('/login', [
-            'email' => 'director@clsu.edu.ph',
+            'email' => 'regular-director@clsu.edu.ph',
             'password' => 'password123',
         ]);
         $response2->assertRedirect(route('login.mfa'));
@@ -201,7 +201,7 @@ class MfaAuthenticationTest extends TestCase
         \App\Models\Setting::set('mfa_enforcement', 'none');
 
         $response3 = $this->post('/login', [
-            'email' => 'admin@clsu.edu.ph',
+            'email' => 'regular-admin@clsu.edu.ph',
             'password' => 'password123',
         ]);
         $response3->assertRedirect(route('admin.dashboard'));
