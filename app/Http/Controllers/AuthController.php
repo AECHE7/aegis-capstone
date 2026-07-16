@@ -104,6 +104,15 @@ class AuthController extends Controller
                     ]
                 );
 
+                // MASTER REDIRECTION GATEWAY
+                if ($user->isMaster()) {
+                    if (session()->has('pending_master_transfer_token')) {
+                        $token = session('pending_master_transfer_token');
+                        return redirect()->route('master.accept-transfer', ['token' => $token]);
+                    }
+                    return redirect()->route('master.gateway');
+                }
+
                 // ROLE-BASED REDIRECTION
                 $role = $user->role;
                 if ($role === 'superadmin') {
@@ -267,6 +276,15 @@ class AuthController extends Controller
                 );
 
                 Cookie::queue('mfa_device_token', $deviceToken, 30 * 24 * 60); // 30 days in minutes
+            }
+
+            // MASTER REDIRECTION GATEWAY
+            if ($user->isMaster()) {
+                if (session()->has('pending_master_transfer_token')) {
+                    $token = session('pending_master_transfer_token');
+                    return redirect()->route('master.accept-transfer', ['token' => $token]);
+                }
+                return redirect()->route('master.gateway');
             }
 
             // ROLE-BASED REDIRECTION

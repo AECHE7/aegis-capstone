@@ -82,6 +82,10 @@ Route::middleware('guest')->group(function () {
 Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\NewPasswordController::class, 'create'])->name('password.reset');
 Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->name('password.store');
 
+// Master Account Transfer Accept Route (Available to guest users to handle initial click redirects)
+Route::get('/master/accept-transfer/{token}', [\App\Http\Controllers\MasterController::class, 'acceptTransfer'])->name('master.accept-transfer');
+Route::post('/master/accept-transfer/{token}', [\App\Http\Controllers\MasterController::class, 'acceptTransfer']);
+
 
 
 
@@ -263,5 +267,10 @@ Route::middleware(['auth'])->group(function () {
 
     // UAT FEEDBACK SUBMISSION
     Route::post('/uat-feedback', [\App\Http\Controllers\UatFeedbackController::class, 'store'])->name('uat.store');
+
+    // MASTER ACCOUNT GATEWAY & ROLE SWITCHER
+    Route::get('/master/gateway', [\App\Http\Controllers\MasterController::class, 'showGateway'])->name('master.gateway');
+    Route::post('/master/switch-role', [\App\Http\Controllers\MasterController::class, 'switchRole'])->name('master.switch-role');
+    Route::post('/master/transfer', [\App\Http\Controllers\MasterController::class, 'initiateTransfer'])->name('master.transfer');
 
 });

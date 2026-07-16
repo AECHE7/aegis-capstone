@@ -231,6 +231,17 @@
             letter-spacing: -0.02em; /* Heading tracking */
         }
 
+        /* ── Phase 2: Fluid Type Scale (WCAG 1.4.10 Reflow + Awwwards Caliber) ──
+           clamp(min, preferred-vw, max) prevents font scaling from causing
+           horizontal overflow at narrow (320px) viewports while enabling
+           responsive sizing without media queries. */
+        h1 { font-size: clamp(1.6rem,  4.5vw, 2.25rem); }
+        h2 { font-size: clamp(1.35rem, 3.5vw, 1.875rem); }
+        h3 { font-size: clamp(1.15rem, 2.8vw, 1.5rem);   }
+        h4 { font-size: clamp(1.05rem, 2.2vw, 1.25rem);  }
+        h5 { font-size: clamp(0.95rem, 1.8vw, 1.125rem); }
+        h6 { font-size: clamp(0.85rem, 1.5vw, 1rem);     }
+
         /* ══════════════════════════════════════════
            GLOBAL PILL BUTTONS SYSTEM
         ══════════════════════════════════════════ */
@@ -1007,6 +1018,92 @@
             word-break: break-word;
             text-align: left;
         }
+
+        /* ── Phase 5: Awwwards-Caliber Button Ripple Effect ──────────────────────
+           Pure CSS ripple: a pseudo-element is triggered by JS adding
+           .ripple-active class, then auto-removed. Wraps all .btn elements.
+           Guarded by prefers-reduced-motion for WCAG 2.3.3 AAA compliance. */
+        .btn { overflow: hidden; position: relative; }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 50%;
+            background: rgba(255,255,255,0.35);
+            border-radius: 50%;
+            transform: scale(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+        @media (prefers-reduced-motion: no-preference) {
+            .btn.ripple-active::after {
+                animation: btn-ripple 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+        }
+        @keyframes btn-ripple {
+            0%   { inset: 50%; transform: scale(0); opacity: 1; }
+            100% { inset: -150%; transform: scale(1); opacity: 0; }
+        }
+
+        /* ── Phase 5: Floating Label Design System Utility ────────────────────────
+           Use .form-floating-custom wrapper for elegant floating label fields.
+           Labels translate upward on :focus or when the input has a value (.has-value).
+           Compatible with Bootstrap form-control inputs. */
+        .form-floating-custom {
+            position: relative;
+        }
+        .form-floating-custom label {
+            position: absolute;
+            top: 0.65rem;
+            left: 1rem;
+            font-size: 0.875rem;
+            color: #94a3b8;
+            pointer-events: none;
+            transform-origin: left top;
+            transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                        font-size 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                        color 0.18s;
+            background: transparent;
+            padding: 0 0.25rem;
+        }
+        .form-floating-custom input:focus ~ label,
+        .form-floating-custom input.has-value ~ label,
+        .form-floating-custom select:focus ~ label,
+        .form-floating-custom select.has-value ~ label {
+            transform: translateY(-1.1rem) scale(0.78);
+            color: var(--clsu-green-light);
+            background: var(--card-bg);
+            font-weight: 600;
+        }
+        .form-floating-custom input,
+        .form-floating-custom select {
+            padding-top: 1.1rem !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .form-floating-custom label { transition: none; }
+        }
+
+        /* ── Phase 4: Mobile Grid Stacking ─────────────────────────────────────────
+           Ensures stat card rows and detail panels fully collapse into a single
+           column at xs breakpoint (≤575.98px), preventing truncation or overflow. */
+        @media (max-width: 575.98px) {
+            .row.g-4 > [class*='col-']:not(.col-12),
+            .row.g-3 > [class*='col-']:not(.col-12) {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+            }
+            /* Prevent horizontal scroll on data tables on small screens */
+            .table-responsive {
+                -webkit-overflow-scrolling: touch;
+            }
+            /* Stack action buttons in review/detail cards vertically */
+            .action-btn-group {
+                flex-direction: column !important;
+                width: 100%;
+            }
+            .action-btn-group .btn {
+                width: 100% !important;
+            }
+        }
     </style>
     
     @stack('styles')
@@ -1431,8 +1528,39 @@
         });
 
         // Attach tactical click animations to all main buttons
-        document.querySelectorAll('.btn, .btn-submit-app, .sidebar-link, .topbar-icon-btn').forEach(btn => {
-            btn.classList.add('btn-animate-click');
+        document.querySelectorAll('.btn, .btn-submit-app, .sidebar-link, .topbar-icon-btn').forEach(btn =>
+            btn.classList.add('btn-animate-click')
+        );
+
+        // ── Phase 5: Button Ripple Trigger ─────────────────────────────────────
+        // Triggers the CSS ::after ripple animation on all .btn elements.
+        // The class is removed after the animation duration to allow re-triggering.
+        if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn');
+                if (!btn) return;
+                btn.classList.remove('ripple-active');
+                // Force reflow to restart animation
+                void btn.offsetWidth;
+                btn.classList.add('ripple-active');
+                btn.addEventListener('animationend', () => btn.classList.remove('ripple-active'), { once: true });
+            });
+        }
+
+        // ── Phase 5: Floating Label has-value detector ──────────────────────────
+        // Marks inputs inside .form-floating-custom with .has-value when they
+        // contain data, so the label stays elevated even when the field is blurred.
+        document.querySelectorAll('.form-floating-custom input, .form-floating-custom select').forEach(input => {
+            const check = () => {
+                if (input.value) {
+                    input.classList.add('has-value');
+                } else {
+                    input.classList.remove('has-value');
+                }
+            };
+            input.addEventListener('input', check);
+            input.addEventListener('change', check);
+            check(); // Run on page load for pre-filled values
         });
     });
 </script>

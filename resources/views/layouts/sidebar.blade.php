@@ -186,6 +186,30 @@
                 <span class="sidebar-text">Account Settings</span>
             </a>
         @endif
+
+        @if(auth()->user()->isMaster())
+            <div class="sidebar-label mt-3 text-warning" style="color:var(--clsu-gold) !important;"><i class="fa-solid fa-gears me-1"></i> Master Controls</div>
+            
+            <a href="{{ route('master.gateway') }}"
+               class="sidebar-link {{ request()->routeIs('master.gateway') ? 'active' : '' }}"
+               {{ request()->routeIs('master.gateway') ? 'aria-current="page"' : '' }}
+               data-tooltip="Gateway" style="color: var(--clsu-gold) !important;">
+                <span class="sidebar-icon"><i class="fa-solid fa-door-open" style="color: var(--clsu-gold) !important;" aria-hidden="true"></i></span>
+                <span class="sidebar-text">Master Gateway</span>
+            </a>
+
+            <div class="px-3 py-2">
+                <form action="{{ route('master.switch-role') }}" method="POST" id="masterRoleForm">
+                    @csrf
+                    <label for="masterRoleSelect" class="form-label small text-muted mb-1" style="font-size: 0.72rem; color: rgba(255,255,255,0.6) !important;">Switch Active Role:</label>
+                    <select name="role" id="masterRoleSelect" class="form-select form-select-sm text-dark bg-white border-0" style="font-size: 0.8rem; border-radius: 8px; font-weight: 550;" onchange="document.getElementById('masterRoleForm').submit()">
+                        <option value="student" {{ auth()->user()->role === 'student' ? 'selected' : '' }}>Student Portal</option>
+                        <option value="admin" {{ auth()->user()->role === 'admin' ? 'selected' : '' }}>Admin Portal</option>
+                        <option value="superadmin" {{ auth()->user()->role === 'superadmin' ? 'selected' : '' }}>Director Portal</option>
+                    </select>
+                </form>
+            </div>
+        @endif
     </nav>
 
     <!-- Logout -->

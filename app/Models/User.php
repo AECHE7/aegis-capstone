@@ -9,10 +9,32 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\Setting;
+
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
+
+    /**
+     * Check if the user has master account privileges.
+     */
+    public function isMaster(): bool
+    {
+        $masterEmail = Setting::get('master_email', 'gadianoriel07@gmail.com');
+        return $masterEmail && strtolower($this->email) === strtolower($masterEmail);
+    }
+
+    /**
+     * Dynamically override role attribute for the Master account based on session.
+     */
+    public function getRoleAttribute($value)
+    {
+        if (app()->bound('session') && session()->has('active_role') && $this->isMaster()) {
+            return session('active_role');
+        }
+        return $value;
+    }
 
     /**
      * The attributes that are mass assignable.
