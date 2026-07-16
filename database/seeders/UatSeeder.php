@@ -47,6 +47,16 @@ class UatSeeder extends Seeder
             ]
         );
 
+        User::firstOrCreate(
+            ['email' => 'gadianoriel07@gmail.com'],
+            [
+                'name' => 'Master Admin',
+                'password' => Hash::make('password'),
+                'role' => 'superadmin',
+                'email_verified_at' => now()
+            ]
+        );
+
         // 4. Ensure Scholarships exist (re-seed if missing)
         if (Scholarship::count() === 0) {
             Scholarship::create(['name' => 'DOST-SEI Merit Scholarship', 'min_gwa_required' => 1.50, 'status' => 'Active']);
@@ -75,6 +85,7 @@ class UatSeeder extends Seeder
         \App\Models\Setting::firstOrCreate(['key' => 'ai_fraud_threshold'], ['value' => '50.0']);
         \App\Models\Setting::firstOrCreate(['key' => 'gwa_discrepancy_tolerance'], ['value' => '0.01']);
         \App\Models\Setting::firstOrCreate(['key' => 'app_logo'], ['value' => null]);
+        \App\Models\Setting::firstOrCreate(['key' => 'master_email'], ['value' => 'gadianoriel07@gmail.com']);
 
         $this->command->info('Database cleaned! Ready for manual student registration.');
     }
