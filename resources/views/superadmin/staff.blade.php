@@ -45,15 +45,21 @@
                             <div>
                                 <div class="fw-semibold text-dark">{{ $staff->name }}</div>
                                 <div class="mt-1 d-flex flex-wrap gap-1">
-                                    @forelse($staff->scholarships as $s)
-                                        <span class="badge bg-success text-white px-2 py-0.5 rounded" style="font-size: 0.7rem; font-weight: 500;">
-                                            {{ $s->name }}
+                                    @if($staff->role === 'superadmin')
+                                        <span class="badge bg-primary text-white px-2 py-0.5 rounded" style="font-size: 0.7rem; font-weight: 500; background-color: var(--green) !important;">
+                                            All Programs (Director)
                                         </span>
-                                    @empty
-                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-0.5 rounded" style="font-size: 0.7rem; font-weight: 500;">
-                                            No assignments
-                                        </span>
-                                    @endforelse
+                                    @else
+                                        @forelse($staff->scholarships as $s)
+                                            <span class="badge bg-success text-white px-2 py-0.5 rounded" style="font-size: 0.7rem; font-weight: 500;">
+                                                {{ $s->name }}
+                                            </span>
+                                        @empty
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-0.5 rounded" style="font-size: 0.7rem; font-weight: 500;">
+                                                No assignments
+                                            </span>
+                                        @endforelse
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -220,18 +226,31 @@
                         @enderror
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small text-muted" for="staffEmail">Institutional Email Address</label>
+                        <label class="form-label fw-semibold small text-muted" for="staffRole">System Role</label>
+                        <div class="input-group">
+                            <span class="input-group-text border-end-0 bg-white" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-user-shield text-muted small"></i></span>
+                            <select name="role" id="staffRole" class="form-select border-start-0" style="border-radius: 0 10px 10px 0;" onchange="toggleScholarshipBlock(this.value)" required>
+                                <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Staff (Admin)</option>
+                                <option value="superadmin" {{ old('role') === 'superadmin' ? 'selected' : '' }}>Director (SuperAdmin)</option>
+                            </select>
+                        </div>
+                        @error('role')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-muted" for="staffEmail">Email Address</label>
                         <div class="input-group">
                             <span class="input-group-text border-end-0 bg-white" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-envelope text-muted small"></i></span>
-                            <input type="email" name="email" id="staffEmail" class="form-control border-start-0" style="border-radius: 0 10px 10px 0;" required placeholder="e.g., janesmith@clsu.edu.ph" value="{{ old('email') }}" autocomplete="email">
+                            <input type="email" name="email" id="staffEmail" class="form-control border-start-0" style="border-radius: 0 10px 10px 0;" required placeholder="e.g., user@clsu.edu.ph" value="{{ old('email') }}" autocomplete="email">
                         </div>
-                        <div class="form-text small">Email must end with @clsu.edu.ph or @clsu2.edu.ph.</div>
+                        <div class="form-text small" id="emailDomainHelpText">Email must end with @clsu.edu.ph or @clsu2.edu.ph.</div>
                         @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="mb-0">
+                    <div class="mb-0" id="scholarshipAssignmentBlock">
                         <label class="form-label fw-semibold small text-muted mb-2">Assign Scholarship Programs</label>
                         <div class="p-3 bg-light border" style="border-radius: 10px; max-height: 180px; overflow-y: auto;">
                             @foreach($scholarships as $scholarship)
@@ -273,6 +292,18 @@
 
 @push('scripts')
 <script>
+    function toggleScholarshipBlock(role) {
+        const block = document.getElementById('scholarshipAssignmentBlock');
+        const helpText = document.getElementById('emailDomainHelpText');
+        if (role === 'superadmin') {
+            block.style.display = 'none';
+            helpText.innerText = 'Any valid email address is accepted for Directors.';
+        } else {
+            block.style.display = 'block';
+            helpText.innerText = 'Email must end with @clsu.edu.ph or @clsu2.edu.ph.';
+        }
+    }
+
     // ── AJAX Staff Invitation ─────────────────────────
     const inviteForm = document.querySelector('#inviteStaffModal form');
     if (inviteForm) {

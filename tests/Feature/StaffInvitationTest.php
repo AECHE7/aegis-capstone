@@ -187,4 +187,46 @@ class StaffInvitationTest extends TestCase
         // Assert user is logged in
         $this->assertAuthenticatedAs($user);
     }
+
+    public function test_superadmin_can_invite_director_with_gmail_email(): void
+    {
+        $response = $this->actingAs($this->superadmin)
+            ->post(route('superadmin.staff.invite'), [
+                'name' => 'Client Director',
+                'email' => 'client@gmail.com',
+                'role' => 'superadmin',
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+
+        // Assert user record is created in database with 'superadmin' role
+        $this->assertDatabaseHas('users', [
+            'name' => 'Client Director',
+            'email' => 'client@gmail.com',
+            'role' => 'superadmin',
+        ]);
+    }
+
+    public function test_mfa_is_bypassed_for_dummy_accounts(): void
+    {
+        // 1. Create dummy director account
+        $director = User::create([
+            'name' => 'OSA Director',
+            'email' => 'director@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'superadmin',
+            'email_verified_at' => now(),
+        ]);
+
+        // 2. Perform login request
+        $response = $this->post(route('login'), [
+            'email' => 'director@clsu.edu.ph',
+            'password' => 'password',
+        ]);
+
+        // Assert immediately redirected to superadmin scholarships dashboard, bypassing MFA
+        $response->assertRedirect(route('superadmin.scholarships'));
+        $this->assertAuthenticatedAs($director);
+    }
 }

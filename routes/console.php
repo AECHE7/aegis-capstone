@@ -89,3 +89,34 @@ Artisan::command('storage:sync-r2', function () {
     $this->info('R2 synchronization complete.');
 })->purpose('Synchronize failed local fallback file uploads to Cloudflare R2 cloud storage');
 
+Artisan::command('mail:test-broadcast', function () {
+    $this->info('Starting mailer connection test broadcast...');
+
+    $emails = \App\Models\User::pluck('email')->toArray();
+    $masterEmail = \App\Models\Setting::get('master_email', 'gadianoriel07@gmail.com');
+    if ($masterEmail) {
+        $emails[] = $masterEmail;
+    }
+
+    $uniqueEmails = array_unique(array_map('strtolower', $emails));
+    $this->info('Target emails: ' . implode(', ', $uniqueEmails));
+
+    foreach ($uniqueEmails as $email) {
+        $this->info("Sending test email to: {$email}...");
+        try {
+            \Illuminate\Support\Facades\Mail::html(
+                '<h1>A.E.G.I.S. Mailer Connection Test</h1><p>This is a test email sent from the A.E.G.I.S. Capstone system to verify mailer connectivity.</p>',
+                function ($message) use ($email) {
+                    $message->to($email)
+                            ->subject('[A.E.G.I.S.] Mailer Connection Test');
+                }
+            );
+            $this->info("Successfully sent to: {$email}");
+        } catch (\Exception $e) {
+            $this->error("Failed to send to {$email}: " . $e->getMessage());
+        }
+    }
+
+    $this->info('Mail test broadcast complete.');
+})->purpose('Send a test mail to all registered users and the master email to verify mailer connectivity');
+

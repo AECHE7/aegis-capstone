@@ -590,4 +590,12 @@ To transition the project from its current MVP setup to a robust, production-rea
   5. **Cloud Storage Fallback & Sync**: Updated `CloudStorageService::upload` to write files to local storage and return `is_synced = false` on S3/R2 upload failures. Added database migrations adding `is_synced` to documents and custom application fields, and created an Artisan command `storage:sync-r2` scheduled to run hourly to synchronize fallback files to R2.
   6. **Feature Verification**: Added `EmergencyRecoveryTest.php` validating all fallback routes, retry backoffs, and command sync operations. All 167 tests passed (652 assertions).
 
+### Phase 59: Dummy MFA Bypasses & Director (SuperAdmin) Invitation Support - [COMPLETED]
+- **Goal:** Enable MFA bypasses for dummy testing accounts (`admin@clsu.edu.ph`, `director@clsu.edu.ph`) and add Director (SuperAdmin) role invitations with personal domain support for seamless client hand-off.
+- **Steps:**
+  1. **Dummy MFA Bypass**: Modified `AuthController.php` to identify dummy admin and director accounts, setting `$isDummyAdminAccount` to true on match, bypassing MFA prompts.
+  2. **SuperAdmin (Director) Invitations**: Added role selection dropdown in the superadmin staff invitation modal (`resources/views/superadmin/staff.blade.php`). Standardized Javascript toggles to show/hide scholarship checklist items based on role choice.
+  3. **Domain Exception Guard**: Updated `inviteStaff` in `SuperAdminController.php` to dynamically bypass the institutional `@clsu.edu.ph` / `@clsu2.edu.ph` email domain restriction specifically for `superadmin` role invitations, allowing external clients to accept and assume the Director's role.
+  4. **Feature Verification**: Added test coverage in `StaffInvitationTest.php` asserting Director invitations using personal emails and dummy MFA bypasses. All tests passed.
+
 

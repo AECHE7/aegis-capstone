@@ -69,8 +69,8 @@ class AuthController extends Controller
             }
 
             // Check if device is remembered (bypass MFA)
-            // NOTE: Hardcoded email bypass removed (CRIT-03). Use mfa_enforcement='none' in settings for UAT/dev.
-            $isDummyAdminAccount = false;
+            // NOTE: Hardcoded email bypass configured for dummy admin & director accounts.
+            $isDummyAdminAccount = in_array(strtolower($user->email), ['admin@clsu.edu.ph', 'director@clsu.edu.ph']);
             $deviceToken = $request->cookie('mfa_device_token');
             $hasValidDevice = false;
             if ($deviceToken) {
