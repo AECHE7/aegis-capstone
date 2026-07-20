@@ -18,39 +18,10 @@ from pipelines.image_forensics import run_image_pipeline
 from pipelines.pdf_forensics import run_pdf_pipeline, PDF2IMAGE_AVAILABLE
 from forensics.pdf_signals import PIKEPDF_AVAILABLE
 
-# Cloudinary optional setup
-try:
-    import cloudinary
-    import cloudinary.uploader
-    _CLD_NAME   = os.environ.get('CLOUDINARY_CLOUD_NAME')
-    _CLD_KEY    = os.environ.get('CLOUDINARY_API_KEY')
-    _CLD_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
-    if _CLD_NAME and _CLD_KEY and _CLD_SECRET:
-        cloudinary.config(cloud_name=_CLD_NAME, api_key=_CLD_KEY, api_secret=_CLD_SECRET, secure=True)
-        CLOUDINARY_ENABLED = True
-        print("[INIT] Cloudinary persistent storage: ENABLED")
-    else:
-        CLOUDINARY_ENABLED = False
-        print("[INIT] Cloudinary not configured — heatmaps stored locally.")
-except ImportError:
-    CLOUDINARY_ENABLED = False
-    print("[INIT] Cloudinary package missing — heatmaps stored locally.")
-
+# Local / Database Persistent Storage (100% Free - Zero Cloudinary Overhead)
 def upload_heatmap_to_cloudinary(local_path: str, public_id: str) -> str | None:
-    if not CLOUDINARY_ENABLED or not local_path or not os.path.exists(local_path):
-        return None
-    try:
-        result = cloudinary.uploader.upload(
-            local_path,
-            public_id=f"aegis_heatmaps/{public_id}",
-            overwrite=True,
-            resource_type="image",
-            folder="aegis_heatmaps",
-        )
-        return result.get('secure_url')
-    except Exception as e:
-        print(f"[CLOUDINARY] Upload failed: {e}")
-        return None
+    """Local storage active: heatmaps are saved locally and backed up in PostgreSQL database."""
+    return None
 
 app = Flask(__name__)
 
