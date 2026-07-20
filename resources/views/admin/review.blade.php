@@ -271,7 +271,7 @@
                         <div class="rounded-3 p-3 small" style="background: var(--clsu-bg); border: 1px solid var(--border-color);">
                             <div class="d-flex justify-content-between mb-2">
                                 <span style="color:var(--text-main);opacity:0.7;">Architecture</span>
-                                <span class="fw-semibold">EfficientNet-B4 CNN</span>
+                                <span class="fw-semibold">Multi-Signal Multi-Tile CNN</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span style="color:var(--text-main);opacity:0.7;">Preprocessing</span>

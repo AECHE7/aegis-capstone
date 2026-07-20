@@ -134,6 +134,34 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
     return patch_detected, max_risk, target_box, heatmap_img
 
 
+def inspect_font_stroke_consistency(original_path: str) -> bool:
+    """
+    Measures text font stroke thickness & edge anti-aliasing consistency across table rows using Canny edge analysis.
+    Returns True if an abnormal font stroke or anti-aliasing mismatch is detected.
+    """
+    if not os.path.exists(original_path):
+        return False
+    
+    orig = cv2.imread(original_path, cv2.IMREAD_GRAYSCALE)
+    if orig is None:
+        return False
+        
+    edges = cv2.Canny(orig, 50, 150)
+    h, w = edges.shape
+    
+    # Focus on table region
+    table_region = edges[int(h*0.15):int(h*0.85), int(w*0.1):int(w*0.9)]
+    if table_region.size == 0:
+        return False
+        
+    row_edge_densities = np.mean(table_region, axis=1)
+    std_density = np.std(row_edge_densities)
+    mean_density = np.mean(row_edge_densities) + 1e-5
+    
+    variance_ratio = std_density / mean_density
+    return bool(variance_ratio >= 1.85 and np.max(row_edge_densities) >= 45.0)
+
+
 def run_image_pipeline(
     original_path: str,
     ela_path: str,
@@ -157,6 +185,11 @@ def run_image_pipeline(
     patch_detected, patch_risk, patch_box, patch_heatmap = detect_ela_patch_anomalies(ela_path, original_path)
     if patch_detected:
         indicators.append("copy_paste_patch_detected")
+
+    # 4. Perform Font Stroke & Anti-Aliasing Consistency Inspection
+    if inspect_font_stroke_consistency(original_path):
+        indicators.append("font_stroke_discrepancy")
+        patch_risk = max(patch_risk, 78.50)
 
     # 4. Model Inference or Fallback Check
     if not TENSORFLOW_AVAILABLE or model is None:
