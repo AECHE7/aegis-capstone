@@ -214,8 +214,29 @@ def run_image_pipeline(
     # Real Trained Model Inference
     ela_img = cv2.imread(ela_path)
     ela_img = cv2.cvtColor(ela_img, cv2.COLOR_BGR2RGB)
-    ela_resized = cv2.resize(ela_img, (224, 224))
-    img_array = preprocess_input(np.expand_dims(ela_resized, axis=0).astype(np.float32))
+
+    # Detect architecture (EfficientNet-B4 vs ResNet-50)
+    is_efficientnet = False
+    last_layer = "conv5_block3_out"
+    if hasattr(model, 'layers'):
+        layer_names = [l.name for l in model.layers]
+        if "top_activation" in layer_names or "block7a_project_conv" in layer_names:
+            is_efficientnet = True
+            last_layer = "top_activation" if "top_activation" in layer_names else "block7a_project_conv"
+
+    input_size = (380, 380) if is_efficientnet else (224, 224)
+    ela_resized = cv2.resize(ela_img, input_size)
+
+    if is_efficientnet:
+        try:
+            from tensorflow.keras.applications.efficientnet import preprocess_input as eff_prep
+            img_array = eff_prep(np.expand_dims(ela_resized, axis=0).astype(np.float32))
+        except ImportError:
+            from tensorflow.keras.applications.resnet50 import preprocess_input as res_prep
+            img_array = res_prep(np.expand_dims(ela_resized, axis=0).astype(np.float32))
+    else:
+        from tensorflow.keras.applications.resnet50 import preprocess_input as res_prep
+        img_array = res_prep(np.expand_dims(ela_resized, axis=0).astype(np.float32))
 
     prediction = model.predict(img_array, verbose=0)[0][0]
     base_fraud_prob = round(float(prediction) * 100, 2)
@@ -236,7 +257,7 @@ def run_image_pipeline(
         if patch_detected and patch_heatmap is not None:
             cv2.imwrite(heatmap_path, patch_heatmap)
         else:
-            heatmap = get_gradcam_heatmap(img_array, model)
+            heatmap = get_gradcam_heatmap(img_array, model, last_conv_layer_name=last_layer)
             weighted_heatmap = heatmap * (fraud_probability / 100.0)
             
             original_img = cv2.imread(original_path)
@@ -252,6 +273,7 @@ def run_image_pipeline(
     except Exception as e:
         print(f"[IMAGE_PIPELINE] Grad-CAM generation warning: {e}")
 
+    model_name = "aegis_efficientnet_b4" if is_efficientnet else "aegis_resnet50_v2"
     return {
         "status": "success",
         "pipeline": "image_forensics",
@@ -260,8 +282,8 @@ def run_image_pipeline(
         "extracted_gwa": extracted_gwa,
         "anomaly_indicators": indicators,
         "model": {
-            "name": "aegis_resnet50_v2",
-            "version": "2.0.0",
+            "name": model_name,
+            "version": "3.0.0" if is_efficientnet else "2.0.0",
             "mode": "trained"
         },
         "paths": {

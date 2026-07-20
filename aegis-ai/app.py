@@ -28,22 +28,24 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'temp_uploads'
 ELA_FOLDER = 'ela_outputs'
 HEATMAP_FOLDER = 'heatmap_outputs'
-MODEL_PATH = os.environ.get('MODEL_PATH', 'aegis_resnet50_v1.keras')
+# Model Weights Search (EfficientNet-B4 default, ResNet-50 fallback)
+DEFAULT_MODEL = 'aegis_efficientnet_b4.keras' if os.path.exists('aegis_efficientnet_b4.keras') else 'aegis_resnet50_v1.keras'
+MODEL_PATH = os.environ.get('MODEL_PATH', DEFAULT_MODEL)
 ALLOW_SIMULATION = os.environ.get('ALLOW_SIMULATION', 'false').lower() == 'true' or os.environ.get('AEGIS_AI_ALLOW_SIMULATION', 'false').lower() == 'true'
 
 for folder in [UPLOAD_FOLDER, ELA_FOLDER, HEATMAP_FOLDER]:
     os.makedirs(folder, exist_ok=True)
 
-# Load ResNet-50 Model Globally
+# Load AI Classification Model Globally
 model = None
 if TENSORFLOW_AVAILABLE:
     if os.path.exists(MODEL_PATH):
         try:
-            print(f"[INIT] Loading A.E.G.I.S. ResNet-50 Model from {MODEL_PATH}...")
+            print(f"[INIT] Loading A.E.G.I.S. Visual AI Model from {MODEL_PATH}...")
             model = tf.keras.models.load_model(MODEL_PATH)
             print("[INIT] Model Loaded Successfully!")
         except Exception as e:
-            print(f"[INIT] Error loading model weights: {e}")
+            print(f"[INIT] Error loading model weights from {MODEL_PATH}: {e}")
             model = None
     else:
         print(f"[INIT] Model weights file '{MODEL_PATH}' not found.")
