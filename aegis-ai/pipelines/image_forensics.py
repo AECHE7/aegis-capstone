@@ -65,7 +65,7 @@ def get_gradcam_heatmap(img_array, model, last_conv_layer_name="conv5_block3_out
 
 def detect_ela_patch_anomalies(ela_path: str, original_path: str):
     """
-    Scans ELA difference matrix for localized copy-paste / whiteout box patches.
+    Scans ELA difference matrix for localized copy-paste / whiteout box patches using contiguous tile variance analysis.
     Returns (patch_detected: bool, max_risk_score: float, patch_box: tuple|None, heatmap_img: np.ndarray|None)
     """
     if not os.path.exists(ela_path) or not os.path.exists(original_path):
@@ -81,7 +81,7 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
     grid_rows, grid_cols = 16, 16
     tile_h, tile_w = h // grid_rows, w // grid_cols
     
-    tile_means = []
+    tile_stds = []
     tile_coords = []
     
     for r in range(grid_rows):
@@ -89,64 +89,46 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
             y1, y2 = r * tile_h, (r + 1) * tile_h
             x1, x2 = c * tile_w, (c + 1) * tile_w
             tile = ela_gray[y1:y2, x1:x2]
-            mean_val = float(np.mean(tile))
-            tile_means.append(mean_val)
+            std_val = float(np.std(tile))
+            tile_stds.append(std_val)
             tile_coords.append((x1, y1, x2, y2))
             
-    global_mean = float(np.mean(tile_means))
-    global_std = float(np.std(tile_means)) + 1e-5
+    global_mean_std = float(np.mean(tile_stds))
+    global_std_std = float(np.std(tile_stds)) + 1e-5
     
-    # Identify tiles exceeding 3.0 standard deviations from global mean
+    # Identify localized cluster tiles exceeding 4.5 standard deviations (sharp localized manipulation boundary)
     outlier_boxes = []
     max_z = 0.0
-    for idx, mean_val in enumerate(tile_means):
-        z_score = (mean_val - global_mean) / global_std
-        if z_score >= 3.0 and mean_val >= 25.0:
+    for idx, std_val in enumerate(tile_stds):
+        z_score = (std_val - global_mean_std) / global_std_std
+        if z_score >= 4.5 and std_val >= 35.0:
             outlier_boxes.append(tile_coords[idx])
             if z_score > max_z:
                 max_z = z_score
 
-    # Also scan for rectangular whiteout / patch contours in ELA image
-    _, thresh = cv2.threshold(ela_gray, 80, 255, cv2.THRESH_BINARY)
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
     patch_detected = False
     max_risk = 0.0
     target_box = None
 
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        # Target rectangular patches between 0.05% and 15% of image size (e.g. whiteout boxes over grades)
-        if (h * w * 0.0005) <= area <= (h * w * 0.15):
-            x, y, bw, bh = cv2.boundingRect(cnt)
-            aspect_ratio = float(bw) / bh if bh > 0 else 0
-            if 0.4 <= aspect_ratio <= 14.0:
-                patch_detected = True
-                max_risk = max(max_risk, 88.50)
-                target_box = (x, y, bw, bh)
-                break
-
-    if len(outlier_boxes) >= 2 and not patch_detected:
+    # Require at least 3 contiguous outlier tiles to confirm a localized copy-paste / whiteout patch
+    if len(outlier_boxes) >= 3:
         patch_detected = True
-        max_risk = min(95.0, round(55.0 + (max_z * 8.0), 2))
+        max_risk = min(96.0, round(65.0 + (max_z * 5.0), 2))
         x1 = min(b[0] for b in outlier_boxes)
         y1 = min(b[1] for b in outlier_boxes)
         x2 = max(b[2] for b in outlier_boxes)
         y2 = max(b[3] for b in outlier_boxes)
         target_box = (x1, y1, x2 - x1, y2 - y1)
 
-    # Generate heatmap highlighting the patch
     heatmap_img = None
     if patch_detected and target_box:
         heatmap_img = orig_img.copy()
         x, y, bw, bh = target_box
-        # Create a localized red glow around the detected patch bounding box
         mask = np.zeros((h, w), dtype=np.uint8)
         cv2.rectangle(mask, (x, y), (x + bw, y + bh), 255, -1)
         mask_blur = cv2.GaussianBlur(mask, (35, 35), 0)
         color_mask = cv2.applyColorMap(mask_blur, cv2.COLORMAP_JET)
         heatmap_img = cv2.addWeighted(orig_img, 0.55, color_mask, 0.45, 0)
-        # Draw clean red boundary line around tampered patch
         cv2.rectangle(heatmap_img, (x, y), (x + bw, y + bh), (0, 0, 255), 2)
 
     return patch_detected, max_risk, target_box, heatmap_img
