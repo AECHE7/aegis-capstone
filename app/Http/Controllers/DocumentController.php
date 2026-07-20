@@ -102,11 +102,12 @@ class DocumentController extends Controller
         }
 
         if (str_starts_with($path, 'http')) {
-            return redirect($path);
+            return $this->proxyRemoteFile($path, 'Heatmap Stream Failed', 'Could not stream the Grad-CAM heatmap overlay. Please retry.');
         }
 
         $aiUrl = rtrim(config('services.ai.url'), '/');
-        return redirect($aiUrl . '/heatmap/' . basename($path));
+        $fullHeatmapUrl = $aiUrl . '/heatmap/' . basename($path);
+        return $this->proxyRemoteFile($fullHeatmapUrl, 'Heatmap Stream Failed', 'Could not stream the Grad-CAM heatmap overlay from AI microservice.');
     }
 
     /**

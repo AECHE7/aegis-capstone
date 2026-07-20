@@ -45,9 +45,9 @@ class SecurityHeaders
                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " .
                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " .
                "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " .
-               "img-src 'self' data: https://res.cloudinary.com https://placehold.co; " .
-               "frame-src 'self' data: https://res.cloudinary.com https://placehold.co; " .
-               "connect-src 'self' https://cdn.jsdelivr.net; " .
+               "img-src 'self' data: https://*.hf.space https://xyoul-aegis-ai.hf.space https://res.cloudinary.com https://placehold.co; " .
+               "frame-src 'self' data: https://*.hf.space https://xyoul-aegis-ai.hf.space https://res.cloudinary.com https://placehold.co; " .
+               "connect-src 'self' https://cdn.jsdelivr.net https://*.hf.space https://xyoul-aegis-ai.hf.space; " .
                "frame-ancestors 'self';";
 
         $response->headers->set('Content-Security-Policy', $csp);
