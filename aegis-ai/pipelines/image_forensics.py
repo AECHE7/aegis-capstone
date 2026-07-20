@@ -33,7 +33,8 @@ def generate_ela(img_path: str, output_path: str, quality: int = 95) -> str:
     if max_diff == 0:
         max_diff = 1
     
-    scale = 255.0 / max_diff
+    # Cap scale multiplier to 12.0x max to prevent amplifying minor 1-pixel noise on authentic files
+    scale = min(255.0 / max_diff, 12.0)
     ela_image = ImageEnhance.Brightness(ela_image).enhance(scale)
     ela_image.save(output_path)
     if os.path.exists(temp_filename):
@@ -86,9 +87,9 @@ def run_image_pipeline(
         if not allow_simulation:
             raise RuntimeError("ResNet-50 AI model weights are not loaded. Fail-closed security active.")
         
-        # Simulation Mode (dev only)
+        # Simulation Mode (dev fallback)
         filename_lower = os.path.basename(original_path).lower()
-        if 'forged' in filename_lower or 'tamp' in filename_lower:
+        if 'forged' in filename_lower or 'tamp' in filename_lower or 'fake' in filename_lower:
             fraud_probability = round(float(np.random.uniform(70.0, 98.0)), 2)
             classification = "Tampered"
             indicators.append("high_ela_energy")
@@ -98,15 +99,20 @@ def run_image_pipeline(
 
         original_img = cv2.imread(original_path)
         if original_img is not None:
-            h, w, c = original_img.shape
-            overlay = original_img.copy()
             if classification == "Tampered":
-                cv2.circle(overlay, (int(w * 0.75), int(h * 0.85)), int(min(h, w) * 0.15), (0, 0, 255), -1)
-                cv2.addWeighted(overlay, 0.4, original_img, 0.6, 0, original_img)
+                # Highlight actual high-energy ELA difference pixels
+                ela_img = cv2.imread(ela_path, cv2.IMREAD_GRAYSCALE)
+                if ela_img is not None:
+                    ela_resized = cv2.resize(ela_img, (original_img.shape[1], original_img.shape[0]))
+                    _, thresh = cv2.threshold(ela_resized, 120, 255, cv2.THRESH_BINARY)
+                    heatmap_color = cv2.applyColorMap(thresh, cv2.COLORMAP_JET)
+                    superimposed = cv2.addWeighted(original_img, 0.6, heatmap_color, 0.4, 0)
+                    cv2.imwrite(heatmap_path, superimposed)
+                else:
+                    cv2.imwrite(heatmap_path, original_img)
             else:
-                cv2.circle(overlay, (int(w / 2), int(h / 2)), int(min(h, w) * 0.1), (0, 255, 0), -1)
-                cv2.addWeighted(overlay, 0.1, original_img, 0.9, 0, original_img)
-            cv2.imwrite(heatmap_path, original_img)
+                # Authentic document: Clean image with zero red blobs
+                cv2.imwrite(heatmap_path, original_img)
 
         return {
             "status": "success",
@@ -139,15 +145,24 @@ def run_image_pipeline(
     if fraud_probability >= 50.0:
         indicators.append("high_ela_energy")
 
-    # Grad-CAM heatmap generation
+    # Grad-CAM heatmap generation weighted by predicted fraud probability
     try:
         heatmap = get_gradcam_heatmap(img_array, model)
+        # Scale heatmap maximum intensity by (fraud_probability / 100.0)
+        # If low fraud (<30%), intensity is capped so NO red/yellow blobs appear
+        weighted_heatmap = heatmap * (fraud_probability / 100.0)
+        
         original_img = cv2.imread(original_path)
-        heatmap_resized = cv2.resize(heatmap, (original_img.shape[1], original_img.shape[0]))
+        heatmap_resized = cv2.resize(weighted_heatmap, (original_img.shape[1], original_img.shape[0]))
         heatmap_resized = np.uint8(255 * heatmap_resized)
-        jet_heatmap = cv2.applyColorMap(heatmap_resized, cv2.COLORMAP_JET)
-        superimposed_img = cv2.addWeighted(original_img, 0.6, jet_heatmap, 0.4, 0)
-        cv2.imwrite(heatmap_path, superimposed_img)
+        
+        if fraud_probability < 35.0:
+            # Low risk: clean image without red/yellow distortion
+            cv2.imwrite(heatmap_path, original_img)
+        else:
+            jet_heatmap = cv2.applyColorMap(heatmap_resized, cv2.COLORMAP_JET)
+            superimposed_img = cv2.addWeighted(original_img, 0.6, jet_heatmap, 0.4, 0)
+            cv2.imwrite(heatmap_path, superimposed_img)
     except Exception as e:
         print(f"[IMAGE_PIPELINE] Grad-CAM generation warning: {e}")
 
