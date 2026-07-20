@@ -116,13 +116,27 @@ class ScanDocumentJob implements ShouldQueue
                         }
                     }
 
+                    $anomalyIndicators = $result['anomaly_indicators'] ?? [];
+
+                    // Run native EXIF metadata inspection for image uploads
+                    $ext = strtolower(pathinfo($document->original_name, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'tif', 'tiff']) && !empty($actualPath)) {
+                        $exifRes = \App\Services\ImageExifInspector::inspect($actualPath);
+                        if (!empty($exifRes['indicators'])) {
+                            $anomalyIndicators = array_values(array_unique(array_merge($anomalyIndicators, $exifRes['indicators'])));
+                        }
+                        if ($exifRes['risk_score'] > 0) {
+                            $fraudProbability = min(100.0, max($fraudProbability, $exifRes['risk_score']));
+                        }
+                    }
+
                     AIResult::updateOrCreate(
                         ['document_id' => $document->id],
                         [
                             'fraud_probability' => $fraudProbability,
                             'classification' => $classification,
                             'heatmap_path' => $result['paths']['heatmap_path'] ?? null,
-                            'anomaly_indicators' => $result['anomaly_indicators'] ?? [],
+                            'anomaly_indicators' => $anomalyIndicators,
                         ]
                     );
                 } else {
