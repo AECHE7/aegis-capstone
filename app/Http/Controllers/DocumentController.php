@@ -95,19 +95,49 @@ class DocumentController extends Controller
             $aiResult->document->application->scholarship_id ?? null
         );
 
+        // 1. Database Persistence Check: Stream base64 heatmap directly from PostgreSQL if present
+        if (!empty($aiResult->heatmap_data)) {
+            $binary = base64_decode($aiResult->heatmap_data);
+            return response($binary, 200, [
+                'Content-Type'        => 'image/jpeg',
+                'Content-Disposition' => 'inline; filename="heatmap_' . $id . '.jpg"'
+            ]);
+        }
+
         $path = $aiResult->heatmap_path;
 
-        if (empty($path)) {
-            return redirect('https://placehold.co/600x800?text=Scan+Failed+Placeholder');
+        if (!empty($path)) {
+            if (str_starts_with($path, 'http')) {
+                try {
+                    $res = \Illuminate\Support\Facades\Http::timeout(10)->get($path);
+                    if ($res->successful()) {
+                        return response($res->body(), 200, [
+                            'Content-Type'        => $res->header('Content-Type') ?? 'image/jpeg',
+                            'Content-Disposition' => 'inline; filename="heatmap_' . $id . '.jpg"'
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning("Remote heatmap stream failed for URL {$path}: " . $e->getMessage());
+                }
+            }
+
+            $aiUrl = rtrim(config('services.ai.url'), '/');
+            $fullHeatmapUrl = $aiUrl . '/heatmap/' . basename($path);
+            try {
+                $res = \Illuminate\Support\Facades\Http::timeout(10)->get($fullHeatmapUrl);
+                if ($res->successful()) {
+                    return response($res->body(), 200, [
+                        'Content-Type'        => $res->header('Content-Type') ?? 'image/jpeg',
+                        'Content-Disposition' => 'inline; filename="heatmap_' . $id . '.jpg"'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("AI microservice heatmap stream failed for URL {$fullHeatmapUrl}: " . $e->getMessage());
+            }
         }
 
-        if (str_starts_with($path, 'http')) {
-            return $this->proxyRemoteFile($path, 'Heatmap Stream Failed', 'Could not stream the Grad-CAM heatmap overlay. Please retry.');
-        }
-
-        $aiUrl = rtrim(config('services.ai.url'), '/');
-        $fullHeatmapUrl = $aiUrl . '/heatmap/' . basename($path);
-        return $this->proxyRemoteFile($fullHeatmapUrl, 'Heatmap Stream Failed', 'Could not stream the Grad-CAM heatmap overlay from AI microservice.');
+        // 2. Graceful Fallback: Stream original document file instead of throwing 500 error!
+        return $this->view($id);
     }
 
     /**

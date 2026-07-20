@@ -121,12 +121,15 @@ def analyze_document():
         else:
             return jsonify({"error": f"Unsupported file extension: {original_ext}"}), 400
 
-        # Upload generated heatmap to Cloudinary if available
+        # Base64-encode generated heatmap image for 100% free database persistence in PostgreSQL
         h_path = result.get('paths', {}).get('heatmap_path')
         if h_path and os.path.exists(h_path):
-            cloud_url = upload_heatmap_to_cloudinary(h_path, f"{file_uuid}_heatmap")
-            if cloud_url:
-                result['paths']['heatmap_path'] = cloud_url
+            try:
+                import base64
+                with open(h_path, 'rb') as hf:
+                    result['heatmap_base64'] = base64.b64encode(hf.read()).decode('utf-8')
+            except Exception as he:
+                print(f"[ANALYZE] Heatmap base64 encoding warning: {he}")
 
         # Clean up uploaded raw file to free disk space
         if os.path.exists(original_path):

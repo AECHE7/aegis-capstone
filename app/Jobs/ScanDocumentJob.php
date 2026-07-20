@@ -137,9 +137,10 @@ class ScanDocumentJob implements ShouldQueue
                     AIResult::updateOrCreate(
                         ['document_id' => $document->id],
                         [
-                            'fraud_probability' => $fraudProbability,
-                            'classification' => $classification,
-                            'heatmap_path' => $result['paths']['heatmap_path'] ?? null,
+                            'fraud_probability'  => $fraudProbability,
+                            'classification'     => $classification,
+                            'heatmap_path'       => $result['paths']['heatmap_path'] ?? null,
+                            'heatmap_data'       => $result['heatmap_base64'] ?? null,
                             'anomaly_indicators' => $anomalyIndicators,
                         ]
                     );
