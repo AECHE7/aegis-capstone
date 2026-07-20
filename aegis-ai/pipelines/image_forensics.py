@@ -265,6 +265,32 @@ def run_image_pipeline(
         if lab_heatmap is not None:
             patch_heatmap = lab_heatmap
 
+    # 6. Execute TruFor CNN Noiseprint++ Analysis (grip-unina/TruFor)
+    try:
+        from forensics.trufor_cnn import analyze_trufor_cnn
+        trufor_det, trufor_risk, trufor_box, trufor_hm = analyze_trufor_cnn(original_path)
+        if trufor_det:
+            indicators.append("trufor_noiseprint_anomaly")
+            patch_detected = True
+            patch_risk = max(patch_risk, trufor_risk)
+            if trufor_hm is not None:
+                patch_heatmap = trufor_hm
+    except Exception as te:
+        print(f"[IMAGE_PIPELINE] TruFor CNN warning: {te}")
+
+    # 7. Execute CAT-Net FCN HRNet DCT Analysis (mjkwon2021/CAT-Net)
+    try:
+        from forensics.catnet_cnn import analyze_catnet_fcn
+        cat_det, cat_risk, cat_box, cat_hm = analyze_catnet_fcn(original_path)
+        if cat_det:
+            indicators.append("catnet_dct_compression_anomaly")
+            patch_detected = True
+            patch_risk = max(patch_risk, cat_risk)
+            if cat_hm is not None and patch_heatmap is None:
+                patch_heatmap = cat_hm
+    except Exception as ce:
+        print(f"[IMAGE_PIPELINE] CAT-Net FCN warning: {ce}")
+
     # 6. Model Inference or Deterministic Forensic Fallback
     if not TENSORFLOW_AVAILABLE or model is None:
         print("[IMAGE_PIPELINE] TensorFlow model unavailable. Executing Deterministic CLAHE LAB + ELA Multi-Signal Forensic Engine...")
