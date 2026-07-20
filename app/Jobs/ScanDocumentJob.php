@@ -54,6 +54,7 @@ class ScanDocumentJob implements ShouldQueue
             } else {
                 if (Storage::disk('local')->exists($path)) {
                     $fileContents = Storage::disk('local')->get($path);
+                    $actualPath = Storage::disk('local')->path($path);
                 } else {
                     $pathsToTry = [
                         public_path($path),

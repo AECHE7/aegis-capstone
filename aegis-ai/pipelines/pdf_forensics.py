@@ -107,10 +107,9 @@ def run_pdf_pipeline(
     max_visual_fraud = max(page_fraud_probs) if page_fraud_probs else 0.0
     pdf_report["max_page_fraud"] = max_visual_fraud
 
-    # 4. Weighted Risk Fusion Calculation
-    # Formula: 0.35 * Structural Risk + 0.65 * Visual Max Fraud
+    # 4. Maximum Risk Fusion Calculation (Ensures visual or structural forgeries are never diluted)
     fusion_fraud_prob = round(
-        min(100.0, max(0.0, (0.35 * structural_risk) + (0.65 * max_visual_fraud))),
+        min(100.0, max(structural_risk, max_visual_fraud)),
         2
     )
 
