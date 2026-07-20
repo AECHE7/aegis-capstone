@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: aegis-capstone
+    env: docker
+    plan: free
+    region: singapore
+    branch: staging
+    dockerfilePath: Dockerfile
+    healthCheckPath: /api/health-check
+    disk:
+      name: aegis_uploads_disk
+      mountPath: /var/www/html/storage/app
+      sizeGB: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "true"
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: FILESYSTEM_DISK
+        value: public
+      # Cloudflare R2 Persistent Storage (Zero-Cost Cloud Storage)
+      - key: CLOUDFLARE_R2_ACCESS_KEY_ID
+        sync: false
+      - key: CLOUDFLARE_R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: CLOUDFLARE_R2_BUCKET
+        sync: false
+      - key: CLOUDFLARE_R2_ENDPOINT
+        sync: false
+      - key: CLOUDFLARE_R2_URL
+        sync: false
