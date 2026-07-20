@@ -115,7 +115,7 @@
 @endpush
 
 @section('content')
-<div class="container" style="max-width: 900px; padding: 1.5rem 1rem 3rem;">
+<div class="container" style="max-width: 1050px; padding: 1.5rem 1rem 3rem;">
 
     <div class="text-center mb-5">
         <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--clsu-green),#16703f);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 20px rgba(15,89,52,0.25);">
@@ -271,13 +271,14 @@
                     container.style.display = 'block';
                     fields.forEach(field => {
                         const formGroup = document.createElement('div');
-                        // Use 2-column grid layout for desktop, full-width for textareas
-                        formGroup.className = (field.field_type === 'textarea') ? 'col-12 mb-3 text-start' : 'col-md-6 mb-3 text-start';
+                        // Use full 12-column width for file uploads, textareas, or long field labels
+                        const isFullWidth = (field.field_type === 'textarea' || field.field_type === 'file' || (field.field_label && field.field_label.length > 35));
+                        formGroup.className = isFullWidth ? 'col-12 mb-3 text-start' : 'col-md-6 mb-3 text-start';
                         
                         const uniqueId = `custom_field_${field.field_name}`;
                         
                         const label = document.createElement('label');
-                        label.className = 'form-label fw-semibold small text-muted mb-1';
+                        label.className = 'form-label fw-semibold small text-dark mb-1';
                         label.setAttribute('for', uniqueId);
                         label.innerHTML = field.field_label;
                         if (field.is_required) {
@@ -289,11 +290,11 @@
                         
                         if (field.field_type === 'textarea') {
                             input = document.createElement('textarea');
-                            input.className = 'form-control';
+                            input.className = 'form-control shadow-sm';
                             input.rows = 3;
                         } else if (field.field_type === 'select') {
                             input = document.createElement('select');
-                            input.className = 'form-select';
+                            input.className = 'form-select shadow-sm';
                             
                             const defaultOpt = document.createElement('option');
                             defaultOpt.value = '';
@@ -311,7 +312,7 @@
                         } else if (field.field_type === 'file') {
                             input = document.createElement('input');
                             input.type = 'file';
-                            input.className = 'form-control';
+                            input.className = 'form-control shadow-sm p-2 bg-white';
                             input.accept = 'image/*,application/pdf';
                         } else if (field.field_type === 'number') {
                             input = document.createElement('input');
