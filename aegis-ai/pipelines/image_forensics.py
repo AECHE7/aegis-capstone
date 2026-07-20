@@ -110,14 +110,19 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
     max_risk = 0.0
     target_box = None
 
-    # Catch single-cell or multi-cell table grade edits (>= 1 outlier tile)
+    # Filter outlier boxes: Pick top 2 most intense anomalous tiles to prevent wrapping entire table
     if len(outlier_boxes) >= 1:
         patch_detected = True
         max_risk = min(96.0, round(72.0 + (max_z * 7.5), 2))
-        x1 = min(b[0] for b in outlier_boxes)
-        y1 = min(b[1] for b in outlier_boxes)
-        x2 = max(b[2] for b in outlier_boxes)
-        y2 = max(b[3] for b in outlier_boxes)
+        
+        # Sort outlier boxes by proximity and isolate micro-crop
+        outlier_boxes.sort(key=lambda b: (b[2] * b[3]), reverse=True)
+        top_boxes = outlier_boxes[:2]
+        
+        x1 = min(b[0] for b in top_boxes)
+        y1 = min(b[1] for b in top_boxes)
+        x2 = max(b[2] for b in top_boxes)
+        y2 = max(b[3] for b in top_boxes)
         target_box = (x1, y1, x2 - x1, y2 - y1)
 
     heatmap_img = None
@@ -126,9 +131,9 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
         x, y, bw, bh = target_box
         mask = np.zeros((h, w), dtype=np.uint8)
         cv2.rectangle(mask, (x, y), (x + bw, y + bh), 255, -1)
-        mask_blur = cv2.GaussianBlur(mask, (35, 35), 0)
+        mask_blur = cv2.GaussianBlur(mask, (25, 25), 0)
         color_mask = cv2.applyColorMap(mask_blur, cv2.COLORMAP_JET)
-        heatmap_img = cv2.addWeighted(orig_img, 0.55, color_mask, 0.45, 0)
+        heatmap_img = cv2.addWeighted(orig_img, 0.60, color_mask, 0.40, 0)
         cv2.rectangle(heatmap_img, (x, y), (x + bw, y + bh), (0, 0, 255), 3)
 
     return patch_detected, max_risk, target_box, heatmap_img
@@ -171,28 +176,27 @@ def detect_clahe_lab_anomalies(original_path: str):
         x, y, bw, bh = cv2.boundingRect(c)
         area = bw * bh
         aspect_ratio = float(bw) / bh if bh > 0 else 0
-        # Search for table cell boxes or grade row patches (area 80 to 20% of page)
-        if 80 <= area <= (w * h * 0.20) and 0.4 <= aspect_ratio <= 12.0:
+        # Restrict to individual cell size (area 80px to max 4% of page) to prevent wrapping entire table
+        if 80 <= area <= (w * h * 0.04) and 0.5 <= aspect_ratio <= 8.0:
             patch_crop = cl[y:y+bh, x:x+bw]
             if patch_crop.size > 0:
                 mean_val = float(np.mean(patch_crop))
                 std_val = float(np.std(patch_crop))
-                # Detect high-contrast boundary or erased blank box inside table cell
-                if std_val < 22.0 or mean_val > 240.0:
-                    outlier_boxes.append((x, y, bw, bh))
+                # Detect high-contrast boundary or erased blank box inside specific table cell
+                if std_val < 18.0 or mean_val > 245.0:
+                    outlier_boxes.append((x, y, bw, bh, std_val))
 
     if len(outlier_boxes) >= 1:
-        x1 = min(b[0] for b in outlier_boxes)
-        y1 = min(b[1] for b in outlier_boxes)
-        x2 = max(b[0] + b[2] for b in outlier_boxes)
-        y2 = max(b[1] + b[3] for b in outlier_boxes)
-        bw_c, bh_c = x2 - x1, y2 - y1
+        # Sort by standard deviation (most uniform / flat whiteout patch)
+        outlier_boxes.sort(key=lambda b: b[4])
+        top_cell = outlier_boxes[0]
+        x1, y1, bw_c, bh_c, _ = top_cell
         target_box = (x1, y1, bw_c, bh_c)
 
         heatmap_img = orig_img.copy()
-        cv2.rectangle(heatmap_img, (x1, y1), (x2, y2), (0, 0, 255), 3)
+        cv2.rectangle(heatmap_img, (x1, y1), (x1 + bw_c, y1 + bh_c), (0, 0, 255), 3)
         overlay = heatmap_img.copy()
-        cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 0, 255), -1)
+        cv2.rectangle(overlay, (x1, y1), (x1 + bw_c, y1 + bh_c), (0, 0, 255), -1)
         heatmap_img = cv2.addWeighted(heatmap_img, 0.65, overlay, 0.35, 0)
         return True, 89.50, target_box, heatmap_img
 
