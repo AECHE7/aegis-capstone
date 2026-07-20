@@ -134,6 +134,70 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
     return patch_detected, max_risk, target_box, heatmap_img
 
 
+try:
+    from skimage.metrics import structural_similarity as ssim
+    SKIMAGE_AVAILABLE = True
+except ImportError:
+    SKIMAGE_AVAILABLE = False
+
+
+def detect_clahe_lab_anomalies(original_path: str):
+    """
+    Scans document in CIELAB color space using CLAHE luminance contrast gradient analysis.
+    Detects digital whiteout boxes, covered text patches, and Canva/Paint edits.
+    Returns (lab_detected: bool, risk_score: float, target_box: tuple|None, heatmap_img: np.ndarray|None)
+    """
+    if not os.path.exists(original_path):
+        return False, 0.0, None, None
+
+    orig_img = cv2.imread(original_path)
+    if orig_img is None:
+        return False, 0.0, None, None
+
+    h, w, _ = orig_img.shape
+    lab = cv2.cvtColor(orig_img, cv2.COLOR_BGR2LAB)
+    l_channel, _, _ = cv2.split(lab)
+
+    clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
+    cl = clahe.apply(l_channel)
+
+    blur = cv2.GaussianBlur(cl, (5, 5), 0)
+    thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    outlier_boxes = []
+
+    for c in contours:
+        x, y, bw, bh = cv2.boundingRect(c)
+        area = bw * bh
+        aspect_ratio = float(bw) / bh if bh > 0 else 0
+        # Whiteout boxes over grade text are typically rectangular, area 100 to 15% of page
+        if 100 <= area <= (w * h * 0.15) and 0.5 <= aspect_ratio <= 10.0:
+            patch_crop = cl[y:y+bh, x:x+bw]
+            if patch_crop.size > 0:
+                std_val = float(np.std(patch_crop))
+                # Flat whiteout rectangle signature
+                if std_val < 15.0:
+                    outlier_boxes.append((x, y, bw, bh))
+
+    if len(outlier_boxes) >= 1:
+        x1 = min(b[0] for b in outlier_boxes)
+        y1 = min(b[1] for b in outlier_boxes)
+        x2 = max(b[0] + b[2] for b in outlier_boxes)
+        y2 = max(b[1] + b[3] for b in outlier_boxes)
+        bw_c, bh_c = x2 - x1, y2 - y1
+        target_box = (x1, y1, bw_c, bh_c)
+
+        heatmap_img = orig_img.copy()
+        cv2.rectangle(heatmap_img, (x1, y1), (x2, y2), (0, 0, 255), 3)
+        overlay = heatmap_img.copy()
+        cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 0, 255), -1)
+        heatmap_img = cv2.addWeighted(heatmap_img, 0.7, overlay, 0.3, 0)
+        return True, 88.50, target_box, heatmap_img
+
+    return False, 0.0, None, None
+
+
 def inspect_font_stroke_consistency(original_path: str) -> bool:
     """
     Measures text font stroke thickness & edge anti-aliasing consistency across table rows using Canny edge analysis.
@@ -190,6 +254,15 @@ def run_image_pipeline(
     if inspect_font_stroke_consistency(original_path):
         indicators.append("font_stroke_discrepancy")
         patch_risk = max(patch_risk, 78.50)
+
+    # 5. Perform CLAHE LAB Luminance Contrast Gradient Audit
+    lab_detected, lab_risk, lab_box, lab_heatmap = detect_clahe_lab_anomalies(original_path)
+    if lab_detected:
+        indicators.append("digital_whiteout_box_detected")
+        patch_detected = True
+        patch_risk = max(patch_risk, lab_risk)
+        if lab_heatmap is not None:
+            patch_heatmap = lab_heatmap
 
     # 4. Model Inference or Fallback Check
     if not TENSORFLOW_AVAILABLE or model is None:
