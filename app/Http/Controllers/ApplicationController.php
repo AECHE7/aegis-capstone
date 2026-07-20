@@ -138,10 +138,12 @@ class ApplicationController extends Controller
             $file = $request->file('document');
             $isSynced = true;
             $filePath = \App\Services\CloudStorageService::upload($file, 'uploads', $isSynced);
+            $fileData = base64_encode(file_get_contents($file->getRealPath()));
 
             \App\Models\Document::create([
                 'application_id' => $application->id,
                 'file_path' => $filePath,
+                'file_data' => $fileData,
                 'original_name' => $file->getClientOriginalName(),
                 'document_type' => 'COG',
                 'upload_event' => 'initial',
@@ -159,12 +161,14 @@ class ApplicationController extends Controller
                     if ($request->hasFile('custom_fields.' . $field->field_name)) {
                         $cfile = $request->file('custom_fields.' . $field->field_name);
                         $filePath = \App\Services\CloudStorageService::upload($cfile, 'uploads', $isSynced);
+                        $cfileData = base64_encode(file_get_contents($cfile->getRealPath()));
                         $val = $filePath;
 
                         // Also register in documents table for AI scanning
                         \App\Models\Document::create([
                             'application_id' => $application->id,
                             'file_path' => $filePath,
+                            'file_data' => $cfileData,
                             'original_name' => $cfile->getClientOriginalName(),
                             'document_type' => $field->field_label,
                             'upload_event' => 'initial',

@@ -62,7 +62,21 @@ class DocumentController extends Controller
         }
 
         if (!Storage::disk('local')->exists($path)) {
-            return $this->localFileMissingResponse('This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings.');
+            if (!empty($document->file_data)) {
+                $binary = base64_decode($document->file_data);
+                $ext = strtolower(pathinfo($document->original_name ?? 'file.pdf', PATHINFO_EXTENSION));
+                $mime = match($ext) {
+                    'pdf' => 'application/pdf',
+                    'png' => 'image/png',
+                    'jpg', 'jpeg' => 'image/jpeg',
+                    default => 'application/octet-stream'
+                };
+                return response($binary, 200, [
+                    'Content-Type'        => $mime,
+                    'Content-Disposition' => 'inline; filename="' . ($document->original_name ?? 'document.' . $ext) . '"'
+                ]);
+            }
+            return $this->localFileMissingResponse('This local file was wiped from server memory during redeployment. Please re-upload or contact support.');
         }
 
         return response()->file(Storage::disk('local')->path($path));

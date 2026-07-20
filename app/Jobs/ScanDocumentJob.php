@@ -76,6 +76,10 @@ class ScanDocumentJob implements ShouldQueue
                 }
             }
 
+            if (empty($fileContents) && !empty($document->file_data)) {
+                $fileContents = base64_decode($document->file_data);
+            }
+
             if (empty($fileContents)) {
                 Log::error("ScanDocumentJob failed: File contents empty or missing from disk for Document ID {$document->id}");
                 
