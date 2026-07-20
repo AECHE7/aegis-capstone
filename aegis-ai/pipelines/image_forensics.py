@@ -17,6 +17,12 @@ except ImportError:
 def generate_ela(img_path: str, output_path: str, quality: int = 95) -> str:
     """Stage 1: Error Level Analysis (ELA) Preprocessing."""
     original = Image.open(img_path).convert('RGB')
+    
+    # Pre-scale high-res images (>1280px) for fast sub-second matrix computation
+    max_dim = 1280
+    if original.width > max_dim or original.height > max_dim:
+        original.thumbnail((max_dim, max_dim), Image.Resampling.LANCZOS)
+
     temp_filename = f'temp_{uuid.uuid4()}.jpg'
     original.save(temp_filename, 'JPEG', quality=quality)
     compressed = Image.open(temp_filename)

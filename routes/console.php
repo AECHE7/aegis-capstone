@@ -13,6 +13,18 @@ Schedule::command('backup:run')->daily()->at('02:00');
 Schedule::command('scholarships:close-expired')->daily();
 Schedule::command('storage:sync-r2')->hourly();
 
+// Keep AI microservice container warm in memory (prevents 30s cold-start delays)
+Schedule::call(function () {
+    try {
+        $aiUrl = rtrim(config('services.ai.url'), '/');
+        if (!empty($aiUrl)) {
+            \Illuminate\Support\Facades\Http::timeout(5)->get($aiUrl . '/health');
+        }
+    } catch (\Exception $e) {
+        // Ignore timeouts quietly during scheduled pings
+    }
+})->everyTenMinutes();
+
 Artisan::command('storage:sync-r2', function () {
     $this->info('Starting Cloudflare R2 backup synchronization...');
 

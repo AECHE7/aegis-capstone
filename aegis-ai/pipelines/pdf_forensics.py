@@ -21,7 +21,7 @@ def run_pdf_pipeline(
     temp_folder: str,
     model=None,
     allow_simulation: bool = False,
-    max_pages: int = 2
+    max_pages: int = 1
 ) -> dict:
     """
     Executes Pipeline B for PDF documents.
@@ -52,8 +52,12 @@ def run_pdf_pipeline(
 
     if PDF2IMAGE_AVAILABLE:
         try:
-            # Convert first N pages to PNG images
-            images = convert_from_path(pdf_path, first_page=1, last_page=max_pages)
+            # Fast-Path: Scan Page 1 by default; dynamically scan Page 2 if structural risk >= 30.0
+            effective_max_pages = max_pages
+            if structural_risk >= 30.0 and max_pages == 1:
+                effective_max_pages = 2
+
+            images = convert_from_path(pdf_path, first_page=1, last_page=effective_max_pages)
             pdf_report["pages_scanned"] = len(images)
 
             for i, img in enumerate(images):
