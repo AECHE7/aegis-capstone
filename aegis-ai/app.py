@@ -94,9 +94,10 @@ def analyze_document():
         return jsonify({"error": "File lacks valid extension"}), 400
         
     original_ext = filename_parts[1].lower()
+    heatmap_ext = 'png' if original_ext == 'png' else 'jpg'
     original_path = os.path.join(UPLOAD_FOLDER, f"{file_uuid}.{original_ext}")
     ela_path = os.path.join(ELA_FOLDER, f"{file_uuid}_ela.jpg")
-    heatmap_path = os.path.join(HEATMAP_FOLDER, f"{file_uuid}_heatmap.jpg")
+    heatmap_path = os.path.join(HEATMAP_FOLDER, f"{file_uuid}_heatmap.{heatmap_ext}")
     
     file.save(original_path)
     
