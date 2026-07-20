@@ -24,6 +24,8 @@ Homestead.yaml
 Thumbs.db
 
 # Python / Flask microservice
+__pycache__/
+*.pyc
 aegis-ai/venv/
 aegis-ai/__pycache__/
 aegis-ai/temp_uploads/
