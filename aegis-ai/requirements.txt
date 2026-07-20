@@ -7,4 +7,8 @@ numpy==1.26.4
 gunicorn==22.0.0
 cloudinary==1.40.0
 pypdf==4.2.0
+pikepdf>=9.0.0
+pdf2image>=1.17.0
+pytesseract>=0.3.10
+pdfminer.six>=20231228
 

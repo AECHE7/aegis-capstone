@@ -3,6 +3,9 @@ FROM python:3.11-slim
 # Install system dependencies needed for OpenCV Headless
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
+    poppler-utils \
+    tesseract-ocr \
+    tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up user 1000 for Hugging Face Spaces compatibility

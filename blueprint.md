@@ -596,6 +596,11 @@ To transition the project from its current MVP setup to a robust, production-rea
   1. **Dummy MFA Bypass**: Modified `AuthController.php` to identify dummy admin and director accounts, setting `$isDummyAdminAccount` to true on match, bypassing MFA prompts.
   2. **SuperAdmin (Director) Invitations**: Added role selection dropdown in the superadmin staff invitation modal (`resources/views/superadmin/staff.blade.php`). Standardized Javascript toggles to show/hide scholarship checklist items based on role choice.
   3. **Domain Exception Guard**: Updated `inviteStaff` in `SuperAdminController.php` to dynamically bypass the institutional `@clsu.edu.ph` / `@clsu2.edu.ph` email domain restriction specifically for `superadmin` role invitations, allowing external clients to accept and assume the Director's role.
-  4. **Feature Verification**: Added test coverage in `StaffInvitationTest.php` asserting Director invitations using personal emails and dummy MFA bypasses. All tests passed.
-
-
+### Phase 60: A.E.G.I.S. Dual-Pipeline AI Document Integrity System - [COMPLETED]
+- **Goal:** Replace PDF bypasses and simulation fallbacks with a dual-pipeline document integrity architecture (`pikepdf` structural audit + page rasterization + ResNet-50 ELA visual AI + Tesseract GWA OCR).
+- **Steps:**
+  1. **Forensic Package Dependencies**: Added `pikepdf`, `pdf2image`, `pytesseract`, and `pdfminer.six` to `aegis-ai/requirements.txt` and updated `aegis-ai/Dockerfile` with `poppler-utils`, `tesseract-ocr`, and `tesseract-ocr-eng`.
+  2. **Pipeline A (JPG / PNG Visual AI)**: Built `pipelines/image_forensics.py` executing ELA preprocessing, ResNet-50 visual inference, Grad-CAM heatmap overlay generation, and Tesseract OCR GWA extraction.
+  3. **Pipeline B (PDF Forensics & Fusion)**: Built `forensics/pdf_signals.py` and `pipelines/pdf_forensics.py` performing structural inspection via `pikepdf` (incremental revisions, Photoshop/editor software metadata, date mismatches, embedded scripts) and rasterizing pages (`pdf2image`) to feed into Pipeline A visual AI, computing a weighted risk fusion score.
+  4. **Fail-Closed Security & Flask Gateway**: Refactored `aegis-ai/app.py` into a MIME-based router. Removed hardcoded `Authentic (PDF Bypass)` and enforced HTTP `503` fail-closed responses when simulation mode is disabled (`ALLOW_SIMULATION=false`). Added `/health` diagnostic endpoint.
+  5. **Model Retraining & Verification**: Added `train_model_v2.py` supporting fine-tuned ResNet-50 v2 training and metrics export. Created Python unit test suite `aegis-ai/tests/test_pipelines.py` and verified all 179 Laravel tests pass (716 assertions).
