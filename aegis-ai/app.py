@@ -78,6 +78,21 @@ if TENSORFLOW_AVAILABLE:
         print(f"[INIT] Model weights file '{MODEL_PATH}' not found.")
         model = None
 
+@app.route('/', methods=['GET'])
+def index():
+    """Root homepage endpoint for Hugging Face Space preview."""
+    return jsonify({
+        "service": "A.E.G.I.S. Dual-Pipeline AI Document Integrity Scanner",
+        "status": "running",
+        "version": "2.0.0",
+        "endpoints": {
+            "health": "/health",
+            "analyze": "/analyze-document"
+        },
+        "model_loaded": model is not None,
+        "allow_simulation": ALLOW_SIMULATION
+    }), 200
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check diagnostic endpoint."""
