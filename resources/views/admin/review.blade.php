@@ -215,9 +215,23 @@
                                 </button>
                             </form>
                             <script>
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 5000);
+                                if (typeof window.scanStatusPoller === 'undefined') {
+                                    window.scanStatusPoller = setInterval(async () => {
+                                        try {
+                                            const res = await fetch("{{ route('admin.scanStatus', $application->id) }}", {
+                                                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                                            });
+                                            const data = await res.json();
+                                            if (data && data.success && !data.is_scanning) {
+                                                clearInterval(window.scanStatusPoller);
+                                                window.scanStatusPoller = undefined;
+                                                location.reload();
+                                            }
+                                        } catch (err) {
+                                            console.error('Scan status check error:', err);
+                                        }
+                                    }, 3000);
+                                }
                             </script>
                         </div>
                     @elseif($isFailed)

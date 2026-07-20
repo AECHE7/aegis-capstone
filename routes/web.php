@@ -141,6 +141,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->middleware(['role:admin,superadmin'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
         Route::get('/review/{id}', [AdminController::class, 'review'])->name('admin.review');
+        Route::get('/review/{id}/scan-status', [AdminController::class, 'scanStatus'])->name('admin.scanStatus');
         Route::post('/review/{id}/scan', [AdminController::class, 'runScan'])->name('admin.scan');
         Route::post('/review/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.updateStatus');
         Route::post('/review/{id}/archive', [AdminController::class, 'archive'])->name('admin.archive');

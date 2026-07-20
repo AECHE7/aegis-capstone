@@ -253,6 +253,32 @@ class AdminController extends Controller
         return view('admin.review', compact('application', 'history', 'scholarship'));
     }
 
+    /**
+     * Lightweight API endpoint to check background AI scan status.
+     */
+    public function scanStatus($id)
+    {
+        $application = Application::withTrashed()->with('documents.aiResult')->findOrFail($id);
+        $this->validateAdminAccess($application);
+
+        $isScanning = $application->documents->contains(
+            fn($d) => $d->aiResult && $d->aiResult->classification === 'scanning'
+        );
+
+        return response()->json([
+            'success' => true,
+            'is_scanning' => $isScanning,
+            'documents' => $application->documents->map(function ($doc) {
+                return [
+                    'id' => $doc->id,
+                    'document_type' => $doc->document_type,
+                    'classification' => $doc->aiResult?->classification,
+                    'fraud_probability' => $doc->aiResult?->fraud_probability,
+                ];
+            })
+        ]);
+    }
+
     // 2.5. Restore soft-deleted application (Admin Action)
     public function restoreApplication($id)
     {
