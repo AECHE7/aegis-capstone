@@ -96,12 +96,12 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
     global_mean_std = float(np.mean(tile_stds))
     global_std_std = float(np.std(tile_stds)) + 1e-5
     
-    # Identify localized cluster tiles exceeding 4.5 standard deviations (sharp localized manipulation boundary)
+    # Identify localized cluster tiles exceeding 2.2 standard deviations (catches single-cell grade edits)
     outlier_boxes = []
     max_z = 0.0
     for idx, std_val in enumerate(tile_stds):
         z_score = (std_val - global_mean_std) / global_std_std
-        if z_score >= 4.5 and std_val >= 35.0:
+        if z_score >= 2.2 and std_val >= 18.0:
             outlier_boxes.append(tile_coords[idx])
             if z_score > max_z:
                 max_z = z_score
@@ -110,10 +110,10 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
     max_risk = 0.0
     target_box = None
 
-    # Require at least 3 contiguous outlier tiles to confirm a localized copy-paste / whiteout patch
-    if len(outlier_boxes) >= 3:
+    # Catch single-cell or multi-cell table grade edits (>= 1 outlier tile)
+    if len(outlier_boxes) >= 1:
         patch_detected = True
-        max_risk = min(96.0, round(65.0 + (max_z * 5.0), 2))
+        max_risk = min(96.0, round(72.0 + (max_z * 7.5), 2))
         x1 = min(b[0] for b in outlier_boxes)
         y1 = min(b[1] for b in outlier_boxes)
         x2 = max(b[2] for b in outlier_boxes)
@@ -129,7 +129,7 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
         mask_blur = cv2.GaussianBlur(mask, (35, 35), 0)
         color_mask = cv2.applyColorMap(mask_blur, cv2.COLORMAP_JET)
         heatmap_img = cv2.addWeighted(orig_img, 0.55, color_mask, 0.45, 0)
-        cv2.rectangle(heatmap_img, (x, y), (x + bw, y + bh), (0, 0, 255), 2)
+        cv2.rectangle(heatmap_img, (x, y), (x + bw, y + bh), (0, 0, 255), 3)
 
     return patch_detected, max_risk, target_box, heatmap_img
 
@@ -144,7 +144,7 @@ except ImportError:
 def detect_clahe_lab_anomalies(original_path: str):
     """
     Scans document in CIELAB color space using CLAHE luminance contrast gradient analysis.
-    Detects digital whiteout boxes, covered text patches, and Canva/Paint edits.
+    Detects digital whiteout boxes, covered text patches, erased grade cells, and Canva/Paint edits.
     Returns (lab_detected: bool, risk_score: float, target_box: tuple|None, heatmap_img: np.ndarray|None)
     """
     if not os.path.exists(original_path):
@@ -171,13 +171,14 @@ def detect_clahe_lab_anomalies(original_path: str):
         x, y, bw, bh = cv2.boundingRect(c)
         area = bw * bh
         aspect_ratio = float(bw) / bh if bh > 0 else 0
-        # Whiteout boxes over grade text are typically rectangular, area 100 to 15% of page
-        if 100 <= area <= (w * h * 0.15) and 0.5 <= aspect_ratio <= 10.0:
+        # Search for table cell boxes or grade row patches (area 80 to 20% of page)
+        if 80 <= area <= (w * h * 0.20) and 0.4 <= aspect_ratio <= 12.0:
             patch_crop = cl[y:y+bh, x:x+bw]
             if patch_crop.size > 0:
+                mean_val = float(np.mean(patch_crop))
                 std_val = float(np.std(patch_crop))
-                # Flat whiteout rectangle signature
-                if std_val < 15.0:
+                # Detect high-contrast boundary or erased blank box inside table cell
+                if std_val < 22.0 or mean_val > 240.0:
                     outlier_boxes.append((x, y, bw, bh))
 
     if len(outlier_boxes) >= 1:
@@ -192,8 +193,8 @@ def detect_clahe_lab_anomalies(original_path: str):
         cv2.rectangle(heatmap_img, (x1, y1), (x2, y2), (0, 0, 255), 3)
         overlay = heatmap_img.copy()
         cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 0, 255), -1)
-        heatmap_img = cv2.addWeighted(heatmap_img, 0.7, overlay, 0.3, 0)
-        return True, 88.50, target_box, heatmap_img
+        heatmap_img = cv2.addWeighted(heatmap_img, 0.65, overlay, 0.35, 0)
+        return True, 89.50, target_box, heatmap_img
 
     return False, 0.0, None, None
 
