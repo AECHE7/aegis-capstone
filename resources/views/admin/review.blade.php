@@ -282,6 +282,15 @@
                                 <span class="fw-semibold" style="color:{{ $riskColor }};">{{ ucfirst($doc->aiResult->classification) }}</span>
                             </div>
                         </div>
+
+                        <div class="mt-3 text-center">
+                            <form action="{{ route('admin.scan', $application->id) }}" method="POST" class="d-inline-block w-100">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-outline-info w-100 rounded-3 py-2" style="font-size: 0.78rem; border-color: rgba(0, 212, 255, 0.4); color: #00d4ff; background: rgba(0, 212, 255, 0.05);">
+                                    <i class="fa-solid fa-arrow-rotate-right me-1"></i> Re-run AI Forensic Scan
+                                </button>
+                            </form>
+                        </div>
                     @else
                         <div class="text-center py-4">
                             <div style="width:72px;height:72px;border-radius:12px;background:var(--clsu-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border: 1px solid var(--border-color);">
