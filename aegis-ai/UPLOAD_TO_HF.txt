@@ -1,0 +1,81 @@
+╔═══════════════════════════════════════════════════════════════╗
+║           HUGGING FACE UPLOAD - REQUIRED FILES                ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📁 aegis-document-forensics/ (Your HF Space)
+│
+├── 📄 README.md                  ✅ REQUIRED (API docs)
+├── 🐳 Dockerfile                 ✅ REQUIRED (port 7860)
+├── 📋 requirements.txt           ✅ REQUIRED (dependencies)
+├── 🚫 .gitignore                 ✅ REQUIRED (exclude temp files)
+├── 🐍 app.py                     ✅ REQUIRED (Flask main)
+│
+├── 📁 forensics/
+│   ├── __init__.py               ✅ REQUIRED
+│   ├── catnet_cnn.py             ✅ REQUIRED
+│   ├── clone_detection.py        ✅ REQUIRED (V2 - clone-stamp)
+│   ├── deep_analysis.py          ✅ REQUIRED (V3 - deep mode)
+│   ├── ela.py                    ✅ REQUIRED
+│   ├── fusion_scoring.py         ✅ REQUIRED (V2 - weighted fusion)
+│   ├── gradcam.py                ✅ REQUIRED
+│   ├── pdf_signals.py            ✅ REQUIRED
+│   ├── software_fingerprint.py   ✅ REQUIRED
+│   └── trufor_cnn.py             ✅ REQUIRED
+│
+└── 📁 pipelines/
+    ├── __init__.py               ✅ REQUIRED
+    ├── gwa_ocr.py                ✅ REQUIRED
+    ├── image_forensics.py        ✅ REQUIRED (V1 fallback)
+    ├── image_forensics_v2.py     ✅ REQUIRED (V2 enhanced)
+    ├── image_forensics_v3_deep.py ✅ REQUIRED (V3 deep)
+    └── pdf_forensics.py          ✅ REQUIRED
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║                   DO NOT UPLOAD                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+❌ tests/ folder                   (Not needed in production)
+❌ train_model*.py                 (Training scripts - not needed)
+❌ test_resnet_weights.py          (Testing - not needed)
+❌ __pycache__/                    (Python cache)
+❌ temp_uploads/                   (Generated at runtime)
+❌ ela_outputs/                    (Generated at runtime)
+❌ heatmap_outputs/                (Generated at runtime)
+❌ *.keras, *.h5                   (Model files - see docs)
+❌ .env                            (Use HF Secrets instead)
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║                  QUICK UPLOAD COMMAND                         ║
+╚═══════════════════════════════════════════════════════════════╝
+
+cd aegis-capstone/aegis-ai
+
+# Initialize git
+git init
+
+# Add files (tests/training auto-excluded by .gitignore)
+git add .
+
+# Commit
+git commit -m "Deploy AEGIS AI V3 Deep Analysis"
+
+# Add HF remote
+git remote add hf https://huggingface.co/spaces/YOUR_USERNAME/aegis-document-forensics
+
+# Push
+git push hf main
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║                      TOTAL FILES                              ║
+╚═══════════════════════════════════════════════════════════════╝
+
+✅ 21 files total
+✅ ~150KB size (without model)
+✅ 3-5 minute build time
+✅ FREE tier compatible
+
+
+See HUGGINGFACE_DEPLOYMENT.md for complete guide!
