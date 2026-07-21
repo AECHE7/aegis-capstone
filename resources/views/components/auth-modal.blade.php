@@ -187,59 +187,26 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="modalRegPassword" class="form-label small fw-semibold">Password</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-lock"></i></span>
-                                    <input type="password"
-                                           class="form-control border-start-0 border-end-0 ps-0 pe-0 {{ isset($errors) && $errors->has('password') ? 'is-invalid' : '' }}"
-                                           id="modalRegPassword"
-                                           name="password"
-                                           placeholder="••••••••"
-                                           required
-                                           autocomplete="new-password"
-                                           minlength="8">
-                                    <button type="button" class="input-group-text bg-light text-muted border-start-0 toggle-password-btn" data-target="modalRegPassword">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
-                                </div>
-                                <div id="passwordStrength" class="mt-2" style="display: none;">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="small text-muted">Password Strength:</span>
-                                        <span id="strengthLabel" class="small fw-bold"></span>
-                                    </div>
-                                    <div class="progress" style="height: 4px;">
-                                        <div id="strengthBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                                <div class="form-text text-muted" style="font-size: 0.72rem;">
-                                    <i class="fa-solid fa-info-circle me-1"></i>
-                                    Must be at least 8 characters with uppercase, lowercase, and number
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="modalRegPasswordConfirm" class="form-label small fw-semibold">Confirm Password</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-shield-halved"></i></span>
-                                    <input type="password"
-                                           class="form-control border-start-0 border-end-0 ps-0 pe-0"
-                                           id="modalRegPasswordConfirm"
-                                           name="password_confirmation"
-                                           placeholder="••••••••"
-                                           required
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label for="modalRegPassword" class="form-label small fw-semibold">Password</label>
+                                    <input type="password" 
+                                           class="form-control {{ isset($errors) && $errors->has('password') ? 'is-invalid' : '' }}" 
+                                           id="modalRegPassword" 
+                                           name="password" 
+                                           placeholder="••••••••" 
+                                           required 
                                            autocomplete="new-password">
-                                    <button type="button" class="input-group-text bg-light text-muted border-start-0 toggle-password-btn" data-target="modalRegPasswordConfirm">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </button>
                                 </div>
-                                <div id="passwordMatch" class="form-text" style="display: none;">
-                                    <i class="fa-solid fa-check-circle text-success"></i>
-                                    <span class="text-success small">Passwords match</span>
-                                </div>
-                                <div id="passwordMismatch" class="form-text" style="display: none;">
-                                    <i class="fa-solid fa-times-circle text-danger"></i>
-                                    <span class="text-danger small">Passwords do not match</span>
+                                <div class="col-6">
+                                    <label for="modalRegPasswordConfirm" class="form-label small fw-semibold">Confirm Password</label>
+                                    <input type="password" 
+                                           class="form-control" 
+                                           id="modalRegPasswordConfirm" 
+                                           name="password_confirmation" 
+                                           placeholder="••••••••" 
+                                           required 
+                                           autocomplete="new-password">
                                 </div>
                             </div>
 
@@ -298,81 +265,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Password strength indicator
-    const passwordInput = document.getElementById('modalRegPassword');
-    const strengthDiv = document.getElementById('passwordStrength');
-    const strengthBar = document.getElementById('strengthBar');
-    const strengthLabel = document.getElementById('strengthLabel');
-
-    if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-            const password = this.value;
-            if (password.length === 0) {
-                strengthDiv.style.display = 'none';
-                return;
-            }
-
-            strengthDiv.style.display = 'block';
-            let strength = 0;
-
-            // Length check
-            if (password.length >= 8) strength += 25;
-            if (password.length >= 12) strength += 10;
-
-            // Character variety checks
-            if (/[a-z]/.test(password)) strength += 20;
-            if (/[A-Z]/.test(password)) strength += 20;
-            if (/[0-9]/.test(password)) strength += 15;
-            if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
-
-            // Update bar and label
-            strengthBar.style.width = strength + '%';
-
-            if (strength < 40) {
-                strengthBar.className = 'progress-bar bg-danger';
-                strengthLabel.textContent = 'Weak';
-                strengthLabel.className = 'small fw-bold text-danger';
-            } else if (strength < 70) {
-                strengthBar.className = 'progress-bar bg-warning';
-                strengthLabel.textContent = 'Fair';
-                strengthLabel.className = 'small fw-bold text-warning';
-            } else {
-                strengthBar.className = 'progress-bar bg-success';
-                strengthLabel.textContent = 'Strong';
-                strengthLabel.className = 'small fw-bold text-success';
-            }
-        });
-    }
-
-    // Password match validation
-    const passwordConfirm = document.getElementById('modalRegPasswordConfirm');
-    const matchDiv = document.getElementById('passwordMatch');
-    const mismatchDiv = document.getElementById('passwordMismatch');
-
-    function checkPasswordMatch() {
-        if (!passwordInput || !passwordConfirm) return;
-
-        const password = passwordInput.value;
-        const confirm = passwordConfirm.value;
-
-        if (confirm.length === 0) {
-            matchDiv.style.display = 'none';
-            mismatchDiv.style.display = 'none';
-            return;
-        }
-
-        if (password === confirm) {
-            matchDiv.style.display = 'block';
-            mismatchDiv.style.display = 'none';
-        } else {
-            matchDiv.style.display = 'none';
-            mismatchDiv.style.display = 'block';
-        }
-    }
-
-    if (passwordInput) passwordInput.addEventListener('input', checkPasswordMatch);
-    if (passwordConfirm) passwordConfirm.addEventListener('input', checkPasswordMatch);
 
     // Handle tab switching trigger attributes (data-auth-tab="login" or "register")
     document.querySelectorAll('[data-auth-tab]').forEach(trigger => {
