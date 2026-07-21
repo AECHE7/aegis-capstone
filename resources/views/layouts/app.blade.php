@@ -1150,13 +1150,12 @@
             </div>
             <div class="d-flex align-items-center gap-3">
                 <!-- Spotlight Command Search Trigger Button -->
-                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 me-1 d-none d-sm-inline-flex align-items-center gap-2" 
+                <button class="btn btn-link position-relative p-1 topbar-icon-btn text-decoration-none me-1" 
                         onclick="openAegisCommandPalette()" 
-                        title="Search or jump to screen (Ctrl+K)"
-                        style="font-size: 0.8rem;">
-                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                    <span class="small text-muted">Search...</span>
-                    <kbd class="bg-light text-dark border px-1 rounded" style="font-size: 0.65rem;">Ctrl+K</kbd>
+                        title="Quick Search & Navigation (Ctrl+K)"
+                        aria-label="Quick Search and Navigation"
+                        style="box-shadow: none; color: var(--text-main);">
+                    <i class="fa-solid fa-magnifying-glass fs-5"></i>
                 </button>
 
                 <!-- Notification Bell Dropdown -->
