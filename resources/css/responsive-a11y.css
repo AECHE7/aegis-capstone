@@ -59,8 +59,9 @@ body.keyboard-open .sticky-action-bar {
     padding-bottom: 84px !important;
 }
 
-/* Hide sticky bar on desktop viewports where standard form buttons are visible */
-@media (min-width: 992px) {
+/* Hide sticky bar on viewports >= 576px where standard inline card buttons are visible */
+@media (min-width: 576px) {
+    .sticky-action-bar,
     .sticky-action-bar.mobile-only {
         display: none !important;
     }

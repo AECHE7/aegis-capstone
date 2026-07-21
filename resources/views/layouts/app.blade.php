@@ -1386,9 +1386,22 @@
 
     // ── Notification Box JS ──────────────────────────────────
     function fetchNotifications() {
-        fetch('/notifications')
-            .then(res => res.json())
+        fetch('/notifications', {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(res => {
+                if (!res.ok) return null;
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return res.json();
+                }
+                return null;
+            })
             .then(data => {
+                if (!data) return;
                 const badgeAdmin = document.getElementById('notifBadgeAdmin');
                 const listAdmin = document.getElementById('notifListAdmin');
                 const badgeStudent = document.getElementById('notifBadgeStudent');
@@ -1423,7 +1436,9 @@
                     renderNotificationList(listStudent, notifications);
                 }
             })
-            .catch(err => console.error('Error fetching notifications:', err));
+            .catch(() => {
+                // Silently ignore temporary network/gateway polling interruptions
+            });
     }
     
     function renderNotificationList(listElement, notifications) {

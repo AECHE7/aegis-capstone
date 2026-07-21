@@ -356,7 +356,7 @@
                         <i class="fa-solid fa-trash-arrow-up me-1"></i> Restore Application
                     </button>
                 @elseif($application->status == 'Pending' || $application->status == 'Under Review')
-                    <div class="d-flex gap-2">
+                    <div class="d-none d-sm-flex gap-2">
                         <button type="button" class="btn-approve w-50" onclick="confirmDecision('Approved')">
                             <i class="fa-solid fa-check-circle me-1"></i> Approve
                         </button>
@@ -366,8 +366,8 @@
                     </div>
                     <input type="hidden" name="status" id="statusInput">
 
-                    {{-- Mobile Sticky Bottom Action Bar --}}
-                    <div class="sticky-action-bar mobile-only d-flex gap-2">
+                    {{-- Mobile Sticky Bottom Action Bar (Visible strictly on small phones < 576px) --}}
+                    <div class="sticky-action-bar mobile-only d-flex d-sm-none gap-2">
                         <button type="button" class="btn-approve w-50 py-2.5" data-sticky-override="true" onclick="confirmDecision('Approved')">
                             <i class="fa-solid fa-check-circle me-1"></i> Approve
                         </button>
