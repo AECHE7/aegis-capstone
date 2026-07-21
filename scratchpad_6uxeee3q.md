@@ -1,0 +1,21 @@
+# Visual Verification Checklist
+
+- [ ] Log in as Student (Quick Login)
+- [ ] Verify "No Active Applications" empty state card (gradient cap icon, dashed border, green gradient CTA)
+- [ ] Capture screenshot `student_dashboard_empty`
+- [ ] Go to `/student/apply` and verify custom inputs in 2 columns
+- [ ] Log out
+- [ ] Log in as OSA Admin
+- [ ] Verify `scope="col"` is active on evaluation queue table headers
+- [ ] Go to an application review page (e.g. APP-1)
+- [ ] Verify desktop layout (AI/decision cards left, Document viewer right)
+- [ ] Capture screenshot `admin_review_desktop`
+- [ ] Resize viewport to 375px width
+- [ ] Verify Document Viewer displays BEFORE Decision card in mobile layout
+- [ ] Capture screenshot `admin_review_mobile`
+- [ ] Reset viewport and log out
+- [ ] Log in as Director (Analytics page)
+- [ ] Resize viewport to 375px width
+- [ ] Verify 4 KPI stat cards sit as 2-column grid instead of 1-column stack
+- [ ] Capture screenshot `analytics_mobile_grid`
+- [ ] Reset viewport and log out

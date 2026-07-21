@@ -406,39 +406,6 @@ def run_image_pipeline(
     except Exception as e:
         print(f"[IMAGE_PIPELINE] Grad-CAM generation warning: {e}")
 
-    # 8. Execute Software Footprint Identification
-    detected_software = None
-    try:
-        from forensics.software_fingerprint import identify_editing_software
-        soft_res = identify_editing_software(original_path)
-        if soft_res.get("software_detected"):
-            detected_software = soft_res["software_detected"]
-            indicators.append(f"software_detected:{detected_software}")
-            fraud_probability = max(fraud_probability, soft_res["risk_score"])
-            classification = "Tampered"
-    except Exception as se:
-        print(f"[IMAGE_PIPELINE] Software footprint warning: {se}")
-
-    # Generate zoomed micro-crop base64 of target patch box
-    cropped_patch_base64 = None
-    target_box = patch_box or lab_box
-    if target_box:
-        try:
-            orig_img = cv2.imread(original_path)
-            if orig_img is not None:
-                x, y, bw, bh = target_box
-                # Add 15px padding around target box
-                h_img, w_img, _ = orig_img.shape
-                x1, y1 = max(0, x - 15), max(0, y - 15)
-                x2, y2 = min(w_img, x + bw + 15), min(h_img, y + bh + 15)
-                crop_img = orig_img[y1:y2, x1:x2]
-                if crop_img.size > 0:
-                    import base64
-                    _, buffer = cv2.imencode('.png', crop_img)
-                    cropped_patch_base64 = base64.b64encode(buffer).decode('utf-8')
-        except Exception as ce:
-            print(f"[IMAGE_PIPELINE] Micro-crop extraction warning: {ce}")
-
     model_name = "aegis_efficientnet_b4" if is_efficientnet else "aegis_resnet50_v2"
     return {
         "status": "success",
@@ -447,9 +414,6 @@ def run_image_pipeline(
         "classification": classification,
         "extracted_gwa": extracted_gwa,
         "anomaly_indicators": indicators,
-        "detected_software": detected_software,
-        "cropped_patch_base64": cropped_patch_base64,
-        "target_box": target_box,
         "model": {
             "name": model_name,
             "version": "3.0.0" if is_efficientnet else "2.0.0",

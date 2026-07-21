@@ -277,14 +277,6 @@
                                 <span style="color:var(--text-main);opacity:0.7;">Preprocessing</span>
                                 <span class="fw-semibold">Error Level Analysis</span>
                             </div>
-                            @if(!empty($doc->aiResult->detected_software))
-                            <div class="d-flex justify-content-between mb-2">
-                                <span style="color:var(--text-main);opacity:0.7;">Software Detected</span>
-                                <span class="badge bg-danger text-white fw-bold px-2 py-1" style="font-size:0.72rem;">
-                                    <i class="fa-solid fa-laptop-code me-1"></i> {{ $doc->aiResult->detected_software }}
-                                </span>
-                            </div>
-                            @endif
                             <div class="d-flex justify-content-between">
                                 <span style="color:var(--text-main);opacity:0.7;">Classification</span>
                                 <span class="fw-semibold" style="color:{{ $riskColor }};">{{ ucfirst($doc->aiResult->classification) }}</span>
@@ -565,24 +557,9 @@
                                             <small class="text-muted">Awaiting AI scan execution</small>
                                         </div>
                                     @endif
-                        </div>
-
-                        @if($hasAiResult && !empty($doc->aiResult->cropped_patch_data))
-                        <div class="mt-3 p-3 rounded-3" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.3);">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span class="fw-bold text-danger small"><i class="fa-solid fa-crop-simple me-1"></i> Tampered Region Micro-Crop Zoom Preview</span>
-                                <span class="badge bg-danger text-white" style="font-size: 0.68rem;">Target Area Zoom</span>
+                                </div>
                             </div>
-                            <div class="text-center bg-white p-2 rounded-2 border">
-                                <img src="data:image/png;base64,{{ $doc->aiResult->cropped_patch_data }}" 
-                                     alt="Tampered Patch Micro-Crop" class="img-fluid rounded img-zoomable" style="max-height: 150px;"
-                                     onclick="openLightbox(this.src)">
-                            </div>
-                            <small class="text-muted d-block mt-2" style="font-size: 0.72rem;">
-                                <i class="fa-solid fa-magnifying-glass-plus text-danger me-1"></i> Zoomed-in crop pinpointing the specific anomalous cell/row patch detected by TruFor + CAT-Net Dual-CNN.
-                            </small>
                         </div>
-                        @endif
                     </div>
                 @endforeach
             @endif

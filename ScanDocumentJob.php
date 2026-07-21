@@ -143,8 +143,6 @@ class ScanDocumentJob implements ShouldQueue
                             'heatmap_path'       => $result['paths']['heatmap_path'] ?? null,
                             'heatmap_data'       => $result['heatmap_base64'] ?? null,
                             'anomaly_indicators' => $anomalyIndicators,
-                            'detected_software'  => $result['detected_software'] ?? null,
-                            'cropped_patch_data' => $result['cropped_patch_base64'] ?? null,
                         ]
                     );
                 } else {

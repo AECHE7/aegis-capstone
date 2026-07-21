@@ -1,0 +1,24 @@
+# Verification Plan
+
+- [ ] Navigate to http://localhost:8000/ (Login screen)
+- [ ] Click 'Student' quick login button
+- [ ] Verify scroll reveal on student dashboard
+- [ ] Verify redesigned 'No Active Applications' empty state card
+- [ ] Take screenshot: `student_dashboard`
+- [ ] Navigate to http://localhost:8000/student/apply and verify 2-column layout (col-md-6) for dynamic inputs on desktop
+- [ ] Click 'Logout'
+- [ ] Click 'OSA Admin' quick login button
+- [ ] Verify `scope='col'` on Admin Dashboard evaluation queue table headers
+- [ ] Open a pending application to view Admin Review page
+- [ ] Verify Admin Review layout on desktop (Left: AI/Decision, Right: Document Viewer)
+- [ ] Take screenshot: `admin_review_desktop`
+- [ ] Resize viewport to 375px wide (mobile)
+- [ ] Verify Admin Review layout on mobile (First: Document Viewer, Last: AI/Decision)
+- [ ] Take screenshot: `admin_review_mobile`
+- [ ] Reset viewport size and Logout
+- [ ] Click 'Director' quick login button
+- [ ] Verify `scope='col'` on Director Analytics table headers
+- [ ] Resize viewport to 375px (mobile)
+- [ ] Verify 4 KPI stat cards in 2-column grid (not 1-column stack)
+- [ ] Take screenshot: `analytics_kpi_mobile`
+- [ ] Report findings and screenshot paths
