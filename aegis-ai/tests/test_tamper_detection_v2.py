@@ -91,7 +91,7 @@ def test_authentic_image_detection():
         assert result['classification'] == 'Authentic'
         assert result['detector_agreement'] < 0.3
 
-        print(f"✓ Authentic detection test passed: {result['fraud_probability']}%")
+        print(f"[OK] Authentic detection test passed: {result['fraud_probability']}%")
 
     finally:
         # Cleanup
@@ -128,7 +128,7 @@ def test_whiteout_tamper_detection():
         assert result['classification'] == 'Tampered'
         assert 'digital_whiteout_box_detected' in result['anomaly_indicators']
 
-        print(f"✓ Whiteout detection test passed: {result['fraud_probability']}%")
+        print(f"[OK] Whiteout detection test passed: {result['fraud_probability']}%")
 
     finally:
         for path in [tamper_path, ela_path, heatmap_path]:
@@ -173,7 +173,7 @@ def test_clone_stamp_detection():
         # May not always detect simple clones, but should score higher than authentic
         assert result['fraud_probability'] >= 25.0, f"Clone not flagged: {result['fraud_probability']}"
 
-        print(f"✓ Clone detection test passed: {result['fraud_probability']}%")
+        print(f"[OK] Clone detection test passed: {result['fraud_probability']}%")
 
     finally:
         for path in [tamper_path, ela_path, heatmap_path]:
@@ -210,7 +210,7 @@ def test_fusion_modes():
         # Sensitive should score higher than strict
         assert results['sensitive'] >= results['balanced'] >= results['strict'] - 5.0
 
-        print(f"✓ Fusion modes test passed:")
+        print(f"[OK] Fusion modes test passed:")
         print(f"  Strict: {results['strict']}%")
         print(f"  Balanced: {results['balanced']}%")
         print(f"  Sensitive: {results['sensitive']}%")
@@ -249,7 +249,7 @@ def test_detector_agreement():
         assert result['detector_agreement'] >= 0.3, f"Low agreement: {result['detector_agreement']}"
         assert len(result.get('detector_details', {})) >= 2, "Not enough detectors triggered"
 
-        print(f"✓ Detector agreement test passed: {result['detector_agreement']:.2f}")
+        print(f"[OK] Detector agreement test passed: {result['detector_agreement']:.2f}")
         print(f"  Active detectors: {list(result.get('detector_details', {}).keys())}")
 
     finally:
@@ -288,7 +288,7 @@ def test_threshold_sensitivity():
         # Should at least flag as suspicious (>40%)
         assert result['fraud_probability'] >= 30.0, f"Subtle edit missed: {result['fraud_probability']}"
 
-        print(f"✓ Threshold sensitivity test passed: {result['fraud_probability']}%")
+        print(f"[OK] Threshold sensitivity test passed: {result['fraud_probability']}%")
 
     finally:
         for path in [tamper_path, ela_path, heatmap_path]:

@@ -14,7 +14,8 @@ from flask import Flask, request, jsonify, send_from_directory
 
 # Forensic Pipeline Imports
 from pipelines.gwa_ocr import PYTESSERACT_AVAILABLE
-from pipelines.image_forensics import run_image_pipeline
+from pipelines.image_forensics import run_image_pipeline  # V1 - kept for fallback
+from pipelines.image_forensics_v2 import run_image_pipeline_v2  # V2 - enhanced detection
 from pipelines.pdf_forensics import run_pdf_pipeline, PDF2IMAGE_AVAILABLE
 from forensics.pdf_signals import PIKEPDF_AVAILABLE
 
@@ -32,6 +33,10 @@ HEATMAP_FOLDER = 'heatmap_outputs'
 DEFAULT_MODEL = 'aegis_efficientnet_b4.keras' if os.path.exists('aegis_efficientnet_b4.keras') else 'aegis_resnet50_v1.keras'
 MODEL_PATH = os.environ.get('MODEL_PATH', DEFAULT_MODEL)
 ALLOW_SIMULATION = os.environ.get('ALLOW_SIMULATION', 'false').lower() == 'true' or os.environ.get('AEGIS_AI_ALLOW_SIMULATION', 'false').lower() == 'true'
+
+# V2 Configuration - Enable enhanced detection pipeline
+USE_V2_PIPELINE = os.environ.get('USE_V2_PIPELINE', 'true').lower() == 'true'
+FUSION_MODE = os.environ.get('FUSION_MODE', 'balanced')  # strict, balanced, or sensitive
 
 for folder in [UPLOAD_FOLDER, ELA_FOLDER, HEATMAP_FOLDER]:
     os.makedirs(folder, exist_ok=True)
@@ -57,7 +62,9 @@ def index():
     return jsonify({
         "service": "A.E.G.I.S. Dual-Pipeline AI Document Integrity Scanner",
         "status": "running",
-        "version": "2.0.0",
+        "version": "2.1.0",  # Updated to reflect V2 improvements
+        "pipeline_version": "V2" if USE_V2_PIPELINE else "V1",
+        "fusion_mode": FUSION_MODE if USE_V2_PIPELINE else "N/A",
         "endpoints": {
             "health": "/health",
             "analyze": "/analyze-document"
@@ -71,6 +78,8 @@ def health_check():
     """Health check diagnostic endpoint."""
     return jsonify({
         "status": "healthy",
+        "pipeline_version": "V2" if USE_V2_PIPELINE else "V1",
+        "fusion_mode": FUSION_MODE if USE_V2_PIPELINE else "N/A",
         "model_loaded": model is not None,
         "tensorflow_available": TENSORFLOW_AVAILABLE,
         "pikepdf_available": PIKEPDF_AVAILABLE,
@@ -114,13 +123,27 @@ def analyze_document():
             )
         elif original_ext in ['jpg', 'jpeg', 'png']:
             # Execute Pipeline A (Image Forensics)
-            result = run_image_pipeline(
-                original_path=original_path,
-                ela_path=ela_path,
-                heatmap_path=heatmap_path,
-                model=model,
-                allow_simulation=ALLOW_SIMULATION
-            )
+            if USE_V2_PIPELINE:
+                # V2 - Enhanced detection with clone-stamp, weighted fusion, confidence scoring
+                print(f"[ANALYZE] Running Image Forensics V2 (fusion_mode={FUSION_MODE})")
+                result = run_image_pipeline_v2(
+                    original_path=original_path,
+                    ela_path=ela_path,
+                    heatmap_path=heatmap_path,
+                    model=model,
+                    allow_simulation=ALLOW_SIMULATION,
+                    fusion_mode=FUSION_MODE
+                )
+            else:
+                # V1 - Legacy pipeline (fallback)
+                print("[ANALYZE] Running Image Forensics V1 (legacy)")
+                result = run_image_pipeline(
+                    original_path=original_path,
+                    ela_path=ela_path,
+                    heatmap_path=heatmap_path,
+                    model=model,
+                    allow_simulation=ALLOW_SIMULATION
+                )
         else:
             return jsonify({"error": f"Unsupported file extension: {original_ext}"}), 400
 
@@ -156,5 +179,21 @@ def serve_heatmap(filename):
     return send_from_directory(os.path.abspath(HEATMAP_FOLDER), filename)
 
 if __name__ == '__main__':
+    print("\n" + "=" * 70)
+    print("A.E.G.I.S. Document Integrity Scanner - Starting...")
+    print("=" * 70)
+    print(f"Pipeline Version: {'V2 (Enhanced Detection)' if USE_V2_PIPELINE else 'V1 (Legacy)'}")
+    if USE_V2_PIPELINE:
+        print(f"Fusion Mode: {FUSION_MODE}")
+        print("V2 Features:")
+        print("  - Clone-Stamp Detection")
+        print("  - Weighted Fusion Scoring")
+        print("  - Confidence Levels")
+        print("  - Detector Agreement Analysis")
+    print(f"Model Loaded: {model is not None}")
+    print(f"TensorFlow Available: {TENSORFLOW_AVAILABLE}")
+    print(f"Simulation Mode: {ALLOW_SIMULATION}")
+    print("=" * 70 + "\n")
+
     debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
     app.run(host='0.0.0.0', port=int(os.environ.get('FLASK_PORT', 5000)), debug=debug_mode)
