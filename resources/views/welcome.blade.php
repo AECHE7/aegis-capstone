@@ -856,9 +856,9 @@
                     <i class="fa-solid fa-gauge-high"></i> Dashboard
                 </a>
             @else
-                <a href="{{ route('login') }}" class="btn-nav-primary">
-                    <i class="fa-solid fa-right-to-bracket"></i> Login to Apply
-                </a>
+                <button class="btn-nav-primary border-0" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-tab="login">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In / Register
+                </button>
             @endauth
         </div>
 
@@ -906,12 +906,12 @@
                         </a>
                         <form id="hero-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                     @else
-                        <a href="{{ route('login') }}" class="btn-hero-primary">
+                        <button class="btn-hero-primary border-0" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-tab="register">
                             Apply for a Scholarship <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                        <a href="#pipeline" class="btn-hero-outline">
-                            <i class="fa-solid fa-play"></i> See How It Works
-                        </a>
+                        </button>
+                        <button class="btn-hero-outline border-0 ms-2" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-tab="login">
+                            <i class="fa-solid fa-right-to-bracket"></i> Sign In to Account
+                        </button>
                     @endauth
                 </div>
 
@@ -1149,5 +1149,11 @@
         updateIcon(saved);
     });
 </script>
+
+{{-- Interactive Auth Modal Component --}}
+@guest
+    <x-auth-modal />
+@endguest
+
 </body>
 </html>

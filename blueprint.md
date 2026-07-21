@@ -642,6 +642,20 @@ To transition the project from its current MVP setup to a robust, production-rea
   - *Tier 1 (Reduced Motion Sickness):* prefers-reduced-motion resets → *Tier 2:* Exclude spinners via `:not(.fa-spin)` → *Tier 3:* Gentle 3s pulse duration → *Tier 4 Fail-Safe:* Dual feedback with pulse opacity & explicit `[Scanning...]` status text.
   - *Tier 1 (Asset Merge Conflicts):* GitHub Actions CI `npm run build` → *Tier 2:* Production tracking → *Tier 3:* Lock Node version (`20.x`) → *Tier 4 Fail-Safe:* Dynamic version query strings (`app.js?v=2.0`) to bust browser cache automatically.
 
+### Phase 64: Interactive Modal Authentication System (Login & Create Account) - [COMPLETED]
+- **Goal:** Transform standalone Login and Create Account pages into an interactive, high-performance Modal Authentication System (`<x-auth-modal />`) with tabbed switching on the public portal and app layouts while preserving direct URL fallback routes.
+- **Steps:**
+  1. **Auth Modal Blade Component**: Create `resources/views/components/auth-modal.blade.php` featuring tabbed Bootstrap switcher (`#authTabLogin` vs `#authTabRegister`), CSRF protection, password visibility toggles, and auto-launch validation script.
+  2. **Public Portal Integration**: Update `welcome.blade.php` navbar and hero CTA buttons to trigger `#authModal` with `data-auth-tab="login"` or `data-auth-tab="register"`.
+  3. **Layout & Guest Integration**: Include `<x-auth-modal />` in `layouts/app.blade.php` for unauthenticated sessions.
+  4. **Standalone Route Fallbacks**: Update `auth/login.blade.php` and `auth/register.blade.php` to render centered `<x-auth-modal />` views for direct bookmark URLs.
+  5. **Verification & Tests**: Re-compile Vite production assets and verify 100% test pass rate on the 181-test PHPUnit suite.
+- **4-Tier Risk & Quaternary Fail-Safe Architecture Matrix:**
+  - *Tier 1 (Session Validation Errors):* Auto-launch `#authModal` on page load if `$errors->any()` → *Tier 2:* Target failed tab (`Register` vs `Login`) → *Tier 3:* Support `?showModal=login` query params → *Tier 4 Fail-Safe:* Render inline alert banners on landing page if JS is disabled.
+  - *Tier 1 (Direct Bookmarks & Verification Links):* Retain `/login` and `/register` routes → *Tier 2:* Render standalone centered card wrapper → *Tier 3:* Preserve query string parameters → *Tier 4 Fail-Safe:* HTTP 302 fallback redirect to `/?showModal=login`.
+  - *Tier 1 (CSRF Mismatch & Rate Limits):* Embed `@csrf` tokens in both form panels → *Tier 2:* Display human-readable 419 session refresh notice → *Tier 3:* Format 429 Throttle countdowns → *Tier 4 Fail-Safe:* Auto-reload page on token mismatch to generate fresh CSRF token.
+  - *Tier 1 (Mobile Keyboard Overlap):* `modal-dialog-scrollable` with 90vh constraint → *Tier 2:* 48px touch targets (WCAG 2.5.5) → *Tier 3:* Auto-scroll active inputs on focus → *Tier 4 Fail-Safe:* Static backdrop guards (`data-bs-backdrop="static"`) to prevent accidental dismissals.
+
 
 
 
