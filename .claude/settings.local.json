@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat(ai): implement Deep Analysis V3 mode with multi-layer heatmaps and precise edit localization\n\nCRITICAL FIX for false positive/negative issues:\n\n1. Deep Forensic Analyzer Engine\n   - NEW: forensics/deep_analysis.py (DeepForensicAnalyzer class)\n   - Multi-layer analysis: ELA (32x32), noise consistency, edge analysis, color uniformity\n   - Pixel-level anomaly mapping with exact coordinates\n   - Region clustering to merge overlapping detections\n   - Automated severity classification (high/medium)\n\n2. Enhanced Pipeline V3\n   - NEW: pipelines/image_forensics_v3_deep.py\n   - Runs all V2 detectors PLUS deep analysis layers\n   - Generates 4 separate heatmaps (ELA, noise, edges, color)\n   - Composite visualization with bounding boxes\n   - Zoomed crops of each suspect region (top 5)\n\n3. Admin Visual Preview System\n   - Base64-encoded multi-layer heatmaps for UI\n   - Annotated full image with colored bounding boxes\n   - Individual region crops for detailed inspection\n   - Exact pixel coordinates (x, y, w, h) for each detection\n\n4. App.py Integration\n   - USE_DEEP_ANALYSIS flag (env: USE_DEEP_ANALYSIS=true)\n   - Mode selector: V1/V2/V3_DEEP\n   - Enhanced logging for deep analysis runs\n   - Longer processing time (4-6s vs 2.1s) - acceptable for critical cases\n\n5. Comprehensive Documentation\n   - NEW: docs/DEEP_ANALYSIS_V3_GUIDE.md\n   - When to use deep analysis (high-value, disputes, FP/FN investigation)\n   - Laravel integration guide with code samples\n   - UI implementation with HTML/CSS/JS examples\n   - Troubleshooting guide for admins\n\nSOLVES FALSE POSITIVE/NEGATIVE PROBLEM:\n- Admins can now SEE exact edit locations with bounding boxes\n- Multi-layer heatmaps show WHY each region was flagged\n- Zoomed previews allow verification without external tools\n- Region clustering reduces noise from overlapping detections\n\nUSE CASES:\n- High-value scholarships ($10k+)\n- Disputed tamper flags\n- Admin manual review\n- Forensic evidence collection\n\nUSAGE:\nexport USE_DEEP_ANALYSIS=true  # Enable globally\nOR\ncurl POST \"/analyze-document?mode=deep\"  # Per-request\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.grip.unina.it)",
+      "Bash(git clone:*)",
+      "Bash(curl:*)",
+      "Bash(unzip:*)",
+      "Bash(git remote add:*)",
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []

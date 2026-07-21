@@ -365,6 +365,16 @@
                         </button>
                     </div>
                     <input type="hidden" name="status" id="statusInput">
+
+                    {{-- Mobile Sticky Bottom Action Bar --}}
+                    <div class="sticky-action-bar mobile-only d-flex gap-2">
+                        <button type="button" class="btn-approve w-50 py-2.5" data-sticky-override="true" onclick="confirmDecision('Approved')">
+                            <i class="fa-solid fa-check-circle me-1"></i> Approve
+                        </button>
+                        <button type="button" class="btn-reject w-50 py-2.5" data-sticky-override="true" onclick="confirmDecision('Rejected')">
+                            <i class="fa-solid fa-times-circle me-1"></i> Reject
+                        </button>
+                    </div>
                 @else
                     <div class="alert mb-0 text-center fw-bold rounded-3"
                          style="background: {{ $application->status == 'Approved' ? '#dcfce7' : '#fee2e2' }}; color: {{ $application->status == 'Approved' ? '#15803d' : '#b91c1c' }}; border: none; font-size: 0.875rem;">

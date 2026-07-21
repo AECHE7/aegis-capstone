@@ -35,10 +35,10 @@
     </div>
 </div>
 
-<div class="table-responsive">
-    <table class="table mb-0" style="border-collapse: separate;">
+<div class="table-responsive table-responsive-cards" data-role="table-container">
+    <table class="table table-mobile-cards mb-0" style="border-collapse: separate;" role="table" aria-label="Scholarship Applications Evaluation Table">
         <thead>
-            <tr>
+            <tr role="row">
                 <th class="ps-4 d-none d-sm-table-cell" scope="col" style="width: 45px; text-align: center; vertical-align: middle;">
                     <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="cursor: pointer; transform: scale(1.15);" aria-label="Select all applications">
                 </th>
@@ -54,14 +54,14 @@
         </thead>
         <tbody>
             @foreach($applications as $app)
-            <tr onclick="window.location='{{ route('admin.review', $app->id) }}'" style="cursor:pointer;" class="app-row" data-id="{{ $app->id }}">
+            <tr onclick="window.location='{{ route('admin.review', $app->id) }}'" style="cursor:pointer;" class="app-row" data-id="{{ $app->id }}" role="row">
                 <td class="ps-4 text-center d-none d-sm-table-cell" onclick="event.stopPropagation();" style="vertical-align: middle;">
-                    <input type="checkbox" class="app-checkbox" value="{{ $app->id }}" onchange="toggleAppSelect(this)" style="cursor: pointer; transform: scale(1.15);">
+                    <input type="checkbox" class="app-checkbox" value="{{ $app->id }}" onchange="toggleAppSelect(this)" style="cursor: pointer; transform: scale(1.15);" aria-label="Select application APP-{{ $app->id }}">
                 </td>
-                <td>
+                <td data-label="Ref ID">
                     <span class="fw-bold text-dark monospace-data" style="font-size:0.8rem;">APP-{{ $app->id }}</span>
                 </td>
-                <td>
+                <td data-label="Applicant">
                     <div class="d-flex align-items-center gap-2">
                         <div class="student-avatar">{{ strtoupper(substr($app->user->name ?? 'U', 0, 2)) }}</div>
                         <div>
@@ -70,7 +70,7 @@
                         </div>
                     </div>
                 </td>
-                <td class="d-none d-md-table-cell">
+                <td class="d-none d-md-table-cell" data-label="Program">
                     <div class="fw-medium text-dark" style="font-size:0.875rem;">{{ $app->program_name }}</div>
                     <div class="mt-0.5">
                         @if($app->is_renewal)
@@ -84,10 +84,10 @@
                         @endif
                     </div>
                 </td>
-                <td class="text-center d-none d-lg-table-cell">
+                <td class="text-center d-none d-lg-table-cell" data-label="GWA">
                     <span class="badge rounded-pill px-2 py-1 fw-bold monospace-data" style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid var(--border-color);">{{ $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A' }}</span>
                 </td>
-                <td class="text-center d-none d-sm-table-cell">
+                <td class="text-center d-none d-sm-table-cell" data-label="AI Risk">
                     @if($app->document && $app->document->aiResult && !in_array($app->document->aiResult->classification, ['scanning','failed']))
                         @php $score = $app->document->aiResult->fraud_probability; @endphp
                         <span class="fraud-chip monospace-data {{ $score >= 70 ? 'fraud-high' : ($score >= 40 ? 'fraud-mod' : 'fraud-low') }}">
@@ -100,7 +100,7 @@
                         <span class="fraud-chip fraud-none"><i class="fa-solid fa-minus" style="font-size:0.6rem;"></i> N/A</span>
                     @endif
                 </td>
-                <td class="text-center">
+                <td class="text-center" data-label="Status">
                     @if($app->trashed())
                         @if($app->forfeit_reason)
                             <span class="status-badge bg-dark text-white" style="background-color: #475569 !important;"><i class="fa-solid fa-user-slash" style="font-size:0.65rem;"></i> Forfeited</span>
@@ -123,11 +123,11 @@
                         <span class="status-badge rejected"><i class="fa-solid fa-times" style="font-size:0.65rem;"></i> Rejected</span>
                     @endif
                 </td>
-                <td class="d-none d-xl-table-cell">
+                <td class="d-none d-xl-table-cell" data-label="Submitted">
                     <div class="monospace-data" style="font-size:0.82rem;color:#64748b;">{{ $app->created_at->format('M d, Y') }}</div>
                     <div style="font-size:0.72rem;color:#94a3b8;">{{ $app->created_at->format('h:i A') }}</div>
                 </td>
-                <td class="pe-4 text-end d-none d-md-table-cell" onclick="event.stopPropagation()">
+                <td class="pe-4 text-end d-none d-md-table-cell" data-label="Action" onclick="event.stopPropagation()">
                     <div class="d-flex justify-content-end align-items-center gap-2">
                         @if($app->trashed())
                             <a href="{{ route('admin.review', $app->id) }}" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;">

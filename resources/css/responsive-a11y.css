@@ -1,0 +1,235 @@
+/* ==========================================================================
+   AEGIS Adaptive Responsive Design System & Accessibility Engine (WCAG 2.1 AA)
+   ========================================================================== */
+
+/* ── 1. Touch Target Ergonomics (WCAG 2.5.5 - Min 48×48px Targets) ─────── */
+[data-touch="true"] .btn,
+[data-touch="true"] .form-control,
+[data-touch="true"] .form-select,
+[data-touch="true"] .nav-link,
+[data-touch="true"] .dropdown-item,
+[data-touch="true"] .pagination .page-link,
+[data-device="mobile"] .btn,
+[data-device="mobile"] .form-control,
+[data-device="mobile"] .form-select,
+[data-device="mobile"] .nav-link {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+}
+
+[data-device="mobile"] .btn-sm {
+    min-height: 40px;
+    font-size: 0.875rem;
+}
+
+/* ── 2. Sticky Bottom Action Bar ─────────────────────────────────────────── */
+.sticky-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1040;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 1rem;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+[data-theme="dark"] .sticky-action-bar {
+    background: rgba(15, 23, 42, 0.94);
+    border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Auto-hide sticky bar when soft keyboard opens on mobile devices */
+body.keyboard-open .sticky-action-bar {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Add matching bottom padding to content wrappers when sticky bar is active */
+.has-sticky-action-bar {
+    padding-bottom: 84px !important;
+}
+
+/* Hide sticky bar on desktop viewports where standard form buttons are visible */
+@media (min-width: 992px) {
+    .sticky-action-bar.mobile-only {
+        display: none !important;
+    }
+}
+
+/* ── 3. Mobile Table Stacked Card Views ─────────────────────────────────── */
+@media (max-width: 767.98px) {
+    .table-responsive-cards table.table-mobile-cards,
+    .table-responsive-cards table.table-mobile-cards tbody,
+    .table-responsive-cards table.table-mobile-cards tr,
+    .table-responsive-cards table.table-mobile-cards td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-responsive-cards table.table-mobile-cards thead {
+        display: none;
+    }
+
+    .table-responsive-cards table.table-mobile-cards tr {
+        margin-bottom: 1rem;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 0.75rem;
+        padding: 0.85rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    [data-theme="dark"] .table-responsive-cards table.table-mobile-cards tr {
+        background: #1e293b;
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .table-responsive-cards table.table-mobile-cards td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.45rem 0;
+        border: none;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+        text-align: right;
+    }
+
+    [data-theme="dark"] .table-responsive-cards table.table-mobile-cards td {
+        border-bottom-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .table-responsive-cards table.table-mobile-cards td:last-child {
+        border-bottom: none;
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        justify-content: flex-end;
+    }
+
+    .table-responsive-cards table.table-mobile-cards td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.725rem;
+        letter-spacing: 0.05em;
+        color: #64748b;
+        margin-right: 1rem;
+        text-align: left;
+    }
+
+    [data-theme="dark"] .table-responsive-cards table.table-mobile-cards td::before {
+        color: #94a3b8;
+    }
+}
+
+/* ── 4. WCAG 2.1 AA Reduced Motion Overrides ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Preserve essential loading indicators with a low-frequency gentle pulse */
+    .fa-spin,
+    .spinner-border,
+    .spinner-grow,
+    .skeleton-loading {
+        animation-name: aegisGentlePulse !important;
+        animation-duration: 3s !important;
+        animation-iteration-count: infinite !important;
+        animation-timing-function: ease-in-out !important;
+    }
+}
+
+@keyframes aegisGentlePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
+
+/* ── 5. High Contrast Mode & Forced Colors (Windows High Contrast) ──────── */
+@media (forced-colors: active) {
+    *,
+    *::before,
+    *::after {
+        forced-color-adjust: auto;
+    }
+
+    .btn,
+    .card,
+    .form-control,
+    .form-select,
+    .badge,
+    .modal-content,
+    .command-palette-dialog {
+        border: 2px solid CanvasText !important;
+    }
+
+    .btn-primary,
+    .btn-success {
+        background-color: Highlight !important;
+        color: HighlightText !important;
+    }
+
+    /* Force SVG icons to inherit high contrast text color */
+    svg,
+    svg path {
+        stroke: CanvasText !important;
+        fill: CanvasText !important;
+    }
+}
+
+/* ── 6. High Contrast Focus Rings ────────────────────────────────────────── */
+:focus-visible {
+    outline: 3px solid #D97706 !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.35) !important;
+}
+
+/* ── 7. Container Queries (@container) for Foldables & Split-Screen ────── */
+.card-container,
+.form-panel-container {
+    container-type: inline-size;
+}
+
+@container (max-width: 480px) {
+    .responsive-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@container (min-width: 481px) and (max-width: 800px) {
+    .responsive-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Fluid Fallback for older browser engines without Container Query support */
+@supports not (container-type: inline-size) {
+    .responsive-grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .responsive-grid > * {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+    @media (min-width: 576px) {
+        .responsive-grid > * {
+            flex: 1 1 50%;
+            max-width: 50%;
+        }
+    }
+}

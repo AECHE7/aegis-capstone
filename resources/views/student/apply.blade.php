@@ -181,6 +181,13 @@
                         <i class="fa-solid fa-paper-plane me-2"></i> Submit Application to OSA
                     </button>
                     <div id="submitHelpText" class="text-danger small mt-2 text-center fw-semibold" style="display:none;" role="alert"></div>
+
+                    {{-- Mobile Sticky Bottom Submit Action Bar --}}
+                    <div class="sticky-action-bar mobile-only">
+                        <button type="button" class="btn btn-success fw-bold w-100 py-3 shadow-sm text-white" data-sticky-override="true" onclick="document.getElementById('submitBtn').click();">
+                            <i class="fa-solid fa-paper-plane me-2"></i> Submit Application to OSA
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
