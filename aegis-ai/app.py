@@ -16,6 +16,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from pipelines.gwa_ocr import PYTESSERACT_AVAILABLE
 from pipelines.image_forensics import run_image_pipeline  # V1 - kept for fallback
 from pipelines.image_forensics_v2 import run_image_pipeline_v2  # V2 - enhanced detection
+from pipelines.image_forensics_v3_deep import run_deep_analysis_pipeline  # V3 - deep analysis mode
 from pipelines.pdf_forensics import run_pdf_pipeline, PDF2IMAGE_AVAILABLE
 from forensics.pdf_signals import PIKEPDF_AVAILABLE
 
@@ -34,8 +35,9 @@ DEFAULT_MODEL = 'aegis_efficientnet_b4.keras' if os.path.exists('aegis_efficient
 MODEL_PATH = os.environ.get('MODEL_PATH', DEFAULT_MODEL)
 ALLOW_SIMULATION = os.environ.get('ALLOW_SIMULATION', 'false').lower() == 'true' or os.environ.get('AEGIS_AI_ALLOW_SIMULATION', 'false').lower() == 'true'
 
-# V2 Configuration - Enable enhanced detection pipeline
+# V2/V3 Configuration - Enable enhanced detection pipeline
 USE_V2_PIPELINE = os.environ.get('USE_V2_PIPELINE', 'true').lower() == 'true'
+USE_DEEP_ANALYSIS = os.environ.get('USE_DEEP_ANALYSIS', 'false').lower() == 'true'  # V3 Deep Analysis Mode
 FUSION_MODE = os.environ.get('FUSION_MODE', 'balanced')  # strict, balanced, or sensitive
 
 for folder in [UPLOAD_FOLDER, ELA_FOLDER, HEATMAP_FOLDER]:
@@ -76,10 +78,12 @@ def index():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check diagnostic endpoint."""
+    pipeline_ver = "V3_DEEP" if USE_DEEP_ANALYSIS else ("V2" if USE_V2_PIPELINE else "V1")
     return jsonify({
         "status": "healthy",
-        "pipeline_version": "V2" if USE_V2_PIPELINE else "V1",
-        "fusion_mode": FUSION_MODE if USE_V2_PIPELINE else "N/A",
+        "pipeline_version": pipeline_ver,
+        "deep_analysis_enabled": USE_DEEP_ANALYSIS,
+        "fusion_mode": FUSION_MODE if (USE_V2_PIPELINE or USE_DEEP_ANALYSIS) else "N/A",
         "model_loaded": model is not None,
         "tensorflow_available": TENSORFLOW_AVAILABLE,
         "pikepdf_available": PIKEPDF_AVAILABLE,
@@ -123,7 +127,18 @@ def analyze_document():
             )
         elif original_ext in ['jpg', 'jpeg', 'png']:
             # Execute Pipeline A (Image Forensics)
-            if USE_V2_PIPELINE:
+            if USE_DEEP_ANALYSIS:
+                # V3 - DEEP ANALYSIS MODE for maximum accuracy and detailed inspection
+                print(f"[ANALYZE] Running DEEP ANALYSIS V3 (fusion_mode={FUSION_MODE})")
+                print("[ANALYZE] Deep mode: Multi-layer heatmaps, precise edit localization, comprehensive forensics")
+                result = run_deep_analysis_pipeline(
+                    original_path=original_path,
+                    ela_path=ela_path,
+                    heatmap_path=heatmap_path,
+                    model=model,
+                    fusion_mode=FUSION_MODE
+                )
+            elif USE_V2_PIPELINE:
                 # V2 - Enhanced detection with clone-stamp, weighted fusion, confidence scoring
                 print(f"[ANALYZE] Running Image Forensics V2 (fusion_mode={FUSION_MODE})")
                 result = run_image_pipeline_v2(
@@ -182,14 +197,32 @@ if __name__ == '__main__':
     print("\n" + "=" * 70)
     print("A.E.G.I.S. Document Integrity Scanner - Starting...")
     print("=" * 70)
-    print(f"Pipeline Version: {'V2 (Enhanced Detection)' if USE_V2_PIPELINE else 'V1 (Legacy)'}")
-    if USE_V2_PIPELINE:
+
+    if USE_DEEP_ANALYSIS:
+        print("Pipeline Version: V3 (DEEP ANALYSIS MODE)")
+        print(f"Fusion Mode: {FUSION_MODE}")
+        print("V3 Deep Analysis Features:")
+        print("  * Multi-layer heatmap visualization")
+        print("  * Precise pixel-level edit localization")
+        print("  * Region-by-region forensic analysis")
+        print("  * ELA detailed inspection (32x32 grid)")
+        print("  * Noise consistency mapping")
+        print("  * Edge consistency analysis")
+        print("  * Color uniformity detection")
+        print("  * Automated region clustering")
+        print("  * Zoomed suspect area previews")
+        print("  + All V2 detectors (clone-stamp, fusion scoring, etc.)")
+    elif USE_V2_PIPELINE:
+        print("Pipeline Version: V2 (Enhanced Detection)")
         print(f"Fusion Mode: {FUSION_MODE}")
         print("V2 Features:")
         print("  - Clone-Stamp Detection")
         print("  - Weighted Fusion Scoring")
         print("  - Confidence Levels")
         print("  - Detector Agreement Analysis")
+    else:
+        print("Pipeline Version: V1 (Legacy)")
+
     print(f"Model Loaded: {model is not None}")
     print(f"TensorFlow Available: {TENSORFLOW_AVAILABLE}")
     print(f"Simulation Mode: {ALLOW_SIMULATION}")
