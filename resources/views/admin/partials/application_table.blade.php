@@ -168,14 +168,30 @@
 </div>
 
 @if($applications->isEmpty())
-<div class="text-center py-5">
+<div class="text-center py-5 px-4">
     <div class="mb-3">
-        <div style="width:80px;height:80px;border-radius:20px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto;">
-            <i class="fa-solid fa-inbox fa-2x" style="color:#cbd5e1;"></i>
+        <div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 12px rgba(0,0,0,0.06);">
+            <i class="fa-solid fa-filter-circle-xmark fa-3x" style="color:#94a3b8;"></i>
         </div>
     </div>
-    <h6 class="fw-bold text-muted">The queue is empty</h6>
-    <p class="text-muted small mb-0">No applications match your current filters.</p>
+    <h5 class="fw-bold text-dark mb-2">No Applications Match Your Filters</h5>
+    <p class="text-muted mb-3" style="max-width: 420px; margin: 0 auto;">
+        @if(request()->hasAny(['search', 'scholarship', 'status', 'academic_term']))
+            Try adjusting your search criteria or clearing active filters to see more results.
+        @else
+            There are currently no applications in this queue. New submissions will appear here automatically.
+        @endif
+    </p>
+    @if(request()->hasAny(['search', 'scholarship', 'status', 'academic_term']))
+    <div class="d-flex justify-content-center gap-2 flex-wrap">
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-primary btn-sm fw-semibold px-3 py-2 rounded-pill shadow-sm">
+            <i class="fa-solid fa-rotate-left me-1"></i> Clear All Filters
+        </a>
+        <button type="button" onclick="reloadQueue()" class="btn btn-outline-secondary btn-sm fw-semibold px-3 py-2 rounded-pill">
+            <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh
+        </button>
+    </div>
+    @endif
 </div>
 @endif
 
