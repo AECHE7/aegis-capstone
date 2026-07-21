@@ -596,10 +596,22 @@
     </div>
 </div>
 
-{{-- Lightbox overlay --}}
-<div id="lightbox" onclick="closeLightbox()"
-     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-    <img id="lightboxImg" src="" alt="Enlarged view" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+{{-- Interactive Lightbox overlay --}}
+<div id="lightbox" class="position-fixed inset-0" onclick="if(event.target===this) closeLightbox()"
+     style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,0.92);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;flex-direction:column;">
+    
+    <!-- Lightbox Toolbar -->
+    <div class="d-flex align-items-center gap-2 mb-3 px-3 py-2 rounded-pill bg-dark border border-secondary shadow" onclick="event.stopPropagation()">
+        <button type="button" class="btn btn-sm btn-outline-light rounded-circle" onclick="zoomLightbox(1.2)" title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+        <button type="button" class="btn btn-sm btn-outline-light rounded-circle" onclick="zoomLightbox(0.8)" title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+        <button type="button" class="btn btn-sm btn-outline-light rounded-circle" onclick="rotateLightbox(90)" title="Rotate 90°"><i class="fa-solid fa-rotate-right"></i></button>
+        <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="resetLightbox()" title="Reset View">Reset</button>
+        <button type="button" class="btn btn-sm btn-danger rounded-circle ms-2" onclick="closeLightbox()" title="Close (ESC)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="overflow-hidden d-flex align-items-center justify-content-center" style="max-width:92vw;max-height:82vh;position:relative;">
+        <img id="lightboxImg" src="" alt="Enlarged view" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:12px;box-shadow:0 24px 64px rgba(0,0,0,0.5);transition:transform 0.15s ease-out;cursor:grab;">
+    </div>
 </div>
 
 @endsection
@@ -802,13 +814,43 @@
         }
     });
 
-    // ── Lightbox ───────────────────────────────────────
+    // ── Interactive Lightbox Inspector State ──────────────
+    let lbScale = 1;
+    let lbRotation = 0;
+
+    function applyLbTransform() {
+        const img = document.getElementById('lightboxImg');
+        if (img) {
+            img.style.transform = `scale(${lbScale}) rotate(${lbRotation}deg)`;
+        }
+    }
+
+    function zoomLightbox(factor) {
+        lbScale = Math.min(Math.max(0.5, lbScale * factor), 5);
+        applyLbTransform();
+    }
+
+    function rotateLightbox(deg) {
+        lbRotation = (lbRotation + deg) % 360;
+        applyLbTransform();
+    }
+
+    function resetLightbox() {
+        lbScale = 1;
+        lbRotation = 0;
+        applyLbTransform();
+    }
+
     function openLightbox(src) {
         const lb = document.getElementById('lightbox');
         const img = document.getElementById('lightboxImg');
         img.src = src;
+        lbScale = 1;
+        lbRotation = 0;
+        applyLbTransform();
         lb.style.display = 'flex';
     }
+
     function closeLightbox() {
         document.getElementById('lightbox').style.display = 'none';
     }

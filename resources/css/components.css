@@ -1,0 +1,227 @@
+/* ════════════════════════════════════════════════════════════════
+   A.E.G.I.S. DESIGN SYSTEM - COMPONENT STYLES
+   ════════════════════════════════════════════════════════════════ */
+
+/* Glassmorphic & Elevated Cards */
+.aegis-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition);
+}
+
+.aegis-card:hover {
+    box-shadow: var(--shadow-elevated);
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-elevated);
+}
+
+/* Global Pill Buttons System */
+.btn-clsu-pill {
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    padding: 10px 24px;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-clsu-pill:active {
+    transform: scale(0.96);
+}
+
+.btn-clsu-primary {
+    background-color: var(--clsu-green);
+    color: #ffffff;
+    border: none;
+    box-shadow: var(--shadow-glow-green);
+}
+
+.btn-clsu-primary:hover {
+    background-color: var(--clsu-green-dark);
+    color: #ffffff;
+}
+
+.btn-clsu-gold {
+    background-color: var(--clsu-gold);
+    color: #ffffff;
+    border: none;
+    box-shadow: var(--shadow-glow-gold);
+}
+
+.btn-clsu-gold:hover {
+    background-color: #b45309;
+    color: #ffffff;
+}
+
+.btn-clsu-outline {
+    background-color: transparent;
+    border: 1.5px solid var(--clsu-green);
+    color: var(--clsu-green);
+}
+
+.btn-clsu-outline:hover {
+    background-color: var(--clsu-green-muted);
+    color: var(--clsu-green-dark);
+}
+
+/* Interactive Dropzone Container */
+.dropzone-container {
+    border: 2px dashed var(--clsu-green-light);
+    background-color: var(--clsu-green-muted);
+    border-radius: var(--radius-lg);
+    padding: 32px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.dropzone-container:hover, .dropzone-container.dragover {
+    border-color: var(--clsu-gold);
+    background-color: rgba(217, 119, 6, 0.08);
+    transform: translateY(-2px);
+}
+
+.dropzone-preview {
+    max-height: 140px;
+    border-radius: var(--radius-md);
+    object-fit: contain;
+    margin-top: 12px;
+    box-shadow: var(--shadow-card);
+}
+
+/* Spotlight Command Palette (Ctrl+K) */
+.command-palette-backdrop {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+}
+
+.command-palette-dialog {
+    width: 100%;
+    max-width: 640px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.command-palette-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-title);
+    font-size: 1.1rem;
+    outline: none !important;
+}
+
+.command-palette-item {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-main);
+    text-decoration: none;
+}
+
+.command-palette-item:hover, .command-palette-item.active {
+    background-color: var(--clsu-green-muted);
+    color: var(--clsu-green);
+}
+
+/* Interactive Document Curtain Revealer */
+.curtain-container {
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+    border-radius: var(--radius-md);
+    background: var(--clsu-bg);
+}
+
+.curtain-overlay {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 50%;
+    overflow: hidden;
+    border-right: 3px solid var(--clsu-gold);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+}
+
+.curtain-handle {
+    position: absolute;
+    top: 50%;
+    right: -14px;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background: var(--clsu-gold);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: ew-resize;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Global Toast Notification System */
+.aegis-toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9990;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 380px;
+}
+
+.aegis-toast {
+    background: var(--card-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--clsu-green);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    box-shadow: var(--shadow-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: toast-slide-in 0.3s ease-out;
+}
+
+.aegis-toast.toast-error {
+    border-left-color: #ef4444;
+}
+
+.aegis-toast.toast-warning {
+    border-left-color: #f59e0b;
+}
+
+@keyframes toast-slide-in {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}

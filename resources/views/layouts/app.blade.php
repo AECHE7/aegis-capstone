@@ -1149,7 +1149,15 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-3">
-
+                <!-- Spotlight Command Search Trigger Button -->
+                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 me-1 d-none d-sm-inline-flex align-items-center gap-2" 
+                        onclick="openAegisCommandPalette()" 
+                        title="Search or jump to screen (Ctrl+K)"
+                        style="font-size: 0.8rem;">
+                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    <span class="small text-muted">Search...</span>
+                    <kbd class="bg-light text-dark border px-1 rounded" style="font-size: 0.65rem;">Ctrl+K</kbd>
+                </button>
 
                 <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-1">
@@ -1564,6 +1572,9 @@
         });
     });
 </script>
+
+{{-- Spotlight Command Palette Modal --}}
+<x-command-palette />
 
 {{-- SweetAlert2: loaded before views scripts to avoid undefined ReferenceError --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

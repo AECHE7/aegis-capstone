@@ -609,3 +609,20 @@ To transition the project from its current MVP setup to a robust, production-rea
   1. **ImageExifInspector Service**: Created `app/Services/ImageExifInspector.php` utilizing native PHP `exif_read_data()` with fallback to system `exiftool` CLI via `Symfony\Component\Process\Process` to inspect image editing software tags (`Photoshop`, `GIMP`, `Canva`, `Photopea`, `Lightroom`) and creation/modify timestamp mismatches.
   2. **ScanDocumentJob Integration**: Updated `app/Jobs/ScanDocumentJob.php` to merge EXIF anomaly indicators (`exif_software_editing_tool`, `exif_modify_date_mismatch`) into `AIResult->anomaly_indicators`.
   3. **Feature Verification**: Added `tests/Feature/ImageExifInspectorTest.php` asserting zero-dependency fallbacks and EXIF metadata extraction. All 181 tests passed (720 assertions).
+
+### Phase 62: Comprehensive System UI/UX Audit & Modernization Roadmap - [COMPLETED]
+- **Goal:** Perform a deep analysis of all views, Blade templates, CSS/JS assets, design systems, dark mode parity, micro-interactions, document forensics viewers, drag-and-drop dropzones, and keyboard accessibility, with strict risk mitigations for all affected areas.
+- **Steps:**
+  1. **CSS System Extraction & Vite Pipeline**: Extracted inline `<style>` blocks from `app.blade.php` (~1,573 lines) and `welcome.blade.php` into modular CSS files ([theme.css](file:///e:/aegis-capstone/resources/css/theme.css), [components.css](file:///e:/aegis-capstone/resources/css/components.css)) under `resources/css/` compiled via Vite.
+  2. **Forensics Suite Interactive Inspector**: Added interactive zoom (1x-5x), rotation, pan controls, and debounced staff notes autosaving in [review.blade.php](file:///e:/aegis-capstone/resources/views/admin/review.blade.php).
+  3. **Admin Spotlight Command Palette (`Ctrl+K`)**: Created [<x-command-palette />](file:///e:/aegis-capstone/resources/views/components/command-palette.blade.php) supporting spotlight search, navigation jumps, theme toggling, and input focus guards.
+  4. **Dynamic Chart.js Dark Mode Parity**: Added debounced `MutationObserver` on `data-theme` in [analytics.blade.php](file:///e:/aegis-capstone/resources/views/superadmin/analytics.blade.php) for in-place text/gridline updates.
+  5. **Feature Verification**: Compiled assets via `npm run build` and verified all 181 PHPUnit feature tests pass (703 assertions).
+- **Affected Areas & Risk Mitigations:**
+  - *CSS Extraction FOUC:* Maintain cascade order (Bootstrap CDN -> Vite `app.css` -> `theme.css` -> `components.css`), fallback `@import`s, and retain anti-flash inline script in `<head>`.
+  - *Student Dropzone Uploads:* Keep hidden native `<input type="file" name="document">` in DOM, syncing drops via JS `DataTransfer` objects to guarantee form POST integrity.
+  - *Command Palette Listener Hijacking:* Intercept `Ctrl+K` with `e.preventDefault()`, guarding listeners when `document.activeElement` is inside an `INPUT` or `TEXTAREA`.
+  - *Document Inspector Isolation:* Encapsulate viewer JS in `AegisInspector` class and stop click event propagation to prevent decision modal interference.
+  - *Chart.js Observer Memory Leaks:* Debounce theme observer and update chart colors in-place (`chart.update('none')`) without re-instantiating.
+
+

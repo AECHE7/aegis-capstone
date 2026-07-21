@@ -955,5 +955,31 @@
     }
     document.getElementById('exportDateFrom')?.addEventListener('change', updateExportHrefs);
     document.getElementById('exportDateTo')?.addEventListener('change', updateExportHrefs);
+
+    // ── 10. DYNAMIC DARK MODE CHART PARITY OBSERVER ──
+    const themeObserver = new MutationObserver(mutations => {
+        mutations.forEach(m => {
+            if (m.attributeName === 'data-theme') {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const textColor = isDark ? '#94a3b8' : '#475569';
+                const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)';
+
+                Object.values(Chart.instances).forEach(chart => {
+                    if (chart.options.scales) {
+                        Object.values(chart.options.scales).forEach(scale => {
+                            if (scale.ticks) scale.ticks.color = textColor;
+                            if (scale.grid) scale.grid.color = gridColor;
+                        });
+                    }
+                    if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                        chart.options.plugins.legend.labels.color = textColor;
+                    }
+                    chart.update('none');
+                });
+            }
+        });
+    });
+
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 </script>
 @endpush

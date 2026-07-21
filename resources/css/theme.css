@@ -1,0 +1,125 @@
+/* ════════════════════════════════════════════════════════════════
+   A.E.G.I.S. DESIGN SYSTEM - THEME TOKENS
+   Starbucks / CLSU Forest Green & Warm Canvas Paradigm
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Brand Colors */
+    --clsu-green: #0C4E2D;
+    --clsu-green-dark: #07331c;
+    --clsu-green-light: #126b3f;
+    --clsu-green-muted: rgba(12, 78, 45, 0.08);
+    --clsu-green-cta: #00754A;
+    --clsu-gold: #D97706;
+    --clsu-gold-light: #fcd34d;
+    --clsu-dark: #0f172a;
+    
+    /* Surface & Background Canvas */
+    --clsu-bg: #f2f0eb; /* Neutral Warm canvas */
+    --bg-section: #edebe9; /* Ceramic alternate */
+    --card-bg: #ffffff;
+    --card-hover-bg: #fafafa;
+    
+    /* Typography Colors */
+    --text-main: rgba(0, 0, 0, 0.87); /* Text Black Soft */
+    --text-muted: #64748b;
+    --text-title: #0C4E2D; /* Starbucks/CLSU Green primary title */
+    --text-inverse: #ffffff;
+    
+    /* Borders & Dividers */
+    --border-color: #edebe9; /* Ceramic alternate */
+    --border-focus: #0C4E2D;
+    
+    /* Layout Dimensions */
+    --sidebar-width: 260px;
+    --sidebar-collapsed: 72px;
+    
+    /* Border Radii */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-pill: 50px;
+    
+    /* Shadows & Elevations */
+    --shadow-card: 0 0 0.5px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.18);
+    --shadow-nav: 0 1px 3px rgba(0,0,0,0.08), 0 2px 2px rgba(0,0,0,0.05), 0 0 2px rgba(0,0,0,0.06);
+    --shadow-elevated: 0 0 6px rgba(0,0,0,0.18), 0 8px 16px rgba(0,0,0,0.12);
+    --shadow-glow-green: 0 4px 20px rgba(12, 78, 45, 0.2);
+    --shadow-glow-gold: 0 4px 20px rgba(217, 119, 6, 0.25);
+    
+    /* Glassmorphism */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-blur: blur(12px);
+    
+    /* Transitions */
+    --transition: border-color 0.15s ease, background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DARK MODE OVERRIDES [data-theme="dark"]
+   ════════════════════════════════════════════════════════════════ */
+[data-theme="dark"] {
+    --clsu-bg: #0b0f19;
+    --bg-section: #0f172a;
+    --card-bg: #111827;
+    --card-hover-bg: #1e293b;
+    
+    --text-main: #94a3b8;
+    --text-muted: #64748b;
+    --text-title: #f1f5f9;
+    --text-inverse: #0f172a;
+    
+    --border-color: rgba(255, 255, 255, 0.07);
+    --border-focus: #126b3f;
+    --clsu-green-muted: rgba(20, 83, 45, 0.25);
+    
+    --shadow-card: 0 0 0.5px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.45);
+    --shadow-nav: 0 1px 3px rgba(0,0,0,0.25), 0 2px 2px rgba(0,0,0,0.15), 0 0 2px rgba(0,0,0,0.18);
+    --shadow-elevated: 0 4px 20px rgba(0, 0, 0, 0.5);
+    
+    --glass-bg: rgba(17, 24, 39, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+/* Base resets & typography rules */
+body {
+    background-color: var(--clsu-bg);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: var(--transition);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+    color: var(--text-title);
+    font-weight: 700;
+}
+
+/* Universal high-contrast focus rings */
+:focus-visible {
+    outline: 2px solid var(--clsu-gold) !important;
+    outline-offset: 2px !important;
+}
+
+/* Skeleton Loading Animation */
+.skeleton {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+    height: 1rem;
+    width: 100%;
+}
+
+[data-theme="dark"] .skeleton {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
