@@ -114,6 +114,10 @@
     padding-top: 10vh;
 }
 
+.command-palette-backdrop.d-none {
+    display: none !important;
+}
+
 .command-palette-dialog {
     width: 100%;
     max-width: 640px;
