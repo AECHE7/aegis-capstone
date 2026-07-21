@@ -356,25 +356,15 @@
                         <i class="fa-solid fa-trash-arrow-up me-1"></i> Restore Application
                     </button>
                 @elseif($application->status == 'Pending' || $application->status == 'Under Review')
-                    <div class="d-none d-sm-flex gap-2">
-                        <button type="button" class="btn-approve w-50" onclick="confirmDecision('Approved')">
+                    <div class="d-flex gap-2 mobile-sticky-action-bar">
+                        <button type="button" class="btn-approve w-50 py-2.5" onclick="confirmDecision('Approved')">
                             <i class="fa-solid fa-check-circle me-1"></i> Approve
                         </button>
-                        <button type="button" class="btn-reject w-50" onclick="confirmDecision('Rejected')">
+                        <button type="button" class="btn-reject w-50 py-2.5" onclick="confirmDecision('Rejected')">
                             <i class="fa-solid fa-times-circle me-1"></i> Reject
                         </button>
                     </div>
                     <input type="hidden" name="status" id="statusInput">
-
-                    {{-- Mobile Sticky Bottom Action Bar (Visible strictly on small phones < 576px) --}}
-                    <div class="sticky-action-bar mobile-only d-flex d-sm-none gap-2">
-                        <button type="button" class="btn-approve w-50 py-2.5" data-sticky-override="true" onclick="confirmDecision('Approved')">
-                            <i class="fa-solid fa-check-circle me-1"></i> Approve
-                        </button>
-                        <button type="button" class="btn-reject w-50 py-2.5" data-sticky-override="true" onclick="confirmDecision('Rejected')">
-                            <i class="fa-solid fa-times-circle me-1"></i> Reject
-                        </button>
-                    </div>
                 @else
                     <div class="alert mb-0 text-center fw-bold rounded-3"
                          style="background: {{ $application->status == 'Approved' ? '#dcfce7' : '#fee2e2' }}; color: {{ $application->status == 'Approved' ? '#15803d' : '#b91c1c' }}; border: none; font-size: 0.875rem;">
