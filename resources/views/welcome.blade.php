@@ -1150,10 +1150,5 @@
     });
 </script>
 
-{{-- Interactive Auth Modal Component --}}
-@guest
-    <x-auth-modal />
-@endguest
-
 </body>
 </html>
