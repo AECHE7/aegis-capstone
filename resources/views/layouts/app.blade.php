@@ -1149,15 +1149,6 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <!-- Spotlight Command Search Trigger Button -->
-                <button class="btn btn-link position-relative p-1 topbar-icon-btn text-decoration-none me-1" 
-                        onclick="openAegisCommandPalette()" 
-                        title="Quick Search & Navigation (Ctrl+K)"
-                        aria-label="Quick Search and Navigation"
-                        style="box-shadow: none; color: var(--text-main);">
-                    <i class="fa-solid fa-magnifying-glass fs-5"></i>
-                </button>
-
                 <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-1">
                     {{-- WCAG 4.1.2: Name/Role/Value — accessible name on icon-only button --}}
@@ -1590,9 +1581,6 @@
         });
     });
 </script>
-
-{{-- Spotlight Command Palette Modal --}}
-<x-command-palette />
 
 {{-- SweetAlert2: loaded before views scripts to avoid undefined ReferenceError --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
