@@ -1,5 +1,5 @@
 {{-- Spotlight Command Palette Component (Ctrl+K) --}}
-<div id="commandPalette" class="command-palette-backdrop d-none" style="display: none !important;" tabindex="-1">
+<div id="commandPalette" class="command-palette-backdrop d-none" style="display: none !important; position: fixed !important; top: -9999px !important; left: -9999px !important; opacity: 0 !important; pointer-events: none !important;" tabindex="-1">
     <div class="command-palette-dialog" role="dialog" aria-modal="true" aria-label="Quick Command Search">
         <div class="p-3 border-bottom d-flex align-items-center gap-2">
             <i class="fa-solid fa-magnifying-glass text-muted ms-2"></i>
@@ -99,6 +99,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function openPalette() {
         palette.classList.remove('d-none');
         palette.style.setProperty('display', 'flex', 'important');
+        palette.style.setProperty('top', '0', 'important');
+        palette.style.setProperty('left', '0', 'important');
+        palette.style.setProperty('opacity', '1', 'important');
+        palette.style.setProperty('pointer-events', 'auto', 'important');
         input.focus();
         input.value = '';
         filterItems('');
@@ -107,6 +111,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function closePalette() {
         palette.classList.add('d-none');
         palette.style.setProperty('display', 'none', 'important');
+        palette.style.setProperty('top', '-9999px', 'important');
+        palette.style.setProperty('left', '-9999px', 'important');
+        palette.style.setProperty('opacity', '0', 'important');
+        palette.style.setProperty('pointer-events', 'none', 'important');
         selectedIndex = -1;
     }
 
