@@ -8,40 +8,47 @@
         </div>
         <div id="commandPaletteResults" class="py-2 overflow-y-auto" style="max-height: 380px;">
             <div class="px-3 py-2 text-muted small fw-semibold text-uppercase tracking-wider">Quick Navigation</div>
-            @if(auth()->user()->role === 'superadmin')
-                <a href="{{ route('superadmin.analytics') }}" class="command-palette-item">
-                    <span><i class="fa-solid fa-chart-line text-success me-2"></i> Operational Analytics & Logs Hub</span>
-                    <span class="badge bg-light text-dark border">Dashboard</span>
-                </a>
-                <a href="{{ route('superadmin.scholarships') }}" class="command-palette-item">
-                    <span><i class="fa-solid fa-graduation-cap text-warning me-2"></i> Scholarship Program Builder</span>
-                    <span class="badge bg-light text-dark border">Programs</span>
-                </a>
-                <a href="{{ route('superadmin.staff') }}" class="command-palette-item">
-                    <span><i class="fa-solid fa-users-gear text-info me-2"></i> Staff Invitation & Access Management</span>
-                    <span class="badge bg-light text-dark border">Staff</span>
-                </a>
-                <a href="{{ route('superadmin.settings') }}" class="command-palette-item">
-                    <span><i class="fa-solid fa-sliders text-danger me-2"></i> System & AI Verification Settings</span>
-                    <span class="badge bg-light text-dark border">Settings</span>
-                </a>
-            @elseif(auth()->user()->role === 'admin')
-                <a href="{{ route('admin.dashboard') }}" class="command-palette-item">
-                    <span><i class="fa-solid fa-folder-open text-primary me-2"></i> Application Evaluation Queue</span>
-                    <span class="badge bg-light text-dark border">Queue</span>
-                </a>
+            @if(auth()->check())
+                @if(auth()->user()->role === 'superadmin')
+                    <a href="{{ route('superadmin.analytics') }}" class="command-palette-item">
+                        <span><i class="fa-solid fa-chart-line text-success me-2"></i> Operational Analytics & Logs Hub</span>
+                        <span class="badge bg-light text-dark border">Dashboard</span>
+                    </a>
+                    <a href="{{ route('superadmin.scholarships') }}" class="command-palette-item">
+                        <span><i class="fa-solid fa-graduation-cap text-warning me-2"></i> Scholarship Program Builder</span>
+                        <span class="badge bg-light text-dark border">Programs</span>
+                    </a>
+                    <a href="{{ route('superadmin.staff') }}" class="command-palette-item">
+                        <span><i class="fa-solid fa-users-gear text-info me-2"></i> Staff Invitation & Access Management</span>
+                        <span class="badge bg-light text-dark border">Staff</span>
+                    </a>
+                    <a href="{{ route('superadmin.settings') }}" class="command-palette-item">
+                        <span><i class="fa-solid fa-sliders text-danger me-2"></i> System & AI Verification Settings</span>
+                        <span class="badge bg-light text-dark border">Settings</span>
+                    </a>
+                @elseif(auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="command-palette-item">
+                        <span><i class="fa-solid fa-folder-open text-primary me-2"></i> Application Evaluation Queue</span>
+                        <span class="badge bg-light text-dark border">Queue</span>
+                    </a>
+                @else
+                    <a href="{{ route('student.dashboard') }}" class="command-palette-item">
+                        <span><i class="fa-solid fa-gauge-high text-success me-2"></i> Student Portal Dashboard</span>
+                        <span class="badge bg-light text-dark border">Portal</span>
+                    </a>
+                    <a href="{{ route('student.apply') }}" class="command-palette-item">
+                        <span><i class="fa-solid fa-paper-plane text-warning me-2"></i> Apply for Scholarship</span>
+                        <span class="badge bg-light text-dark border">Apply</span>
+                    </a>
+                    <a href="{{ route('student.profile') }}" class="command-palette-item">
+                        <span><i class="fa-solid fa-id-card text-info me-2"></i> Profile & Academic Info</span>
+                        <span class="badge bg-light text-dark border">Profile</span>
+                    </a>
+                @endif
             @else
-                <a href="{{ route('student.dashboard') }}" class="command-palette-item">
-                    <span><i class="fa-solid fa-gauge-high text-success me-2"></i> Student Portal Dashboard</span>
-                    <span class="badge bg-light text-dark border">Portal</span>
-                </a>
-                <a href="{{ route('student.apply') }}" class="command-palette-item">
-                    <span><i class="fa-solid fa-paper-plane text-warning me-2"></i> Apply for Scholarship</span>
-                    <span class="badge bg-light text-dark border">Apply</span>
-                </a>
-                <a href="{{ route('student.profile') }}" class="command-palette-item">
-                    <span><i class="fa-solid fa-id-card text-info me-2"></i> Profile & Academic Info</span>
-                    <span class="badge bg-light text-dark border">Profile</span>
+                <a href="{{ route('login') }}" class="command-palette-item">
+                    <span><i class="fa-solid fa-right-to-bracket text-primary me-2"></i> Sign In to Portal</span>
+                    <span class="badge bg-light text-dark border">Auth</span>
                 </a>
             @endif
 
@@ -69,10 +76,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const palette = document.getElementById('commandPalette');
     const input = document.getElementById('commandPaletteInput');
     const results = document.getElementById('commandPaletteResults');
-    const items = results.querySelectorAll('.command-palette-item');
     const themeBtn = document.getElementById('cmdToggleTheme');
+    let selectedIndex = -1;
 
     if (!palette || !input) return;
+
+    function getVisibleItems() {
+        return Array.from(results.querySelectorAll('.command-palette-item')).filter(el => !el.classList.contains('d-none'));
+    }
+
+    function updateHighlight(items) {
+        items.forEach((item, index) => {
+            if (index === selectedIndex) {
+                item.classList.add('active');
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
 
     function openPalette() {
         palette.classList.remove('d-none');
@@ -83,15 +105,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function closePalette() {
         palette.classList.add('d-none');
+        selectedIndex = -1;
     }
 
-    // Keyboard shortcut listener (Ctrl+K / Cmd+K) with Input focus guard mitigation
+    // Keyboard shortcut listener (Ctrl+K / Cmd+K) & Arrow keys navigation
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
             const active = document.activeElement;
             const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
             
-            // Allow Ctrl+K anywhere except inside text inputs unless specifically target-invoked
             if (!isInput || active === input) {
                 e.preventDefault();
                 if (palette.classList.contains('d-none')) {
@@ -100,8 +122,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     closePalette();
                 }
             }
-        } else if (e.key === 'Escape' && !palette.classList.contains('d-none')) {
-            closePalette();
+        } else if (!palette.classList.contains('d-none')) {
+            const visibleItems = getVisibleItems();
+
+            if (e.key === 'Escape') {
+                closePalette();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (visibleItems.length > 0) {
+                    selectedIndex = (selectedIndex + 1) % visibleItems.length;
+                    updateHighlight(visibleItems);
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (visibleItems.length > 0) {
+                    selectedIndex = (selectedIndex - 1 + visibleItems.length) % visibleItems.length;
+                    updateHighlight(visibleItems);
+                }
+            } else if (e.key === 'Enter' && selectedIndex >= 0 && selectedIndex < visibleItems.length) {
+                e.preventDefault();
+                visibleItems[selectedIndex].click();
+            }
         }
     });
 
@@ -125,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function filterItems(query) {
         const q = query.toLowerCase();
+        const items = results.querySelectorAll('.command-palette-item');
         items.forEach(item => {
             const text = item.innerText.toLowerCase();
             if (text.includes(q)) {
@@ -133,13 +175,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 item.classList.add('d-none');
             }
         });
+        selectedIndex = -1;
     }
 
     input.addEventListener('input', function() {
         filterItems(this.value);
     });
 
-    // Expose open function globally
     window.openAegisCommandPalette = openPalette;
 });
 </script>

@@ -817,11 +817,15 @@
     // ── Interactive Lightbox Inspector State ──────────────
     let lbScale = 1;
     let lbRotation = 0;
+    let lbTransX = 0;
+    let lbTransY = 0;
+    let isDraggingLb = false;
+    let startX = 0, startY = 0;
 
     function applyLbTransform() {
         const img = document.getElementById('lightboxImg');
         if (img) {
-            img.style.transform = `scale(${lbScale}) rotate(${lbRotation}deg)`;
+            img.style.transform = `translate(${lbTransX}px, ${lbTransY}px) scale(${lbScale}) rotate(${lbRotation}deg)`;
         }
     }
 
@@ -838,6 +842,8 @@
     function resetLightbox() {
         lbScale = 1;
         lbRotation = 0;
+        lbTransX = 0;
+        lbTransY = 0;
         applyLbTransform();
     }
 
@@ -845,15 +851,43 @@
         const lb = document.getElementById('lightbox');
         const img = document.getElementById('lightboxImg');
         img.src = src;
-        lbScale = 1;
-        lbRotation = 0;
-        applyLbTransform();
+        resetLightbox();
         lb.style.display = 'flex';
     }
 
     function closeLightbox() {
         document.getElementById('lightbox').style.display = 'none';
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const img = document.getElementById('lightboxImg');
+        if (!img) return;
+
+        img.addEventListener('mousedown', (e) => {
+            if (lbScale > 1) {
+                isDraggingLb = true;
+                startX = e.clientX - lbTransX;
+                startY = e.clientY - lbTransY;
+                img.style.cursor = 'grabbing';
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingLb) {
+                lbTransX = e.clientX - startX;
+                lbTransY = e.clientY - startY;
+                applyLbTransform();
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDraggingLb) {
+                isDraggingLb = false;
+                if (img) img.style.cursor = 'grab';
+            }
+        });
+    });
 
     // ── Session alerts ─────────────────────────────────
     @if(session('success'))

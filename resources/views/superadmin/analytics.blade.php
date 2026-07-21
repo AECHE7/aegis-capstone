@@ -969,6 +969,8 @@
                         Object.values(chart.options.scales).forEach(scale => {
                             if (scale.ticks) scale.ticks.color = textColor;
                             if (scale.grid) scale.grid.color = gridColor;
+                            if (scale.pointLabels) scale.pointLabels.color = textColor;
+                            if (scale.angleLines) scale.angleLines.color = gridColor;
                         });
                     }
                     if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
