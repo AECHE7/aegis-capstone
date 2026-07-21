@@ -316,6 +316,75 @@
                             input.type = 'file';
                             input.className = 'form-control shadow-sm p-2 bg-white';
                             input.accept = 'image/*,application/pdf';
+
+                            // Add file validation and preview
+                            input.addEventListener('change', function(e) {
+                                const file = e.target.files[0];
+                                const previewId = `file-preview-${uniqueId}`;
+                                let preview = document.getElementById(previewId);
+
+                                if (!file) {
+                                    if (preview) preview.remove();
+                                    updateChecklist();
+                                    return;
+                                }
+
+                                // Size check (10MB limit)
+                                const maxSize = 10 * 1024 * 1024;
+                                if (file.size > maxSize) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'File Too Large',
+                                        html: `File size: <strong>${(file.size / 1024 / 1024).toFixed(2)} MB</strong><br>Maximum allowed: <strong>10 MB</strong>`,
+                                        confirmButtonColor: '#dc2626'
+                                    });
+                                    e.target.value = '';
+                                    if (preview) preview.remove();
+                                    updateChecklist();
+                                    return;
+                                }
+
+                                // Format check
+                                const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf', 'image/webp'];
+                                if (!validTypes.includes(file.type)) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Invalid File Format',
+                                        html: `File type: <strong>${file.type || 'Unknown'}</strong><br>Accepted formats: <strong>PNG, JPG, PDF, WebP</strong>`,
+                                        confirmButtonColor: '#dc2626'
+                                    });
+                                    e.target.value = '';
+                                    if (preview) preview.remove();
+                                    updateChecklist();
+                                    return;
+                                }
+
+                                // Show preview card
+                                if (!preview) {
+                                    preview = document.createElement('div');
+                                    preview.id = previewId;
+                                    preview.className = 'alert alert-success mt-2 mb-0 d-flex align-items-center justify-content-between';
+                                    preview.style.fontSize = '0.85rem';
+                                    formGroup.appendChild(preview);
+                                }
+
+                                const fileIcon = file.type === 'application/pdf' ? 'fa-file-pdf' : 'fa-file-image';
+                                const fileColor = file.type === 'application/pdf' ? '#dc2626' : '#0284c7';
+                                preview.innerHTML = `
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fa-solid ${fileIcon} fa-2x" style="color: ${fileColor};"></i>
+                                        <div>
+                                            <div class="fw-bold">${file.name}</div>
+                                            <small class="text-muted">${(file.size / 1024).toFixed(1)} KB · ${file.type.split('/')[1].toUpperCase()}</small>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.alert').previousElementSibling.value=''; this.closest('.alert').remove(); updateChecklist();">
+                                        <i class="fa-solid fa-xmark"></i> Clear
+                                    </button>
+                                `;
+
+                                updateChecklist();
+                            });
                         } else if (field.field_type === 'number') {
                             input = document.createElement('input');
                             input.type = 'number';

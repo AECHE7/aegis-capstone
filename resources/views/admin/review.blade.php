@@ -527,8 +527,12 @@
                                     @else
                                         <img src="{{ route('document.view', $doc->id) }}"
                                              alt="Original Student Document" class="img-zoomable"
+                                             role="button"
+                                             tabindex="0"
+                                             aria-label="Click or press Enter to enlarge image"
                                              onerror="this.src='https://placehold.co/600x800?text=Image+Not+Found'"
-                                             onclick="openLightbox(this.src)">
+                                             onclick="openLightbox(this.src)"
+                                             onkeydown="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); openLightbox(this.src); }">
                                     @endif
                                 </div>
                             </div>
@@ -550,7 +554,11 @@
                                     @elseif($hasAiResult && $doc->aiResult->heatmap_path)
                                         <img src="{{ route('document.heatmap', $doc->id) }}"
                                              alt="AI Heatmap Overlay" class="img-zoomable"
-                                             onclick="openLightbox(this.src)">
+                                             role="button"
+                                             tabindex="0"
+                                             aria-label="Click or press Enter to enlarge heatmap"
+                                             onclick="openLightbox(this.src)"
+                                             onkeydown="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); openLightbox(this.src); }">
                                     @elseif($hasAiResult)
                                         <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px; text-align: center; padding: 20px;">
                                             <i class="fa-solid fa-file-pdf fa-3x text-success mb-2 opacity-50"></i>
@@ -858,6 +866,16 @@
     function closeLightbox() {
         document.getElementById('lightbox').style.display = 'none';
     }
+
+    // ESC key to close lightbox
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+            const lightbox = document.getElementById('lightbox');
+            if (lightbox && lightbox.style.display === 'flex') {
+                closeLightbox();
+            }
+        }
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
         const img = document.getElementById('lightboxImg');

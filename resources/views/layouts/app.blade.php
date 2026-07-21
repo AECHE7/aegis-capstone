@@ -1585,6 +1585,33 @@
 {{-- SweetAlert2: loaded before views scripts to avoid undefined ReferenceError --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+{{-- Mobile keyboard detection for sticky action bars --}}
+<script>
+(function() {
+    let initialViewportHeight = window.innerHeight;
+
+    window.addEventListener('resize', function() {
+        // Detect if keyboard is open (viewport shrunk by >150px on mobile)
+        if (window.innerWidth <= 576) {
+            if (window.innerHeight < initialViewportHeight - 150) {
+                document.body.classList.add('keyboard-open');
+            } else {
+                document.body.classList.remove('keyboard-open');
+                initialViewportHeight = window.innerHeight; // Update for orientation changes
+            }
+        }
+    });
+
+    // Reset on orientation change
+    window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+            initialViewportHeight = window.innerHeight;
+            document.body.classList.remove('keyboard-open');
+        }, 200);
+    });
+})();
+</script>
+
 @stack('scripts')
 </body>
 </html>
