@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Model files (too large for git)
+*.keras
+*.h5
+*.pb
+*.ckpt
+*.weights
+
+# Temporary processing files
+temp_uploads/
+ela_outputs/
+heatmap_outputs/
+*.jpg
+*.png
+*.pdf
+temp_*.jpg
+temp_*.png
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
