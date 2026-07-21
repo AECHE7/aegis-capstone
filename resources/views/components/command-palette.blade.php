@@ -110,6 +110,12 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedIndex = -1;
     }
 
+    // Expose functions globally for topbar search trigger button
+    window.openPalette = openPalette;
+    window.closePalette = closePalette;
+    window.openAegisCommandPalette = openPalette;
+    window.closeAegisCommandPalette = closePalette;
+
     // Keyboard shortcut listener (Ctrl+K / Cmd+K) & Arrow keys navigation
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {

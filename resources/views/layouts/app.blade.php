@@ -1393,12 +1393,16 @@
             }
         })
             .then(res => {
-                if (!res.ok) return null;
-                const contentType = res.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    return res.json();
+                if (!res || !res.ok) return null;
+                return res.text();
+            })
+            .then(text => {
+                if (!text || !text.trim()) return null;
+                try {
+                    return JSON.parse(text);
+                } catch(e) {
+                    return null;
                 }
-                return null;
             })
             .then(data => {
                 if (!data) return;
@@ -1407,8 +1411,8 @@
                 const badgeStudent = document.getElementById('notifBadgeStudent');
                 const listStudent = document.getElementById('notifListStudent');
                 
-                const count = data.count;
-                const notifications = data.notifications;
+                const count = data.count || 0;
+                const notifications = data.notifications || [];
                 
                 if (badgeAdmin) {
                     if (count > 0) {
@@ -1437,7 +1441,7 @@
                 }
             })
             .catch(() => {
-                // Silently ignore temporary network/gateway polling interruptions
+                // Silently ignore network or gateway interruptions
             });
     }
     
