@@ -155,6 +155,7 @@ class AdminDashboardEmptyStateTest extends TestCase
             'program_name' => $this->scholarship->name,
             'gwa' => 1.75,
             'status' => 'Pending',
+            'assigned_to' => $this->admin->id,
         ]);
 
         $response = $this->actingAs($this->admin)->get('/admin/dashboard');
