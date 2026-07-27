@@ -656,6 +656,21 @@ To transition the project from its current MVP setup to a robust, production-rea
   - *Tier 1 (CSRF Mismatch & Rate Limits):* Embed `@csrf` tokens in both form panels → *Tier 2:* Display human-readable 419 session refresh notice → *Tier 3:* Format 429 Throttle countdowns → *Tier 4 Fail-Safe:* Auto-reload page on token mismatch to generate fresh CSRF token.
   - *Tier 1 (Mobile Keyboard Overlap):* `modal-dialog-scrollable` with 90vh constraint → *Tier 2:* 48px touch targets (WCAG 2.5.5) → *Tier 3:* Auto-scroll active inputs on focus → *Tier 4 Fail-Safe:* Static backdrop guards (`data-bs-backdrop="static"`) to prevent accidental dismissals.
 
+### Phase 65: Comprehensive Frontend Audit & Strategic Recommendations for International Standards - [COMPLETED]
+- **Goal:** Audit the AEGIS frontend UI/UX architecture against international standards for web software systems (ISO/IEC 25010:2023, WCAG 2.2 Level AA/AAA, W3C Core Web Vitals, NIST SP 800-63B, and i18n/l10n standards) and construct a strategic improvement roadmap.
+- **Steps:**
+  1. **ISO/IEC 25010:2023 Quality Model Evaluation**: Evaluated system usability, learnability, error protection, and operability. Proposed zero-dependency onboarding tours for first-time applicants and live input masking for bank accounts.
+  2. **W3C WCAG 2.2 Level AA/AAA Accessibility Audit**: Identified touch boundary improvements (44x44px targets for compact table icons), proposed a 3rd "High Contrast / OLED Black" theme mode (12:1 contrast ratio), and designed dynamic `aria-live` announcers.
+  3. **W3C Core Web Vitals Optimization**: Recommended wrapping heavy table DOM re-renders in `requestAnimationFrame()` for INP (<100ms) performance and enforcing CSS `aspect-ratio` properties on media elements to eliminate CLS (<0.05).
+  4. **Internationalization (i18n / BCP 47) Readiness**: Formulated strategy to extract hardcoded Blade strings into Laravel `lang/` translation dictionaries and add a topbar language switcher (`English`, `Filipino`, `Ilocano`).
+  5. **NIST SP 800-63B & Security UI**: Recommended defaulting bank account numbers to masked strings (`•••• •••• 1234`) with click-to-reveal toggles, and adding an idle session timeout warning modal.
+- **4-Tier Risk & Quaternary Fail-Safe Architecture Matrix:**
+  - *Tier 1 (Multi-Language String Missing):* Fallback to English dictionary string → *Tier 2:* Display untranslated key string cleanly → *Tier 3:* Log missing i18n key in telemetry → *Tier 4 Fail-Safe:* Serve default Blade view string without breaking markup.
+  - *Tier 1 (High Contrast Contrast Failure):* Pure black background `#000000` with `#ffffff` text → *Tier 2:* 3px high-visibility focus borders → *Tier 3:* High-contrast SVG icons → *Tier 4 Fail-Safe:* Native system `@media (forced-colors: active)` detection.
+  - *Tier 1 (Touch Boundary Mis-tap):* Minimum 44x44px interactive bounding box → *Tier 2:* Micro-vibration / active scale feedback → *Tier 3:* Visual click ripple → *Tier 4 Fail-Safe:* Expanded click region wrapper around compact icons.
+  - *Tier 1 (Idle Session Expiration Data Loss):* 2-minute countdown warning modal at 28min mark → *Tier 2:* Auto-save uncommitted inputs to `localStorage` → *Tier 3:* 1-click token renewal endpoint → *Tier 4 Fail-Safe:* Restore draft inputs upon re-login.
+
+
 
 
 

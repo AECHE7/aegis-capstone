@@ -620,6 +620,7 @@
     }
 </script>
 
+    <x-auth-modal />
 </main>
 </body>
 </html>

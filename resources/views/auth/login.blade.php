@@ -720,6 +720,7 @@
     }
 </script>
 
+    <x-auth-modal :emergencyReadOnly="$emergencyReadOnly" />
 </main>
 </body>
 </html>
