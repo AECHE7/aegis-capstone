@@ -11,15 +11,37 @@ class AdminDashboardEmptyStateTest extends TestCase
 {
     use RefreshDatabase;
 
+    private User $admin;
+    private \App\Models\AcademicTerm $academicTerm;
+    private \App\Models\Scholarship $scholarship;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create admin user
-        $this->admin = User::factory()->create([
-            'role' => 'admin',
-            'email' => 'admin@clsu.edu.ph'
+        $this->academicTerm = \App\Models\AcademicTerm::create([
+            'academic_year' => '2025-2026',
+            'semester' => '1st Semester',
+            'is_active' => true,
         ]);
+
+        $this->scholarship = \App\Models\Scholarship::create([
+            'name' => 'Scholarship A',
+            'min_gwa_required' => 2.00,
+            'status' => 'Active',
+        ]);
+
+        // Create admin user manually
+        $this->admin = User::create([
+            'name' => 'OSA Admin',
+            'email' => 'admin@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
+
+        // Assign Admin to Scholarship A
+        $this->admin->scholarships()->attach($this->scholarship->id);
     }
 
     /**
@@ -115,10 +137,24 @@ class AdminDashboardEmptyStateTest extends TestCase
      */
     public function test_empty_state_not_shown_when_applications_exist()
     {
-        // Create a test application
-        Application::factory()->create([
+        // Create student manually
+        $student = User::create([
+            'name' => 'Student User',
+            'email' => 'student@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'student',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // Create a test application manually
+        Application::create([
+            'user_id' => $student->id,
+            'scholarship_id' => $this->scholarship->id,
+            'academic_term_id' => $this->academicTerm->id,
+            'program_name' => $this->scholarship->name,
+            'gwa' => 1.75,
             'status' => 'Pending',
-            'user_id' => User::factory()->create(['role' => 'student'])
         ]);
 
         $response = $this->actingAs($this->admin)->get('/admin/dashboard');
