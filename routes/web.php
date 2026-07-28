@@ -273,6 +273,8 @@ Route::middleware(['auth'])->group(function () {
     // SECURE FILE VIEWING — extracted from route closures to DocumentController (HIGH-01)
     Route::get('/document/{id}/image', [DocumentController::class, 'view'])->name('document.view');
     Route::get('/document/{id}/heatmap', [DocumentController::class, 'heatmap'])->name('document.heatmap');
+    Route::get('/document/{id}/original-page', [DocumentController::class, 'originalPage'])->name('document.originalPage');
+    Route::get('/document/{id}/forensic-layer/{layer}', [DocumentController::class, 'forensicLayer'])->name('document.forensicLayer');
     Route::get('/application-field/{id}/file', [DocumentController::class, 'fieldFile'])->name('application-field.file');
 
     // UAT FEEDBACK SUBMISSION

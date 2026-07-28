@@ -141,6 +141,65 @@ class DocumentController extends Controller
     }
 
     /**
+     * Stream the rasterized original page preview for a PDF or image.
+     * Route: GET /document/{id}/original-page
+     */
+    public function originalPage(int $id)
+    {
+        $aiResult = \App\Models\AIResult::with('document.application')->where('document_id', $id)->firstOrFail();
+
+        $this->authorizeDocumentAccess(
+            $aiResult->document->application->user_id ?? null,
+            $aiResult->document->application->scholarship_id ?? null
+        );
+
+        $deepReport = $aiResult->deep_analysis_report;
+        $originalPageBase64 = $deepReport['visualizations']['original_page_base64'] ?? null;
+
+        if (!empty($originalPageBase64)) {
+            $binary = base64_decode($originalPageBase64);
+            return response($binary, 200, [
+                'Content-Type'        => 'image/png',
+                'Content-Disposition' => 'inline; filename="original_page_' . $id . '.png"',
+                'Cache-Control'       => 'public, max-age=31536000, immutable'
+            ]);
+        }
+
+        // Fall back to showing the original raw file (e.g. if it is an image document)
+        return $this->view($id);
+    }
+
+    /**
+     * Stream a specific forensic layer (e.g. ela_detailed, noise_consistency, edge_consistency).
+     * Route: GET /document/{id}/forensic-layer/{layer}
+     */
+    public function forensicLayer(int $id, string $layer)
+    {
+        $aiResult = \App\Models\AIResult::with('document.application')->where('document_id', $id)->firstOrFail();
+
+        $this->authorizeDocumentAccess(
+            $aiResult->document->application->user_id ?? null,
+            $aiResult->document->application->scholarship_id ?? null
+        );
+
+        $deepReport = $aiResult->deep_analysis_report;
+        $layers = $deepReport['visualizations']['layer_heatmaps'] ?? [];
+        
+        $layerBase64 = $layers[$layer] ?? null;
+
+        if (!empty($layerBase64)) {
+            $binary = base64_decode($layerBase64);
+            return response($binary, 200, [
+                'Content-Type'        => 'image/png',
+                'Content-Disposition' => 'inline; filename="layer_' . $layer . '_' . $id . '.png"',
+                'Cache-Control'       => 'public, max-age=31536000, immutable'
+            ]);
+        }
+
+        abort(404, 'Forensic layer not found.');
+    }
+
+    /**
      * Stream or proxy a custom application field file upload.
      * Route: GET /application-field/{id}/file
      */

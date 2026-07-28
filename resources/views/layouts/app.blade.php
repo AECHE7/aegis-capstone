@@ -1253,34 +1253,6 @@
                     </ul>
                 </div>
 
-                <!-- Theme Selector Dropdown -->
-                <div class="dropdown">
-                    <button class="btn btn-link p-1 topbar-icon-btn d-flex align-items-center gap-1" type="button" 
-                            id="themeSwitcher" 
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                            aria-label="{{ __('portal.theme') }}"
-                            style="box-shadow: none; text-decoration: none;">
-                        <i class="fa-solid fa-circle-half-stroke fs-5"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-1" aria-labelledby="themeSwitcher" style="border-radius: 12px; font-size: 0.85rem; min-width: 150px;">
-                        <li>
-                            <button class="dropdown-item d-flex align-items-center gap-2 text-start w-100 border-0 bg-transparent" onclick="setSystemTheme('light')">
-                                <i class="fa-regular fa-sun"></i> {{ __('portal.theme_light') }}
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item d-flex align-items-center gap-2 text-start w-100 border-0 bg-transparent" onclick="setSystemTheme('dark')">
-                                <i class="fa-regular fa-moon"></i> {{ __('portal.theme_dark') }}
-                            </button>
-                        </li>
-                        <li>
-                            <button class="dropdown-item d-flex align-items-center gap-2 text-start w-100 border-0 bg-transparent" onclick="setSystemTheme('high-contrast')">
-                                <i class="fa-solid fa-eye"></i> {{ __('portal.theme_contrast') }}
-                            </button>
-                        </li>
-                    </ul>
-                </div>
 
                 @if(auth()->user()->role === 'admin')
                     <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: #dcfce7; color: #14532d; font-size: 0.75rem;">

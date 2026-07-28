@@ -323,7 +323,7 @@
                             <form action="{{ route('admin.scan', $application->id) }}" method="POST" class="d-inline-block w-100">
                                 @csrf
                                 <div class="mb-3 text-start">
-                                    <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.72rem;"><i class="fa-solid fa-sliders me-1"></i> Scan Mode</label>
+                                    <label class="form-label fw-bold text-muted mb-1" for="scanModeSelect-{{ $doc->id }}" style="font-size: 0.72rem;"><i class="fa-solid fa-sliders me-1"></i> Scan Mode</label>
                                     <select name="mode" id="scanModeSelect-{{ $doc->id }}" class="form-select form-select-sm rounded-3" style="font-size: 0.78rem; border-color: var(--border-color); background-color: var(--clsu-bg); color: var(--text-main);">
                                         <option value="standard" selected>Enhanced Scan (V2 - Standard)</option>
                                         <option value="deep">Deep Forensics (V3 - Heatmaps/Crops)</option>
@@ -343,7 +343,7 @@
                             <form action="{{ route('admin.scan', $application->id) }}" method="POST">
                                 @csrf
                                 <div class="mb-3 text-start">
-                                    <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.72rem;"><i class="fa-solid fa-sliders me-1"></i> Scan Mode</label>
+                                    <label class="form-label fw-bold text-muted mb-1" for="scanModeSelectInitial-{{ $doc->id }}" style="font-size: 0.72rem;"><i class="fa-solid fa-sliders me-1"></i> Scan Mode</label>
                                     <select name="mode" id="scanModeSelectInitial-{{ $doc->id }}" class="form-select form-select-sm rounded-3" style="font-size: 0.78rem; border-color: var(--border-color); background-color: var(--clsu-bg); color: var(--text-main);">
                                         <option value="standard" selected>Enhanced Scan (V2 - Standard)</option>
                                         <option value="deep">Deep Forensics (V3 - Heatmaps/Crops)</option>
@@ -545,10 +545,10 @@
 
         {{-- Staff Notes Card --}}
         <div class="card p-4 mt-3 border-0 shadow-sm" style="border-radius:16px;">
-            <h6 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-note-sticky text-warning me-2"></i> Staff Notes (Private)</h6>
+            <label class="form-label fw-bold mb-1 text-dark" for="staffNotesTextarea"><i class="fa-solid fa-note-sticky text-warning me-2"></i> Staff Notes (Private)</label>
             <p class="text-muted mb-3" style="font-size:0.75rem;">Internal review notes. Student cannot see this. Auto-saves on focus out.</p>
             <div class="position-relative">
-                <textarea id="staffNotesTextarea" class="form-control" rows="4" 
+                <textarea id="staffNotesTextarea" name="admin_notes" class="form-control" rows="4" 
                           placeholder="Write comments, cross-referencing notes, or verification details here..." 
                           style="resize:none; font-size:0.82rem; border-radius:10px;"
                           onblur="saveStaffNotes(this.value)">{{ $application->admin_notes }}</textarea>
@@ -707,7 +707,7 @@
                                             $layers = $deepReport['visualizations']['layer_heatmaps'] ?? [];
                                             $compositeHeatmap = $deepReport['visualizations']['composite_heatmap_base64'] ?? null;
                                             $originalPageBase64 = $deepReport['visualizations']['original_page_base64'] ?? null;
-                                            $originalUrl = $originalPageBase64 ? 'data:image/png;base64,' . $originalPageBase64 : route('document.view', $doc->id);
+                                            $originalUrl = $originalPageBase64 ? route('document.originalPage', $doc->id) : route('document.view', $doc->id);
                                         @endphp
                                         
                                         {{-- Tab buttons --}}
@@ -716,13 +716,7 @@
                                                     onclick="switchForensicTab(this, 'original', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                 Original
                                             </button>
-                                            @if($compositeHeatmap)
-                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
-                                                        data-src="data:image/png;base64,{{ $compositeHeatmap }}"
-                                                        onclick="switchForensicTab(this, 'composite', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
-                                                    Annotated (CAM)
-                                                </button>
-                                            @elseif($doc->aiResult->heatmap_path)
+                                            @if($compositeHeatmap || $doc->aiResult->heatmap_path)
                                                 <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
                                                         data-src="{{ route('document.heatmap', $doc->id) }}"
                                                         onclick="switchForensicTab(this, 'composite', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
@@ -732,21 +726,21 @@
                                             
                                             @if(isset($layers['ela_detailed']))
                                                 <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
-                                                        data-src="data:image/png;base64,{{ $layers['ela_detailed'] }}"
+                                                        data-src="{{ route('document.forensicLayer', [$doc->id, 'ela_detailed']) }}"
                                                         onclick="switchForensicTab(this, 'ela', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                     ELA Map
                                                 </button>
                                             @endif
                                             @if(isset($layers['noise_consistency']))
                                                 <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
-                                                        data-src="data:image/png;base64,{{ $layers['noise_consistency'] }}"
+                                                        data-src="{{ route('document.forensicLayer', [$doc->id, 'noise_consistency']) }}"
                                                         onclick="switchForensicTab(this, 'noise', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                     Noise Map
                                                 </button>
                                             @endif
                                             @if(isset($layers['edge_consistency']))
                                                 <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
-                                                        data-src="data:image/png;base64,{{ $layers['edge_consistency'] }}"
+                                                        data-src="{{ route('document.forensicLayer', [$doc->id, 'edge_consistency']) }}"
                                                         onclick="switchForensicTab(this, 'edge', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                     Edge Map
                                                 </button>
