@@ -599,16 +599,18 @@
 
         /* Top header bar inside main area */
         .topbar {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0.75rem 2rem;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(12, 78, 45, 0.08);
+            padding: 0.85rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.02);
             transition: var(--transition);
         }
 
