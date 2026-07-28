@@ -154,6 +154,9 @@ class DocumentController extends Controller
         );
 
         $deepReport = $aiResult->deep_analysis_report;
+        if (is_string($deepReport)) {
+            $deepReport = json_decode($deepReport, true) ?? [];
+        }
         $originalPageBase64 = $deepReport['visualizations']['original_page_base64'] ?? null;
 
         if (!empty($originalPageBase64)) {
@@ -183,8 +186,11 @@ class DocumentController extends Controller
         );
 
         $deepReport = $aiResult->deep_analysis_report;
+        if (is_string($deepReport)) {
+            $deepReport = json_decode($deepReport, true) ?? [];
+        }
+
         $layers = $deepReport['visualizations']['layer_heatmaps'] ?? [];
-        
         $layerBase64 = $layers[$layer] ?? null;
 
         if (!empty($layerBase64)) {
@@ -196,7 +202,16 @@ class DocumentController extends Controller
             ]);
         }
 
-        abort(404, 'Forensic layer not found.');
+        // Graceful Fallback: stream standard heatmap or original view instead of returning 404!
+        if (!empty($aiResult->heatmap_data)) {
+            $binary = base64_decode($aiResult->heatmap_data);
+            return response($binary, 200, [
+                'Content-Type'        => 'image/jpeg',
+                'Content-Disposition' => 'inline; filename="heatmap_' . $id . '.jpg"'
+            ]);
+        }
+
+        return $this->view($id);
     }
 
     /**
