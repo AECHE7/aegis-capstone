@@ -66,10 +66,25 @@
                         </div>
                         
                         <div class="col-md-6">
-                            <label for="auto_approval_min_confidence" class="form-label fw-semibold small text-muted">Minimum Auto-Approval AI Confidence (%)</label>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="auto_approval_min_confidence" class="form-label fw-semibold small text-muted mb-0">Minimum Auto-Approval AI Confidence (%)</label>
+                                <span id="auto_approval_val" class="badge bg-success fw-bold px-2 py-1" style="border-radius: 6px;">{{ $settings['auto_approval_min_confidence'] }}%</span>
+                            </div>
                             <input type="number" class="form-control py-2 @error('auto_approval_min_confidence') is-invalid @enderror" 
                                    id="auto_approval_min_confidence" name="auto_approval_min_confidence" min="0" max="100" step="0.1" 
-                                   value="{{ old('auto_approval_min_confidence', $settings['auto_approval_min_confidence']) }}" required style="border-radius: 10px;">
+                                   value="{{ old('auto_approval_min_confidence', $settings['auto_approval_min_confidence']) }}" required style="border-radius: 10px;"
+                                   oninput="document.getElementById('auto_approval_slider').value = this.value; document.getElementById('auto_approval_val').innerText = this.value + '%'">
+                            
+                            <input type="range" class="form-range mt-2" id="auto_approval_slider" min="0" max="100" step="0.5"
+                                   value="{{ old('auto_approval_min_confidence', $settings['auto_approval_min_confidence']) }}"
+                                   oninput="document.getElementById('auto_approval_min_confidence').value = this.value; document.getElementById('auto_approval_val').innerText = this.value + '%'">
+                            
+                            <div class="d-flex justify-content-between text-muted" style="font-size: 0.68rem; margin-top: 2px;">
+                                <span>0% (Allow Any)</span>
+                                <span class="fw-bold text-success">≥85% Recommended</span>
+                                <span>100% (Strict)</span>
+                            </div>
+
                             <div class="form-text small text-muted mt-1">
                                 Minimum AI confidence score required (calculated as 100 - fraud probability) to qualify for auto-approval.
                             </div>

@@ -36,12 +36,31 @@
 
     <style>
         :root {
-            --green: #0C4E2D; /* Starbucks/CLSU Green primary */
-            --green-dark: #07331c; /* Solid House Green */
-            --green-accent: #00754A; /* Accent Green for CTAs */
-            --gold: #D97706;
-            --gold-light: #fcd34d;
-            --bg-warm: #f2f0eb; /* Neutral Warm canvas */
+            --clsu-green: #0C4E2D;
+            --clsu-green-dark: #07331c;
+            --clsu-green-light: #126b3f;
+            --clsu-green-accent: #00754A;
+            --clsu-gold: #D97706;
+            --clsu-gold-light: #fcd34d;
+            --clsu-bg: #f2f0eb;
+            --card-bg: #ffffff;
+            --text-main: rgba(0, 0, 0, 0.87);
+            --border-color: #edebe9;
+
+            /* Backward compatibility aliases */
+            --green: var(--clsu-green);
+            --green-dark: var(--clsu-green-dark);
+            --green-accent: var(--clsu-green-accent);
+            --gold: var(--clsu-gold);
+            --gold-light: var(--clsu-gold-light);
+            --bg-warm: var(--clsu-bg);
+        }
+
+        [data-theme="dark"] {
+            --clsu-bg: #0b0f19;
+            --card-bg: #111827;
+            --text-main: #94a3b8;
+            --border-color: rgba(255,255,255,0.07);
         }
 
         * { box-sizing: border-box; }

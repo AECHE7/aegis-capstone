@@ -36,17 +36,17 @@
             </thead>
             <tbody>
                 @foreach($staffList as $staff)
-                <tr style="border-bottom: 1px solid #f1f5f9;" data-staff-id="{{ $staff->id }}">
+                <tr style="border-bottom: 1px solid var(--border-color);" data-staff-id="{{ $staff->id }}">
                     <td class="ps-4 py-3">
                         <div class="d-flex align-items-center">
-                            <div class="avatar-circle me-3" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #e2e8f0, #cbd5e1); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #475569;">
+                            <div class="avatar-circle me-3" style="width: 40px; height: 40px; border-radius: 50%; background: var(--clsu-bg); border: 1.5px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--text-main); font-size: 0.85rem;">
                                 {{ strtoupper(substr($staff->name, 0, 2)) }}
                             </div>
                             <div>
                                 <div class="fw-semibold text-dark">{{ $staff->name }}</div>
                                 <div class="mt-1 d-flex flex-wrap gap-1">
                                     @if($staff->role === 'superadmin')
-                                        <span class="badge bg-primary text-white px-2 py-0.5 rounded" style="font-size: 0.7rem; font-weight: 500; background-color: var(--green) !important;">
+                                        <span class="badge text-white px-2 rounded" style="font-size: 0.7rem; font-weight: 600; background-color: var(--clsu-green) !important;">
                                             All Programs (Director)
                                         </span>
                                     @else

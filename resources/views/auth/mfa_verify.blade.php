@@ -23,6 +23,11 @@
         @font-face { font-family: "Font Awesome 6 Brands"; font-display: swap; }
     </style>
 
+    {{-- Google Fonts — must load for visual consistency with login page --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -128,6 +133,12 @@
         <h1 class="mfa-title">Security Verification</h1>
         <p class="mfa-desc">Enter the 6-digit verification code sent to your registered email address to complete signing in.</p>
 
+        {{-- OTP expiry countdown (10 min = 600s, matches backend TTL) --}}
+        <div id="otpExpiry" class="mb-3" style="font-size: 0.82rem; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 8px 14px; display: inline-block;">
+            <i class="fa-solid fa-clock me-1" style="font-size: 0.75rem;"></i>
+            Code expires in <span id="expiryDisplay" style="font-weight: 700; color: #0C4E2D; font-family: monospace;">10:00</span>
+        </div>
+
         @if(session('success'))
             <div class="alert alert-success border-0 small mb-4 py-2" style="background-color: #dcfce7; color: #14532d;">
                 <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
@@ -184,7 +195,7 @@
         this.value = this.value.replace(/[^0-9]/g, '');
     });
 
-    // Resend countdown timer
+    // Resend countdown timer (60s cooldown)
     var seconds = 60;
     var countdownEl = document.getElementById('countdown');
     var resendTimer = document.getElementById('resendTimer');
@@ -197,6 +208,33 @@
             clearInterval(timer);
             resendTimer.style.display = 'none';
             resendBtn.style.display = 'inline';
+        }
+    }, 1000);
+
+    // OTP Expiry countdown (10 min = 600s, must match backend TTL in AuthController)
+    var expirySeconds = 600;
+    var expiryDisplay = document.getElementById('expiryDisplay');
+    var expiryContainer = document.getElementById('otpExpiry');
+    var expiryInterval = setInterval(function() {
+        expirySeconds--;
+        var m = Math.floor(expirySeconds / 60);
+        var s = expirySeconds % 60;
+        if (expiryDisplay) {
+            expiryDisplay.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+            // Turn red in final 60 seconds
+            if (expirySeconds <= 60) {
+                expiryDisplay.style.color = '#dc2626';
+                expiryContainer.style.background = '#fee2e2';
+            }
+        }
+        if (expirySeconds <= 0) {
+            clearInterval(expiryInterval);
+            if (expiryDisplay) {
+                expiryContainer.innerHTML = '<i class="fa-solid fa-circle-xmark me-1" style="color:#dc2626;"></i>'
+                    + '<span style="color:#dc2626;font-weight:700;">Code expired.</span>'
+                    + ' <a href="{{ route(\'login\') }}" style="color:#0C4E2D;font-weight:600;">Sign in again</a> to get a new code.';
+                expiryContainer.style.background = '#fee2e2';
+            }
         }
     }, 1000);
 

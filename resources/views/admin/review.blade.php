@@ -81,6 +81,61 @@
         width: 100%;
         object-fit: contain;
         padding: 45px 10px 10px;
+        transform-origin: center top;
+        transition: transform 0.2s ease;
+        cursor: zoom-in;
+        user-select: none;
+    }
+
+    /* Document zoom controls */
+    .viewer-zoom-controls {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        display: flex;
+        gap: 4px;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .viewer-box:hover .viewer-zoom-controls { opacity: 1; }
+
+    .viewer-zoom-btn {
+        background: rgba(0,0,0,0.55);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+    }
+
+    .viewer-zoom-btn:hover { background: rgba(0,0,0,0.8); }
+
+    /* Keyboard shortcuts legend */
+    .hotkey-legend {
+        background: var(--clsu-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        margin-top: 0.75rem;
+    }
+    .hotkey-legend kbd {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-main);
+        box-shadow: 0 1px 0 var(--border-color);
     }
 
     /* Decision buttons */
@@ -494,18 +549,32 @@
                 @elseif($application->status == 'Pending' || $application->status == 'Under Review')
                     <div class="d-flex flex-column gap-2 mobile-sticky-action-bar">
                         <div class="d-flex gap-2 w-100">
-                            <button type="button" class="btn-approve w-50 py-2.5" onclick="confirmDecision('Approved')">
+                            <button type="button" id="btnApprove" class="btn-approve w-50 py-2.5" onclick="confirmDecision('Approved')">
                                 <i class="fa-solid fa-check-circle me-1"></i> Approve
                             </button>
-                            <button type="button" class="btn-reject w-50 py-2.5" onclick="confirmDecision('Rejected')">
+                            <button type="button" id="btnReject" class="btn-reject w-50 py-2.5" onclick="confirmDecision('Rejected')">
                                 <i class="fa-solid fa-times-circle me-1"></i> Reject
                             </button>
                         </div>
-                        <button type="button" class="btn-return w-100 py-2.5" onclick="confirmDecision('Returned')">
+                        <button type="button" id="btnReturn" class="btn-return w-100 py-2.5" onclick="confirmDecision('Returned')">
                             <i class="fa-solid fa-reply me-1"></i> Return for Document Correction
                         </button>
                     </div>
                     <input type="hidden" name="status" id="statusInput">
+
+                    {{-- Keyboard Shortcuts Legend --}}
+                    <div class="hotkey-legend">
+                        <div class="small fw-bold text-muted mb-2 d-flex align-items-center justify-content-between" style="font-size: 0.68rem; letter-spacing: 0.8px; text-transform: uppercase;">
+                            <span><i class="fa-solid fa-keyboard me-1 text-primary"></i> Keyboard Hotkeys</span>
+                            <span class="text-muted fw-normal" style="font-size:0.65rem;">Active when not typing</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-success text-white px-2 py-1"><kbd>A</kbd> Approve</span>
+                            <span class="badge bg-danger text-white px-2 py-1"><kbd>R</kbd> Reject</span>
+                            <span class="badge px-2 py-1" style="background:#d97706; color:white;"><kbd>B</kbd> Return</span>
+                            <span class="badge bg-secondary text-white px-2 py-1"><kbd>Esc</kbd> Back</span>
+                        </div>
+                    </div>
                 @else
                     <div class="alert mb-0 text-center fw-bold rounded-3"
                          style="background: {{ $application->status == 'Approved' ? '#dcfce7' : ($application->status == 'Returned' ? '#fffbeb' : '#fee2e2') }}; color: {{ $application->status == 'Approved' ? '#15803d' : ($application->status == 'Returned' ? '#b45309' : '#b91c1c') }}; border: none; font-size: 0.875rem;">
@@ -1240,13 +1309,30 @@
         }
     }
 
-    // ESC key to close lightbox
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' || e.key === 'Esc') {
-            const lightbox = document.getElementById('lightbox');
-            if (lightbox && lightbox.style.display === 'flex') {
+    // Keyboard Shortcuts for Review Decision Actions
+    document.addEventListener('keydown', function(e) {
+        // Skip shortcuts when typing in input, textarea, select, or if a modal/lightbox is open
+        if (e.target.matches('input, textarea, select')) return;
+        if (document.querySelector('.modal.show')) return;
+        const lightbox = document.getElementById('lightbox');
+        if (lightbox && lightbox.style.display === 'flex') {
+            if (e.key === 'Escape' || e.key === 'Esc') {
                 closeLightbox();
             }
+            return;
+        }
+
+        if (e.key === 'a' || e.key === 'A') {
+            const btn = document.getElementById('btnApprove');
+            if (btn) btn.click();
+        } else if (e.key === 'r' || e.key === 'R') {
+            const btn = document.getElementById('btnReject');
+            if (btn) btn.click();
+        } else if (e.key === 'b' || e.key === 'B') {
+            const btn = document.getElementById('btnReturn');
+            if (btn) btn.click();
+        } else if (e.key === 'Escape' || e.key === 'Esc') {
+            window.location.href = "{{ route('admin.dashboard') }}";
         }
     });
 

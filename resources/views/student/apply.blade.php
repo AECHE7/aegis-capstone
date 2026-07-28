@@ -5,28 +5,28 @@
 @push('styles')
 <style>
     /* Scholarship selector cards */
-    .scholarship-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .scholarship-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 
     .scholarship-card-select {
-        border: 2px solid #e2e8f0;
+        border: 2px solid var(--border-color);
         border-radius: 12px;
         padding: 14px 16px;
         cursor: pointer;
         transition: all 0.2s;
-        background: white;
+        background: var(--card-bg);
         position: relative;
     }
 
     .scholarship-card-select:hover {
         border-color: var(--clsu-green);
-        background: #f0fdf4;
+        background: var(--clsu-green-muted);
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(15,89,52,0.1);
     }
 
     .scholarship-card-select.selected {
         border-color: var(--clsu-green);
-        background: #f0fdf4;
+        background: var(--clsu-green-muted);
         box-shadow: 0 4px 16px rgba(15,89,52,0.15);
     }
 
@@ -47,26 +47,26 @@
         text-align: center;
     }
 
-    /* Drag-and-drop upload zone */
+    /* Drag-and-drop upload zone — now theme-aware */
     .upload-zone {
-        border: 2.5px dashed #cbd5e1;
+        border: 2.5px dashed var(--border-color);
         border-radius: 16px;
         padding: 2.5rem 1.5rem;
         text-align: center;
         cursor: pointer;
         transition: all 0.25s;
-        background: #f8fafc;
+        background: var(--clsu-bg);
         position: relative;
     }
 
     .upload-zone:hover, .upload-zone.drag-over {
         border-color: var(--clsu-green);
-        background: #f0fdf4;
+        background: var(--clsu-green-muted);
     }
 
     .upload-zone.has-file {
         border-color: var(--clsu-green);
-        background: #f0fdf4;
+        background: var(--clsu-green-muted);
         padding: 1rem;
     }
 
@@ -91,11 +91,11 @@
     /* Eligibility badge */
     .eligibility-badge { display: none; }
 
-    /* Submit button */
+    /* Submit button — radius aligned with global pill system */
     .btn-submit-app {
         background: linear-gradient(135deg, var(--clsu-green), #16703f);
         color: white; border: none;
-        padding: 14px; border-radius: 12px;
+        padding: 14px; border-radius: var(--radius-pill);
         font-weight: 700; font-size: 1rem;
         transition: all 0.3s;
         box-shadow: 0 4px 16px rgba(15,89,52,0.25);
@@ -107,10 +107,13 @@
     }
     .btn-submit-app:disabled { opacity: 0.6; transform: none; box-shadow: none; cursor: not-allowed; }
 
-    /* Tips panel */
-    .tips-panel { background: #f8fafc; border-radius: 14px; padding: 1.25rem; border: 1px solid #e2e8f0; }
+    /* Tips panel — theme-aware */
+    .tips-panel { background: var(--clsu-bg); border-radius: 14px; padding: 1.25rem; border: 1px solid var(--border-color); }
     .tip-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
     .tip-item:last-child { margin-bottom: 0; }
+
+    /* Inline file validation message */
+    .file-validation-msg { font-size: 0.82rem; margin-top: 0.5rem; display: none; }
 </style>
 @endpush
 

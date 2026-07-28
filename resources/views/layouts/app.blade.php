@@ -909,18 +909,18 @@
             font-weight: 700;
             letter-spacing: 0.8px;
             text-transform: uppercase;
-            color: #64748b;
-            background: #f8fafc;
-            border-bottom: 2px solid #e2e8f0;
+            color: var(--text-main);
+            background: var(--clsu-bg);
+            border-bottom: 2px solid var(--border-color);
         }
 
         .table tbody tr {
-            border-color: #f1f5f9;
+            border-color: var(--border-color);
             transition: var(--transition);
         }
 
         .table tbody tr:hover {
-            background: #f8fafc;
+            background: var(--clsu-bg);
         }
 
         /* ══════════════════════════════════════════

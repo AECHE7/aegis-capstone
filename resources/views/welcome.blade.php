@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <script>
         (function () {
-            const savedTheme = localStorage.getItem('aegis-theme') || 'light';
+            const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
     </script>

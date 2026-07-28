@@ -21,6 +21,14 @@
     .status-hero.returned { background: #d97706; }
     .status-hero.empty    { background: #475569; }
 
+    /* Dark mode: use semi-transparent tints so status colors remain visible without blowing out */
+    [data-theme="dark"] .status-hero.pending  { background: rgba(180, 83, 9, 0.75);  backdrop-filter: blur(4px); }
+    [data-theme="dark"] .status-hero.review   { background: rgba(2, 132, 199, 0.75); backdrop-filter: blur(4px); }
+    [data-theme="dark"] .status-hero.approved { background: rgba(12, 78, 45, 0.85);  backdrop-filter: blur(4px); }
+    [data-theme="dark"] .status-hero.rejected { background: rgba(185, 28, 28, 0.75); backdrop-filter: blur(4px); }
+    [data-theme="dark"] .status-hero.returned { background: rgba(217, 119, 6, 0.75); backdrop-filter: blur(4px); }
+    [data-theme="dark"] .status-hero.empty    { background: rgba(71, 85, 105, 0.75); backdrop-filter: blur(4px); }
+
     .status-hero-icon {
         width: 64px; height: 64px;
         border-radius: 12px;
@@ -535,7 +543,13 @@
                         </h6>
 
                         <div style="padding-left: 4px;">
-                            @forelse($application->statusLogs as $log)
+                            @php
+                                $logsCollection = collect($application->statusLogs);
+                                $recentLogs = $logsCollection->take(3);
+                                $olderLogs  = $logsCollection->skip(3);
+                            @endphp
+
+                            @forelse($recentLogs as $log)
                                 @php
                                     $logColor = match($log->status) {
                                         'Approved'     => ['bg' => '#22c55e', 'light' => '#dcfce7', 'text' => '#15803d', 'icon' => 'fa-award'],
@@ -546,7 +560,7 @@
                                     };
                                 @endphp
                                 <div class="timeline-item">
-                                    @if(!$loop->last)
+                                    @if(!$loop->last || $olderLogs->count() > 0)
                                         <div class="timeline-connector"></div>
                                     @endif
                                     <div class="timeline-icon" style="background: {{ $logColor['light'] }}; color: {{ $logColor['text'] }}; border: 2px solid {{ $logColor['bg'] }}30;">
@@ -570,6 +584,52 @@
                             @empty
                                 <div class="text-center py-4 text-muted small">No audit trail history available yet.</div>
                             @endforelse
+
+                            @if($olderLogs->count() > 0)
+                                <div id="olderLogsCollapse" class="collapse">
+                                    @foreach($olderLogs as $log)
+                                        @php
+                                            $logColor = match($log->status) {
+                                                'Approved'     => ['bg' => '#22c55e', 'light' => '#dcfce7', 'text' => '#15803d', 'icon' => 'fa-award'],
+                                                'Rejected'     => ['bg' => '#ef4444', 'light' => '#fee2e2', 'text' => '#b91c1c', 'icon' => 'fa-circle-xmark'],
+                                                'Returned'     => ['bg' => '#d97706', 'light' => '#fffbeb', 'text' => '#b45309', 'icon' => 'fa-reply'],
+                                                'Under Review' => ['bg' => '#0284c7', 'light' => '#e0f2fe', 'text' => '#0369a1', 'icon' => 'fa-magnifying-glass-chart'],
+                                                default        => ['bg' => '#f59e0b', 'light' => '#fef9c3', 'text' => '#a16207', 'icon' => 'fa-hourglass-half'],
+                                            };
+                                        @endphp
+                                        <div class="timeline-item">
+                                            @if(!$loop->last)
+                                                <div class="timeline-connector"></div>
+                                            @endif
+                                            <div class="timeline-icon" style="background: {{ $logColor['light'] }}; color: {{ $logColor['text'] }}; border: 2px solid {{ $logColor['bg'] }}30;">
+                                                <i class="fa-solid {{ $logColor['icon'] }}" style="font-size:0.8rem;"></i>
+                                            </div>
+                                            <div class="timeline-content">
+                                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;background:{{ $logColor['light'] }};color:{{ $logColor['text'] }};font-size:0.72rem;font-weight:700;letter-spacing:0.3px;">
+                                                        {{ strtoupper($log->status) }}
+                                                    </span>
+                                                    <span class="text-muted small monospace-data" style="font-size:0.75rem;">
+                                                        <i class="fa-regular fa-clock me-1"></i>
+                                                        {{ $log->created_at->format('M d, Y · h:i A') }}
+                                                    </span>
+                                                </div>
+                                                @if($log->remarks)
+                                                <p class="mb-0 mt-2 text-muted" style="font-size:0.82rem;line-height:1.5;">{{ $log->remarks }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="text-center mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-bold" style="font-size: 0.75rem;"
+                                            data-bs-toggle="collapse" data-bs-target="#olderLogsCollapse"
+                                            onclick="this.innerText = (this.innerText.includes('Show') ? '▲ Collapse History' : '▼ Show Full History ({{ $olderLogs->count() }} older)')">
+                                        ▼ Show Full History ({{ $olderLogs->count() }} older)
+                                    </button>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -650,34 +710,42 @@
 
     @else
 
-    {{-- EMPTY STATE --}}
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
-        <div>
-            <h4 class="fw-bold mb-1">Welcome, {{ auth()->user()->name }}! 👋</h4>
-            <p class="text-muted small mb-0">Track your scholarship applications and requirements here.</p>
+    {{-- GUIDED ONBOARDING BANNER FOR NEW STUDENTS --}}
+    <div class="card p-0 overflow-hidden mb-4" style="border: none; border-radius: 20px; box-shadow: var(--shadow-card);">
+        <div style="background: linear-gradient(135deg, var(--clsu-green-dark), #1a5c38); padding: 2.5rem 2rem; color: white; position: relative; overflow: hidden;">
+            <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);background-size:24px 24px;pointer-events:none;"></div>
+            <div class="d-flex align-items-center gap-4 position-relative">
+                <div style="font-size: 3.5rem; opacity: 0.85;" class="d-none d-sm-block"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div>
+                    <div class="fw-bold mb-1" style="font-size: 1.35rem; font-family: 'Poppins', sans-serif;">
+                        Welcome to A.E.G.I.S., {{ auth()->user()->name }} 👋
+                    </div>
+                    <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem; max-width: 520px;" class="mb-3">
+                        Your official CLSU scholarship portal is active. View available programs and start your application today!
+                    </p>
+                    <a href="{{ route('student.apply') }}" class="btn fw-bold px-4 py-2.5 rounded-pill"
+                       style="background: white; color: var(--clsu-green); font-size: 0.9rem; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+                        <i class="fa-solid fa-paper-plane me-1.5"></i> Apply for Scholarship Now
+                    </a>
+                </div>
+            </div>
         </div>
-        <a href="{{ route('student.apply') }}" class="btn fw-bold shadow-sm px-4 py-2"
-           style="background: linear-gradient(135deg, var(--clsu-green), #16703f); color: white; border-radius: 10px; white-space: nowrap;">
-            <i class="fa-solid fa-plus me-1"></i> New Application
-        </a>
-    </div>
-
-    <div class="empty-card p-5 border-0 shadow-sm position-relative" style="background: white; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0 !important;">
-        <!-- Glowing gradient accent -->
-        <div style="position: absolute; top: -50px; left: 50%; transform: translateX(-50%); width: 220px; height: 100px; background: radial-gradient(circle, rgba(15,89,52,0.06) 0%, transparent 70%); pointer-events: none;"></div>
-        
-        <div style="width:100px; height:100px; border-radius:24px; background: linear-gradient(135deg, rgba(15,89,52,0.1) 0%, rgba(34,197,94,0.1) 100%); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; position: relative;">
-            <div style="position: absolute; inset: 6px; border-radius: 20px; border: 2px dashed rgba(15,89,52,0.2);"></div>
-            <i class="fa-solid fa-graduation-cap fa-3x" style="color:var(--clsu-green); position: relative; z-index: 2;"></i>
+        <div class="p-4" style="background: var(--card-bg);">
+            <div class="row g-3 text-center">
+                <div class="col-md-4">
+                    <div class="fw-bold mb-1" style="color: var(--clsu-green); font-size: 0.95rem;"><i class="fa-solid fa-1 me-1"></i> Choose Program</div>
+                    <div class="small text-muted">Select an active scholarship grant program</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="fw-bold mb-1" style="color: var(--clsu-green); font-size: 0.95rem;"><i class="fa-solid fa-2 me-1"></i> Upload Grades</div>
+                    <div class="small text-muted">Submit your Certificate of Grades (COG)</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="fw-bold mb-1" style="color: var(--clsu-green); font-size: 0.95rem;"><i class="fa-solid fa-3 me-1"></i> Track Status</div>
+                    <div class="small text-muted">AI verifies authenticity & OSA evaluates</div>
+                </div>
+            </div>
         </div>
-        <h4 class="fw-bold mb-2 text-dark" style="font-family:'Poppins', sans-serif; font-size: 1.5rem;">No Active Applications</h4>
-        <p class="text-muted mx-auto mb-4" style="max-width: 420px; font-size: 0.88rem; line-height: 1.6;">
-            Your gateway to CLSU scholarship grants is active. You haven't submitted any applications yet. View the available programs and start your application today!
-        </p>
-        <a href="{{ route('student.apply') }}" class="btn fw-bold px-5 py-3 rounded-pill text-white btn-submit-app d-inline-flex align-items-center gap-2"
-           style="background: linear-gradient(135deg, var(--clsu-green), #16703f); font-size: 0.95rem; border: none; box-shadow: var(--shadow-md);">
-            <i class="fa-solid fa-paper-plane"></i> Submit an Application
-        </a>
     </div>
     @endif
 

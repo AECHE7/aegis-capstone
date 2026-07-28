@@ -60,7 +60,7 @@
 {{-- Stat Cards Row --}}
 <div class="row g-3 mb-4">
     {{-- Pending --}}
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-lg-3">
         <div class="stat-card warning card-hover">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
@@ -75,7 +75,7 @@
         </div>
     </div>
     {{-- Under Review --}}
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-lg-3">
         <div class="stat-card info card-hover">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
@@ -90,7 +90,7 @@
         </div>
     </div>
     {{-- Approved --}}
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-lg-3">
         <div class="stat-card success card-hover">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
@@ -105,18 +105,18 @@
         </div>
     </div>
     {{-- Rejected --}}
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-lg-3">
         <div class="stat-card danger card-hover">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
-                    <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size:0.68rem;letter-spacing:0.8px;">Anomalies Detected</div>
+                    <div class="text-muted small fw-semibold text-uppercase mb-1" style="font-size:0.68rem;letter-spacing:0.8px;">Rejected</div>
                     <div class="stat-number text-dark count-up monospace-data" data-target="{{ $rejectedCount }}">0</div>
                 </div>
                 <div class="stat-icon" style="background:#fee2e2;">
                     <i class="fa-solid fa-shield-virus" style="color:#dc2626;"></i>
                 </div>
             </div>
-            <div class="small text-muted">Rejected applications</div>
+            <div class="small text-muted">Denied by reviewer</div>
         </div>
     </div>
 </div>

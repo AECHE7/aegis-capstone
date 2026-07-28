@@ -19,19 +19,20 @@
         .dark-stat i { display: none; }
     }
 
-    /* Chart cards */
-    .chart-card { border: 1px solid #e2e8f0; border-radius: 16px; background: white; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    /* Chart cards — now theme-aware */
+    .chart-card { border: 1px solid var(--border-color); border-radius: 16px; background: var(--card-bg); padding: 1.5rem; box-shadow: var(--shadow-card); color: var(--text-main); }
+    .chart-card h6, .chart-card .fw-bold { color: var(--text-title) !important; }
 
-    /* UAT Score bars */
-    .uat-score-bar { height: 8px; border-radius: 4px; background: #f1f5f9; overflow: hidden; }
+    /* UAT Score bars — theme-aware */
+    .uat-score-bar { height: 8px; border-radius: 4px; background: var(--clsu-bg); overflow: hidden; }
     .uat-score-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--clsu-green), #22c55e); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); width: 0; }
 
-    /* Evaluation Table */
+    /* Evaluation Table — theme-aware */
     .eval-row { transition: background 0.15s; }
-    .eval-row:hover { background: #f8fafc; }
+    .eval-row:hover { background: var(--clsu-bg); }
 
-    /* Avatar initials */
-    .eval-avatar { width: 34px; height: 34px; border-radius: 9px; background: linear-gradient(135deg, #dcfce7, #bbf7d0); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; color: #15803d; flex-shrink: 0; }
+    /* Avatar initials — theme-aware */
+    .eval-avatar { width: 34px; height: 34px; border-radius: 9px; background: var(--clsu-green-muted); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; color: var(--clsu-green); flex-shrink: 0; border: 1px solid var(--border-color); }
 
     /* Audit Export Card */
     .export-card { background: linear-gradient(145deg, #07331c, #1e3932); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.07); color: white; }
@@ -56,12 +57,14 @@
 <div class="card p-4 border-0 shadow-sm mb-4" style="border-radius: 16px;">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-filter text-success me-2"></i> Scoped Analytics Filtering</h6>
+        @if(app()->isLocal() || app()->environment('staging'))
         <form action="{{ route('superadmin.analytics.seed-mock') }}" method="POST" onsubmit="return confirm('Are you sure you want to seed the database with 40 mock student profiles and audit logs? This will clean up existing student records first.');">
             @csrf
             <button type="submit" class="btn btn-sm btn-outline-success fw-semibold px-3" style="border-radius: 50px; border-color: #16a34a; color: #16a34a;">
                 <i class="fa-solid fa-database me-1"></i> Seed Mock Data
             </button>
         </form>
+        @endif
     </div>
     <form action="{{ route('superadmin.analytics') }}" method="GET" class="row g-3 align-items-end">
         <div class="col-md-5">
