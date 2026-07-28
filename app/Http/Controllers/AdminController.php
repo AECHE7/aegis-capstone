@@ -344,6 +344,54 @@ class AdminController extends Controller
         return back()->with('success', ucfirst($mode) . ' document verification scan started in the background.');
     }
 
+    public function runScanSync($id)
+    {
+        $application = \App\Models\Application::with('documents')->findOrFail($id);
+        $this->validateAdminAccess($application);
+        $documents = $application->documents;
+
+        if ($documents->isEmpty()) {
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'AI Scan Failed: No documents found.'], 404);
+            }
+            return back()->with('error', 'AI Scan Failed: No documents found.');
+        }
+
+        $mode = request()->input('mode', 'standard');
+
+        foreach ($documents as $doc) {
+            \App\Models\AIResult::updateOrCreate(
+                ['document_id' => $doc->id],
+                [
+                    'fraud_probability' => 0.00,
+                    'classification' => 'scanning',
+                    'heatmap_path' => null
+                ]
+            );
+        }
+
+        try {
+            \App\Jobs\ScanDocumentJob::dispatchSync($application->id, $mode);
+            
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Scan completed successfully.']);
+            }
+            return back()->with('success', 'Scan completed successfully.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Synchronous scan failed: " . $e->getMessage());
+            foreach ($documents as $doc) {
+                \App\Models\AIResult::updateOrCreate(
+                    ['document_id' => $doc->id],
+                    ['classification' => 'failed']
+                );
+            }
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Sync scan failed: ' . $e->getMessage()], 500);
+            }
+            return back()->with('error', 'Sync scan failed: ' . $e->getMessage());
+        }
+    }
+
     // SECURE DOCUMENT DOWNLOAD FOR ADMIN REVIEW
     public function downloadDocument($id)
     {

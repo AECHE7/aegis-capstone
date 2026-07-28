@@ -151,6 +151,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/review/{id}', [AdminController::class, 'review'])->name('admin.review');
         Route::get('/review/{id}/scan-status', [AdminController::class, 'scanStatus'])->name('admin.scanStatus');
         Route::post('/review/{id}/scan', [AdminController::class, 'runScan'])->name('admin.scan');
+        Route::post('/review/{id}/scan-sync', [AdminController::class, 'runScanSync'])->name('admin.scanSync');
         Route::post('/review/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.updateStatus');
         Route::post('/review/{id}/archive', [AdminController::class, 'archive'])->name('admin.archive');
         Route::post('/review/{id}/unarchive', [AdminController::class, 'unarchive'])->name('admin.unarchive');

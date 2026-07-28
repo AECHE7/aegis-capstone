@@ -227,9 +227,24 @@
                                     <i class="fa-solid fa-arrow-rotate-right me-1"></i> Force Restart Scan
                                 </button>
                             </form>
+                            <div id="syncFallbackContainer-{{ $doc->id }}" class="mt-3 p-3 rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-20 d-none text-start" style="font-size:0.75rem;">
+                                <div class="fw-bold text-warning mb-1"><i class="fa-solid fa-circle-exclamation me-1"></i> Queue taking longer than usual...</div>
+                                <span class="text-muted">The background queue worker may be offline on Render. You can run the scan synchronously in the foreground web process instead:</span>
+                                <button type="button" class="btn btn-xs btn-warning fw-bold text-dark mt-2 w-100" onclick="runSyncScan('{{ $doc->id }}')">
+                                    <i class="fa-solid fa-bolt me-1"></i> Run Scan Synchronously
+                                </button>
+                            </div>
                             <script>
                                 if (typeof window.scanStatusPoller === 'undefined') {
+                                    let pollSeconds = 0;
                                     window.scanStatusPoller = setInterval(async () => {
+                                        pollSeconds += 3;
+                                        if (pollSeconds >= 9) {
+                                            const leftFallback = document.getElementById("syncFallbackContainer-{{ $doc->id }}");
+                                            const rightFallback = document.getElementById("syncFallbackRight-{{ $doc->id }}");
+                                            if (leftFallback) leftFallback.classList.remove('d-none');
+                                            if (rightFallback) rightFallback.classList.remove('d-none');
+                                        }
                                         try {
                                             const res = await fetch("{{ route('admin.scanStatus', $application->id) }}", {
                                                 headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
@@ -309,7 +324,7 @@
                                 @csrf
                                 <div class="mb-3 text-start">
                                     <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.72rem;"><i class="fa-solid fa-sliders me-1"></i> Scan Mode</label>
-                                    <select name="mode" class="form-select form-select-sm rounded-3" style="font-size: 0.78rem; border-color: var(--border-color); background-color: var(--clsu-bg); color: var(--text-main);">
+                                    <select name="mode" id="scanModeSelect-{{ $doc->id }}" class="form-select form-select-sm rounded-3" style="font-size: 0.78rem; border-color: var(--border-color); background-color: var(--clsu-bg); color: var(--text-main);">
                                         <option value="standard" selected>Enhanced Scan (V2 - Standard)</option>
                                         <option value="deep">Deep Forensics (V3 - Heatmaps/Crops)</option>
                                     </select>
@@ -329,7 +344,7 @@
                                 @csrf
                                 <div class="mb-3 text-start">
                                     <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.72rem;"><i class="fa-solid fa-sliders me-1"></i> Scan Mode</label>
-                                    <select name="mode" class="form-select form-select-sm rounded-3" style="font-size: 0.78rem; border-color: var(--border-color); background-color: var(--clsu-bg); color: var(--text-main);">
+                                    <select name="mode" id="scanModeSelectInitial-{{ $doc->id }}" class="form-select form-select-sm rounded-3" style="font-size: 0.78rem; border-color: var(--border-color); background-color: var(--clsu-bg); color: var(--text-main);">
                                         <option value="standard" selected>Enhanced Scan (V2 - Standard)</option>
                                         <option value="deep">Deep Forensics (V3 - Heatmaps/Crops)</option>
                                     </select>
@@ -673,6 +688,13 @@
                                         <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100 flex-grow-1" style="min-height:300px;">
                                             <i class="fa-solid fa-spinner fa-spin fa-3x text-primary mb-2"></i>
                                             <small class="text-muted">AI Scanning in progress...</small>
+                                            <div id="syncFallbackRight-{{ $doc->id }}" class="mt-3 p-3 rounded bg-warning bg-opacity-10 border border-warning border-opacity-20 d-none text-start mx-3" style="font-size:0.75rem; max-width: 320px;">
+                                                <div class="fw-bold text-warning mb-1"><i class="fa-solid fa-circle-exclamation me-1"></i> Queue delayed...</div>
+                                                <span class="text-muted">Background job queue not responding. Force run the scan in your browser window:</span>
+                                                <button type="button" class="btn btn-sm btn-warning fw-bold text-dark mt-2 w-100" onclick="runSyncScan('{{ $doc->id }}')">
+                                                    <i class="fa-solid fa-bolt me-1"></i> Force Sync Scan
+                                                </button>
+                                            </div>
                                         </div>
                                     @elseif($isFailed)
                                         <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100 flex-grow-1" style="min-height:300px;">
@@ -1168,6 +1190,59 @@
             showConfirmButton: false,
             timer: 4000
         });
+    }
+
+    async function runSyncScan(docId) {
+        Swal.fire({
+            title: 'Running Foreground AI Scan',
+            text: 'Bypassing queue to run scan synchronously. Please wait...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            // Find selected mode from dropdowns (re-scan or initial)
+            const modeSelect = document.getElementById('scanModeSelect-' + docId) || document.getElementById('scanModeSelectInitial-' + docId);
+            const mode = modeSelect ? modeSelect.value : 'standard';
+
+            const response = await fetch("{{ route('admin.scanSync', $application->id) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ mode: mode })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Scan Complete!',
+                    text: data.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Scan Failed',
+                    text: data.message || 'An error occurred during verification.'
+                });
+            }
+        } catch (error) {
+            console.error('Foreground scan failed:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Connection Error',
+                text: 'An unexpected connection error occurred.'
+            });
+        }
     }
 
     // ESC key to close lightbox
