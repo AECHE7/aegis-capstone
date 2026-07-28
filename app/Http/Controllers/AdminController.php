@@ -320,6 +320,8 @@ class AdminController extends Controller
             return back()->with('error', 'AI Scan Failed: No documents found.');
         }
 
+        $mode = request()->input('mode', 'standard');
+
         foreach ($documents as $doc) {
             // 1. Create a placeholder scanning result
             \App\Models\AIResult::updateOrCreate(
@@ -332,14 +334,14 @@ class AdminController extends Controller
             );
         }
 
-        // 2. Dispatch the background job
-        \App\Jobs\ScanDocumentJob::dispatch($application->id);
+        // 2. Dispatch the background job with selected mode
+        \App\Jobs\ScanDocumentJob::dispatch($application->id, $mode);
 
         if (request()->expectsJson() || request()->ajax()) {
-            return response()->json(['success' => true, 'message' => 'Document verification scan started in the background.']);
+            return response()->json(['success' => true, 'message' => ucfirst($mode) . ' document verification scan started in the background.']);
         }
 
-        return back()->with('success', 'Document verification scan started in the background.');
+        return back()->with('success', ucfirst($mode) . ' document verification scan started in the background.');
     }
 
     // SECURE DOCUMENT DOWNLOAD FOR ADMIN REVIEW
@@ -421,7 +423,7 @@ class AdminController extends Controller
     {
         // 1. Validate the incoming decision and remarks
         $request->validate([
-            'status' => 'required|in:Approved,Rejected',
+            'status' => 'required|in:Approved,Rejected,Returned',
             'remarks' => 'nullable|string'
         ]);
 
@@ -446,9 +448,18 @@ class AdminController extends Controller
             'changed_by' => $evaluatorId
         ]);
 
+        $actionType = 'evaluate_application';
+        if (strtolower($request->status) === 'approved') {
+            $actionType = 'approve_application';
+        } elseif (strtolower($request->status) === 'rejected') {
+            $actionType = 'reject_application';
+        } elseif (strtolower($request->status) === 'returned') {
+            $actionType = 'return_application';
+        }
+
         \App\Services\AuditLoggerService::logAdminAction(
             $evaluatorId,
-            strtolower($request->status) === 'approved' ? 'approve_application' : 'reject_application',
+            $actionType,
             'Application',
             $application->id,
             "Evaluated application APP-{$application->id} (Status: {$request->status})",

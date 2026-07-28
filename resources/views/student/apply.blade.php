@@ -121,8 +121,8 @@
         <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--clsu-green),#16703f);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 20px rgba(15,89,52,0.25);">
             <i class="fa-solid fa-file-signature text-white fs-4"></i>
         </div>
-        <h3 class="fw-bold text-dark mb-1">Submit a New Application</h3>
-        <p class="text-muted" style="font-size:0.9rem;">Select your scholarship, enter your GWA, and upload your Certificate of Grades.</p>
+        <h3 class="fw-bold text-dark mb-1">{{ __('portal.submit_new_application') }}</h3>
+        <p class="text-muted" style="font-size:0.9rem;">{{ __('portal.select_scholarship_tagline') }}</p>
     </div>
 
     <div class="row g-4">
@@ -142,7 +142,7 @@
                     <div class="mb-4">
                         <label class="form-label fw-bold text-dark mb-2">
                             <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">1</span>
-                            Select Scholarship Program
+                            {{ __('portal.select_scholarship_program') }}
                         </label>
                         <div class="scholarship-grid" id="scholarshipGrid">
                             @foreach($scholarships as $scholarship)
@@ -157,7 +157,7 @@
                                         <div class="text-muted small mt-1">{{ $scholarship->description }}</div>
                                     </div>
                                     <span style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;font-size:0.72rem;font-weight:700;padding:3px 10px;white-space:nowrap;margin-left:10px;">
-                                        Max GWA: {{ $scholarship->min_gwa_required ?? 'None' }}
+                                        {{ __('portal.max_gwa') }}: {{ $scholarship->min_gwa_required ?? __('portal.none') }}
                                     </span>
                                 </div>
                             </div>
@@ -169,7 +169,7 @@
                     <div id="dynamicFieldsContainer" class="mb-4" style="display: none;">
                         <label class="form-label fw-bold text-dark mb-2">
                             <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
-                            Configure Scholarship Parameters
+                            {{ __('portal.configure_parameters') }}
                         </label>
                         <div class="p-3 bg-light border row g-3 mx-0" id="dynamicFieldsBody" style="border-radius: 12px;">
                             <!-- Dynamic inputs will be appended here via JS -->
@@ -179,7 +179,7 @@
                     {{-- Submit --}}
                     <div class="mobile-sticky-action-bar">
                         <button type="submit" class="btn-submit-app w-100" id="submitBtn" aria-describedby="submitHelpText">
-                            <i class="fa-solid fa-paper-plane me-2"></i> Submit Application to OSA
+                            <i class="fa-solid fa-paper-plane me-2"></i> {{ __('portal.submit_to_osa') }}
                         </button>
                     </div>
                     <div id="submitHelpText" class="text-danger small mt-2 text-center fw-semibold" style="display:none;" role="alert"></div>
@@ -191,17 +191,17 @@
         <div class="col-lg-5 order-first order-lg-last">
             {{-- Application Checklist Card --}}
             <div class="card p-4 mb-3 border-0 shadow-sm" style="border-radius:16px;">
-                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-list-check text-success me-2"></i> Application Checklist</h6>
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-list-check text-success me-2"></i> {{ __('portal.checklist') }}</h6>
                 <div id="checklistItems" class="d-flex flex-column gap-2 small">
                     <div class="d-flex align-items-center justify-content-between" id="chkScholarship">
-                        <span class="text-muted">1. Select Scholarship</span>
+                        <span class="text-muted">1. {{ __('portal.select_scholarship') }}</span>
                         <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>
                     </div>
                 </div>
             </div>
 
             <div class="tips-panel mb-3">
-                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i> Submission Tips</h6>
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i> {{ __('portal.submission_tips') }}</h6>
                 <div class="tip-item">
                     <div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                         <i class="fa-solid fa-image" style="color:#16a34a;font-size:0.8rem;"></i>
@@ -224,12 +224,12 @@
 
             {{-- What happens next --}}
             <div class="card p-4" style="border-radius:16px;">
-                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-route text-primary me-2"></i> What Happens Next?</h6>
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-route text-primary me-2"></i> {{ __('portal.what_happens_next') }}</h6>
                 @foreach([
-                    ['icon' => 'fa-paper-plane', 'color' => '#0284c7', 'bg' => '#e0f2fe', 'title' => 'Submission', 'desc' => 'Your application is submitted to the OSA queue.'],
-                    ['icon' => 'fa-robot', 'color' => '#7c3aed', 'bg' => '#ede9fe', 'title' => 'AI Scan', 'desc' => 'Our ResNet-50 CNN analyzes your COG for authenticity.'],
-                    ['icon' => 'fa-user-shield', 'color' => '#0F5934', 'bg' => '#dcfce7', 'title' => 'OSA Evaluation', 'desc' => 'An OSA administrator reviews the AI report and your GWA.'],
-                    ['icon' => 'fa-envelope', 'color' => '#d97706', 'bg' => '#fef9c3', 'title' => 'Notification', 'desc' => 'You receive an email with the final decision.'],
+                    ['icon' => 'fa-paper-plane', 'color' => '#0284c7', 'bg' => '#e0f2fe', 'title' => __('portal.step_submission_title'), 'desc' => __('portal.step_submission_desc')],
+                    ['icon' => 'fa-robot', 'color' => '#7c3aed', 'bg' => '#ede9fe', 'title' => __('portal.step_aiscan_title'), 'desc' => __('portal.step_aiscan_desc')],
+                    ['icon' => 'fa-user-shield', 'color' => '#0F5934', 'bg' => '#dcfce7', 'title' => __('portal.step_evaluation_title'), 'desc' => __('portal.step_evaluation_desc')],
+                    ['icon' => 'fa-envelope', 'color' => '#d97706', 'bg' => '#fef9c3', 'title' => __('portal.step_notification_title'), 'desc' => __('portal.step_notification_desc')],
                 ] as $step)
                 <div class="d-flex gap-3 mb-3 {{ $loop->last ? 'mb-0' : '' }}">
                     <div style="width:34px;height:34px;border-radius:9px;background:{{ $step['bg'] }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -249,6 +249,12 @@
 
 @push('scripts')
 <script>
+    // Initialize localization dictionaries for JS usage
+    window.portalTranslations = {
+        select_scholarship_program: "{{ __('portal.select_scholarship_program') }}",
+        optional: "{{ __('portal.optional') }}"
+    };
+
     let selectedScholarshipGwa = null;
 
     function selectScholarship(el) {
@@ -260,6 +266,9 @@
         document.getElementById('programNameInput').value = el.dataset.name;
         document.getElementById('scholarshipIdInput').value = el.dataset.id;
         selectedScholarshipGwa = parseFloat(el.dataset.gwa);
+
+        // Run GWA check if input already has value
+        checkGwaEligibility();
 
         // Fetch custom fields dynamically
         fetch(`/scholarships/${el.dataset.id}/fields`)
@@ -304,12 +313,12 @@
                             input.appendChild(defaultOpt);
                             
                             if (field.options && Array.isArray(field.options)) {
-                                field.options.forEach(opt => {
-                                    const o = document.createElement('option');
-                                    o.value = opt;
-                                    o.textContent = opt;
-                                    input.appendChild(o);
-                                });
+                                  field.options.forEach(opt => {
+                                      const o = document.createElement('option');
+                                      o.value = opt;
+                                      o.textContent = opt;
+                                      input.appendChild(o);
+                                  });
                             }
                         } else if (field.field_type === 'file') {
                             input = document.createElement('input');
@@ -338,7 +347,7 @@
                                         html: `File size: <strong>${(file.size / 1024 / 1024).toFixed(2)} MB</strong><br>Maximum allowed: <strong>10 MB</strong>`,
                                         confirmButtonColor: '#dc2626'
                                     });
-                                    e.target.value = '';
+                                    input.value = '';
                                     if (preview) preview.remove();
                                     updateChecklist();
                                     return;
@@ -353,7 +362,7 @@
                                         html: `File type: <strong>${file.type || 'Unknown'}</strong><br>Accepted formats: <strong>PNG, JPG, PDF, WebP</strong>`,
                                         confirmButtonColor: '#dc2626'
                                     });
-                                    e.target.value = '';
+                                    input.value = '';
                                     if (preview) preview.remove();
                                     updateChecklist();
                                     return;
@@ -378,10 +387,16 @@
                                             <small class="text-muted">${(file.size / 1024).toFixed(1)} KB · ${file.type.split('/')[1].toUpperCase()}</small>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.alert').previousElementSibling.value=''; this.closest('.alert').remove(); updateChecklist();">
+                                    <button type="button" class="btn btn-sm btn-outline-danger clear-upload-btn">
                                         <i class="fa-solid fa-xmark"></i> Clear
                                     </button>
                                 `;
+
+                                preview.querySelector('.clear-upload-btn').addEventListener('click', function() {
+                                    input.value = '';
+                                    preview.remove();
+                                    updateChecklist();
+                                });
 
                                 updateChecklist();
                             });
@@ -425,11 +440,46 @@
                     container.style.display = 'none';
                 }
                 updateChecklist();
+                checkGwaEligibility();
             })
             .catch(err => {
                 console.error('Error fetching dynamic fields:', err);
                 updateChecklist();
             });
+    }
+
+    function checkGwaEligibility() {
+        const gwaInput = document.querySelector('input[name*="gwa" i], input[id*="gwa" i], .custom-field-input[data-label*="gwa" i]');
+        let warningDiv = document.getElementById('gwaEligibilityWarning');
+        
+        if (!gwaInput) {
+            if (warningDiv) warningDiv.remove();
+            return;
+        }
+        
+        const enteredVal = parseFloat(gwaInput.value);
+        if (isNaN(enteredVal) || !selectedScholarshipGwa) {
+            if (warningDiv) warningDiv.style.display = 'none';
+            return;
+        }
+        
+        // In the Philippine grading scale, a larger number means a worse grade (1.0 = best, 3.0 = pass, 5.0 = fail)
+        // If the student's entered GWA is higher than the scholarship GWA limit, show warning
+        if (enteredVal > selectedScholarshipGwa) {
+            if (!warningDiv) {
+                warningDiv = document.createElement('div');
+                warningDiv.id = 'gwaEligibilityWarning';
+                warningDiv.className = 'alert alert-warning border-0 small mt-2 d-flex align-items-start gap-2';
+                warningDiv.style.borderRadius = '10px';
+                warningDiv.style.backgroundColor = '#fffbeb';
+                warningDiv.style.color = '#b45309';
+                gwaInput.parentNode.appendChild(warningDiv);
+            }
+            warningDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation mt-0.5"></i> <div><strong>GWA Warning:</strong> Your entered GWA of <strong>${enteredVal.toFixed(2)}</strong> exceeds the maximum allowed GWA of <strong>${selectedScholarshipGwa.toFixed(2)}</strong> for this scholarship. You may not be eligible to apply.</div>`;
+            warningDiv.style.display = 'flex';
+        } else {
+            if (warningDiv) warningDiv.style.display = 'none';
+        }
     }
 
     function updateChecklist() {
@@ -451,7 +501,7 @@
             chkScholarship.querySelector('.badge i').className = 'fa-solid fa-xmark';
             chkScholarship.querySelector('span').className = 'text-muted';
             allValid = false;
-            missingFields.push("Select a Scholarship Program");
+            missingFields.push(window.portalTranslations.select_scholarship_program);
         }
 
         // 2. Dynamic custom fields checks
@@ -494,13 +544,13 @@
             } else {
                 badgeHtml = `
                     <span class="badge bg-secondary rounded-pill" style="font-size: 0.65rem;">
-                        Optional
+                        ${window.portalTranslations.optional}
                     </span>
                 `;
             }
 
             item.innerHTML = `
-                <span class="${isFilled ? 'text-dark fw-semibold' : 'text-muted'}">${input.dataset.label}${isRequired ? '' : ' (Optional)'}</span>
+                <span class="${isFilled ? 'text-dark fw-semibold' : 'text-muted'}">${input.dataset.label}${isRequired ? '' : ' (' + window.portalTranslations.optional + ')'}</span>
                 ${badgeHtml}
             `;
             checklistItems.appendChild(item);
@@ -535,8 +585,18 @@
         updateChecklist();
         const dynamicBody = document.getElementById('dynamicFieldsBody');
         if (dynamicBody) {
-            dynamicBody.addEventListener('input', updateChecklist);
-            dynamicBody.addEventListener('change', updateChecklist);
+            dynamicBody.addEventListener('input', function(e) {
+                updateChecklist();
+                if (e.target.name && e.target.name.toLowerCase().includes('gwa')) {
+                    checkGwaEligibility();
+                }
+            });
+            dynamicBody.addEventListener('change', function(e) {
+                updateChecklist();
+                if (e.target.name && e.target.name.toLowerCase().includes('gwa')) {
+                    checkGwaEligibility();
+                }
+            });
         }
         
         @if(isset($prevApp))

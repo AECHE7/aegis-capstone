@@ -48,6 +48,8 @@ class UserProfileTest extends TestCase
             'course' => 'BS Information Technology',
             'year_level' => '3rd Year',
             'contact_number' => '09123456789',
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09998887777',
         ]);
 
         $response->assertRedirect(route('student.profile'));
@@ -67,6 +69,8 @@ class UserProfileTest extends TestCase
         $this->assertEquals('BS Information Technology', $profile->course);
         $this->assertEquals('3rd Year', $profile->year_level);
         $this->assertEquals('09123456789', $profile->contact_number);
+        $this->assertEquals('Maria Santos', $profile->guardian_name);
+        $this->assertEquals('09998887777', $profile->emergency_contact_number);
     }
 
     public function test_profile_validation_rejects_invalid_inputs(): void
@@ -79,6 +83,8 @@ class UserProfileTest extends TestCase
             'course' => 'BS Information Technology',
             'year_level' => '3rd Year',
             'contact_number' => '09123456789',
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09998887777',
         ]);
 
         $response->assertSessionHasErrors(['clsu_id_number']);
@@ -91,6 +97,8 @@ class UserProfileTest extends TestCase
             'course' => 'BS Information Technology',
             'year_level' => '3rd Year',
             'contact_number' => '12345', // invalid length & prefix
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09998887777',
         ]);
 
         $response->assertSessionHasErrors(['contact_number']);
@@ -105,23 +113,29 @@ class UserProfileTest extends TestCase
             'course' => 'BS IT',
             'year_level' => '4th Year',
             'contact_number' => '09998887777',
+            'guardian_name' => 'Encrypted Guardian',
+            'emergency_contact_number' => '09887776666',
         ]);
 
         // Access raw SQLite table database values directly using DB Query
         $rawProfile = DB::table('student_profiles')
-            ->where('user_id', $this->student->id)
-            ->first();
+             ->where('user_id', $this->student->id)
+             ->first();
 
         $this->assertNotNull($rawProfile);
         
-        // Raw values in database must NOT be plaintext '2023-9999' or '09998887777'
+        // Raw values in database must NOT be plaintext
         $this->assertNotEquals('2023-9999', $rawProfile->clsu_id_number);
         $this->assertNotEquals('09998887777', $rawProfile->contact_number);
+        $this->assertNotEquals('Encrypted Guardian', $rawProfile->guardian_name);
+        $this->assertNotEquals('09887776666', $rawProfile->emergency_contact_number);
 
         // Eager loading decrypted values works fine
         $profileModel = StudentProfile::where('user_id', $this->student->id)->first();
         $this->assertEquals('2023-9999', $profileModel->clsu_id_number);
         $this->assertEquals('09998887777', $profileModel->contact_number);
+        $this->assertEquals('Encrypted Guardian', $profileModel->guardian_name);
+        $this->assertEquals('09887776666', $profileModel->emergency_contact_number);
     }
 
     public function test_approved_email_pdf_attachment_contains_student_profile_details(): void
@@ -154,6 +168,8 @@ class UserProfileTest extends TestCase
             'course' => 'BS IT',
             'year_level' => '3rd Year',
             'contact_number' => '09123456789',
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09998887777',
         ]);
 
         $application->load('user.profile');

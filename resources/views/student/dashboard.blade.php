@@ -18,6 +18,7 @@
     .status-hero.review   { background: #0284c7; }
     .status-hero.approved { background: #0C4E2D; }
     .status-hero.rejected { background: #b91c1c; }
+    .status-hero.returned { background: #d97706; }
     .status-hero.empty    { background: #475569; }
 
     .status-hero-icon {
@@ -290,36 +291,34 @@
             </div>
 
             <div class="row g-4 mb-4">
-                <!-- Allowance Status Card -->
+                <!-- Scholarship Program Details Card -->
                 <div class="col-md-6">
                     <div class="scholar-card">
                         <div class="d-flex align-items-center gap-3 mb-3">
                             <div class="p-3 bg-light rounded-4 text-success">
-                                <i class="fa-solid fa-wallet fs-4"></i>
+                                <i class="fa-solid fa-award fs-4"></i>
                             </div>
                             <div>
-                                <h6 class="fw-bold text-dark mb-0">Scholarship Benefits</h6>
-                                <p class="text-muted small mb-0">Allowances & disbursements</p>
+                                <h6 class="fw-bold text-dark mb-0">Scholarship Capacity</h6>
+                                <p class="text-muted small mb-0">Program slots & retention status</p>
                             </div>
                         </div>
                         <hr class="text-muted opacity-20">
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small">Semester Grant</span>
-                            <span class="fw-bold text-dark">Php 15,000.00</span>
+                            <span class="text-muted small">Status in Program</span>
+                            <span class="fw-bold text-success d-flex align-items-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i> Slot Occupied
+                            </span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small">Active Term</span>
+                            <span class="text-muted small">Academic Guideline</span>
                             <span class="fw-semibold text-dark">
-                                @if($application->academicTerm)
-                                    {{ $application->academicTerm->semester }} Sem, AY {{ $application->academicTerm->academic_year }}
-                                @else
-                                    Current Term
-                                @endif
+                                Maintain GWA &le; {{ $application->scholarship->min_gwa_required ?? '2.00' }}
                             </span>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <span class="text-muted small">Disbursement Status</span>
-                            <span class="badge bg-success px-2.5 py-1 rounded-pill" style="font-size: 0.7rem;">Released</span>
+                            <span class="text-muted small">Max Renewal Limit</span>
+                            <span class="fw-semibold text-dark">{{ $application->scholarship->max_renewals ?? 4 }} Semesters</span>
                         </div>
                     </div>
                 </div>
@@ -391,7 +390,7 @@
                             Renewal applications will open automatically once this term closes.
                         </div>
                     @elseif($canRenew)
-                        <div class="alert alert-success border-0 rounded-3 p-3 mb-0 small" style="background-color: #dcfce7; color: #14532d;">
+        <div class="alert alert-success border-0 rounded-3 p-3 mb-0 small" style="background-color: #dcfce7; color: #14532d;">
                             <i class="fa-solid fa-circle-check me-1"></i>
                             <strong>Renewal Open:</strong> The previous academic term is now closed. Please click "Request Scholarship Renewal" above to submit your renewal application.
                         </div>
@@ -408,6 +407,7 @@
                     'Under Review' => 'review',
                     'Approved'     => 'approved',
                     'Rejected'     => 'rejected',
+                    'Returned'     => 'returned',
                     default        => 'pending'
                 };
                 $statusIcon = match($application->status) {
@@ -415,6 +415,7 @@
                     'Under Review' => 'fa-magnifying-glass-chart',
                     'Approved'     => 'fa-award',
                     'Rejected'     => 'fa-circle-xmark',
+                    'Returned'     => 'fa-reply',
                     default        => 'fa-hourglass-half'
                 };
             @endphp
@@ -437,10 +438,11 @@
                                         @if($application->status === 'Approved') 🎉 Congratulations! You are Approved!
                                         @elseif($application->status === 'Rejected') Application Not Approved
                                         @elseif($application->status === 'Under Review') Your Application is Under Review
+                                        @elseif($application->status === 'Returned') Action Required: Document Correction
                                         @else Your Application is Pending Review
                                         @endif
                                     </h4>
-                                    @if($application->remarks && $application->status !== 'Pending')
+                                    @if($application->remarks && $application->status !== 'Pending' && $application->status !== 'Returned')
                                     <p class="mb-0 mt-1" style="opacity:0.8;font-size:0.875rem;">
                                         <i class="fa-solid fa-quote-left me-1" style="font-size:0.65rem;opacity:0.6;"></i>
                                         {{ $application->remarks }}
@@ -451,7 +453,7 @@
                             <div class="text-end monospace-data" style="opacity:0.85;font-size:0.8rem;">
                                 <div>APP-{{ $application->id }}</div>
                                 <div>{{ $application->created_at->format('M d, Y') }}</div>
-                                @if(in_array($application->status, ['Pending', 'Under Review']))
+                                @if(in_array($application->status, ['Pending', 'Under Review', 'Returned']))
                                     <div class="mt-2">
                                         <button type="button" class="btn btn-sm btn-danger fw-bold cancel-app-btn px-2 py-1" data-id="{{ $application->id }}" style="font-size:0.7rem; border-radius:6px; background:#b91c1c; border:none; color:white;">
                                             <i class="fa-solid fa-ban me-1"></i> Cancel Application
@@ -460,6 +462,36 @@
                                 @endif
                             </div>
                         </div>
+
+                        @if($application->status === 'Returned')
+                            <div class="card border-0 shadow-sm mb-4 p-4 mt-3" style="border-radius: 16px; border-left: 5px solid #d97706 !important; background-color: #fffbeb;">
+                                <div class="d-flex gap-3 align-items-start">
+                                    <div class="p-3 rounded-3" style="background: rgba(217, 119, 6, 0.1); color: #d97706;">
+                                        <i class="fa-solid fa-triangle-exclamation fs-4"></i>
+                                    </div>
+                                    <div class="w-100">
+                                        <h6 class="fw-bold mb-1" style="color: #b45309; font-size: 1.05rem;"><i class="fa-solid fa-reply me-1"></i> Document Correction Required</h6>
+                                        <p class="text-muted small mb-3">
+                                            The evaluator has requested correction of your uploaded documents. Please review the evaluator remarks below, make the necessary corrections, and upload the updated document.
+                                        </p>
+                                        <div class="p-3 mb-3 rounded-3 bg-white border border-warning border-opacity-50 small">
+                                            <div class="fw-bold text-dark mb-1"><i class="fa-solid fa-comment-dots me-1 text-warning"></i> Evaluator Remarks:</div>
+                                            <div class="text-danger fw-semibold">"{{ $application->remarks }}"</div>
+                                        </div>
+                                        <form action="{{ route('student.application.reupload', $application->id) }}" method="POST" enctype="multipart/form-data" class="bg-white p-3 rounded-3 border">
+                                            @csrf
+                                            <div class="mb-3">
+                                                <label for="cog_file" class="form-label fw-bold small text-muted">Upload Corrected COG Document (PDF, PNG, JPG, JPEG &le; 10MB)</label>
+                                                <input type="file" name="cog_file" id="cog_file" class="form-control form-control-sm" required style="border-radius: 8px;">
+                                            </div>
+                                            <button type="submit" class="btn btn-warning text-white fw-bold px-4 py-2 w-100" style="border-radius: 8px; background: #d97706; border: none; box-shadow: 0 4px 12px rgba(217,119,6,0.2);">
+                                                <i class="fa-solid fa-paper-plane me-1"></i> Submit Corrected Document
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
 
                         {{-- STEP PROGRESS --}}
                         <div class="mt-4" style="position:relative;z-index:3;">
@@ -508,6 +540,7 @@
                                     $logColor = match($log->status) {
                                         'Approved'     => ['bg' => '#22c55e', 'light' => '#dcfce7', 'text' => '#15803d', 'icon' => 'fa-award'],
                                         'Rejected'     => ['bg' => '#ef4444', 'light' => '#fee2e2', 'text' => '#b91c1c', 'icon' => 'fa-circle-xmark'],
+                                        'Returned'     => ['bg' => '#d97706', 'light' => '#fffbeb', 'text' => '#b45309', 'icon' => 'fa-reply'],
                                         'Under Review' => ['bg' => '#0284c7', 'light' => '#e0f2fe', 'text' => '#0369a1', 'icon' => 'fa-magnifying-glass-chart'],
                                         default        => ['bg' => '#f59e0b', 'light' => '#fef9c3', 'text' => '#a16207', 'icon' => 'fa-hourglass-half'],
                                     };

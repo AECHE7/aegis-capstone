@@ -671,10 +671,40 @@ To transition the project from its current MVP setup to a robust, production-rea
   - *Tier 1 (Idle Session Expiration Data Loss):* 2-minute countdown warning modal at 28min mark → *Tier 2:* Auto-save uncommitted inputs to `localStorage` → *Tier 3:* 1-click token renewal endpoint → *Tier 4 Fail-Safe:* Restore draft inputs upon re-login.
 
 
+### Phase 66: Decouple & Remove Bank/Disbursement Details - [COMPLETED]
+- **Goal:** Completely remove all Landbank / bank account details and stipend tracking columns across database tables, controllers, views, models, and tests.
+- **Steps:**
+  1. **Clean Database Migration**: Created migration `2026_07_27_155600_add_guardian_to_student_profiles.php` to drop all bank-related columns from the `student_profiles` table, while adding `guardian_name` and `emergency_contact_number` fields to keep relevant parent/emergency contact details (completed).
+  2. **Model Refactoring**: Removed Landbank configurations and encryption attributes from the `StudentProfile` model, and added `guardian_name` and `emergency_contact_number` to model fillables and encryption casts (completed).
+  3. **Controller & Validation Updates**: Added validation rules and parameter saves for parent/guardian details and emergency contact phone numbers inside `updateProfile()` in `ApplicationController.php` (completed).
+  4. **Front-End Layout Upgrades**: Replaced Landbank input forms in `change_password.blade.php` with responsive, beautifully styled Parent / Guardian Name and Emergency Contact fields, matching the CLSU gold/green aesthetic system (completed).
+  5. **Feature Tests**: Updated `UserProfileTest.php` feature tests to mock, persist, and assert parent/guardian details, and verify their encryption cast integrity (completed).
 
+### Phase 67: Document Return & Correction Workflow - [COMPLETED]
+- **Goal:** Implement a return-for-correction workflow enabling admins to return applications with remarks, and allowing students to reupload documents right on their dashboard.
+- **Steps:**
+  1. **Returned Status Validation**: Added support for `'Returned'` status inside `updateStatus()` validation and added `return_application` action types in `AdminController.php` audit logs (completed).
+  2. **Admin Evaluation Form Upgrade**: Added a "Return for Document Correction" button to the admin evaluation review card in `review.blade.php` with SweetAlert2 confirmation prompts and AJAX loading states (completed).
+  3. **Returned Status Badging**: Created a gold/amber status badge and alert panels for returned applications (completed).
+  4. **Dashboard Alert & Re-upload Form**: Added an action banner and inline document re-upload form to `student/dashboard.blade.php` when status is `'Returned'` to show the evaluator's specific remarks and enable student uploads without creating new applications (completed).
+  5. **Controller Reupload Handling**: Created a secure, validated `reupload()` endpoint in `ApplicationController.php` that saves corrected files using SHA-256 uuid hashes via CloudStorageService, deletes outdated AI results, transitions status to `'Pending'`, logs the resubmission event, and auto-dispatches the background AI scan (completed).
+  6. **Feature Tests**: Wrote a dedicated feature test suite `tests/Feature/DocumentCorrectionTest.php` asserting Returned state evaluations, dashboard alerts, document re-uploads, status resets, and background scan job dispatching (completed).
 
+### Phase 68: Forensic Scanner Environment Initialization & CNN Model Integration - [COMPLETED]
+- **Goal:** Set up a clean Python 3.11 virtual environment local to the E: drive workspace, install all missing TensorFlow/Keras AI dependencies, load the ResNet-50 visual AI weights, and restore true neural network verification to the A.E.G.I.S. document forensics microservice.
+- **Steps:**
+  1. **Virtual Environment Setup**: Created a local Python 3.11.9 virtual environment inside `E:\aegis-capstone\aegis-ai\venv` (completed).
+  2. **Dependency Redirect & Installation**: Redirected the pip cache directory to `E:\pip_cache` and the temporary directory to `E:\tmp` to bypass the host C: drive space limit (400MB free). Successfully installed all microservice dependencies including `tensorflow==2.16.1`, `keras==3.3.3`, `numpy==1.26.4`, `opencv-python-headless==4.9.0.80`, `Pillow==10.3.0`, and other requirements (completed).
+  3. **Visual AI Weights Verification**: Created and ran `test_resnet_weights.py` using the new virtual environment python executable to ensure that TensorFlow and Keras import successfully, compile, load the 289MB `aegis_resnet50_v1.keras` weights file, and run predictions on dummy data (completed).
+  4. **Flask AI Microservice Servicing**: Killed the legacy Flask task and booted the Flask microservice inside the new virtual environment. Verified that querying the `/health` diagnostic endpoint returns `"model_loaded": true` and `"tensorflow_available": true` (completed).
+  5. **Startup Alignment**: Verified that `start-all.bat` correctly references the newly created virtual environment `.\venv\Scripts\python.exe` path (completed).
+  6. **Full Test Suite Validation**: Ran the entire Laravel test suite (`php artisan test`) with the active Flask AI microservice running, asserting all 198 tests pass successfully with zero regressions (completed).
 
-
-
-
-
+### Phase 69: Dynamic Scan Mode Selector & HTTP API Integration - [COMPLETED]
+- **Goal:** Enable administrators to choose between Standard/Enhanced V2 scan modes and Deep Forensics V3 modes on the review dashboard, passing the parameter dynamically to the Flask AI service.
+- **Steps:**
+  1. **Flask API Mode Parsing**: Updated `aegis-ai/app.py` to extract the `mode` query/form parameter from incoming `/analyze-document` requests and dynamically select between the V2 Enhanced pipeline and the V3 Deep analysis pipeline.
+  2. **ScanDocumentJob Extension**: Modified `app/Jobs/ScanDocumentJob.php` to accept a `$mode` constructor argument and append it as a query parameter (`?mode=...`) when making the HTTP POST call to the Flask AI microservice.
+  3. **AdminController Dynamic Dispatch**: Updated `runScan()` in `AdminController.php` to extract the `mode` parameter from the HTTP request and pass it to the dispatched `ScanDocumentJob`.
+  4. **Forensics Suite UI Mode Selectors**: Added styled Scan Mode dropdown selectors in `review.blade.php` for both initial document verification and re-scanning, giving evaluators full control over scanning depths.
+  5. **Verification**: Executed the Laravel test suite (`php artisan test`) and confirmed that all 198 tests passed successfully with zero regressions.

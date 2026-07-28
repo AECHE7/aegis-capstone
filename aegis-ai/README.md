@@ -1,3 +1,13 @@
+---
+title: aegis-ai
+emoji: 🛡️
+colorFrom: green
+colorTo: yellow
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # A.E.G.I.S. Document Integrity Scanner - AI Microservice
 
 **Version:** 3.0.0 (Deep Analysis V3)

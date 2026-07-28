@@ -94,7 +94,7 @@ class ApplicationAutoApprovalTest extends TestCase
 
         // Mock AI Analyzer API response (authentic transcript)
         Http::fake([
-            '*/analyze-document' => Http::response([
+            '*/analyze-document*' => Http::response([
                 'fraud_probability' => 2.00, // 98% confidence
                 'classification' => 'authentic',
                 'extracted_gwa' => 1.75,
@@ -139,7 +139,7 @@ class ApplicationAutoApprovalTest extends TestCase
         // Mock AI response with 88% confidence (12% fraud probability)
         // Min confidence setting is 95.0%
         Http::fake([
-            '*/analyze-document' => Http::response([
+            '*/analyze-document*' => Http::response([
                 'fraud_probability' => 12.00, // 88% confidence
                 'classification' => 'authentic',
                 'extracted_gwa' => 1.75,
@@ -177,7 +177,7 @@ class ApplicationAutoApprovalTest extends TestCase
 
         // Mock AI response with font inconsistency anomalies
         Http::fake([
-            '*/analyze-document' => Http::response([
+            '*/analyze-document*' => Http::response([
                 'fraud_probability' => 1.00,
                 'classification' => 'authentic',
                 'extracted_gwa' => 1.75,
@@ -215,7 +215,7 @@ class ApplicationAutoApprovalTest extends TestCase
 
         // Mock clean authentic response
         Http::fake([
-            '*/analyze-document' => Http::response([
+            '*/analyze-document*' => Http::response([
                 'fraud_probability' => 1.00,
                 'classification' => 'authentic',
                 'extracted_gwa' => 1.75,
@@ -255,7 +255,7 @@ class ApplicationAutoApprovalTest extends TestCase
         ]);
 
         Http::fake([
-            '*/analyze-document' => Http::response([
+            '*/analyze-document*' => Http::response([
                 'fraud_probability' => 1.00,
                 'classification' => 'authentic',
                 'extracted_gwa' => 1.75,
@@ -291,7 +291,7 @@ class ApplicationAutoApprovalTest extends TestCase
         ]);
 
         Http::fake([
-            '*/analyze-document' => Http::response([
+            '*/analyze-document*' => Http::response([
                 'fraud_probability' => 85.00,
                 'classification' => 'tampered',
                 'extracted_gwa' => 1.75,

@@ -24,7 +24,7 @@ class ScanDocumentJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public int $applicationId)
+    public function __construct(public int $applicationId, public string $mode = 'standard')
     {
         //
     }
@@ -99,7 +99,7 @@ class ScanDocumentJob implements ShouldQueue
                 $aiUrl = config('services.ai.url');
                 $response = Http::timeout(120)->attach(
                     'file', $fileContents, $document->original_name
-                )->post($aiUrl . '/analyze-document');
+                )->post($aiUrl . '/analyze-document?mode=' . urlencode($this->mode));
 
                 if ($response->successful()) {
                     $result = $response->json();
@@ -135,6 +135,11 @@ class ScanDocumentJob implements ShouldQueue
                         }
                     }
 
+                    $deepReport = $result['deep_analysis_report'] ?? null;
+                    if ($deepReport && isset($result['visualizations'])) {
+                        $deepReport['visualizations'] = $result['visualizations'];
+                    }
+
                     AIResult::updateOrCreate(
                         ['document_id' => $document->id],
                         [
@@ -145,6 +150,7 @@ class ScanDocumentJob implements ShouldQueue
                             'anomaly_indicators' => $anomalyIndicators,
                             'detected_software'  => $result['detected_software'] ?? null,
                             'cropped_patch_data' => $result['cropped_patch_base64'] ?? null,
+                            'deep_analysis_report' => $deepReport,
                         ]
                     );
                 } else {

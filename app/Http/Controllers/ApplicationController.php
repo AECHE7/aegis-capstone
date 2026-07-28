@@ -269,9 +269,12 @@ class ApplicationController extends Controller
             'course' => 'required|string|max:255',
             'year_level' => 'required|string|max:50',
             'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
+            'guardian_name' => 'required|string|max:255',
+            'emergency_contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
         ], [
             'clsu_id_number.regex' => 'The CLSU ID number format must be YYYY-XXXX (e.g. 2023-4567).',
             'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
+            'emergency_contact_number.regex' => 'The emergency contact number must be a valid Philippine mobile number (e.g. 09123456789).',
         ]);
 
         $user->update([
@@ -286,6 +289,8 @@ class ApplicationController extends Controller
                 'course' => $request->course,
                 'year_level' => $request->year_level,
                 'contact_number' => $request->contact_number,
+                'guardian_name' => $request->guardian_name,
+                'emergency_contact_number' => $request->emergency_contact_number,
             ]
         );
 
@@ -476,5 +481,87 @@ class ApplicationController extends Controller
         }
 
         return redirect()->route('student.dashboard')->with('success', 'You have successfully backed out of the scholarship.');
+    }
+
+    // 9. Re-upload Corrected Document (Document Correction Flow)
+    public function reupload(\Illuminate\Http\Request $request, $id)
+    {
+        $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
+        $application = Application::where('user_id', $userId)
+            ->where('status', 'Returned')
+            ->findOrFail($id);
+
+        $request->validate([
+            'cog_file' => 'required|file|mimes:pdf,png,jpg,jpeg|max:10240',
+        ]);
+
+        if ($request->hasFile('cog_file')) {
+            $file = $request->file('cog_file');
+            
+            $isSynced = true;
+            $filePath = \App\Services\CloudStorageService::upload($file, 'uploads', $isSynced);
+            $fileData = base64_encode(file_get_contents($file->getRealPath()));
+
+            // Find existing COG document or create new
+            $document = Document::updateOrCreate(
+                [
+                    'application_id' => $application->id,
+                    'document_type' => 'COG',
+                ],
+                [
+                    'original_name' => $file->getClientOriginalName(),
+                    'file_path' => $filePath,
+                    'file_data' => $fileData,
+                    'upload_event' => 'replaced',
+                    'uploaded_by' => $userId,
+                    'is_synced' => $isSynced,
+                ]
+            );
+
+            // Clear old AI Result if any, so we scan clean
+            if ($document->aiResult) {
+                $document->aiResult->delete();
+            }
+
+            // Update Application status back to Pending
+            $application->update([
+                'status' => 'Pending',
+                'remarks' => 'Corrected documents submitted by student.',
+            ]);
+
+            // Log status change in StatusLog
+            \App\Models\StatusLog::create([
+                'application_id' => $application->id,
+                'status' => 'Pending',
+                'remarks' => 'Resubmitted corrected COG document.',
+                'changed_by' => $userId
+            ]);
+
+            // Auto-trigger background AI scan immediately for the reuploaded document
+            \App\Models\AIResult::create([
+                'document_id' => $document->id,
+                'fraud_probability' => 0.00,
+                'classification' => 'scanning'
+            ]);
+            \App\Jobs\ScanDocumentJob::dispatch($application->id);
+
+            // Clean active_scholarships cache to be sure
+            \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Corrected document successfully submitted.'
+                ]);
+            }
+
+            return redirect()->route('student.dashboard')->with('success', 'Corrected document successfully submitted.');
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => false, 'message' => 'Please upload a valid document.'], 400);
+        }
+
+        return back()->with('error', 'Please upload a valid document.');
     }
 }

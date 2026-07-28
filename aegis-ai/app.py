@@ -127,7 +127,16 @@ def analyze_document():
             )
         elif original_ext in ['jpg', 'jpeg', 'png']:
             # Execute Pipeline A (Image Forensics)
-            if USE_DEEP_ANALYSIS:
+            req_mode = request.args.get('mode', request.form.get('mode', '')).lower()
+            run_deep = False
+            if req_mode == 'deep':
+                run_deep = True
+            elif req_mode in ['standard', 'enhanced']:
+                run_deep = False
+            else:
+                run_deep = USE_DEEP_ANALYSIS
+
+            if run_deep:
                 # V3 - DEEP ANALYSIS MODE for maximum accuracy and detailed inspection
                 print(f"[ANALYZE] Running DEEP ANALYSIS V3 (fusion_mode={FUSION_MODE})")
                 print("[ANALYZE] Deep mode: Multi-layer heatmaps, precise edit localization, comprehensive forensics")

@@ -106,6 +106,17 @@
     .btn-reject:hover { background: #991b1b; color: white; box-shadow: 0 8px 24px rgba(200, 32, 20, 0.25); }
     .btn-reject:active { transform: scale(0.95); }
 
+    .btn-return {
+        background: #d97706;
+        color: white; border: none;
+        padding: 12px 24px; border-radius: var(--radius-pill, 50px);
+        font-weight: 700; font-size: 0.95rem;
+        transition: var(--transition);
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15);
+    }
+    .btn-return:hover { background: #b45309; color: white; box-shadow: 0 8px 24px rgba(217, 119, 6, 0.25); }
+    .btn-return:active { transform: scale(0.95); }
+
     /* Applicant info card */
     .applicant-card {
         background: var(--card-bg);
@@ -166,6 +177,8 @@
                 <span class="status-badge review"><i class="fa-solid fa-magnifying-glass"></i> Under Review</span>
             @elseif($application->status == 'Approved')
                 <span class="status-badge approved"><i class="fa-solid fa-check"></i> Approved</span>
+            @elseif($application->status == 'Returned')
+                <span class="status-badge bg-warning text-dark border border-warning border-opacity-50"><i class="fa-solid fa-reply"></i> Returned</span>
             @else
                 <span class="status-badge rejected"><i class="fa-solid fa-times"></i> Rejected</span>
             @endif
@@ -258,7 +271,7 @@
                             </svg>
                             <div class="risk-ring-center">
                                 <div class="monospace-data" style="font-size:2rem;font-weight:700;color:{{ $riskColor }};line-height:1;">{{ $fraudScore }}</div>
-                                <div style="font-size:0.75rem;color:var(--text-main);opacity:0.6;">% fraud prob.</div>
+                                <div style="font-size:0.75rem;color:var(--text-main);opacity:0.6;">% fraud prob. <i class="fa-solid fa-circle-info ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" title="The probability (0-100%) that this academic document has been digitally altered or tampered with."></i></div>
                             </div>
                         </div>
 
@@ -271,11 +284,11 @@
                         <div class="rounded-3 p-3 small" style="background: var(--clsu-bg); border: 1px solid var(--border-color);">
                             <div class="d-flex justify-content-between mb-2">
                                 <span style="color:var(--text-main);opacity:0.7;">Architecture</span>
-                                <span class="fw-semibold">TruFor + CAT-Net Dual-CNN</span>
+                                <span class="fw-semibold">TruFor + CAT-Net Dual-CNN <i class="fa-solid fa-circle-info ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" title="Dual-CNN architecture combining TruFor (noiseprint-based splicing detection) and CAT-Net (JPEG compression artifact tracing) for advanced fraud detection."></i></span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span style="color:var(--text-main);opacity:0.7;">Preprocessing</span>
-                                <span class="fw-semibold">Error Level Analysis</span>
+                                <span class="fw-semibold">Error Level Analysis <i class="fa-solid fa-circle-info ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" title="ELA (Error Level Analysis) highlights pixel discrepancies by resaving the image at a known compression rate and mapping the error density to spot edits."></i></span>
                             </div>
                             @if(!empty($doc->aiResult->detected_software))
                             <div class="d-flex justify-content-between mb-2">
@@ -291,9 +304,16 @@
                             </div>
                         </div>
 
-                        <div class="mt-3 text-center">
+                        <div class="mt-3">
                             <form action="{{ route('admin.scan', $application->id) }}" method="POST" class="d-inline-block w-100">
                                 @csrf
+                                <div class="mb-3 text-start">
+                                    <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.72rem;"><i class="fa-solid fa-sliders me-1"></i> Scan Mode</label>
+                                    <select name="mode" class="form-select form-select-sm rounded-3" style="font-size: 0.78rem; border-color: var(--border-color); background-color: var(--clsu-bg); color: var(--text-main);">
+                                        <option value="standard" selected>Enhanced Scan (V2 - Standard)</option>
+                                        <option value="deep">Deep Forensics (V3 - Heatmaps/Crops)</option>
+                                    </select>
+                                </div>
                                 <button type="submit" class="btn btn-sm btn-outline-info w-100 rounded-3 py-2" style="font-size: 0.78rem; border-color: rgba(0, 212, 255, 0.4); color: #00d4ff; background: rgba(0, 212, 255, 0.05);">
                                     <i class="fa-solid fa-arrow-rotate-right me-1"></i> Re-run AI Forensic Scan
                                 </button>
@@ -307,6 +327,13 @@
                             <p class="mb-3 text-muted" style="font-size:0.85rem;">Document awaiting forensic verification.</p>
                             <form action="{{ route('admin.scan', $application->id) }}" method="POST">
                                 @csrf
+                                <div class="mb-3 text-start">
+                                    <label class="form-label fw-bold text-muted mb-1" style="font-size: 0.72rem;"><i class="fa-solid fa-sliders me-1"></i> Scan Mode</label>
+                                    <select name="mode" class="form-select form-select-sm rounded-3" style="font-size: 0.78rem; border-color: var(--border-color); background-color: var(--clsu-bg); color: var(--text-main);">
+                                        <option value="standard" selected>Enhanced Scan (V2 - Standard)</option>
+                                        <option value="deep">Deep Forensics (V3 - Heatmaps/Crops)</option>
+                                    </select>
+                                </div>
                                 <button type="submit" class="btn btn-info text-dark fw-bold w-100 rounded-3" style="border-radius:8px !important;">
                                     <i class="fa-solid fa-bolt me-1"></i> Execute AI Scan
                                 </button>
@@ -321,6 +348,100 @@
                     <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#dcfce7;color:#16a34a;font-size:0.7rem;font-weight:700;"><span>●</span> 0–39% Low</span>
                     <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#fef9c3;color:#a16207;font-size:0.7rem;font-weight:700;"><span>●</span> 40–69% Moderate</span>
                     <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:#fee2e2;color:#b91c1c;font-size:0.7rem;font-weight:700;"><span>●</span> 70–100% High</span>
+                </div>
+
+                {{-- Forensic Verification Matrix (snapWONDERS style) --}}
+                <div class="card p-4 mb-3 border-0 shadow-sm" style="border-radius:16px; background: var(--card-bg); border: 1px solid var(--border-color) !important;">
+                    <h6 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-list-check text-primary me-2"></i> Forensic Integrity Check</h6>
+                    
+                    <div class="d-flex flex-column gap-2 text-start">
+                        {{-- Category: Origin & Metadata --}}
+                        <div class="pb-2 border-bottom">
+                            <span class="text-xs font-bold text-uppercase text-muted" style="font-size:0.68rem; letter-spacing:0.5px;">Origin &amp; Metadata</span>
+                            <div class="d-flex align-items-center justify-content-between mt-1">
+                                <span class="small text-muted">Original Capture Origin</span>
+                                @if(in_array('exif_metadata_cleaned', $doc->aiResult->anomaly_indicators ?? []))
+                                    <span class="badge bg-warning text-dark px-2 py-1" style="font-size:0.7rem;">Metadata Stripped</span>
+                                @else
+                                    <span class="badge bg-success text-white px-2 py-1" style="font-size:0.7rem;">Verifiable</span>
+                                @endif
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mt-1">
+                                <span class="small text-muted">Editing Software Signature</span>
+                                @if(!empty($doc->aiResult->detected_software))
+                                    <span class="badge bg-danger text-white px-2 py-1" style="font-size:0.7rem;"><i class="fa-solid fa-laptop-code me-1"></i> {{ $doc->aiResult->detected_software }}</span>
+                                @else
+                                    <span class="badge bg-success text-white px-2 py-1" style="font-size:0.7rem;">None Detected</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Category: Pixel Integrity --}}
+                        <div class="pb-2 border-bottom">
+                            <span class="text-xs font-bold text-uppercase text-muted" style="font-size:0.68rem; letter-spacing:0.5px;">Pixel-Level Forensics</span>
+                            
+                            <div class="d-flex align-items-center justify-content-between mt-1">
+                                <span class="small text-muted">Copy-Move (Clone Stamp)</span>
+                                @if(in_array('clone_stamp_detected', $doc->aiResult->anomaly_indicators ?? []))
+                                    <span class="badge bg-danger text-white px-2 py-1" style="font-size:0.7rem;">Anomalous (Clone)</span>
+                                @else
+                                    <span class="badge bg-success text-white px-2 py-1" style="font-size:0.7rem;">Clean</span>
+                                @endif
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between mt-1">
+                                <span class="small text-muted">Compression Resampling</span>
+                                @if(in_array('resampling_traces_detected', $doc->aiResult->anomaly_indicators ?? []) || in_array('catnet_dct_compression_anomaly', $doc->aiResult->anomaly_indicators ?? []))
+                                    <span class="badge bg-danger text-white px-2 py-1" style="font-size:0.7rem;">Resampled (Edited)</span>
+                                @else
+                                    <span class="badge bg-success text-white px-2 py-1" style="font-size:0.7rem;">Clean</span>
+                                @endif
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between mt-1">
+                                <span class="small text-muted">Noise Variance</span>
+                                @if(in_array('trufor_noiseprint_anomaly', $doc->aiResult->anomaly_indicators ?? []) || in_array('deep_analysis_multiple_high_severity_regions', $doc->aiResult->anomaly_indicators ?? []))
+                                    <span class="badge bg-danger text-white px-2 py-1" style="font-size:0.7rem;">Inconsistent Noise</span>
+                                @else
+                                    <span class="badge bg-success text-white px-2 py-1" style="font-size:0.7rem;">Uniform</span>
+                                @endif
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between mt-1">
+                                <span class="small text-muted">Digital Whiteout (LAB)</span>
+                                @if(in_array('digital_whiteout_box_detected', $doc->aiResult->anomaly_indicators ?? []))
+                                    <span class="badge bg-danger text-white px-2 py-1" style="font-size:0.7rem;">Detected Mask</span>
+                                @else
+                                    <span class="badge bg-success text-white px-2 py-1" style="font-size:0.7rem;">Clean</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Category: OCR & Grade Integrity --}}
+                        <div>
+                            <span class="text-xs font-bold text-uppercase text-muted" style="font-size:0.68rem; letter-spacing:0.5px;">GWA &amp; OCR Verification</span>
+                            <div class="d-flex align-items-center justify-content-between mt-1">
+                                <span class="small text-muted">GWA Match Status</span>
+                                @php
+                                    $gwaMismatch = false;
+                                    $extracted = null;
+                                    if (isset($doc->aiResult->deep_analysis_report['extracted_gwa'])) {
+                                        $extracted = $doc->aiResult->deep_analysis_report['extracted_gwa'];
+                                        if (!empty($application->gwa)) {
+                                            $gwaMismatch = abs((float)$application->gwa - (float)$extracted) > 0.01;
+                                        }
+                                    }
+                                @endphp
+                                @if($extracted === null)
+                                    <span class="badge bg-secondary text-white px-2 py-1" style="font-size:0.7rem;">No OCR Data</span>
+                                @elseif($gwaMismatch)
+                                    <span class="badge bg-danger text-white px-2 py-1" style="font-size:0.7rem;" data-bs-toggle="tooltip" title="Declared: {{ $application->gwa }}, Extracted: {{ $extracted }}"><i class="fa-solid fa-triangle-exclamation me-1"></i> Mismatch</span>
+                                @else
+                                    <span class="badge bg-success text-white px-2 py-1" style="font-size:0.7rem;" data-bs-toggle="tooltip" title="GWA Match Checked"><i class="fa-solid fa-check me-1"></i> Verified</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 @endif
             </div>
@@ -356,19 +477,24 @@
                         <i class="fa-solid fa-trash-arrow-up me-1"></i> Restore Application
                     </button>
                 @elseif($application->status == 'Pending' || $application->status == 'Under Review')
-                    <div class="d-flex gap-2 mobile-sticky-action-bar">
-                        <button type="button" class="btn-approve w-50 py-2.5" onclick="confirmDecision('Approved')">
-                            <i class="fa-solid fa-check-circle me-1"></i> Approve
-                        </button>
-                        <button type="button" class="btn-reject w-50 py-2.5" onclick="confirmDecision('Rejected')">
-                            <i class="fa-solid fa-times-circle me-1"></i> Reject
+                    <div class="d-flex flex-column gap-2 mobile-sticky-action-bar">
+                        <div class="d-flex gap-2 w-100">
+                            <button type="button" class="btn-approve w-50 py-2.5" onclick="confirmDecision('Approved')">
+                                <i class="fa-solid fa-check-circle me-1"></i> Approve
+                            </button>
+                            <button type="button" class="btn-reject w-50 py-2.5" onclick="confirmDecision('Rejected')">
+                                <i class="fa-solid fa-times-circle me-1"></i> Reject
+                            </button>
+                        </div>
+                        <button type="button" class="btn-return w-100 py-2.5" onclick="confirmDecision('Returned')">
+                            <i class="fa-solid fa-reply me-1"></i> Return for Document Correction
                         </button>
                     </div>
                     <input type="hidden" name="status" id="statusInput">
                 @else
                     <div class="alert mb-0 text-center fw-bold rounded-3"
-                         style="background: {{ $application->status == 'Approved' ? '#dcfce7' : '#fee2e2' }}; color: {{ $application->status == 'Approved' ? '#15803d' : '#b91c1c' }}; border: none; font-size: 0.875rem;">
-                        <i class="fa-solid fa-lock me-1"></i> Application is finalized as {{ $application->status }}.
+                         style="background: {{ $application->status == 'Approved' ? '#dcfce7' : ($application->status == 'Returned' ? '#fffbeb' : '#fee2e2') }}; color: {{ $application->status == 'Approved' ? '#15803d' : ($application->status == 'Returned' ? '#b45309' : '#b91c1c') }}; border: none; font-size: 0.875rem;">
+                        <i class="fa-solid fa-lock me-1"></i> Application is {{ $application->status == 'Returned' ? 'returned for document correction' : 'finalized as ' . $application->status }}.
                     </div>
                 @endif
             </form>
@@ -536,31 +662,101 @@
                                     @endif
                                 </div>
                             </div>
-
-                            {{-- Heatmap --}}
+                                            {{-- Heatmap / Forensic Toolkit --}}
                             <div class="col-md-6">
-                                <div class="viewer-box {{ $riskClass }}-box">
-                                    <div class="viewer-label"><i class="fa-solid fa-fire me-1"></i> Grad-CAM Heatmap</div>
+                                <div class="viewer-box {{ $riskClass }}-box h-100 flex-column d-flex align-items-stretch" style="min-height: 520px;">
+                                    <div class="viewer-label d-flex justify-content-between align-items-center w-100 px-3 py-2" style="position:static; transform:none; border-radius:0; background:#334155; color: white;">
+                                        <span><i class="fa-solid fa-flask-vial me-1"></i> Forensic Map Toolkit</span>
+                                        <span class="badge bg-{{ $riskClass }}" style="font-size: 0.65rem;">{{ $riskLabel }}</span>
+                                    </div>
                                     @if($isScanning)
-                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100 flex-grow-1" style="min-height:300px;">
                                             <i class="fa-solid fa-spinner fa-spin fa-3x text-primary mb-2"></i>
                                             <small class="text-muted">AI Scanning in progress...</small>
                                         </div>
                                     @elseif($isFailed)
-                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100 flex-grow-1" style="min-height:300px;">
                                             <i class="fa-solid fa-triangle-exclamation fa-3x text-danger mb-2 opacity-50"></i>
                                             <small class="text-muted">Scan failed. Please retry.</small>
                                         </div>
-                                    @elseif($hasAiResult && $doc->aiResult->heatmap_path)
-                                        <img src="{{ route('document.heatmap', $doc->id) }}"
-                                             alt="AI Heatmap Overlay" class="img-zoomable"
-                                             role="button"
-                                             tabindex="0"
-                                             aria-label="Click or press Enter to enlarge heatmap"
-                                             onclick="openLightbox(this.src)"
-                                             onkeydown="if(event.key==='Enter' || event.key===' ') { event.preventDefault(); openLightbox(this.src); }">
                                     @elseif($hasAiResult)
-                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px; text-align: center; padding: 20px;">
+                                        @php
+                                            $deepReport = $doc->aiResult->deep_analysis_report ?? null;
+                                            $layers = $deepReport['visualizations']['layer_heatmaps'] ?? [];
+                                            $compositeHeatmap = $deepReport['visualizations']['composite_heatmap_base64'] ?? null;
+                                            $originalUrl = route('document.view', $doc->id);
+                                        @endphp
+                                        
+                                        {{-- Tab buttons --}}
+                                        <div class="bg-light border-bottom p-1.5 d-flex gap-1 overflow-auto forensic-tabs-container" style="scrollbar-width: thin; border-radius: 0;">
+                                            <button type="button" class="btn btn-xs btn-outline-secondary active py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                    onclick="switchForensicTab(this, 'original', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
+                                                Original
+                                            </button>
+                                            @if($compositeHeatmap)
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                        data-src="data:image/png;base64,{{ $compositeHeatmap }}"
+                                                        onclick="switchForensicTab(this, 'composite', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
+                                                    Annotated (CAM)
+                                                </button>
+                                            @elseif($doc->aiResult->heatmap_path)
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                        data-src="{{ route('document.heatmap', $doc->id) }}"
+                                                        onclick="switchForensicTab(this, 'composite', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
+                                                    Annotated (CAM)
+                                                </button>
+                                            @endif
+                                            
+                                            @if(isset($layers['ela_detailed']))
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                        data-src="data:image/png;base64,{{ $layers['ela_detailed'] }}"
+                                                        onclick="switchForensicTab(this, 'ela', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
+                                                    ELA Map
+                                                </button>
+                                            @endif
+                                            @if(isset($layers['noise_consistency']))
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                        data-src="data:image/png;base64,{{ $layers['noise_consistency'] }}"
+                                                        onclick="switchForensicTab(this, 'noise', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
+                                                    Noise Map
+                                                </button>
+                                            @endif
+                                            @if(isset($layers['edge_consistency']))
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                        data-src="data:image/png;base64,{{ $layers['edge_consistency'] }}"
+                                                        onclick="switchForensicTab(this, 'edge', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
+                                                    Edge Map
+                                                </button>
+                                            @endif
+                                        </div>
+
+                                        {{-- Interactive Image Viewer Box with CSS Opacity Overlay --}}
+                                        <div class="position-relative flex-grow-1 bg-dark d-flex align-items-center justify-content-center p-3 overflow-hidden" 
+                                             style="min-height: 380px;">
+                                            
+                                            <!-- Base Original Image -->
+                                            <img id="baseImage-{{ $doc->id }}" src="{{ $originalUrl }}" 
+                                                 class="img-fluid object-contain w-100 h-100 img-zoomable" style="max-height: 380px; object-fit: contain;" alt="Forensic Analysis Base"
+                                                 onclick="openLightbox(this.src)">
+
+                                            <!-- Forensic Layer Overlay -->
+                                            <img id="overlayImage-{{ $doc->id }}" src="" 
+                                                 class="img-fluid object-contain w-100 h-100 position-absolute" 
+                                                 style="max-height: 380px; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5; mix-blend-mode: normal; pointer-events: none; display: none;" 
+                                                 alt="Forensic Overlay Layer">
+                                        </div>
+
+                                        {{-- Opacity slider controls --}}
+                                        <div class="p-3 bg-light border-top" id="opacityControls-{{ $doc->id }}" style="display: none;">
+                                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                                <span class="small fw-bold text-muted"><i class="fa-solid fa-circle-half-stroke me-1"></i> Layer Opacity</span>
+                                                <span class="small fw-semibold text-primary" id="opacityVal-{{ $doc->id }}">50%</span>
+                                            </div>
+                                            <input type="range" class="form-range" id="opacitySlider-{{ $doc->id }}" min="0" max="100" value="50"
+                                                   oninput="adjustOverlayOpacity(this.value, '{{ $doc->id }}')">
+                                        </div>
+                                    @elseif($isPdf)
+                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100 flex-grow-1" style="min-height:300px; text-align: center; padding: 20px;">
                                             <i class="fa-solid fa-file-pdf fa-3x text-success mb-2 opacity-50"></i>
                                             <small class="text-success fw-bold">PDF Document Bypassed AI Image Scan</small>
                                             <span class="text-muted mt-2 d-block" style="font-size: 0.72rem; line-height: 1.4; max-width: 250px; margin: 0 auto;">
@@ -568,14 +764,42 @@
                                             </span>
                                         </div>
                                     @else
-                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100" style="min-height:300px;">
+                                        <div class="d-flex flex-column align-items-center justify-content-center py-5 w-100 flex-grow-1" style="min-height:300px;">
                                             <i class="fa-solid fa-robot fa-3x text-danger mb-2 opacity-25"></i>
                                             <small class="text-muted">Awaiting AI scan execution</small>
                                         </div>
                                     @endif
+                                </div>
+                            </div>
                         </div>
 
-                        @if($hasAiResult && !empty($doc->aiResult->cropped_patch_data))
+                        {{-- Suspect Regions Crops Grid --}}
+                        @if($hasAiResult && !empty($doc->aiResult->deep_analysis_report['region_crops']))
+                        <div class="mt-3 p-3 rounded-3" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="fw-bold text-dark small"><i class="fa-solid fa-crop-simple me-1 text-danger"></i> Suspect Regions Crop Grid</span>
+                                <span class="badge bg-danger text-white" style="font-size: 0.65rem;">{{ count($doc->aiResult->deep_analysis_report['region_crops']) }} Anomalies Pinpointed</span>
+                            </div>
+                            
+                            <div class="row g-2">
+                                @foreach($doc->aiResult->deep_analysis_report['region_crops'] as $crop)
+                                    <div class="col-6 col-sm-4 col-md-3">
+                                        <div class="border rounded bg-white p-1 text-center cursor-pointer hover-shadow transition" 
+                                             onclick="zoomToRegion('{{ $crop['crop_base64'] }}', '{{ $crop['x'] }}', '{{ $crop['y'] }}', '{{ $crop['w'] }}', '{{ $crop['h'] }}', '{{ $crop['detector'] }}', '{{ $crop['severity'] }}')"
+                                             style="font-size: 0.7rem; border-color: var(--border-color);">
+                                            <div style="height: 70px;" class="d-flex align-items-center justify-content-center overflow-hidden bg-light rounded">
+                                                <img src="data:image/png;base64,{{ $crop['crop_base64'] }}" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                                            </div>
+                                            <div class="mt-1 d-flex align-items-center justify-content-between px-1">
+                                                <span class="text-xs fw-semibold">{{ $crop['detector'] }}</span>
+                                                <span class="badge bg-{{ $crop['severity'] === 'high' ? 'danger' : 'warning' }} text-white" style="font-size:0.55rem; padding: 2px 4px;">{{ $crop['severity'] }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @elseif($hasAiResult && !empty($doc->aiResult->cropped_patch_data))
                         <div class="mt-3 p-3 rounded-3" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.3);">
                             <div class="d-flex align-items-center justify-content-between mb-2">
                                 <span class="fw-bold text-danger small"><i class="fa-solid fa-crop-simple me-1"></i> Tampered Region Micro-Crop Zoom Preview</span>
@@ -700,19 +924,24 @@
         // Show loading state on buttons
         const approveBtn = document.querySelector('.btn-approve');
         const rejectBtn = document.querySelector('.btn-reject');
+        const returnBtn = document.querySelector('.btn-return');
         const remarksField = document.getElementById('evaluatorRemarks');
         
         const originalApprove = approveBtn ? approveBtn.innerHTML : '';
         const originalReject = rejectBtn ? rejectBtn.innerHTML : '';
+        const originalReturn = returnBtn ? returnBtn.innerHTML : '';
 
         if (approveBtn) { approveBtn.disabled = true; }
         if (rejectBtn) { rejectBtn.disabled = true; }
+        if (returnBtn) { returnBtn.disabled = true; }
         if (remarksField) { remarksField.disabled = true; }
 
         if (status === 'Approved' && approveBtn) {
             approveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Saving...';
         } else if (status === 'Rejected' && rejectBtn) {
             rejectBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Saving...';
+        } else if (status === 'Returned' && returnBtn) {
+            returnBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Saving...';
         }
 
         try {
@@ -744,14 +973,15 @@
                         <div class="p-3 rounded-3 bg-light border small text-dark">${data.remarks || 'No remarks provided.'}</div>
                     </div>
                     <div class="alert mb-0 text-center fw-bold rounded-3"
-                         style="background: ${data.status === 'Approved' ? '#dcfce7' : '#fee2e2'}; color: ${data.status === 'Approved' ? '#15803d' : '#b91c1c'}; border: none; font-size: 0.875rem;">
-                        <i class="fa-solid fa-lock me-1"></i> Application is finalized as ${data.status}.
+                         style="background: ${data.status === 'Approved' ? '#dcfce7' : (data.status === 'Returned' ? '#fffbeb' : '#fee2e2')}; color: ${data.status === 'Approved' ? '#15803d' : (data.status === 'Returned' ? '#b45309' : '#b91c1c')}; border: none; font-size: 0.875rem;">
+                        <i class="fa-solid fa-lock me-1"></i> Application is ${data.status === 'Returned' ? 'returned for document correction' : 'finalized as ' + data.status}.
                     </div>
                 `;
             } else {
                 Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
                 if (approveBtn) { approveBtn.disabled = false; approveBtn.innerHTML = originalApprove; }
                 if (rejectBtn) { rejectBtn.disabled = false; rejectBtn.innerHTML = originalReject; }
+                if (returnBtn) { returnBtn.disabled = false; returnBtn.innerHTML = originalReturn; }
                 if (remarksField) { remarksField.disabled = false; }
             }
         } catch (error) {
@@ -759,6 +989,7 @@
             Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
             if (approveBtn) { approveBtn.disabled = false; approveBtn.innerHTML = originalApprove; }
             if (rejectBtn) { rejectBtn.disabled = false; rejectBtn.innerHTML = originalReject; }
+            if (returnBtn) { returnBtn.disabled = false; returnBtn.innerHTML = originalReturn; }
             if (remarksField) { remarksField.disabled = false; }
         }
     }
@@ -865,6 +1096,78 @@
 
     function closeLightbox() {
         document.getElementById('lightbox').style.display = 'none';
+    }
+
+    // ── Forensic Map Switcher & Opacity Slider ─────────
+    const forensicState = {};
+
+    function switchForensicTab(btn, layerKey, docId) {
+        if (!forensicState[docId]) {
+            forensicState[docId] = {
+                currentLayer: 'original',
+                opacity: 50
+            };
+        }
+
+        // Deactivate all sibling buttons
+        const container = btn.closest('.forensic-tabs-container');
+        if (container) {
+            container.querySelectorAll('.forensic-tab-btn').forEach(b => {
+                b.classList.remove('active', 'btn-primary');
+                b.classList.add('btn-outline-secondary');
+            });
+        }
+        btn.classList.add('active', 'btn-primary');
+        btn.classList.remove('btn-outline-secondary');
+
+        const overlayImg = document.getElementById('overlayImage-' + docId);
+        const opacityCtrls = document.getElementById('opacityControls-' + docId);
+
+        if (layerKey === 'original') {
+            if (overlayImg) overlayImg.style.display = 'none';
+            if (opacityCtrls) opacityCtrls.style.display = 'none';
+            forensicState[docId].currentLayer = 'original';
+        } else {
+            const src = btn.dataset.src;
+            if (overlayImg) {
+                overlayImg.src = src;
+                overlayImg.style.display = 'block';
+            }
+            if (opacityCtrls) opacityCtrls.style.display = 'block';
+            forensicState[docId].currentLayer = layerKey;
+            
+            // Trigger slider update
+            const slider = document.getElementById('opacitySlider-' + docId);
+            if (slider) {
+                adjustOverlayOpacity(slider.value, docId);
+            }
+        }
+    }
+
+    function adjustOverlayOpacity(val, docId) {
+        const overlayImg = document.getElementById('overlayImage-' + docId);
+        const opacityVal = document.getElementById('opacityVal-' + docId);
+        if (overlayImg) {
+            overlayImg.style.opacity = val / 100;
+        }
+        if (opacityVal) {
+            opacityVal.textContent = val + '%';
+        }
+    }
+
+    function zoomToRegion(cropBase64, x, y, w, h, detector, severity) {
+        const src = 'data:image/png;base64,' + cropBase64;
+        openLightbox(src);
+        
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'info',
+            title: `${detector} Anomaly Detected`,
+            text: `Area severity: ${severity.toUpperCase()} (x: ${x}, y: ${y})`,
+            showConfirmButton: false,
+            timer: 4000
+        });
     }
 
     // ESC key to close lightbox
@@ -995,5 +1298,13 @@
             console.error('Failed to save staff notes:', error);
         }
     }
+
+    // Initialize Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
 </script>
 @endpush

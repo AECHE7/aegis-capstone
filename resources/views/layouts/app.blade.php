@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{-- Anti-flash theme script --}}
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="@yield('meta_description', 'A.E.G.I.S. is Central Luzon State University\'s official scholarship management portal. Apply for scholarships, track your application status, and receive real-time updates.')">
     <meta name="robots" content="noindex, nofollow">
@@ -85,6 +92,43 @@
             --clsu-green-muted: rgba(20, 83, 45, 0.15);
             --shadow-card: 0 0 0.5px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.45);
             --shadow-nav: 0 1px 3px rgba(0,0,0,0.25), 0 2px 2px rgba(0,0,0,0.15), 0 0 2px rgba(0,0,0,0.18);
+        }
+
+        [data-theme="high-contrast"] {
+            --clsu-bg: #000000;
+            --card-bg: #000000;
+            --text-main: #ffffff;
+            --text-title: #ffffff;
+            --border-color: #ffffff;
+            --clsu-green: #ffffff;
+            --clsu-green-dark: #000000;
+            --clsu-green-light: #fbbf24;
+            --clsu-green-muted: rgba(255, 255, 255, 0.2);
+            --clsu-gold: #fbbf24;
+            --shadow-card: none;
+            --shadow-nav: none;
+            --shadow-elevated: none;
+        }
+
+        [data-theme="high-contrast"] .card, 
+        [data-theme="high-contrast"] .sidebar, 
+        [data-theme="high-contrast"] .topbar, 
+        [data-theme="high-contrast"] .modal-content, 
+        [data-theme="high-contrast"] .dropdown-menu {
+            border: 2px solid #ffffff !important;
+        }
+        [data-theme="high-contrast"] .btn {
+            border: 2px solid #ffffff !important;
+            background-color: #000000 !important;
+            color: #ffffff !important;
+        }
+        [data-theme="high-contrast"] .btn:hover {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+        [data-theme="high-contrast"] *:focus {
+            outline: 3px solid #fbbf24 !important;
+            outline-offset: 2px;
         }
 
         /* ══════════════════════════════════════════
@@ -1110,6 +1154,9 @@
 </head>
 <body>
 
+{{-- WCAG Screen Reader Polite Announcer --}}
+<div id="aegis-a11y-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
 {{-- WCAG 2.4.1 Bypass Blocks (Level A): Skip-to-content link --}}
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -1178,6 +1225,60 @@
                                 No new notifications
                             </li>
                         </div>
+                    </ul>
+                </div>
+
+                <!-- Language Switcher Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-link p-1 topbar-icon-btn d-flex align-items-center gap-1" type="button" 
+                            id="languageSwitcher" 
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            aria-label="{{ __('portal.select_language') }}"
+                            style="box-shadow: none; text-decoration: none;">
+                        <i class="fa-solid fa-globe fs-5"></i>
+                        <span class="d-none d-md-inline small fw-semibold text-dark">{{ session('locale') === 'ph' ? '🇵🇭 PH' : '🇺🇸 EN' }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-1" aria-labelledby="languageSwitcher" style="border-radius: 12px; font-size: 0.85rem; min-width: 120px;">
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 @if(session('locale', 'en') === 'en') active bg-success text-white @endif" href="{{ route('locale.set', 'en') }}">
+                                🇺🇸 English
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 @if(session('locale') === 'ph') active bg-success text-white @endif" href="{{ route('locale.set', 'ph') }}">
+                                🇵🇭 Filipino
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Theme Selector Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-link p-1 topbar-icon-btn d-flex align-items-center gap-1" type="button" 
+                            id="themeSwitcher" 
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            aria-label="{{ __('portal.theme') }}"
+                            style="box-shadow: none; text-decoration: none;">
+                        <i class="fa-solid fa-circle-half-stroke fs-5"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-1" aria-labelledby="themeSwitcher" style="border-radius: 12px; font-size: 0.85rem; min-width: 150px;">
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2 text-start w-100 border-0 bg-transparent" onclick="setSystemTheme('light')">
+                                <i class="fa-regular fa-sun"></i> {{ __('portal.theme_light') }}
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2 text-start w-100 border-0 bg-transparent" onclick="setSystemTheme('dark')">
+                                <i class="fa-regular fa-moon"></i> {{ __('portal.theme_dark') }}
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2 text-start w-100 border-0 bg-transparent" onclick="setSystemTheme('high-contrast')">
+                                <i class="fa-solid fa-eye"></i> {{ __('portal.theme_contrast') }}
+                            </button>
+                        </li>
                     </ul>
                 </div>
 
@@ -1296,6 +1397,135 @@
         </div>
     </div>
 
+    <!-- Session Idle Warning Modal (NIST SP 800-63B Compliance) -->
+    <div class="modal fade" id="sessionIdleModal" tabindex="-1" aria-labelledby="sessionIdleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: var(--shadow-elevated);">
+                <div class="modal-header border-bottom border-light py-3">
+                    <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="sessionIdleModalLabel">
+                        <i class="fa-solid fa-triangle-exclamation text-warning animate-bounce"></i> Session Security Idle Warning
+                    </h5>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3 text-warning">
+                        <i class="fa-solid fa-hourglass-half fa-3x"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark">Are you still working?</h6>
+                    <p class="text-muted small mb-0">For security compliance (NIST SP 800-63B), inactive sessions are logged out automatically.</p>
+                    <p class="text-danger fw-bold fs-5 mt-2 mb-0">Logging out in <span id="idleTimerCount">120</span> seconds.</p>
+                </div>
+                <div class="modal-footer border-top border-light d-flex justify-content-between">
+                    <button type="button" class="btn btn-light px-4" id="idleLogoutBtn">Logout Now</button>
+                    <button type="button" class="btn btn-success text-white px-4" id="idleKeepAliveBtn" style="background-color: var(--clsu-green-cta, #00754A) !important;">Keep Me Logged In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // NIST SP 800-63B Idle Session Timer (28 minutes idle warning, 2 minutes countdown)
+        (function() {
+            const IDLE_TIMEOUT_MS = 28 * 60 * 1000; // 28 minutes of inactivity before warning
+            const COUNTDOWN_SECONDS = 120; // 2 minutes countdown
+            
+            let warningTimer = null;
+            let countdownInterval = null;
+            let countdownSecondsRemaining = COUNTDOWN_SECONDS;
+            let idleModal = null;
+
+            function resetIdleTimers() {
+                // Clear any active countdown
+                clearInterval(countdownInterval);
+                clearTimeout(warningTimer);
+                countdownSecondsRemaining = COUNTDOWN_SECONDS;
+
+                // Hide modal if open
+                const modalEl = document.getElementById('sessionIdleModal');
+                if (modalEl && modalEl.classList.contains('show')) {
+                    const bootstrapModal = bootstrap.Modal.getInstance(modalEl);
+                    bootstrapModal?.hide();
+                }
+
+                // Start warning timer
+                warningTimer = setTimeout(showIdleWarning, IDLE_TIMEOUT_MS);
+            }
+
+            function showIdleWarning() {
+                const modalEl = document.getElementById('sessionIdleModal');
+                if (!modalEl) return;
+                
+                // Only instantiate if not already present
+                idleModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                idleModal.show();
+
+                const timerDisplay = document.getElementById('idleTimerCount');
+                if (timerDisplay) timerDisplay.textContent = countdownSecondsRemaining;
+
+                countdownInterval = setInterval(() => {
+                    countdownSecondsRemaining--;
+                    if (timerDisplay) timerDisplay.textContent = countdownSecondsRemaining;
+
+                    if (countdownSecondsRemaining <= 0) {
+                        clearInterval(countdownInterval);
+                        logoutUser();
+                    }
+                }, 1000);
+            }
+
+            function keepAlive() {
+                // Ping server to refresh PHP session
+                fetch('/notifications')
+                    .then(res => {
+                        resetIdleTimers();
+                    })
+                    .catch(err => {
+                        console.error('Failed to keep session alive:', err);
+                        resetIdleTimers();
+                    });
+            }
+
+            function logoutUser() {
+                const logoutForm = document.getElementById('logoutForm');
+                if (logoutForm) {
+                    logoutForm.submit();
+                } else {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/logout';
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = "{{ csrf_token() }}";
+                    form.appendChild(csrf);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+
+            // Reset timers on user activities
+            const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+            activityEvents.forEach(evt => {
+                document.addEventListener(evt, resetIdleTimers, { passive: true });
+            });
+
+            // Initialize on start
+            resetIdleTimers();
+
+            document.addEventListener('DOMContentLoaded', () => {
+                // Hook keep alive button
+                const keepAliveBtn = document.getElementById('idleKeepAliveBtn');
+                if (keepAliveBtn) {
+                    keepAliveBtn.addEventListener('click', keepAlive);
+                }
+
+                // Hook logout button
+                const logoutBtn = document.getElementById('idleLogoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', logoutUser);
+                }
+            });
+        })();
+    </script>
 @endauth
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -1499,6 +1729,22 @@
             fetchNotifications();
         })
         .catch(err => console.error('Error clearing notifications:', err));
+    }
+
+    function setSystemTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        announceToScreenReader("Theme updated to " + theme.replace('-', ' ') + " mode.");
+    }
+
+    function announceToScreenReader(message) {
+        const announcer = document.getElementById('aegis-a11y-announcer');
+        if (announcer) {
+            announcer.textContent = '';
+            setTimeout(() => {
+                announcer.textContent = message;
+            }, 50);
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {

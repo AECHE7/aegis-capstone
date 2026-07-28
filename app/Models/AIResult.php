@@ -13,6 +13,7 @@ class AIResult extends Model
 
     protected $casts = [
         'anomaly_indicators' => 'array',
+        'deep_analysis_report' => 'array',
     ];
 
     /** AIResult belongs to the Document it was generated for. */

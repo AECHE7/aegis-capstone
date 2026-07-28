@@ -19,6 +19,13 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,
 Route::get('/login/mfa', [AuthController::class, 'showMfa'])->name('login.mfa');
 Route::post('/login/mfa', [AuthController::class, 'verifyMfa'])->middleware('throttle:5,1')->name('login.mfa.verify');
 Route::post('/login/mfa/resend', [AuthController::class, 'resendMfa'])->middleware('throttle:3,1')->name('login.mfa.resend');
+Route::get('/locale/{lang}', function (string $lang) {
+    if (in_array($lang, ['en', 'ph'], true)) {
+        session()->put('locale', $lang);
+    }
+    return redirect()->back();
+})->name('locale.set');
+
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
 Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
     $expectedKey = config('services.scheduler.key', 'aegis_cron_secret');
@@ -135,6 +142,7 @@ Route::middleware(['auth'])->group(function () {
         // Onboarding Tour & Forfeiture
         Route::post('/student/complete-tour', [ApplicationController::class, 'completeTour'])->name('student.complete-tour');
         Route::post('/application/{id}/forfeit', [ApplicationController::class, 'forfeit'])->name('student.application.forfeit');
+        Route::post('/application/{id}/reupload', [ApplicationController::class, 'reupload'])->name('student.application.reupload');
     });
 
     // OSA ADMIN DASHBOARD

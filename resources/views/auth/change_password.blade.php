@@ -129,6 +129,28 @@
                                 </div>
                             </div>
 
+                            <!-- Guardian & Emergency Contact -->
+                            <div class="col-md-6">
+                                <label for="guardian_name" class="form-label fw-semibold text-dark small mb-1">Parent / Guardian Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-user-shield"></i></span>
+                                    <input type="text" name="guardian_name" id="guardian_name" 
+                                           class="form-control border-start-0 py-2" 
+                                           placeholder="e.g. Maria Santos"
+                                           value="{{ old('guardian_name', $user->profile->guardian_name ?? '') }}" required style="border-radius: 0 10px 10px 0;">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="emergency_contact_number" class="form-label fw-semibold text-dark small mb-1">Emergency Contact Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-phone"></i></span>
+                                    <input type="text" name="emergency_contact_number" id="emergency_contact_number" 
+                                           class="form-control border-start-0 py-2" 
+                                           placeholder="e.g. 09123456789"
+                                           value="{{ old('emergency_contact_number', $user->profile->emergency_contact_number ?? '') }}" required style="border-radius: 0 10px 10px 0;">
+                                </div>
+                            </div>
 
                         @else
                             <!-- Admin / SuperAdmin Role Badge -->

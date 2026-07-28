@@ -16,11 +16,15 @@ class StudentProfile extends Model
         'course',
         'year_level',
         'contact_number',
+        'guardian_name',
+        'emergency_contact_number',
     ];
 
     protected $casts = [
         'clsu_id_number' => 'encrypted',
         'contact_number' => 'encrypted',
+        'guardian_name' => 'encrypted',
+        'emergency_contact_number' => 'encrypted',
     ];
 
     public function user()
