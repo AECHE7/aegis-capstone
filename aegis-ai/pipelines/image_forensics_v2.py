@@ -130,7 +130,17 @@ def detect_ela_patch_anomalies(ela_path: str, original_path: str):
     if patch_detected and target_box:
         heatmap_img = orig_img.copy()
         x, y, bw, bh = target_box
-        mask = np.zeros((h, w), dtype=np.uint8)
+        
+        orig_h, orig_w = orig_img.shape[0], orig_img.shape[1]
+        if (h, w) != (orig_h, orig_w):
+            scale_y = orig_h / h
+            scale_x = orig_w / w
+            x = int(x * scale_x)
+            y = int(y * scale_y)
+            bw = int(bw * scale_x)
+            bh = int(bh * scale_y)
+            
+        mask = np.zeros((orig_h, orig_w), dtype=np.uint8)
         cv2.rectangle(mask, (x, y), (x + bw, y + bh), 255, -1)
         mask_blur = cv2.GaussianBlur(mask, (25, 25), 0)
         color_mask = cv2.applyColorMap(mask_blur, cv2.COLORMAP_JET)
