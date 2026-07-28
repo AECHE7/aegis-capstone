@@ -1,0 +1,7 @@
+poppler-utils
+tesseract-ocr
+tesseract-ocr-eng
+libqpdf-dev
+pkg-config
+build-essential
+python3-dev
