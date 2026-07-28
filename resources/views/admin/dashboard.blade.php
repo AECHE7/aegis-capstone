@@ -10,7 +10,19 @@
     .stat-number { font-size: 2rem; font-weight: 700; font-family: 'Poppins', sans-serif; line-height: 1; }
 
     /* Searchbar */
-    .filter-bar { background: var(--card-bg); border-radius: 12px; padding: 1.25rem 1.5rem; border: 1px solid var(--border-color); box-shadow: none; }
+    .filter-bar {
+        background: rgba(255, 255, 255, 0.45);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.015) !important;
+    }
+    [data-theme="dark"] .filter-bar {
+        background: rgba(17, 24, 39, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
 
     /* Table */
     .queue-table { border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); background: var(--card-bg); }

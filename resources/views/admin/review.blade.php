@@ -711,13 +711,13 @@
                                         @endphp
                                         
                                         {{-- Tab buttons --}}
-                                        <div class="bg-light border-bottom p-1.5 d-flex gap-1 overflow-auto forensic-tabs-container" style="scrollbar-width: thin; border-radius: 0;">
-                                            <button type="button" class="btn btn-xs btn-outline-secondary active py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                        <div class="bg-light border-bottom p-2 d-flex gap-1.5 overflow-auto forensic-tabs-container" style="scrollbar-width: thin; border-radius: 0;">
+                                            <button type="button" class="btn btn-xs btn-outline-secondary active py-1 px-3 text-nowrap rounded-pill forensic-tab-btn" 
                                                     onclick="switchForensicTab(this, 'original', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                 Original
                                             </button>
                                             @if($compositeHeatmap || $doc->aiResult->heatmap_path)
-                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-3 text-nowrap rounded-pill forensic-tab-btn" 
                                                         data-src="{{ route('document.heatmap', $doc->id) }}"
                                                         onclick="switchForensicTab(this, 'composite', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                     Annotated (CAM)
@@ -725,21 +725,21 @@
                                             @endif
                                             
                                             @if(isset($layers['ela_detailed']))
-                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-3 text-nowrap rounded-pill forensic-tab-btn" 
                                                         data-src="{{ route('document.forensicLayer', [$doc->id, 'ela_detailed']) }}"
                                                         onclick="switchForensicTab(this, 'ela', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                     ELA Map
                                                 </button>
                                             @endif
                                             @if(isset($layers['noise_consistency']))
-                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-3 text-nowrap rounded-pill forensic-tab-btn" 
                                                         data-src="{{ route('document.forensicLayer', [$doc->id, 'noise_consistency']) }}"
                                                         onclick="switchForensicTab(this, 'noise', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                     Noise Map
                                                 </button>
                                             @endif
                                             @if(isset($layers['edge_consistency']))
-                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2 text-nowrap rounded-2 forensic-tab-btn" 
+                                                <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-3 text-nowrap rounded-pill forensic-tab-btn" 
                                                         data-src="{{ route('document.forensicLayer', [$doc->id, 'edge_consistency']) }}"
                                                         onclick="switchForensicTab(this, 'edge', '{{ $doc->id }}')" style="font-size:0.7rem; font-weight:600;">
                                                     Edge Map

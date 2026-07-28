@@ -753,7 +753,7 @@
             padding: 1.25rem 1.5rem;
             border: 1px solid var(--border-color);
             background: var(--card-bg);
-            transition: var(--transition);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s;
             position: relative;
             overflow: hidden;
         }
@@ -764,16 +764,30 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 4px;
             border-radius: 0 0 var(--radius-md) var(--radius-md);
         }
 
         .stat-card:hover {
-            border-color: #cbd5e1;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08) !important;
         }
 
-        [data-theme="dark"] .stat-card:hover {
-            border-color: #334155;
+        .stat-card.warning:hover {
+            border-color: rgba(217, 119, 6, 0.3);
+            background: linear-gradient(180deg, var(--card-bg) 0%, rgba(217, 119, 6, 0.02) 100%) !important;
+        }
+        .stat-card.info:hover {
+            border-color: rgba(2, 132, 199, 0.3);
+            background: linear-gradient(180deg, var(--card-bg) 0%, rgba(2, 132, 199, 0.02) 100%) !important;
+        }
+        .stat-card.success:hover {
+            border-color: rgba(12, 78, 45, 0.3);
+            background: linear-gradient(180deg, var(--card-bg) 0%, rgba(12, 78, 45, 0.02) 100%) !important;
+        }
+        .stat-card.danger:hover {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: linear-gradient(180deg, var(--card-bg) 0%, rgba(239, 68, 68, 0.02) 100%) !important;
         }
 
         .stat-card.warning::after  { background: var(--clsu-gold); }
