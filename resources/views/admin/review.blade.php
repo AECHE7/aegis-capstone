@@ -706,7 +706,8 @@
                                             $deepReport = $doc->aiResult->deep_analysis_report ?? null;
                                             $layers = $deepReport['visualizations']['layer_heatmaps'] ?? [];
                                             $compositeHeatmap = $deepReport['visualizations']['composite_heatmap_base64'] ?? null;
-                                            $originalUrl = route('document.view', $doc->id);
+                                            $originalPageBase64 = $deepReport['visualizations']['original_page_base64'] ?? null;
+                                            $originalUrl = $originalPageBase64 ? 'data:image/png;base64,' . $originalPageBase64 : route('document.view', $doc->id);
                                         @endphp
                                         
                                         {{-- Tab buttons --}}

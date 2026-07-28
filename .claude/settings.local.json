@@ -15,7 +15,8 @@
       "Bash(git fetch:*)",
       "Bash(git add:*)",
       "Bash(chmod:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Read(//e//**)"
     ],
     "deny": [],
     "ask": []

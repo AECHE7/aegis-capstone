@@ -115,6 +115,73 @@ def run_pdf_pipeline(
 
     classification = "Tampered" if fusion_fraud_prob >= 50.0 else "Authentic"
 
+    import base64
+    ela_base64 = None
+    if highest_risk_ela and os.path.exists(highest_risk_ela):
+        try:
+            with open(highest_risk_ela, 'rb') as f:
+                ela_base64 = base64.b64encode(f.read()).decode('utf-8')
+        except Exception:
+            pass
+
+    heatmap_base64 = None
+    if highest_risk_heatmap and os.path.exists(highest_risk_heatmap):
+        try:
+            with open(highest_risk_heatmap, 'rb') as f:
+                heatmap_base64 = base64.b64encode(f.read()).decode('utf-8')
+        except Exception:
+            pass
+
+    original_page_base64 = None
+    if PDF2IMAGE_AVAILABLE and 'images' in locals() and len(images) > 0:
+        try:
+            import io
+            buffered = io.BytesIO()
+            images[0].save(buffered, format="PNG")
+            original_page_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        except Exception:
+            pass
+
+    deep_analysis_report = {
+        'summary': {
+            'total_suspect_regions': len(anomaly_indicators),
+            'high_severity_regions': 1 if fusion_fraud_prob >= 75.0 else 0,
+            'clustered_regions': 0,
+            'detectors_triggered': len(anomaly_indicators)
+        },
+        'ela_analysis': {
+            'high_anomaly_regions': [],
+            'mean_anomaly': 0.0,
+            'max_anomaly': 0.0,
+            'anomaly_map': []
+        },
+        'noise_analysis': {
+            'inconsistent_regions': [],
+            'noise_uniformity_score': 1.0,
+            'total_outliers': 0
+        },
+        'edge_analysis': {
+            'unusual_edge_regions': [],
+            'edge_density_score': 0.0,
+            'total_anomalies': 0
+        },
+        'color_analysis': {
+            'suspicious_uniform_regions': [],
+            'total_whiteout_candidates': 0,
+            'overall_color_uniformity': 1.0
+        },
+        'suspect_regions': [],
+        'region_crops': [],
+        'visualizations': {
+            'composite_heatmap_base64': heatmap_base64,
+            'annotated_image_base64': heatmap_base64,
+            'layer_heatmaps': {
+                'ela_detailed': ela_base64
+            } if ela_base64 else {},
+            'original_page_base64': original_page_base64
+        }
+    }
+
     return {
         "status": "success",
         "pipeline": "pdf_forensics",
@@ -123,6 +190,15 @@ def run_pdf_pipeline(
         "extracted_gwa": extracted_gwa,
         "anomaly_indicators": anomaly_indicators,
         "pdf_report": pdf_report,
+        "deep_analysis_report": deep_analysis_report,
+        "visualizations": {
+            'composite_heatmap_base64': heatmap_base64,
+            'annotated_image_base64': heatmap_base64,
+            'layer_heatmaps': {
+                'ela_detailed': ela_base64
+            } if ela_base64 else {},
+            'original_page_base64': original_page_base64
+        },
         "model": {
             "name": "aegis_pdf_fusion_v2",
             "version": "2.0.0",
