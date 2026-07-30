@@ -46,8 +46,22 @@ class Setting extends Model
     {
         $customLogo = self::get('app_logo');
         if ($customLogo) {
-            return route('system.logo');
+            $url = route('system.logo');
+            return str_replace('http://', 'https://', $url);
         }
-        return asset('logo.webp');
+
+        $domain = config('app.url', 'https://aegis-capstone.onrender.com');
+        if (!$domain || str_contains($domain, 'localhost')) {
+            if (request()->hasHeader('X-Forwarded-Host')) {
+                $proto = request()->header('X-Forwarded-Proto', 'https');
+                $host = request()->header('X-Forwarded-Host');
+                $domain = "{$proto}://{$host}";
+            } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
+                $domain = request()->schemeAndHttpHost();
+            } else {
+                $domain = 'https://aegis-capstone.onrender.com';
+            }
+        }
+        return rtrim(str_replace('http://', 'https://', $domain), '/') . '/logo.png';
     }
 }

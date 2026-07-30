@@ -36,15 +36,16 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
 
 ---
 
-## 3. Completed Fixes: Render Deployment, Mobile Layout, and Production Email Links
+## 3. Completed Fixes & Branding Enhancements
 
-### Summary of Completed Fixes
-1. **Production Notification URLs ([CustomResetPasswordNotification.php](file:///f:/aegis-capstone/app/Notifications/CustomResetPasswordNotification.php), [render.yaml](file:///f:/aegis-capstone/render.yaml))**:
+### Summary of Completed Enhancements
+1. **System-Wide CLSU Logo Integration ([Setting.php](file:///f:/aegis-capstone/app/Models/Setting.php))**:
+   - Added centralized `Setting::getLogoUrl()` helper to dynamically deliver official CLSU seal image across all views, sidebars, mobile headers, and outbound HTML email notifications.
+2. **Production Notification URLs ([CustomResetPasswordNotification.php](file:///f:/aegis-capstone/app/Notifications/CustomResetPasswordNotification.php), [render.yaml](file:///f:/aegis-capstone/render.yaml))**:
    - Configured `APP_URL: https://aegis-capstone.onrender.com` in `render.yaml`.
-   - Updated password reset, email verification, and staff invitation notifications to dynamically resolve target production domain (`https://aegis-capstone.onrender.com`), eliminating `http://localhost` links in emails.
-2. **Render 502 Bad Gateway Cold Start Fix ([start.sh](file:///f:/aegis-capstone/start.sh))**:
+   - Unified all outbound email notifications under a custom CLSU HTML layout.
+3. **Render 502 Bad Gateway Cold Start Fix ([start.sh](file:///f:/aegis-capstone/start.sh))**:
    - Resolved HTTP 502 Bad Gateway during Render container startup after sleep/inactivity.
    - Binds HTTP server listening on port `10000` **immediately** (< 0.5s) upon container wake-up.
-3. **Dedicated Mobile Login & Register Views**:
+4. **Dedicated Mobile Login & Register Views**:
    - Implemented full-bleed mobile auth card layout suppressing desktop hero panels on smartphone viewports (`< 768px`).
-   - Fixed CSS block nesting in Blade templates to ensure mobile viewports render full width cleanly.
