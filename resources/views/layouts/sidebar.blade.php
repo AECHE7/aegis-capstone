@@ -3,11 +3,7 @@
     <!-- Brand -->
     <a href="#" class="sidebar-brand text-decoration-none">
         <div class="sidebar-brand-icon d-flex align-items-center justify-content-center">
-            @if(\App\Models\Setting::get('app_logo'))
-                <img src="{{ route('system.logo') }}" alt="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} logo" style="width: 24px; height: 24px; object-fit: contain;" decoding="async">
-            @else
-                <img src="{{ asset('logo.png') }}" alt="A.E.G.I.S. logo" style="width: 24px; height: 24px; object-fit: contain;" decoding="async">
-            @endif
+            <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} logo" style="width: 28px; height: 28px; object-fit: contain;" decoding="async">
         </div>
         <div class="sidebar-brand-text">
             <span class="sidebar-brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}</span>

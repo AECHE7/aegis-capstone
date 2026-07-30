@@ -124,11 +124,7 @@
 <body>
     <div class="mfa-card">
         <div class="logo-container">
-            @if(\App\Models\Setting::get('app_logo'))
-                <img src="{{ route('system.logo') }}" alt="CLSU Logo">
-            @else
-                <img src="{{ asset('logo.png') }}" alt="CLSU Logo">
-            @endif
+            <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="CLSU Logo" style="height: 64px; object-fit: contain;">
         </div>
         <h1 class="mfa-title">Security Verification</h1>
         <p class="mfa-desc">Enter the 6-digit verification code sent to your registered email address to complete signing in.</p>

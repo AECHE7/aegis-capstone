@@ -571,12 +571,8 @@
 
         <!-- Hero footer -->
         <div class="hero-footer mt-4">
-            <div class="brand-circle d-flex align-items-center justify-content-center" style="overflow: hidden;">
-                @if(\App\Models\Setting::get('app_logo'))
-                    <img src="{{ route('system.logo') }}" style="width: 24px; height: 24px; object-fit: contain;">
-                @else
-                    <i class="fa-solid fa-shield-halved text-white"></i>
-                @endif
+            <div class="brand-circle d-flex align-items-center justify-content-center" style="overflow: hidden; background: rgba(255,255,255,0.15);">
+                <img src="{{ \App\Models\Setting::getLogoUrl() }}" style="width: 28px; height: 28px; object-fit: contain;">
             </div>
             <div>
                 <div class="brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Portal</div>
@@ -592,12 +588,8 @@
 
             <!-- Mobile Brand Header (Visible only on smartphones) -->
             <div class="mobile-brand-header d-block d-md-none text-center mb-4 pb-2 border-bottom">
-                <div class="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-2" style="width: 52px; height: 52px; background: #0C4E2D !important;">
-                    @if(\App\Models\Setting::get('app_logo'))
-                        <img src="{{ route('system.logo') }}" style="width: 32px; height: 32px; object-fit: contain;">
-                    @else
-                        <i class="fa-solid fa-shield-halved fs-4"></i>
-                    @endif
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2" style="width: 56px; height: 56px; background: rgba(12, 78, 45, 0.08); border: 1px solid rgba(12, 78, 45, 0.15);">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" style="width: 38px; height: 38px; object-fit: contain;">
                 </div>
                 <h3 class="h5 fw-bold mb-0 text-dark">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Portal</h3>
                 <span class="badge bg-light text-success border border-success-subtle rounded-pill fw-semibold px-2 py-1 small" style="font-size: 0.72rem;">

@@ -133,9 +133,7 @@
     <div class="wrapper">
         <div class="container">
             <div class="header">
-                @if(\App\Models\Setting::get('app_logo'))
-                    <img src="{{ route('system.logo') }}" alt="CLSU Logo">
-                @endif
+                <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="CLSU Logo">
                 <h1>{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}</h1>
                 <div class="sub-badge">{{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}</div>
             </div>

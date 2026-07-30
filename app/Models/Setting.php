@@ -38,4 +38,16 @@ class Setting extends Model
 
         return $setting;
     }
+
+    /**
+     * Get system logo URL (uploaded system logo if available, or default CLSU logo asset).
+     */
+    public static function getLogoUrl(): string
+    {
+        $customLogo = self::get('app_logo');
+        if ($customLogo) {
+            return route('system.logo');
+        }
+        return asset('logo.webp');
+    }
 }
