@@ -127,9 +127,19 @@
             .header  { padding: 24px 16px !important; }
             .footer  { padding: 20px 16px !important; }
         }
+        @media (prefers-color-scheme: dark) {
+            body, .wrapper { background-color: #0f172a !important; color: #f8fafc !important; }
+            .container { background-color: #1e293b !important; border-color: #334155 !important; }
+            .content, .content p { color: #e2e8f0 !important; }
+            .footer { background-color: #0f172a !important; border-top-color: #334155 !important; color: #94a3b8 !important; }
+        }
     </style>
 </head>
 <body>
+    <!-- Hidden Inbox Preheader Snippet -->
+    <span style="display:none !important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; font-size:0; line-height:0; max-height:0; max-width:0; overflow:hidden;">
+        @yield('preheader', 'Official notification from CLSU Office of Student Affairs A.E.G.I.S. Scholarship Portal.')
+    </span>
     <div class="wrapper">
         <div class="container">
             <div class="header">

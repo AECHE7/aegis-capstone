@@ -187,9 +187,24 @@
     </div>
 <script>
     // OTP digit-only input
-    document.getElementById('otpInput').addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-    });
+    const otpInput = document.getElementById('otpInput');
+    if (otpInput) {
+        const checkAutoSubmit = function() {
+            otpInput.value = otpInput.value.replace(/[^0-9]/g, '').slice(0, 6);
+            if (otpInput.value.length === 6) {
+                const form = otpInput.closest('form');
+                if (form && !form.dataset.submitting) {
+                    form.dataset.submitting = 'true';
+                    form.submit();
+                }
+            }
+        };
+
+        otpInput.addEventListener('input', checkAutoSubmit);
+        otpInput.addEventListener('paste', function(e) {
+            setTimeout(checkAutoSubmit, 50);
+        });
+    }
 
     // Resend countdown timer (dynamic cooldown)
     var seconds = {{ isset($resendCooldown) ? $resendCooldown : 60 }};

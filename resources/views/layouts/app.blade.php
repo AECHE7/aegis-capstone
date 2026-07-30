@@ -1886,6 +1886,51 @@
     document.addEventListener('DOMContentLoaded', updateOnlineStatus);
 </script>
 
+<!-- PWA One-Tap Install Banner -->
+<div id="pwaInstallBanner" class="position-fixed bottom-0 start-0 end-0 p-3 shadow-lg animate-fade-in" style="z-index: 1050; display: none; background: #0C4E2D !important; border-top: 3px solid #D97706; color: white !important;">
+    <div class="container d-flex align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <img src="/logo.webp" alt="A.E.G.I.S." width="36" height="36" class="rounded-3 shadow-sm">
+            <div>
+                <strong class="d-block text-white mb-0" style="font-size: 0.9rem;">Install A.E.G.I.S. App</strong>
+                <span class="text-white-50 small">Add to your home screen for fast, offline-ready access</span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button id="pwaInstallBtn" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1 rounded-pill">Install</button>
+            <button id="pwaDismissBtn" class="btn btn-sm btn-link text-white-50 p-1" style="box-shadow:none;"><i class="fa-solid fa-xmark fs-5"></i></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        if (!localStorage.getItem('pwa_banner_dismissed')) {
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) banner.style.display = 'block';
+        }
+    });
+
+    document.getElementById('pwaInstallBtn')?.addEventListener('click', async () => {
+        const banner = document.getElementById('pwaInstallBanner');
+        if (banner) banner.style.display = 'none';
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        }
+    });
+
+    document.getElementById('pwaDismissBtn')?.addEventListener('click', () => {
+        const banner = document.getElementById('pwaInstallBanner');
+        if (banner) banner.style.display = 'none';
+        localStorage.setItem('pwa_banner_dismissed', '1');
+    });
+</script>
+
 @include('layouts.mobile-nav')
 
 @stack('scripts')
