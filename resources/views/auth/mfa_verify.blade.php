@@ -191,26 +191,39 @@
         this.value = this.value.replace(/[^0-9]/g, '');
     });
 
-    // Resend countdown timer (60s cooldown)
-    var seconds = 60;
+    // Resend countdown timer (dynamic cooldown)
+    var seconds = {{ isset($resendCooldown) ? $resendCooldown : 60 }};
     var countdownEl = document.getElementById('countdown');
     var resendTimer = document.getElementById('resendTimer');
     var resendBtn = document.getElementById('resendBtn');
 
-    var timer = setInterval(function () {
-        seconds--;
+    if (seconds <= 0) {
+        if (resendTimer) resendTimer.style.display = 'none';
+        if (resendBtn) resendBtn.style.display = 'inline';
+    } else {
         if (countdownEl) countdownEl.textContent = seconds;
-        if (seconds <= 0) {
-            clearInterval(timer);
-            resendTimer.style.display = 'none';
-            resendBtn.style.display = 'inline';
-        }
-    }, 1000);
+        var timer = setInterval(function () {
+            seconds--;
+            if (countdownEl) countdownEl.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(timer);
+                if (resendTimer) resendTimer.style.display = 'none';
+                if (resendBtn) resendBtn.style.display = 'inline';
+            }
+        }, 1000);
+    }
 
-    // OTP Expiry countdown (10 min = 600s, must match backend TTL in AuthController)
-    var expirySeconds = 600;
+    // OTP Expiry countdown (dynamic remaining TTL from DB)
+    var expirySeconds = {{ isset($remainingSeconds) ? $remainingSeconds : 600 }};
     var expiryDisplay = document.getElementById('expiryDisplay');
     var expiryContainer = document.getElementById('otpExpiry');
+    
+    // Initial display formatting
+    if (expiryDisplay) {
+        var initialM = Math.floor(expirySeconds / 60);
+        var initialS = expirySeconds % 60;
+        expiryDisplay.textContent = initialM + ':' + (initialS < 10 ? '0' : '') + initialS;
+    }
     var expiryInterval = setInterval(function() {
         expirySeconds--;
         var m = Math.floor(expirySeconds / 60);

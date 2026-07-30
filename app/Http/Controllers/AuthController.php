@@ -142,8 +142,11 @@ class AuthController extends Controller
                 $mailSent = false;
             }
 
-            // Store user ID in session
-            session(['mfa_user_id' => $user->id]);
+            // Store user ID and sent timestamp in session
+            session([
+                'mfa_user_id' => $user->id,
+                'mfa_sent_at' => now()->timestamp
+            ]);
 
             if (!$mailSent) {
                 return redirect()->route('login.mfa')->with('warning', 'MFA initialization succeeded, but we failed to deliver the verification code to your email. Please check back in a few moments.');
@@ -173,7 +176,20 @@ class AuthController extends Controller
         if (!session()->has('mfa_user_id')) {
             return redirect()->route('login');
         }
-        return view('auth.mfa_verify');
+
+        $user = \App\Models\User::find(session('mfa_user_id'));
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Calculate actual remaining OTP expiry seconds from database timestamp
+        $remainingSeconds = $user->otp_expires_at ? max(0, (int) now()->diffInSeconds($user->otp_expires_at, false)) : 0;
+
+        // Calculate resend cooldown (60s) from session timestamp
+        $mfaSentAt = session('mfa_sent_at', now()->timestamp);
+        $resendCooldown = max(0, 60 - ((int) now()->timestamp - (int) $mfaSentAt));
+
+        return view('auth.mfa_verify', compact('user', 'remainingSeconds', 'resendCooldown'));
     }
 
     // 2b-ii. Resend MFA OTP
@@ -190,6 +206,8 @@ class AuthController extends Controller
         $user->otp_code = $otp;
         $user->otp_expires_at = now()->addMinutes(10);
         $user->save();
+
+        session(['mfa_sent_at' => now()->timestamp]);
 
         $mailSent = true;
         try {
