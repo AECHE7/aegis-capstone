@@ -44,6 +44,7 @@ class ApplicationStatusNotification extends Notification
             'application_id' => $this->application->id,
             'title' => 'Application Status Update',
             'message' => "Your application APP-{$this->application->id} for {$scholarshipName} has been {$this->application->status}.",
+            'url' => url('/student/dashboard'),
             'status' => $this->application->status,
             'remarks' => $this->application->remarks,
             'type' => 'status_update'

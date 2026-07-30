@@ -451,8 +451,9 @@ class AuthController extends Controller
         $notifications = auth()->user()->unreadNotifications()->take(10)->get()->map(function($n) {
             return [
                 'id' => $n->id,
-                'title' => $n->data['title'] ?? 'Notification',
+                'title' => $n->data['title'] ?? 'System Notification',
                 'message' => $n->data['message'] ?? '',
+                'url' => $n->data['url'] ?? null,
                 'created_at' => $n->created_at->diffForHumans(),
             ];
         });

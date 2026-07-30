@@ -38,8 +38,9 @@ class NewAnnouncementNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => 'New Announcement: ' . $this->announcement->title,
-            'url' => '/dashboard',
+            'title' => 'Official Announcement',
+            'message' => $this->announcement->title,
+            'url' => url('/student/dashboard'),
             'type' => 'announcement'
         ];
     }

@@ -45,6 +45,7 @@ class NewApplicationNotification extends Notification
             'application_id' => $this->application->id,
             'title' => 'New Application Submitted',
             'message' => "A new application APP-{$this->application->id} has been submitted for {$scholarshipName} by {$studentName}.",
+            'url' => route('admin.review', $this->application->id),
             'student_name' => $studentName,
             'scholarship_name' => $scholarshipName,
             'type' => 'new_application'

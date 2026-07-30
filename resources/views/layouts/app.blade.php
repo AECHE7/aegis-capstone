@@ -1676,7 +1676,7 @@
             li.innerHTML = `
                 <div class="d-flex flex-column gap-1 text-start">
                     <div class="d-flex justify-content-between align-items-center">
-                        <strong style="font-size: 0.8rem;">${n.title}</strong>
+                        <strong style="font-size: 0.8rem; color: var(--clsu-green);">${n.title}</strong>
                         <span class="text-muted" style="font-size: 0.65rem;">${n.created_at}</span>
                     </div>
                     <div class="text-muted small" style="line-height: 1.3;">${n.message}</div>
@@ -1684,13 +1684,13 @@
             `;
             li.addEventListener('click', (e) => {
                 e.stopPropagation();
-                markAsRead(n.id);
+                markAsRead(n.id, n.url);
             });
             listElement.appendChild(li);
         });
     }
     
-    function markAsRead(id) {
+    function markAsRead(id, targetUrl) {
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         fetch(`/notifications/${id}/read`, {
             method: 'POST',
@@ -1702,8 +1702,15 @@
         .then(res => res.json())
         .then(data => {
             fetchNotifications();
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
         })
-        .catch(err => console.error('Error reading notification:', err));
+        .catch(err => {
+            if (targetUrl) {
+                window.location.href = targetUrl;
+            }
+        });
     }
     
     function clearAllNotifications(event) {
