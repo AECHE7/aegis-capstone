@@ -22,6 +22,10 @@ services:
         value: stderr
       - key: QUEUE_CONNECTION
         value: database
+      - key: SESSION_DRIVER
+        value: cookie
+      - key: CACHE_STORE
+        value: file
       - key: FILESYSTEM_DISK
         value: public
       # Cloudflare R2 Persistent Storage (Zero-Cost Cloud Storage)
