@@ -71,7 +71,7 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg-warm);
             margin: 0;
             overflow-x: hidden;
@@ -79,7 +79,7 @@
         }
 
         h1,h2,h3,h4,h5 {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             letter-spacing: -0.02em;
         }
 

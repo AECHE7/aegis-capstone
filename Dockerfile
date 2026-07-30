@@ -13,9 +13,21 @@ RUN apk add --no-cache \
     freetype-dev \
     postgresql-dev
 
-# Install PHP extensions
+# Install PHP extensions including opcache
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring zip gd bcmath
+    && docker-php-ext-install pdo_mysql pdo_pgsql mbstring zip gd bcmath opcache
+
+# Configure OPcache for high-performance production rendering
+RUN { \
+    echo 'opcache.enable=1'; \
+    echo 'opcache.enable_cli=1'; \
+    echo 'opcache.memory_consumption=128'; \
+    echo 'opcache.interned_strings_buffer=16'; \
+    echo 'opcache.max_accelerated_files=10000'; \
+    echo 'opcache.revalidate_freq=0'; \
+    echo 'opcache.validate_timestamps=0'; \
+    echo 'opcache.fast_shutdown=1'; \
+} > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

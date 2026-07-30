@@ -9,16 +9,24 @@ class Setting extends Model
 {
     protected $fillable = ['key', 'value'];
 
+    private static array $runtimeCache = [];
+
     /**
      * Retrieve a setting value by key, with caching.
      */
     public static function get(string $key, $default = null)
     {
+        if (array_key_exists($key, self::$runtimeCache)) {
+            return self::$runtimeCache[$key];
+        }
+
         try {
-            return Cache::rememberForever("setting.{$key}", function () use ($key, $default) {
+            $val = Cache::rememberForever("setting.{$key}", function () use ($key, $default) {
                 $setting = self::where('key', $key)->first();
                 return $setting ? $setting->value : $default;
             });
+            self::$runtimeCache[$key] = $val;
+            return $val;
         } catch (\Throwable $e) {
             return $default;
         }
@@ -34,6 +42,7 @@ class Setting extends Model
             ['value' => $value]
         );
 
+        unset(self::$runtimeCache[$key]);
         Cache::forget("setting.{$key}");
 
         return $setting;

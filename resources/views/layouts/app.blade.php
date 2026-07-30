@@ -265,7 +265,7 @@
 
         body {
             background-color: var(--clsu-bg);
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: var(--text-main);
             margin: 0;
             overflow-x: hidden;
@@ -274,7 +274,7 @@
         }
 
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: var(--text-title);
             letter-spacing: -0.02em; /* Heading tracking */
         }
