@@ -11,6 +11,27 @@ use Illuminate\Bus\Queueable;
 class CustomVerifyEmailNotification extends VerifyEmail implements ShouldQueue
 {
     use Queueable;
+
+    /**
+     * Resolve target public domain base URL.
+     */
+    protected function getAppDomain(): string
+    {
+        $domain = config('app.url');
+        if (!$domain || str_contains($domain, 'localhost')) {
+            if (request()->hasHeader('X-Forwarded-Host')) {
+                $proto = request()->header('X-Forwarded-Proto', 'https');
+                $host = request()->header('X-Forwarded-Host');
+                $domain = "{$proto}://{$host}";
+            } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
+                $domain = request()->schemeAndHttpHost();
+            } else {
+                $domain = 'https://aegis-capstone.onrender.com';
+            }
+        }
+        return rtrim($domain, '/');
+    }
+
     /**
      * Build the mail representation of the notification.
      *
@@ -20,6 +41,12 @@ class CustomVerifyEmailNotification extends VerifyEmail implements ShouldQueue
     public function toMail($notifiable): MailMessage
     {
         $verificationUrl = $this->verificationUrl($notifiable);
+        $domain = $this->getAppDomain();
+        $parsed = parse_url($verificationUrl);
+        if (isset($parsed['path'])) {
+            $pathAndQuery = $parsed['path'] . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
+            $verificationUrl = $domain . $pathAndQuery;
+        }
 
         // Audit Trail: Log email in EmailLog
         try {

@@ -33,11 +33,31 @@ class StaffInvitationNotification extends Notification implements ShouldQueue
     }
 
     /**
+     * Resolve target public domain base URL.
+     */
+    protected function getAppDomain(): string
+    {
+        $domain = config('app.url');
+        if (!$domain || str_contains($domain, 'localhost')) {
+            if (request()->hasHeader('X-Forwarded-Host')) {
+                $proto = request()->header('X-Forwarded-Proto', 'https');
+                $host = request()->header('X-Forwarded-Host');
+                $domain = "{$proto}://{$host}";
+            } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
+                $domain = request()->schemeAndHttpHost();
+            } else {
+                $domain = 'https://aegis-capstone.onrender.com';
+            }
+        }
+        return rtrim($domain, '/');
+    }
+
+    /**
      * Build the mail representation of the notification.
      */
     public function toMail($notifiable): MailMessage
     {
-        $activationUrl = url('/activate-account?token=' . $this->token);
+        $activationUrl = $this->getAppDomain() . '/activate-account?token=' . $this->token;
 
         // Audit Trail: Log email in EmailLog
         try {
