@@ -465,16 +465,39 @@
             outline-offset: 2px !important;
         }
 
-        /* Responsive */
-        @media (max-width: 991px) {
-            .hero-panel { flex: 1 1 100%; min-height: 44vh; padding: 2.5rem 1.5rem; }
-            .form-panel { flex: 1 1 100%; padding: 2rem 1.5rem; overflow-y: auto; max-height: 100dvh; }
-            .scan-terminal { display: none; }
-        }
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#0C4E2D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-        @media (max-width: 480px) {
-            .hero-panel { padding: 2rem 1.25rem; min-height: 38vh; }
-            .stats-row  { gap: 0; }
+    <style>
+        /* Dedicated Mobile Auth Adjustments */
+        @media (max-width: 767.98px) {
+            .hero-panel {
+                display: none !important;
+            }
+            .form-panel {
+                width: 100% !important;
+                padding: 1.25rem 1rem !important;
+                min-height: 100dvh;
+                align-items: center;
+                background: linear-gradient(180deg, #07331c 0%, #0C4E2D 100%) !important;
+            }
+            .form-box {
+                border-radius: 20px !important;
+                padding: 1.75rem 1.5rem !important;
+                box-shadow: 0 12px 32px rgba(0,0,0,0.25) !important;
+                width: 100% !important;
+            }
+            .form-floating > .form-control {
+                height: 52px !important;
+                font-size: 16px !important; /* Prevents auto-zoom on iOS */
+            }
+            .btn-login {
+                height: 52px !important;
+                font-size: 1rem !important;
+                font-weight: 700 !important;
+            }
         }
     </style>
 </head>
@@ -562,6 +585,21 @@
     <!-- ── RIGHT: FORM PANEL ──────────────────────────── -->
     <div class="form-panel">
         <div class="form-box">
+
+            <!-- Mobile Brand Header (Visible only on smartphones) -->
+            <div class="mobile-brand-header d-block d-md-none text-center mb-4 pb-2 border-bottom">
+                <div class="d-inline-flex align-items-center justify-content-center bg-success text-white rounded-circle mb-2" style="width: 52px; height: 52px; background: #0C4E2D !important;">
+                    @if(\App\Models\Setting::get('app_logo'))
+                        <img src="{{ route('system.logo') }}" style="width: 32px; height: 32px; object-fit: contain;">
+                    @else
+                        <i class="fa-solid fa-shield-halved fs-4"></i>
+                    @endif
+                </div>
+                <h3 class="h5 fw-bold mb-0 text-dark">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Portal</h3>
+                <span class="badge bg-light text-success border border-success-subtle rounded-pill fw-semibold px-2 py-1 small" style="font-size: 0.72rem;">
+                    {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}
+                </span>
+            </div>
 
             @if(isset($emergencyReadOnly) && $emergencyReadOnly)
                 <div class="alert border-0 rounded-3 mb-4 p-3 animate-fade-in" style="background: #fffbeb; color: #b45309; border-left: 4px solid #d97706 !important;">

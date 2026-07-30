@@ -328,6 +328,9 @@
                             input.type = 'file';
                             input.className = 'form-control shadow-sm p-2 bg-white';
                             input.accept = 'image/*,application/pdf';
+                            if (window.innerWidth <= 768) {
+                                input.setAttribute('capture', 'environment');
+                            }
 
                             // Add file validation and preview
                             input.addEventListener('change', function(e) {
