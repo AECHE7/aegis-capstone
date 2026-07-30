@@ -33,7 +33,7 @@ class CustomVerifyEmailNotification extends VerifyEmail implements ShouldQueue
     }
 
     /**
-     * Build the mail representation of the notification.
+     * Build the mail representation of the notification using custom CLSU HTML email template.
      *
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
@@ -62,11 +62,9 @@ class CustomVerifyEmailNotification extends VerifyEmail implements ShouldQueue
 
         return (new MailMessage)
             ->subject('[A.E.G.I.S.] Please Verify Your Email Address')
-            ->greeting('Hello, ' . $notifiable->name . '!')
-            ->line('Thank you for registering a student account at the CLSU A.E.G.I.S. Portal.')
-            ->line('Please click the button below to verify your email address and activate your account.')
-            ->action('Verify Email Address', $verificationUrl)
-            ->line('If you did not create this account, no further action is required.')
-            ->salutation('Best regards, CLSU Office of Student Affairs');
+            ->view('emails.verify_email', [
+                'name' => $notifiable->name,
+                'verificationUrl' => $verificationUrl,
+            ]);
     }
 }

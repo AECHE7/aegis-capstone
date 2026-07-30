@@ -33,7 +33,7 @@ class CustomResetPasswordNotification extends ResetPassword implements ShouldQue
     }
 
     /**
-     * Build the mail representation of the notification.
+     * Build the mail representation of the notification using custom CLSU HTML email template.
      *
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
@@ -61,11 +61,9 @@ class CustomResetPasswordNotification extends ResetPassword implements ShouldQue
 
         return (new MailMessage)
             ->subject('[A.E.G.I.S.] Reset Your Password')
-            ->greeting('Hello, ' . $notifiable->name . '!')
-            ->line('You are receiving this email because we received a password reset request for your account.')
-            ->action('Reset Password', $resetUrl)
-            ->line('This password reset link will expire in 60 minutes.')
-            ->line('If you did not request a password reset, no further action is required.')
-            ->salutation('Best regards, CLSU Office of Student Affairs');
+            ->view('emails.reset_password', [
+                'name' => $notifiable->name,
+                'resetUrl' => $resetUrl,
+            ]);
     }
 }

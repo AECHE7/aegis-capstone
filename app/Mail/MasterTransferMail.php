@@ -18,6 +18,26 @@ class MasterTransferMail extends Mailable
     public $acceptUrl;
 
     /**
+     * Resolve target public domain base URL.
+     */
+    protected function getAppDomain(): string
+    {
+        $domain = config('app.url');
+        if (!$domain || str_contains($domain, 'localhost')) {
+            if (request()->hasHeader('X-Forwarded-Host')) {
+                $proto = request()->header('X-Forwarded-Proto', 'https');
+                $host = request()->header('X-Forwarded-Host');
+                $domain = "{$proto}://{$host}";
+            } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
+                $domain = request()->schemeAndHttpHost();
+            } else {
+                $domain = 'https://aegis-capstone.onrender.com';
+            }
+        }
+        return rtrim($domain, '/');
+    }
+
+    /**
      * Create a new message instance.
      */
     public function __construct(string $senderEmail, string $recipientEmail, string $token)
@@ -25,8 +45,9 @@ class MasterTransferMail extends Mailable
         $this->senderEmail = $senderEmail;
         $this->recipientEmail = $recipientEmail;
         $this->token = $token;
-        // Generate acceptance URL
-        $this->acceptUrl = route('master.accept-transfer', ['token' => $token]);
+        
+        $relativeUrl = route('master.accept-transfer', ['token' => $token], false);
+        $this->acceptUrl = $this->getAppDomain() . $relativeUrl;
     }
 
     /**
