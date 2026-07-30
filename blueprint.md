@@ -36,15 +36,17 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
 
 ---
 
-## 3. Completed Requested Change: Dedicated Mobile UI/UX & Mobile Auth Experience
+## 3. Completed Changes: Dedicated Mobile UI/UX & Render 502 Cold Start Remediation
 
-### Summary of Changes Completed
-1. **Dedicated Mobile Login & Register Views**:
+### Summary of Completed Fixes
+1. **Render 502 Bad Gateway Cold Start Fix ([start.sh](file:///f:/aegis-capstone/start.sh))**:
+   - Resolved HTTP 502 Bad Gateway during Render container startup after sleep/inactivity.
+   - Binds HTTP server listening on port `10000` **immediately** (< 0.5s) upon container wake-up.
+   - Offloaded blocking `migrate` and `queue:work` executions to asynchronous background processes, avoiding proxy timeouts.
+2. **Dedicated Mobile Login & Register Views**:
    - Implemented full-bleed mobile auth card layout suppressing desktop hero panels on smartphone viewports (`< 768px`).
    - Touch-friendly floating label inputs (`height: 52px`, `font-size: 16px`), single-thumb submit buttons, and mobile brand header.
-2. **App-Like Mobile Navigation**:
+3. **App-Like Mobile Navigation**:
    - Added fixed bottom navigation bar (`d-md-none`) in [mobile-nav.blade.php](file:///f:/aegis-capstone/resources/views/layouts/mobile-nav.blade.php) for instant tab switching.
-3. **PWA Enablement**:
+4. **PWA Enablement**:
    - Configured [manifest.json](file:///f:/aegis-capstone/public/manifest.json) for iOS & Android standalone installation.
-4. **Touch File & Camera Capture**:
-   - Updated dynamic dynamic file inputs in [apply.blade.php](file:///f:/aegis-capstone/resources/views/student/apply.blade.php) with `capture="environment"` for mobile camera photo scanning.

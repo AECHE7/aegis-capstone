@@ -8,6 +8,11 @@
     <link rel="icon" type="image/webp" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
     <link rel="icon" type="image/png" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.png') }}">
 
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#0C4E2D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     {{-- Preconnect hints --}}
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -465,19 +470,17 @@
             outline-offset: 2px !important;
         }
 
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
-    <meta name="theme-color" content="#0C4E2D">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <style>
         /* Dedicated Mobile Auth Adjustments */
         @media (max-width: 767.98px) {
+            .split {
+                flex-direction: column !important;
+            }
             .hero-panel {
                 display: none !important;
             }
             .form-panel {
                 width: 100% !important;
+                flex: 1 1 100% !important;
                 padding: 1.25rem 1rem !important;
                 min-height: 100dvh;
                 align-items: center;
@@ -488,6 +491,7 @@
                 padding: 1.75rem 1.5rem !important;
                 box-shadow: 0 12px 32px rgba(0,0,0,0.25) !important;
                 width: 100% !important;
+                max-width: 100% !important;
             }
             .form-floating > .form-control {
                 height: 52px !important;
