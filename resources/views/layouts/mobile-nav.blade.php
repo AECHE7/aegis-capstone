@@ -151,4 +151,17 @@
         }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var navItems = document.querySelectorAll('.mobile-nav-item');
+        navItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                if ('vibrate' in navigator) {
+                    try { navigator.vibrate(12); } catch(e) {}
+                }
+            });
+        });
+    });
+</script>
 @endauth

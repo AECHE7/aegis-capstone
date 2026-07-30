@@ -1850,6 +1850,35 @@
 })();
 </script>
 
+<!-- PWA Offline Status Banner -->
+<div id="offlineBanner" class="position-fixed top-0 start-0 end-0 text-center py-2 px-3 fw-bold small shadow-sm animate-fade-in" style="z-index: 9999; display: none; border-bottom: 2px solid #d97706; background-color: #fef3c7 !important; color: #92400e !important;">
+    <i class="fa-solid fa-wifi-slash me-2"></i> You are currently working offline. Navigating from cached portal data.
+</div>
+
+<script>
+    // Register PWA Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js').catch(function() {});
+        });
+    }
+
+    // Monitor Online/Offline Status
+    function updateOnlineStatus() {
+        var banner = document.getElementById('offlineBanner');
+        if (banner) {
+            if (!navigator.onLine) {
+                banner.style.display = 'block';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+    }
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    document.addEventListener('DOMContentLoaded', updateOnlineStatus);
+</script>
+
 @include('layouts.mobile-nav')
 
 @stack('scripts')

@@ -683,6 +683,7 @@
                 }
 
                 if (xhr.status === 200 && response.success) {
+                    try { localStorage.removeItem(draftKey); } catch(e) {}
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
@@ -722,6 +723,42 @@
             };
 
             xhr.send(new FormData(appForm));
+        });
+    }
+
+    // Form Draft Auto-Saver (User-scoped resilience)
+    const currentUserId = "{{ auth()->id() }}";
+    const draftKey = `aegis_application_draft_u${currentUserId}`;
+    
+    if (appForm) {
+        // Restore existing draft if present
+        try {
+            const savedDraft = localStorage.getItem(draftKey);
+            if (savedDraft) {
+                const draftData = JSON.parse(savedDraft);
+                Object.keys(draftData).forEach(name => {
+                    const field = appForm.querySelector(`[name="${name}"]`);
+                    if (field && field.type !== 'file' && field.type !== 'hidden') {
+                        field.value = draftData[name];
+                    }
+                });
+            }
+        } catch (e) {}
+
+        // Listen for input changes
+        appForm.addEventListener('input', function(e) {
+            if (e.target.name && e.target.type !== 'file' && e.target.type !== 'password') {
+                try {
+                    const formData = new FormData(appForm);
+                    const draftObj = {};
+                    formData.forEach((val, key) => {
+                        if (typeof val === 'string' && key !== '_token') {
+                            draftObj[key] = val;
+                        }
+                    });
+                    localStorage.setItem(draftKey, JSON.stringify(draftObj));
+                } catch(err) {}
+            }
         });
     }
 

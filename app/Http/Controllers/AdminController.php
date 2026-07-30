@@ -29,7 +29,7 @@ class AdminController extends Controller
             $query = \App\Models\Application::query();
         }
 
-        $query->with(['user.profile', 'document.aiResult', 'academicTerm']);
+        $query->with(['user.profile', 'document.aiResult', 'academicTerm', 'scholarship', 'customFields']);
 
         if (auth()->user()->role === 'admin') {
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();

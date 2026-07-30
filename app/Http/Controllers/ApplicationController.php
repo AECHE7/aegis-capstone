@@ -16,7 +16,7 @@ class ApplicationController extends Controller
     public function dashboard()
     {
         $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
-        $application = Application::with(['document.aiResult', 'customFields', 'academicTerm', 'statusLogs' => function($q) {
+        $application = Application::with(['scholarship', 'document.aiResult', 'customFields', 'academicTerm', 'statusLogs' => function($q) {
             $q->orderBy('created_at', 'asc');
         }])
             ->where('user_id', $userId)
