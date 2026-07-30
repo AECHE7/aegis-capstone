@@ -133,16 +133,7 @@
     <div class="wrapper">
         <div class="container">
             <div class="header">
-                @php
-                    $logoSrc = null;
-                    $logoPath = public_path('logo.png');
-                    if (file_exists($logoPath)) {
-                        $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
-                    } else {
-                        $logoSrc = \App\Models\Setting::getLogoUrl();
-                    }
-                @endphp
-                <img src="{{ $logoSrc }}" alt="CLSU Logo" style="height: 56px; width: auto; max-width: 160px; object-fit: contain; display: block; margin: 0 auto 12px;">
+                <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="CLSU Logo" style="height: 54px; width: auto; max-width: 160px; object-fit: contain; display: block; margin: 0 auto 12px;">
                 <h1>{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}</h1>
                 <div class="sub-badge">{{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}</div>
             </div>

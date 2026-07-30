@@ -71,6 +71,6 @@ class Setting extends Model
                 $domain = 'https://aegis-capstone.onrender.com';
             }
         }
-        return rtrim(str_replace('http://', 'https://', $domain), '/') . '/logo.png';
+        return rtrim(str_replace('http://', 'https://', $domain), '/') . '/logo-email.png';
     }
 }
