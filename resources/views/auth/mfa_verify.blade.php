@@ -228,7 +228,7 @@
             if (expiryDisplay) {
                 expiryContainer.innerHTML = '<i class="fa-solid fa-circle-xmark me-1" style="color:#dc2626;"></i>'
                     + '<span style="color:#dc2626;font-weight:700;">Code expired.</span>'
-                    + ' <a href="{{ route(\'login\') }}" style="color:#0C4E2D;font-weight:600;">Sign in again</a> to get a new code.';
+                    + ' <a href="{{ route("login") }}" style="color:#0C4E2D;font-weight:600;">Sign in again</a> to get a new code.';
                 expiryContainer.style.background = '#fee2e2';
             }
         }
