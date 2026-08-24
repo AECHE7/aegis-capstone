@@ -8,7 +8,7 @@
 <div class="row g-4">
     <!-- Left Column: Profile Information -->
     <div class="col-lg-7">
-        <div class="card border-0 shadow-sm h-100" style="border-radius: 16px; overflow: hidden;">
+        <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
             <div class="card-header bg-transparent py-3 border-bottom border-light">
                 <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-user-gear me-2 text-success"></i> Profile Details</h5>
             </div>
@@ -153,15 +153,56 @@
                             </div>
 
                         @else
-                            <!-- Admin / SuperAdmin Role Badge -->
+                            <!-- Admin / SuperAdmin Role & Governance Overview -->
                             <div class="col-12 mt-2">
-                                <span class="badge py-2 px-3 fs-7" 
-                                      style="background-color: {{ $user->role === 'superadmin' ? '#fef3c7' : '#e0f2fe' }}; 
-                                             color: {{ $user->role === 'superadmin' ? '#92400e' : '#0369a1' }}; 
-                                             border-radius: 8px; font-weight: 700;">
-                                    <i class="fa-solid {{ $user->role === 'superadmin' ? 'fa-crown' : 'fa-user-shield' }} me-1"></i>
-                                    {{ $user->role === 'superadmin' ? 'SuperAdmin (OSA Director)' : 'Admin Staff Account' }}
-                                </span>
+                                <div class="p-3 rounded-3 mb-3" style="background-color: {{ $user->role === 'superadmin' ? '#fffbeb' : '#f0f9ff' }}; border: 1px solid {{ $user->role === 'superadmin' ? '#fde68a' : '#bae6fd' }};">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <span class="badge py-1.5 px-2.5 fs-7" 
+                                              style="background-color: {{ $user->role === 'superadmin' ? '#fef3c7' : '#e0f2fe' }}; 
+                                                     color: {{ $user->role === 'superadmin' ? '#92400e' : '#0369a1' }}; 
+                                                     border-radius: 6px; font-weight: 700;">
+                                            <i class="fa-solid {{ $user->role === 'superadmin' ? 'fa-crown' : 'fa-user-shield' }} me-1"></i>
+                                            {{ $user->role === 'superadmin' ? 'SuperAdmin (OSA Director)' : 'Admin Staff Account' }}
+                                        </span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill fw-semibold px-2 py-1 small">
+                                            <i class="fa-solid fa-circle-check me-1"></i> Verified & Active
+                                        </span>
+                                    </div>
+                                    <p class="small text-muted mb-0" style="line-height: 1.5;">
+                                        {{ $user->role === 'superadmin' 
+                                            ? 'Full governance and administrative oversight over CLSU scholarship programs, staff invitations, system parameters, and integrity audit trails.' 
+                                            : 'Authorized evaluator for student scholarship applications, GWA verification, and document anomaly review.' }}
+                                    </p>
+                                </div>
+
+                                <!-- Administrative Privileges & Security Matrix -->
+                                <div class="card border border-light-subtle rounded-3 p-3 bg-light-subtle">
+                                    <h6 class="fw-bold text-dark mb-2 small text-uppercase" style="letter-spacing: 0.5px;">
+                                        <i class="fa-solid fa-shield-halved text-success me-1"></i> Assigned System Privileges
+                                    </h6>
+                                    <div class="row g-2 small text-secondary">
+                                        <div class="col-sm-6 d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-check text-success" style="font-size: 0.75rem;"></i> Application Queue & Evaluation
+                                        </div>
+                                        <div class="col-sm-6 d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-check text-success" style="font-size: 0.75rem;"></i> AI Document Integrity Inspection
+                                        </div>
+                                        <div class="col-sm-6 d-flex align-items-center gap-2">
+                                            <i class="fa-solid fa-check text-success" style="font-size: 0.75rem;"></i> Compliance Report Generation
+                                        </div>
+                                        @if($user->role === 'superadmin')
+                                            <div class="col-sm-6 d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-check text-success" style="font-size: 0.75rem;"></i> Program & Grant Configuration
+                                            </div>
+                                            <div class="col-sm-6 d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-check text-success" style="font-size: 0.75rem;"></i> Staff Account Management
+                                            </div>
+                                            <div class="col-sm-6 d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-check text-success" style="font-size: 0.75rem;"></i> System Settings & Thresholds
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         @endif
                     </div>
