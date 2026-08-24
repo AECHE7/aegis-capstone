@@ -42,6 +42,14 @@ Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
     ]);
 });
 
+Route::get('/favicon.ico', function () {
+    $path = public_path('logo.png');
+    if (file_exists($path)) {
+        return response()->file($path, ['Content-Type' => 'image/png']);
+    }
+    return response('', 204);
+});
+
 Route::get('/robots.txt', function () {
     $content = "User-agent: *\n";
     $content .= "Allow: /\n\n";
