@@ -49,3 +49,8 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
    - Moved Account Session & Logout Card into the right column (`col-lg-5`) underneath Trusted Devices for harmonious two-column grid balance.
    - Restored missing security shield icon on student registration page using Font Awesome 6 Free `fa-shield-halved`.
    - Unified sidebar icon colors by removing ad-hoc utility classes (`text-warning`, `text-info`, `text-success`) in favor of consistent brand typography styles.
+10. **ML False-Positive Calibration & Tiered Risk System ([ImageExifInspector.php](file:///f:/aegis-capstone/app/Services/ImageExifInspector.php), [ApplicationAutoApprovalService.php](file:///f:/aegis-capstone/app/Services/ApplicationAutoApprovalService.php), [ScanDocumentJob.php](file:///f:/aegis-capstone/app/Jobs/ScanDocumentJob.php), [review.blade.php](file:///f:/aegis-capstone/resources/views/admin/review.blade.php))**:
+   - Recalibrated default AI fraud threshold from `50.0%` to `70.0%` to accommodate mobile camera compression noise and variable lighting on genuine student uploads.
+   - Differentiated EXIF penalty weights: benign mobile scanner/camera tools (e.g. CamScanner, Samsung/Google Gallery crop) receive minor informational flags (+10%), while heavy editing suites (Photoshop, Photopea) trigger high-risk flags (+35%).
+   - Established 3-tier risk classification in Staff Review UI: `< 35%` (Low Risk / Authentic), `35% – 70%` (Review Recommended / Camera Noise Check), `> 70%` (High Tampering Risk).
+   - Added automated feature tests in `DocumentScanTest.php`.

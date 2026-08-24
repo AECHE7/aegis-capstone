@@ -107,7 +107,7 @@ class ScanDocumentJob implements ShouldQueue
                     $fraudProbability = (float) ($result['fraud_probability'] ?? 0.00);
 
                     // Determine classification dynamically based on db threshold setting
-                    $thresholdSetting = (float) \App\Models\Setting::get('ai_fraud_threshold', 50.0);
+                    $thresholdSetting = (float) \App\Models\Setting::get('ai_fraud_threshold', 70.0);
                     $classification = $fraudProbability >= $thresholdSetting ? 'tampered' : ($result['classification'] ?? 'Authentic');
 
                     // GWA Integrity Validation (Logical Fraud Detection)
@@ -122,6 +122,7 @@ class ScanDocumentJob implements ShouldQueue
                     }
 
                     $anomalyIndicators = $result['anomaly_indicators'] ?? [];
+                    $detectedSoftware = $result['detected_software'] ?? null;
 
                     // Run native EXIF metadata inspection for image uploads
                     $ext = strtolower(pathinfo($document->original_name, PATHINFO_EXTENSION));
@@ -132,6 +133,9 @@ class ScanDocumentJob implements ShouldQueue
                         }
                         if ($exifRes['risk_score'] > 0) {
                             $fraudProbability = min(100.0, max($fraudProbability, $exifRes['risk_score']));
+                        }
+                        if (!empty($exifRes['software']) && empty($detectedSoftware)) {
+                            $detectedSoftware = $exifRes['software'];
                         }
                     }
 
@@ -148,7 +152,7 @@ class ScanDocumentJob implements ShouldQueue
                             'heatmap_path'       => $result['paths']['heatmap_path'] ?? null,
                             'heatmap_data'       => $result['heatmap_base64'] ?? null,
                             'anomaly_indicators' => $anomalyIndicators,
-                            'detected_software'  => $result['detected_software'] ?? null,
+                            'detected_software'  => $detectedSoftware,
                             'cropped_patch_data' => $result['cropped_patch_base64'] ?? null,
                             'deep_analysis_report' => $deepReport,
                         ]

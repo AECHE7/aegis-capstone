@@ -7,10 +7,13 @@ use Illuminate\Support\Facades\Log;
 
 class ImageExifInspector
 {
-    protected static array $editingTools = [
-        'photoshop', 'gimp', 'canva', 'photopea', 'lightroom', 
-        'paint.net', 'adobe', 'coreldraw', 'picasa', 'pixlr',
-        'snapseed', 'vsco', 'fotor', 'affinity'
+    protected static array $heavyManipulationTools = [
+        'photoshop', 'gimp', 'photopea', 'paint.net', 'coreldraw', 'affinity'
+    ];
+
+    protected static array $mobileEnhancementTools = [
+        'camscanner', 'canva', 'lightroom', 'picasa', 'pixlr',
+        'snapseed', 'vsco', 'fotor', 'samsung', 'apple', 'google'
     ];
 
     /**
@@ -57,12 +60,26 @@ class ImageExifInspector
         $softwareTag = strtolower($exifData['Software'] ?? $exifData['ProcessingSoftware'] ?? $exifData['CreatorTool'] ?? '');
         if (!empty($softwareTag)) {
             $software = $exifData['Software'] ?? $exifData['ProcessingSoftware'] ?? $exifData['CreatorTool'];
-            foreach (self::$editingTools as $tool) {
+            
+            // Check heavy manipulation tools
+            foreach (self::$heavyManipulationTools as $tool) {
                 if (str_contains($softwareTag, $tool)) {
-                    $indicators[] = 'exif_software_editing_tool';
+                    $indicators[] = 'exif_heavy_editing_tool';
                     $riskScore += 35.0;
-                    Log::warning("ImageExifInspector: Suspicious software tag '{$software}' detected in file {$filePath}");
+                    Log::warning("ImageExifInspector: Heavy editing software tag '{$software}' detected in file {$filePath}");
                     break;
+                }
+            }
+
+            // Check mobile/scanner enhancement tools (soft flag)
+            if (empty($indicators)) {
+                foreach (self::$mobileEnhancementTools as $tool) {
+                    if (str_contains($softwareTag, $tool)) {
+                        $indicators[] = 'exif_mobile_tool_detected';
+                        $riskScore += 10.0;
+                        Log::info("ImageExifInspector: Mobile camera/scanner tag '{$software}' detected in file {$filePath}");
+                        break;
+                    }
                 }
             }
         }
@@ -74,7 +91,7 @@ class ImageExifInspector
             $camera = trim("{$make} {$model}");
         }
 
-        // Check for CreationDate vs DateTimeOriginal vs ModifyDate discrepancy (> 1 day gap)
+        // Check for CreationDate vs DateTimeOriginal vs ModifyDate discrepancy
         $dateTimeOriginal = $exifData['DateTimeOriginal'] ?? $exifData['CreateDate'] ?? null;
         $modifyDate = $exifData['ModifyDate'] ?? $exifData['DateTime'] ?? null;
 
@@ -82,9 +99,15 @@ class ImageExifInspector
             try {
                 $tOrig = strtotime($dateTimeOriginal);
                 $tMod = strtotime($modifyDate);
-                if ($tOrig && $tMod && abs($tMod - $tOrig) > 86400) {
-                    $indicators[] = 'exif_modify_date_mismatch';
-                    $riskScore += 15.0;
+                if ($tOrig && $tMod) {
+                    $diff = abs($tMod - $tOrig);
+                    if ($diff > (86400 * 7)) {
+                        $indicators[] = 'exif_modify_date_mismatch_large';
+                        $riskScore += 15.0;
+                    } elseif ($diff > 86400) {
+                        $indicators[] = 'exif_modify_date_mismatch_minor';
+                        $riskScore += 5.0;
+                    }
                 }
             } catch (\Throwable $e) {
                 // Ignore date parsing exceptions

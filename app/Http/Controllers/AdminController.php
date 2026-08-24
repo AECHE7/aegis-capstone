@@ -98,7 +98,7 @@ class AdminController extends Controller
             })
             ->leftJoin('a_i_results', 'documents.id', '=', 'a_i_results.document_id')
             ->select('applications.*')
-            ->orderByRaw('CASE WHEN a_i_results.fraud_probability >= 50.00 THEN 0 ELSE 1 END ASC')
+            ->orderByRaw('CASE WHEN a_i_results.fraud_probability >= 70.00 THEN 0 ELSE 1 END ASC')
             ->orderByRaw('CASE WHEN applications.status = "Under Review" THEN 0 ELSE 1 END ASC')
             ->orderByRaw('CASE WHEN applications.status = "Under Review" THEN applications.updated_at ELSE NULL END ASC')
             ->orderBy('applications.created_at', 'desc');

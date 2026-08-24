@@ -254,4 +254,58 @@ class DocumentScanTest extends TestCase
             'classification' => 'scanning'
         ]);
     }
+
+    public function test_image_exif_inspector_handles_missing_file_gracefully(): void
+    {
+        $result = \App\Services\ImageExifInspector::inspect('non_existent_file.jpg');
+        $this->assertEquals(0.0, $result['risk_score']);
+        $this->assertEmpty($result['indicators']);
+    }
+
+    public function test_auto_approval_service_respects_recalibrated_fraud_threshold(): void
+    {
+        \App\Models\Setting::set('auto_approval_enabled', '1');
+        \App\Models\Setting::set('ai_fraud_threshold', '70.0');
+        \App\Models\Setting::set('auto_approval_min_confidence', '90.0');
+
+        $student = User::create([
+            'name' => 'Auto Approve Student',
+            'email' => 'auto@clsu.edu.ph',
+            'password' => bcrypt('password'),
+            'role' => 'student',
+        ]);
+
+        $scholarship = Scholarship::create([
+            'name' => 'Merit Grant',
+            'min_gwa_required' => 2.00,
+            'status' => 'Active'
+        ]);
+
+        $application = Application::create([
+            'user_id' => $student->id,
+            'scholarship_id' => $scholarship->id,
+            'program_name' => $scholarship->name,
+            'gwa' => '1.50',
+            'status' => 'Pending'
+        ]);
+
+        $doc = Document::create([
+            'application_id' => $application->id,
+            'file_path' => 'docs/valid.jpg',
+            'original_name' => 'valid.jpg',
+            'document_type' => 'COG'
+        ]);
+
+        // Scenario: 4.5% fraud score (95.5% confidence) -> authentic, zero anomalies -> auto-approved
+        AIResult::create([
+            'document_id' => $doc->id,
+            'fraud_probability' => 4.50,
+            'classification' => 'Authentic',
+            'anomaly_indicators' => []
+        ]);
+
+        $isApproved = \App\Services\ApplicationAutoApprovalService::evaluate($application);
+        $this->assertTrue($isApproved);
+        $this->assertEquals('Approved', $application->fresh()->status);
+    }
 }

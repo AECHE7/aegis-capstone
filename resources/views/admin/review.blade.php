@@ -254,9 +254,9 @@
                 $isFailed    = $hasAiResult && $doc->aiResult->classification === 'failed';
 
                 $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $doc->aiResult->fraud_probability : 0;
-                $riskColor   = $fraudScore >= 70 ? '#ef4444' : ($fraudScore >= 40 ? '#f59e0b' : '#22c55e');
-                $riskLabel   = $fraudScore >= 70 ? 'HIGH RISK' : ($fraudScore >= 40 ? 'MODERATE RISK' : 'LOW RISK');
-                $riskClass   = $fraudScore >= 70 ? 'danger' : ($fraudScore >= 40 ? 'warning' : 'success');
+                $riskColor   = $fraudScore >= 70 ? '#ef4444' : ($fraudScore >= 35 ? '#f59e0b' : '#22c55e');
+                $riskLabel   = $fraudScore >= 70 ? 'HIGH TAMPERING RISK' : ($fraudScore >= 35 ? 'REVIEW RECOMMENDED' : 'AUTHENTIC / LOW RISK');
+                $riskClass   = $fraudScore >= 70 ? 'danger' : ($fraudScore >= 35 ? 'warning' : 'success');
 
                 // Ring math — circumference of r=60 circle = 2π×60 ≈ 376.99
                 $circumference = 376.99;

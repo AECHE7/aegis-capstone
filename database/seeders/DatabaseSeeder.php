@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
         // Ensure default settings are populated
         \App\Models\Setting::firstOrCreate(['key' => 'app_name'], ['value' => 'A.E.G.I.S.']);
         \App\Models\Setting::firstOrCreate(['key' => 'university_name'], ['value' => 'Central Luzon State University']);
-        \App\Models\Setting::firstOrCreate(['key' => 'ai_fraud_threshold'], ['value' => '50.0']);
+        \App\Models\Setting::firstOrCreate(['key' => 'ai_fraud_threshold'], ['value' => '70.0']);
         \App\Models\Setting::firstOrCreate(['key' => 'gwa_discrepancy_tolerance'], ['value' => '0.01']);
         \App\Models\Setting::firstOrCreate(['key' => 'app_logo'], ['value' => null]);
         \App\Models\Setting::firstOrCreate(['key' => 'master_email'], ['value' => 'gadianoriel07@gmail.com']);

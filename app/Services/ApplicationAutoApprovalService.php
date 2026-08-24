@@ -45,7 +45,7 @@ class ApplicationAutoApprovalService
         // 5. Check if all documents have been scanned successfully and meet the criteria
         $minConfidence = (float) Setting::get('auto_approval_min_confidence', '95.0');
         $maxAnomalies = (int) Setting::get('auto_approval_max_anomalies', '0');
-        $fraudThreshold = (float) Setting::get('ai_fraud_threshold', '50.0');
+        $fraudThreshold = (float) Setting::get('ai_fraud_threshold', '70.0');
 
         foreach ($application->documents as $document) {
             $aiResult = $document->aiResult;
