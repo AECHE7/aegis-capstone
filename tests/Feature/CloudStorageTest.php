@@ -10,7 +10,9 @@ use App\Services\CloudStorageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CloudStorageTest extends TestCase
 {
@@ -25,7 +27,7 @@ class CloudStorageTest extends TestCase
         putenv('CLOUDFLARE_R2_BUCKET=');
     }
 
-    /** @test */
+    #[Test]
     public function it_falls_back_to_local_storage_when_r2_keys_are_missing()
     {
         Storage::fake('local');
@@ -40,7 +42,7 @@ class CloudStorageTest extends TestCase
         Storage::disk('r2')->assertMissing($path);
     }
 
-    /** @test */
+    #[Test]
     public function it_uploads_to_r2_when_credentials_are_provided()
     {
         // Mock config temporarily
@@ -69,7 +71,7 @@ class CloudStorageTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_redirects_to_cdn_url_for_remote_documents()
     {
         \Illuminate\Support\Facades\Http::fake([

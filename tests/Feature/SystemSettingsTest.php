@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\Setting;
 use App\Models\Document;
@@ -71,7 +73,7 @@ class SystemSettingsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function setting_helper_gets_and_sets_data_and_uses_cache()
     {
         // Get value
@@ -87,7 +89,7 @@ class SystemSettingsTest extends TestCase
         $this->assertEquals('Fallback Value', Setting::get('non_existent_key', 'Fallback Value'));
     }
 
-    /** @test */
+    #[Test]
     public function superadmin_can_access_settings_page_and_update_settings()
     {
         Storage::fake('local');
@@ -130,7 +132,7 @@ class SystemSettingsTest extends TestCase
         $this->assertNotNull(Setting::get('app_logo'));
     }
 
-    /** @test */
+    #[Test]
     public function non_superadmins_cannot_access_or_update_settings()
     {
         // Admin
@@ -148,7 +150,7 @@ class SystemSettingsTest extends TestCase
              ->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function scan_document_job_uses_default_ai_settings()
     {
         // GWA matches exactly (1.75 declared, 1.75 extracted).
@@ -172,7 +174,7 @@ class SystemSettingsTest extends TestCase
         $this->assertEquals(45.0, $aiResult->fraud_probability);
     }
 
-    /** @test */
+    #[Test]
     public function scan_document_job_uses_custom_ai_fraud_threshold()
     {
         // Set AI Threshold to 30.0%. Since 45.0% >= 30.0%, it should flag as 'tampered'.
@@ -196,7 +198,7 @@ class SystemSettingsTest extends TestCase
         $this->assertEquals('tampered', $aiResult->classification);
     }
 
-    /** @test */
+    #[Test]
     public function scan_document_job_uses_custom_gwa_tolerance()
     {
         // Let's set tolerance to 0.05. Mismatched GWA of 1.85 (diff is 0.10) exceeds tolerance.
@@ -221,7 +223,7 @@ class SystemSettingsTest extends TestCase
         $this->assertEquals('Tampered (Grade Discrepancy)', $aiResult->classification);
     }
 
-    /** @test */
+    #[Test]
     public function database_hard_reset_route_wipes_all_students_and_applications()
     {
         // CRIT-02: Route changed from GET to POST with confirmation token.
@@ -251,7 +253,7 @@ class SystemSettingsTest extends TestCase
     }
 
 
-    /** @test */
+    #[Test]
     public function superadmin_can_revoke_all_trusted_devices_system_wide()
     {
         // Set up a trusted device
@@ -273,7 +275,7 @@ class SystemSettingsTest extends TestCase
         $this->assertEquals(0, \App\Models\UserMfaDevice::count());
     }
 
-    /** @test */
+    #[Test]
     public function mfa_enforcement_settings_are_respected()
     {
         // 1. When mfa_enforcement is 'none'

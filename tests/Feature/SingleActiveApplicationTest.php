@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 use App\Models\User;
 use App\Models\Scholarship;
 use App\Models\AcademicTerm;
@@ -43,7 +45,7 @@ class SingleActiveApplicationTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function student_with_no_application_can_access_apply_form()
     {
         $response = $this->actingAs($this->student)
@@ -52,7 +54,7 @@ class SingleActiveApplicationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function student_with_pending_application_is_blocked()
     {
         Application::create([
@@ -80,7 +82,7 @@ class SingleActiveApplicationTest extends TestCase
         $postResponse->assertSessionHasErrors('duplicate');
     }
 
-    /** @test */
+    #[Test]
     public function student_with_under_review_application_is_blocked()
     {
         Application::create([
@@ -98,7 +100,7 @@ class SingleActiveApplicationTest extends TestCase
         $response->assertRedirect(route('student.dashboard'));
     }
 
-    /** @test */
+    #[Test]
     public function student_with_approved_application_in_active_term_is_blocked()
     {
         Application::create([
@@ -116,7 +118,7 @@ class SingleActiveApplicationTest extends TestCase
         $response->assertRedirect(route('student.dashboard'));
     }
 
-    /** @test */
+    #[Test]
     public function student_with_approved_application_in_previous_term_is_allowed()
     {
         Application::create([
@@ -134,7 +136,7 @@ class SingleActiveApplicationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function student_with_rejected_application_is_allowed()
     {
         Application::create([
@@ -152,7 +154,7 @@ class SingleActiveApplicationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function student_with_cancelled_application_is_allowed()
     {
         $app = Application::create([

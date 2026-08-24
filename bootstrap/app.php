@@ -69,4 +69,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 'exception' => $e
             ], 503);
         });
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your security session has expired. Please refresh the page and try again.'
+                ], 419);
+            }
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your verification session expired. Please sign in again.'
+            ]);
+        });
     })->create();

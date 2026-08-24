@@ -12,13 +12,15 @@ use App\Jobs\ScanDocumentJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class EmergencyRecoveryTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function database_outage_gracefully_falls_back_to_login_screen_in_read_only_mode()
     {
         $handler = app(\Illuminate\Contracts\Debug\ExceptionHandler::class);
@@ -38,7 +40,7 @@ class EmergencyRecoveryTest extends TestCase
         $this->assertStringContainsString('The application database is temporarily offline', $response->getContent());
     }
 
-    /** @test */
+    #[Test]
     public function scan_document_job_supports_retry_and_exponential_backoff()
     {
         $job = new ScanDocumentJob(1);
@@ -47,7 +49,7 @@ class EmergencyRecoveryTest extends TestCase
         $this->assertEquals([15, 45, 90, 180, 360], $job->backoff());
     }
 
-    /** @test */
+    #[Test]
     public function cloud_storage_service_falls_back_to_local_storage_and_returns_unsynced_state_on_r2_exception()
     {
         config([
@@ -75,7 +77,7 @@ class EmergencyRecoveryTest extends TestCase
         Storage::disk('local')->assertExists($path);
     }
 
-    /** @test */
+    #[Test]
     public function sync_r2_artisan_command_processes_unsynced_files_correctly()
     {
         Storage::fake('local');

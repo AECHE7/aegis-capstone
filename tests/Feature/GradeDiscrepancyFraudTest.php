@@ -11,13 +11,15 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class GradeDiscrepancyFraudTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function it_flags_applications_with_high_fraud_probability_on_gwa_discrepancy()
     {
         Storage::fake('local');
@@ -80,7 +82,7 @@ class GradeDiscrepancyFraudTest extends TestCase
         $this->assertEquals('Tampered (Grade Discrepancy)', $aiResult->classification);
     }
 
-    /** @test */
+    #[Test]
     public function it_keeps_original_ai_prediction_when_gwa_matches()
     {
         Storage::fake('local');

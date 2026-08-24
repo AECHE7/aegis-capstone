@@ -6,7 +6,9 @@ use App\Models\Scholarship;
 use App\Models\ScholarshipField;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class EditScholarshipProgramTest extends TestCase
 {
@@ -62,7 +64,7 @@ class EditScholarshipProgramTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function superadmin_can_retrieve_scholarship_details_as_json()
     {
         $response = $this->actingAs($this->superadmin)
@@ -74,7 +76,7 @@ class EditScholarshipProgramTest extends TestCase
         $response->assertJsonCount(1, 'scholarship.fields');
     }
 
-    /** @test */
+    #[Test]
     public function superadmin_can_update_scholarship_details_and_custom_fields()
     {
         $response = $this->actingAs($this->superadmin)
@@ -127,7 +129,7 @@ class EditScholarshipProgramTest extends TestCase
         $this->assertEquals('email', $this->scholarship->fields()->where('field_label', 'Secondary Contact Email')->first()->field_type);
     }
 
-    /** @test */
+    #[Test]
     public function superadmin_can_update_scholarship_with_null_gwa_requirement()
     {
         $response = $this->actingAs($this->superadmin)
@@ -145,7 +147,7 @@ class EditScholarshipProgramTest extends TestCase
         $this->assertNull($this->scholarship->min_gwa_required);
     }
 
-    /** @test */
+    #[Test]
     public function non_superadmins_are_blocked_from_retrieving_and_updating_scholarships()
     {
         // Admin

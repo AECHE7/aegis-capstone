@@ -14,7 +14,9 @@ use App\Models\User;
 use App\Jobs\ScanDocumentJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ApplicationAutoApprovalTest extends TestCase
 {
@@ -71,7 +73,7 @@ class ApplicationAutoApprovalTest extends TestCase
         \Illuminate\Support\Facades\Storage::disk('local')->put('uploads/test_cog.pdf', 'fake transcript contents');
     }
 
-    /** @test */
+    #[Test]
     public function it_auto_approves_when_document_is_authentic_and_matches_criteria()
     {
         $app = Application::create([
@@ -115,7 +117,7 @@ class ApplicationAutoApprovalTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_bypasses_auto_approval_when_confidence_is_below_minimum()
     {
         $app = Application::create([
@@ -154,7 +156,7 @@ class ApplicationAutoApprovalTest extends TestCase
         $this->assertEquals('Pending', $app->fresh()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_bypasses_auto_approval_when_document_has_anomaly_flags()
     {
         $app = Application::create([
@@ -192,7 +194,7 @@ class ApplicationAutoApprovalTest extends TestCase
         $this->assertEquals('Pending', $app->fresh()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_bypasses_auto_approval_when_scholarship_has_custom_fields()
     {
         $app = Application::create([
@@ -230,7 +232,7 @@ class ApplicationAutoApprovalTest extends TestCase
         $this->assertEquals('Pending', $app->fresh()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_bypasses_auto_approval_when_disabled_globally()
     {
         // Disable auto-approval globally
@@ -269,7 +271,7 @@ class ApplicationAutoApprovalTest extends TestCase
         $this->assertEquals('Pending', $app->fresh()->status);
     }
 
-    /** @test */
+    #[Test]
     public function it_bypasses_auto_approval_when_classification_is_tampered()
     {
         $app = Application::create([

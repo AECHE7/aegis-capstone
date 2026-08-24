@@ -57,7 +57,7 @@ class AnnouncementBoardTest extends TestCase
         // Verify student user received database notification
         $this->assertEquals(1, $this->student->notifications()->count());
         $notification = $this->student->notifications()->first();
-        $this->assertEquals('New Announcement: Important Deadline Update', $notification->data['message']);
+        $this->assertEquals('Important Deadline Update', $notification->data['message']);
         $this->assertEquals('announcement', $notification->data['type']);
     }
 

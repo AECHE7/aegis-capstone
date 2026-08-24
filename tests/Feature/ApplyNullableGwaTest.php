@@ -9,7 +9,9 @@ use App\Models\Application;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ApplyNullableGwaTest extends TestCase
 {
@@ -63,7 +65,7 @@ class ApplyNullableGwaTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function student_submitting_application_must_satisfy_required_custom_fields()
     {
         // 1. Submit without custom fields
@@ -93,7 +95,7 @@ class ApplyNullableGwaTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function student_submitting_valid_custom_fields_succeeds_and_uploads_custom_file()
     {
         $response = $this->actingAs($this->student)

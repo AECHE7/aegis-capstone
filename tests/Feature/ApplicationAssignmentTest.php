@@ -10,7 +10,9 @@ use App\Models\Scholarship;
 use App\Models\User;
 use App\Services\ApplicationAssignmentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ApplicationAssignmentTest extends TestCase
 {
@@ -60,7 +62,7 @@ class ApplicationAssignmentTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_assigns_submitted_application_to_staff_with_lowest_workload()
     {
         // Link both staff to the scholarship program
@@ -99,7 +101,7 @@ class ApplicationAssignmentTest extends TestCase
         $this->assertEquals($this->staff2->id, $app2->assigned_to);
     }
 
-    /** @test */
+    #[Test]
     public function it_falls_back_to_any_active_staff_if_none_assigned_to_program()
     {
         // Neither staff is explicitly linked to the scholarship
@@ -121,7 +123,7 @@ class ApplicationAssignmentTest extends TestCase
         $this->assertEquals($assigned->id, $app->fresh()->assigned_to);
     }
 
-    /** @test */
+    #[Test]
     public function it_reassigns_pending_applications_when_staff_is_deactivated()
     {
         // Link both staff to the scholarship

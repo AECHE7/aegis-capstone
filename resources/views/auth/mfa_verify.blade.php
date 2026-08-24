@@ -185,7 +185,15 @@
             <i class="fa-solid fa-arrow-left me-1"></i> Back to Login
         </a>
     </div>
+
 <script>
+    // Force fresh page load if restored from browser back/forward cache (bfcache)
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+
     // OTP digit-only input
     const otpInput = document.getElementById('otpInput');
     if (otpInput) {

@@ -3,13 +3,24 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Hash;
 
 class MfaAuthenticationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Flush the static runtime cache on Setting model between tests to prevent
+        // state bleeding from other test classes (e.g. SystemSettingsTest sets 'none').
+        Cache::flush();
+        Setting::set('mfa_enforcement', 'all');
+    }
 
     public function test_login_redirects_to_mfa_verify_page()
     {

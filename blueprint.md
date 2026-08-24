@@ -31,3 +31,17 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
    - Eager loaded `scholarship` and `customFields` to eliminate N+1 queries.
 4. **Student Application Draft Resilience ([apply.blade.php](file:///f:/aegis-capstone/resources/views/student/apply.blade.php))**:
    - Auto-saves form input values to `localStorage` and restores them if browser or connection drops.
+5. **Production Configuration Hardening ([render.yaml](file:///f:/aegis-capstone/render.yaml))**:
+   - Fixed `APP_DEBUG=false` for production Render deployment.
+   - Rebranded `APP_NAME` from "Laravel" to "A.E.G.I.S." in `.env` and `.env.example`.
+6. **Migration File Cleanup**:
+   - Moved 2 stray migration files from project root into `database/migrations/` where they belong.
+7. **PHPUnit 12 Readiness ([tests/Feature/](file:///f:/aegis-capstone/tests/Feature/))**:
+   - Migrated 9 test files from deprecated `/** @test */` doc-comment annotations to `#[Test]` PHP attributes.
+   - Added `use PHPUnit\Framework\Attributes\Test;` imports to all affected files.
+   - Fixed `AnnouncementBoardTest` message assertion mismatch with `NewAnnouncementNotification` payload.
+   - Fixed `MfaAuthenticationTest` static runtime cache bleed from `SystemSettingsTest` by adding `setUp()` with `Cache::flush()` and explicit `mfa_enforcement=all`.
+8. **MFA 419 CSRF & Session Driver Stabilization ([render.yaml](file:///f:/aegis-capstone/render.yaml), [bootstrap/app.php](file:///f:/aegis-capstone/bootstrap/app.php), [mfa_verify.blade.php](file:///f:/aegis-capstone/resources/views/auth/mfa_verify.blade.php))**:
+   - Switched `SESSION_DRIVER` from `cookie` to `database` in `render.yaml` to prevent cookie truncation and cross-request CSRF desynchronization behind Render's reverse proxy.
+   - Added graceful `TokenMismatchException` handling in `bootstrap/app.php` to redirect expired sessions smoothly to `/login` with an informative message.
+   - Added `pageshow` bfcache reload protection in `mfa_verify.blade.php` to prevent stale CSRF submission from browser cache.
