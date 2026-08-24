@@ -96,71 +96,102 @@ class ScanDocumentJob implements ShouldQueue
             }
 
             try {
-                $aiUrl = config('services.ai.url');
-                $response = Http::timeout(120)->attach(
-                    'file', $fileContents, $document->original_name
-                )->post($aiUrl . '/analyze-document?mode=' . urlencode($this->mode));
+                $aiUrl = rtrim(config('services.ai.url', 'http://127.0.0.1:5000'), '/');
+                $response = null;
+                $maxAttempts = 3;
 
-                if ($response->successful()) {
-                    $result = $response->json();
-                    $extractedGwa = $result['extracted_gwa'] ?? null;
-                    $fraudProbability = (float) ($result['fraud_probability'] ?? 0.00);
+                for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                    try {
+                        $response = Http::timeout(120)->attach(
+                            'file', $fileContents, $document->original_name
+                        )->post($aiUrl . '/analyze-document?mode=' . urlencode($this->mode));
 
-                    // Determine classification dynamically based on db threshold setting
-                    $thresholdSetting = (float) \App\Models\Setting::get('ai_fraud_threshold', 70.0);
-                    $classification = $fraudProbability >= $thresholdSetting ? 'tampered' : ($result['classification'] ?? 'Authentic');
-
-                    // GWA Integrity Validation (Logical Fraud Detection)
-                    if ($extractedGwa !== null && !empty($application->gwa)) {
-                        $declaredGwa = (float) $application->gwa;
-                        $gwaTolerance = (float) \App\Models\Setting::get('gwa_discrepancy_tolerance', 0.01);
-                        if (abs($declaredGwa - (float)$extractedGwa) > $gwaTolerance) {
-                            $fraudProbability = 99.00;
-                            $classification = 'Tampered (Grade Discrepancy)';
-                            Log::warning("ScanDocumentJob: GWA mismatch detected for Application ID {$application->id}. Declared: {$declaredGwa}, Extracted: {$extractedGwa}");
+                        if ($response->successful()) {
+                            break;
                         }
+
+                        // If 503 / 502 / 504 (Service Unavailable / Cold Start), ping health check and retry
+                        if (in_array($response->status(), [502, 503, 504]) && $attempt < $maxAttempts) {
+                            Log::warning("ScanDocumentJob: AI service returned HTTP {$response->status()} (cold start). Attempt {$attempt} of {$maxAttempts}. Waiting for container to warm up...");
+                            try { @Http::timeout(10)->get($aiUrl . '/health'); } catch (\Throwable $t) {}
+                            sleep(5 * $attempt);
+                            continue;
+                        }
+                    } catch (\Exception $reqEx) {
+                        if ($attempt < $maxAttempts) {
+                            Log::warning("ScanDocumentJob connection error on attempt {$attempt}: " . $reqEx->getMessage() . ". Retrying...");
+                            try { @Http::timeout(10)->get($aiUrl . '/health'); } catch (\Throwable $t) {}
+                            sleep(5);
+                            continue;
+                        }
+                        throw $reqEx;
                     }
-
-                    $anomalyIndicators = $result['anomaly_indicators'] ?? [];
-                    $detectedSoftware = $result['detected_software'] ?? null;
-
-                    // Run native EXIF metadata inspection for image uploads
-                    $ext = strtolower(pathinfo($document->original_name, PATHINFO_EXTENSION));
-                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'tif', 'tiff']) && !empty($actualPath)) {
-                        $exifRes = \App\Services\ImageExifInspector::inspect($actualPath);
-                        if (!empty($exifRes['indicators'])) {
-                            $anomalyIndicators = array_values(array_unique(array_merge($anomalyIndicators, $exifRes['indicators'])));
-                        }
-                        if ($exifRes['risk_score'] > 0) {
-                            $fraudProbability = min(100.0, max($fraudProbability, $exifRes['risk_score']));
-                        }
-                        if (!empty($exifRes['software']) && empty($detectedSoftware)) {
-                            $detectedSoftware = $exifRes['software'];
-                        }
-                    }
-
-                    $deepReport = $result['deep_analysis_report'] ?? null;
-                    if ($deepReport && isset($result['visualizations'])) {
-                        $deepReport['visualizations'] = $result['visualizations'];
-                    }
-
-                    AIResult::updateOrCreate(
-                        ['document_id' => $document->id],
-                        [
-                            'fraud_probability'  => $fraudProbability,
-                            'classification'     => $classification,
-                            'heatmap_path'       => $result['paths']['heatmap_path'] ?? null,
-                            'heatmap_data'       => $result['heatmap_base64'] ?? null,
-                            'anomaly_indicators' => $anomalyIndicators,
-                            'detected_software'  => $detectedSoftware,
-                            'cropped_patch_data' => $result['cropped_patch_base64'] ?? null,
-                            'deep_analysis_report' => $deepReport,
-                        ]
-                    );
-                } else {
-                    Log::error("ScanDocumentJob API error: " . $response->body());
-                    throw new \Exception("AI Service returned HTTP " . $response->status() . ": " . $response->body());
                 }
+
+                if (!$response || !$response->successful()) {
+                    $status = $response ? $response->status() : 503;
+                    $body = $response ? $response->body() : 'Service Unavailable';
+                    if ($status === 503) {
+                        throw new \Exception("AI Service is currently warming up from sleep on free tier (HTTP 503). Please wait 30-45 seconds for container initialization and retry.");
+                    }
+                    throw new \Exception("AI Service returned HTTP {$status}: {$body}");
+                }
+
+                $result = $response->json();
+                $extractedGwa = $result['extracted_gwa'] ?? null;
+                $fraudProbability = (float) ($result['fraud_probability'] ?? 0.00);
+
+                // Determine classification dynamically based on db threshold setting
+                $thresholdSetting = (float) \App\Models\Setting::get('ai_fraud_threshold', 70.0);
+                $classification = $fraudProbability >= $thresholdSetting ? 'tampered' : ($result['classification'] ?? 'Authentic');
+
+                // GWA Integrity Validation (Logical Fraud Detection)
+                if ($extractedGwa !== null && !empty($application->gwa)) {
+                    $declaredGwa = (float) $application->gwa;
+                    $gwaTolerance = (float) \App\Models\Setting::get('gwa_discrepancy_tolerance', 0.01);
+                    if (abs($declaredGwa - (float)$extractedGwa) > $gwaTolerance) {
+                        $fraudProbability = 99.00;
+                        $classification = 'Tampered (Grade Discrepancy)';
+                        Log::warning("ScanDocumentJob: GWA mismatch detected for Application ID {$application->id}. Declared: {$declaredGwa}, Extracted: {$extractedGwa}");
+                    }
+                }
+
+                $anomalyIndicators = $result['anomaly_indicators'] ?? [];
+                $detectedSoftware = $result['detected_software'] ?? null;
+
+                // Run native EXIF metadata inspection for image uploads
+                $ext = strtolower(pathinfo($document->original_name, PATHINFO_EXTENSION));
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'tif', 'tiff']) && !empty($actualPath)) {
+                    $exifRes = \App\Services\ImageExifInspector::inspect($actualPath);
+                    if (!empty($exifRes['indicators'])) {
+                        $anomalyIndicators = array_values(array_unique(array_merge($anomalyIndicators, $exifRes['indicators'])));
+                    }
+                    if ($exifRes['risk_score'] > 0) {
+                        $fraudProbability = min(100.0, max($fraudProbability, $exifRes['risk_score']));
+                    }
+                    if (!empty($exifRes['software']) && empty($detectedSoftware)) {
+                        $detectedSoftware = $exifRes['software'];
+                    }
+                }
+
+                $deepReport = $result['deep_analysis_report'] ?? null;
+                if ($deepReport && isset($result['visualizations'])) {
+                    $deepReport['visualizations'] = $result['visualizations'];
+                }
+
+                AIResult::updateOrCreate(
+                    ['document_id' => $document->id],
+                    [
+                        'fraud_probability'  => $fraudProbability,
+                        'classification'     => $classification,
+                        'heatmap_path'       => $result['paths']['heatmap_path'] ?? null,
+                        'heatmap_data'       => $result['heatmap_base64'] ?? null,
+                        'anomaly_indicators' => $anomalyIndicators,
+                        'detected_software'  => $detectedSoftware,
+                        'cropped_patch_data' => $result['cropped_patch_base64'] ?? null,
+                        'deep_analysis_report' => $deepReport,
+                    ]
+                );
             } catch (\Exception $e) {
                 Log::error("ScanDocumentJob exception: " . $e->getMessage());
                 throw $e;
