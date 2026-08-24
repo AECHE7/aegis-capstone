@@ -438,7 +438,7 @@
                     </div>
                 </div>
                 <div class="feature-item">
-                    <div class="feature-icon"><i class="fa-solid fa-shield-check"></i></div>
+                    <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
                     <div>
                         <p class="feature-title">Email Verification Required</p>
                         <p class="feature-sub">Confirms ownership to block unauthorized access.</p>

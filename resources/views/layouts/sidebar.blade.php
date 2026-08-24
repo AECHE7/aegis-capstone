@@ -43,7 +43,7 @@
                class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
                {{ request()->routeIs('admin.announcements.index') ? 'aria-current="page"' : '' }}
                data-tooltip="Announcements">
-                <span class="sidebar-icon"><i class="fa-solid fa-bullhorn text-warning" aria-hidden="true"></i></span>
+                <span class="sidebar-icon"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Announcements</span>
             </a>
 
@@ -51,13 +51,13 @@
             <a href="{{ route('admin.export') }}"
                class="sidebar-link"
                data-tooltip="CSV">
-                <span class="sidebar-icon"><i class="fa-solid fa-file-csv text-success" aria-hidden="true"></i></span>
+                <span class="sidebar-icon"><i class="fa-solid fa-file-csv" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Export CSV</span>
             </a>
             <a href="{{ route('admin.exportPdf') }}"
                class="sidebar-link"
                data-tooltip="PDF">
-                <span class="sidebar-icon"><i class="fa-solid fa-file-pdf text-danger" aria-hidden="true"></i></span>
+                <span class="sidebar-icon"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Export PDF</span>
             </a>
 
@@ -66,7 +66,7 @@
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
                {{ request()->routeIs('profile.security') ? 'aria-current="page"' : '' }}
                data-tooltip="Settings">
-                <span class="sidebar-icon"><i class="fa-solid fa-user-gear text-secondary" aria-hidden="true"></i></span>
+                <span class="sidebar-icon"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Account Settings</span>
             </a>
 
@@ -97,14 +97,14 @@
                class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
                {{ request()->routeIs('admin.announcements.index') ? 'aria-current="page"' : '' }}
                data-tooltip="Announcements">
-                <span class="sidebar-icon"><i class="fa-solid fa-bullhorn text-warning" aria-hidden="true"></i></span>
+                <span class="sidebar-icon"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Announcements</span>
             </a>
             <a href="{{ route('superadmin.broadcast') }}"
                class="sidebar-link {{ request()->routeIs('superadmin.broadcast') ? 'active' : '' }}"
                {{ request()->routeIs('superadmin.broadcast') ? 'aria-current="page"' : '' }}
                data-tooltip="Broadcasts">
-                <span class="sidebar-icon"><i class="fa-solid fa-envelope text-info" aria-hidden="true"></i></span>
+                <span class="sidebar-icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Email Broadcasts</span>
             </a>
             <a href="{{ route('superadmin.trash') }}"
@@ -118,7 +118,7 @@
                class="sidebar-link {{ request()->routeIs('superadmin.settings') ? 'active' : '' }}"
                {{ request()->routeIs('superadmin.settings') ? 'aria-current="page"' : '' }}
                data-tooltip="Settings">
-                <span class="sidebar-icon"><i class="fa-solid fa-gears text-success" aria-hidden="true"></i></span>
+                <span class="sidebar-icon"><i class="fa-solid fa-gears" aria-hidden="true"></i></span>
                 <span class="sidebar-text">System Settings</span>
             </a>
 
@@ -127,7 +127,7 @@
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
                {{ request()->routeIs('profile.security') ? 'aria-current="page"' : '' }}
                data-tooltip="Settings">
-                <span class="sidebar-icon"><i class="fa-solid fa-user-gear text-secondary" aria-hidden="true"></i></span>
+                <span class="sidebar-icon"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Account Settings</span>
             </a>
 
@@ -159,8 +159,8 @@
                 <a href="{{ route('student.apply', ['renew_from' => $latestApp->id]) }}"
                    class="sidebar-link {{ request()->routeIs('student.apply') ? 'active' : '' }}"
                    {{ request()->routeIs('student.apply') ? 'aria-current="page"' : '' }}
-                   data-tooltip="Renew" style="color: var(--clsu-gold);">
-                    <span class="sidebar-icon"><i class="fa-solid fa-rotate-right" style="color:var(--clsu-gold);" aria-hidden="true"></i></span>
+                   data-tooltip="Renew">
+                    <span class="sidebar-icon"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></span>
                     <span class="sidebar-text">Renew Scholarship</span>
                 </a>
             @else

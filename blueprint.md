@@ -45,3 +45,7 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
    - Switched `SESSION_DRIVER` from `cookie` to `database` in `render.yaml` to prevent cookie truncation and cross-request CSRF desynchronization behind Render's reverse proxy.
    - Added graceful `TokenMismatchException` handling in `bootstrap/app.php` to redirect expired sessions smoothly to `/login` with an informative message.
    - Added `pageshow` bfcache reload protection in `mfa_verify.blade.php` to prevent stale CSRF submission from browser cache.
+9. **UI/UX Polish & Layout Symmetry ([change_password.blade.php](file:///f:/aegis-capstone/resources/views/auth/change_password.blade.php), [register.blade.php](file:///f:/aegis-capstone/resources/views/auth/register.blade.php), [sidebar.blade.php](file:///f:/aegis-capstone/resources/views/layouts/sidebar.blade.php))**:
+   - Moved Account Session & Logout Card into the right column (`col-lg-5`) underneath Trusted Devices for harmonious two-column grid balance.
+   - Restored missing security shield icon on student registration page using Font Awesome 6 Free `fa-shield-halved`.
+   - Unified sidebar icon colors by removing ad-hoc utility classes (`text-warning`, `text-info`, `text-success`) in favor of consistent brand typography styles.

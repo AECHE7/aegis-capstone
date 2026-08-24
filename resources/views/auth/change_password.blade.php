@@ -304,22 +304,22 @@
                 @endif
             </div>
         </div>
-    </div>
 
-    <!-- Sign Out / Logout Card -->
-    <div class="col-12 mt-4">
-        <div class="card border-0 shadow-sm" style="border-radius: 16px; background: #fff5f5; border: 1.5px solid #fecaca !important;">
-            <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                <div>
-                    <h5 class="fw-bold text-danger mb-1"><i class="fa-solid fa-right-from-bracket me-2"></i> Account Session</h5>
-                    <p class="text-muted small mb-0">Sign out of your active portal session on this browser.</p>
+        <!-- Part 3: Account Session / Sign Out -->
+        <div class="card border-0 shadow-sm mt-4" style="border-radius: 16px; background: #fff5f5; border: 1.5px solid #fecaca !important;">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <div>
+                        <h6 class="fw-bold text-danger mb-1"><i class="fa-solid fa-right-from-bracket me-2"></i> Account Session</h6>
+                        <p class="text-muted small mb-0" style="font-size: 0.8rem;">Sign out of your active portal session</p>
+                    </div>
+                    <form action="{{ route('logout') }}" method="POST" id="settingsLogoutForm" class="m-0">
+                        @csrf
+                        <button type="button" onclick="confirmSettingsLogout()" class="btn btn-danger fw-bold px-3 py-2" style="border-radius: 50px; background: #dc2626; border: none; font-size: 0.85rem;">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Sign Out
+                        </button>
+                    </form>
                 </div>
-                <form action="{{ route('logout') }}" method="POST" id="settingsLogoutForm">
-                    @csrf
-                    <button type="button" onclick="confirmSettingsLogout()" class="btn btn-danger fw-bold px-4 py-2" style="border-radius: 50px; background: #dc2626; border: none; font-size: 0.9rem;">
-                        <i class="fa-solid fa-right-from-bracket me-2"></i> Sign Out / Log Out
-                    </button>
-                </form>
             </div>
         </div>
     </div>
