@@ -238,6 +238,11 @@
                                 <small class="text-muted" style="font-size:0.75rem;">Interactive multi-spectrum visual inspection studio</small>
                             </div>
                             <div class="d-flex align-items-center gap-2">
+                                @if($hasAiResult && !$isScanning && !$isFailed)
+                                    <a href="{{ route('admin.forensicPdf', [$application->id, $doc->id]) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-medium" style="font-size:0.78rem;" target="_blank">
+                                        <i class="fa-solid fa-file-pdf me-1 text-danger"></i> Export Audit Certificate
+                                    </a>
+                                @endif
                                 <a href="{{ route('admin.document.download', $doc->id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-medium" style="font-size:0.78rem;">
                                     <i class="fa-solid fa-download me-1"></i> Download
                                 </a>
@@ -496,7 +501,26 @@
 
         {{-- Card 2: Decision Actions Hub --}}
         <div class="ai-deck-card p-4 mb-3">
-            <h6 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-gavel text-success me-2"></i> Evaluator Decision</h6>
+            <h6 class="fw-bold mb-2 text-dark"><i class="fa-solid fa-gavel text-success me-2"></i> Evaluator Decision</h6>
+
+            {{-- 1-Click Smart Preset Remarks --}}
+            <div class="mb-2">
+                <span class="text-muted small d-block mb-1" style="font-size:0.68rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Quick Presets:</span>
+                <div class="d-flex flex-wrap gap-1.5">
+                    <button type="button" class="btn btn-xs btn-light border py-1 px-2 text-start rounded-pill" style="font-size:0.7rem;" onclick="setRemarks('GWA verified with OCR extraction. Student cleared for scholarship grant.')">
+                        <i class="fa-solid fa-check text-success me-1"></i> GWA Verified
+                    </button>
+                    <button type="button" class="btn btn-xs btn-light border py-1 px-2 text-start rounded-pill" style="font-size:0.7rem;" onclick="setRemarks('Uploaded document lacks standard academic grade records (unrecognized format). Please re-upload an official Form 6 or Certificate of Grades.')">
+                        <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i> Unrecognized Format
+                    </button>
+                    <button type="button" class="btn btn-xs btn-light border py-1 px-2 text-start rounded-pill" style="font-size:0.7rem;" onclick="setRemarks('Document image contains excessive camera glare/blur over grade cells. Please submit a flat, clear scan.')">
+                        <i class="fa-solid fa-eye-slash text-info me-1"></i> Camera Glare/Blur
+                    </button>
+                    <button type="button" class="btn btn-xs btn-light border py-1 px-2 text-start rounded-pill" style="font-size:0.7rem;" onclick="setRemarks('Pixel compression discrepancies and anomalous grade cell edits detected upon multi-spectrum forensic verification.')">
+                        <i class="fa-solid fa-ban text-danger me-1"></i> Tampered Records
+                    </button>
+                </div>
+            </div>
 
             <form action="{{ route('admin.updateStatus', $application->id) }}" method="POST" id="decisionForm">
                 @csrf
@@ -818,6 +842,14 @@
             }
         } catch (e) {
             console.error('Notes save error:', e);
+        }
+    }
+
+    function setRemarks(text) {
+        const textarea = document.getElementById('evaluatorRemarks');
+        if (textarea) {
+            textarea.value = text;
+            textarea.focus();
         }
     }
 

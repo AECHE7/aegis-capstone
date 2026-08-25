@@ -857,4 +857,35 @@ class ReportController extends Controller
 
         return $pdf->download('aegis_document_upload_log_' . date('Y-m-d') . '.pdf');
     }
+
+    /**
+     * Generate and Download 1-Page Official Forensic Audit PDF Certificate
+     */
+    public function exportForensicReport(Request $request, $id, $docId = null)
+    {
+        $application = Application::with(['user.profile', 'documents.aiResult', 'scholarship', 'academicTerm'])->findOrFail($id);
+        
+        $document = $docId 
+            ? $application->documents->firstWhere('id', $docId)
+            : $application->documents->first();
+
+        if (!$document || !$document->aiResult) {
+            return back()->with('error', 'No completed AI forensic analysis found for this document.');
+        }
+
+        $aiResult = $document->aiResult;
+        $reportData = [
+            'application' => $application,
+            'document' => $document,
+            'aiResult' => $aiResult,
+            'generatedAt' => now()->format('F d, Y h:i A'),
+            'verifier' => auth()->user()->name ?? 'OSA Administrator',
+            'auditId' => 'AEGIS-FA-' . strtoupper(substr(md5($application->id . $document->id . $aiResult->created_at), 0, 10))
+        ];
+
+        $pdf = Pdf::loadView('reports.forensic_certificate', $reportData)
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download("Forensic_Audit_Report_APP-{$application->id}_{$document->document_type}.pdf");
+    }
 }

@@ -166,6 +166,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/document/{id}/download', [AdminController::class, 'downloadDocument'])->name('admin.document.download');
         Route::get('/export-csv', [\App\Http\Controllers\ReportController::class, 'exportCsv'])->name('admin.export');
         Route::get('/export-pdf', [\App\Http\Controllers\ReportController::class, 'exportPdf'])->name('admin.exportPdf');
+        Route::get('/review/{id}/forensic-pdf/{docId?}', [\App\Http\Controllers\ReportController::class, 'exportForensicReport'])->name('admin.forensicPdf');
         
         // Restore soft-deleted application (Admin Action)
         Route::post('/review/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.restore');
