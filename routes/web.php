@@ -170,7 +170,9 @@ Route::middleware(['auth'])->group(function () {
         // Restore soft-deleted application (Admin Action)
         Route::post('/review/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.restore');
         Route::post('/applications/bulk-action', [AdminController::class, 'bulkAction'])->name('admin.applications.bulk-action');
-        Route::patch('/applications/{id}/notes', [AdminController::class, 'saveNotes'])->name('admin.applications.save-notes');
+        // Staff Private Notes
+        Route::match(['post', 'patch'], '/applications/{id}/notes', [AdminController::class, 'saveNotes'])->name('admin.saveNotes');
+        Route::match(['post', 'patch'], '/applications/{id}/save-notes', [AdminController::class, 'saveNotes'])->name('admin.applications.save-notes');
         
         // Announcement Board Management
         Route::get('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('admin.announcements.index');
