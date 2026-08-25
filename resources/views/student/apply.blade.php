@@ -91,6 +91,43 @@
     /* Eligibility badge */
     .eligibility-badge { display: none; }
 
+    /* Stepper System */
+    .stepper-bubble {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        border: 2px solid #e2e8f0;
+    }
+    .stepper-bubble.active {
+        background: var(--clsu-green);
+        color: white;
+        border-color: var(--clsu-green);
+        box-shadow: 0 4px 12px rgba(15,89,52,0.25);
+    }
+    .stepper-bubble.completed {
+        background: #dcfce7;
+        color: #15803d;
+        border-color: #86efac;
+    }
+    .stepper-line {
+        flex: 1;
+        height: 2px;
+        background: #e2e8f0;
+        margin: 0 8px;
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    .stepper-line.active {
+        background: var(--clsu-green);
+    }
+
     /* Submit button — radius aligned with global pill system */
     .btn-submit-app {
         background: linear-gradient(135deg, var(--clsu-green), #16703f);
@@ -120,12 +157,32 @@
 @section('content')
 <div class="container" style="max-width: 1050px; padding: 1.5rem 1rem 3rem;">
 
-    <div class="text-center mb-5">
-        <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--clsu-green),#16703f);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 8px 20px rgba(15,89,52,0.25);">
-            <i class="fa-solid fa-file-signature text-white fs-4"></i>
+    <div class="text-center mb-4">
+        <div style="width:54px;height:54px;background:linear-gradient(135deg,var(--clsu-green),#16703f);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;box-shadow:0 6px 16px rgba(15,89,52,0.2);">
+            <i class="fa-solid fa-file-signature text-white fs-5"></i>
         </div>
         <h3 class="fw-bold text-dark mb-1">{{ __('portal.submit_new_application') }}</h3>
-        <p class="text-muted" style="font-size:0.9rem;">{{ __('portal.select_scholarship_tagline') }}</p>
+        <p class="text-muted small mb-0">{{ __('portal.select_scholarship_tagline') }}</p>
+    </div>
+
+    {{-- Interactive Stepper Header --}}
+    <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius:16px;">
+        <div class="d-flex align-items-center justify-content-between text-center position-relative">
+            <div class="flex-fill" id="stepperStep1">
+                <div class="stepper-bubble active mx-auto mb-1" id="stepBubble1">1</div>
+                <div class="small fw-bold text-dark" id="stepLabel1" style="font-size:0.75rem;">1. Select Program</div>
+            </div>
+            <div class="stepper-line" id="stepperLine1"></div>
+            <div class="flex-fill" id="stepperStep2">
+                <div class="stepper-bubble mx-auto mb-1" id="stepBubble2">2</div>
+                <div class="small fw-semibold text-muted" id="stepLabel2" style="font-size:0.75rem;">2. Details & Documents</div>
+            </div>
+            <div class="stepper-line" id="stepperLine2"></div>
+            <div class="flex-fill" id="stepperStep3">
+                <div class="stepper-bubble mx-auto mb-1" id="stepBubble3">3</div>
+                <div class="small fw-semibold text-muted" id="stepLabel3" style="font-size:0.75rem;">3. Submit to OSA</div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4">
@@ -264,6 +321,14 @@
         // Deselect all
         document.querySelectorAll('.scholarship-card-select').forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
+
+        // Update Stepper
+        const b1 = document.getElementById('stepBubble1');
+        const b2 = document.getElementById('stepBubble2');
+        const l1 = document.getElementById('stepperLine1');
+        if (b1) { b1.classList.add('completed'); b1.innerHTML = '✓'; }
+        if (b2) { b2.classList.add('active'); }
+        if (l1) { l1.classList.add('active'); }
 
         // Set hidden inputs
         document.getElementById('programNameInput').value = el.dataset.name;
@@ -563,11 +628,16 @@
         });
 
         // Accessible disabled states: Button remains focusable but styled disabled
+        const b3 = document.getElementById('stepBubble3');
+        const l2 = document.getElementById('stepperLine2');
+
         if (allValid) {
             submitBtn.style.opacity = '1';
             submitBtn.style.cursor = 'pointer';
             submitBtn.style.filter = 'none';
             submitBtn.setAttribute('aria-disabled', 'false');
+            if (b3) { b3.classList.add('active'); }
+            if (l2) { l2.classList.add('active'); }
             if (submitHelpText) {
                 submitHelpText.style.display = 'none';
                 submitHelpText.textContent = '';
@@ -577,6 +647,8 @@
             submitBtn.style.cursor = 'not-allowed';
             submitBtn.style.filter = 'grayscale(30%)';
             submitBtn.setAttribute('aria-disabled', 'true');
+            if (b3) { b3.classList.remove('active'); }
+            if (l2) { l2.classList.remove('active'); }
             if (submitHelpText) {
                 submitHelpText.style.display = 'block';
                 submitHelpText.innerHTML = `<i class="fa-solid fa-circle-exclamation me-1"></i> Please complete: ${missingFields.join(', ')}`;

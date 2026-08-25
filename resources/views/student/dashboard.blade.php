@@ -40,6 +40,16 @@
         border: 1px solid rgba(255,255,255,0.2);
     }
 
+    @keyframes pulse-beacon {
+        0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
+        70% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    }
+    .status-hero.review .status-hero-icon,
+    .status-hero.pending .status-hero-icon {
+        animation: pulse-beacon 2.2s infinite;
+    }
+
     /* Steps */
     .step-track {
         display: flex;
