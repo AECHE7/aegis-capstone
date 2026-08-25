@@ -54,3 +54,11 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
    - Differentiated EXIF penalty weights: benign mobile scanner/camera tools (e.g. CamScanner, Samsung/Google Gallery crop) receive minor informational flags (+10%), while heavy editing suites (Photoshop, Photopea) trigger high-risk flags (+35%).
    - Established 3-tier risk classification in Staff Review UI: `< 35%` (Low Risk / Authentic), `35% – 70%` (Review Recommended / Camera Noise Check), `> 70%` (High Tampering Risk).
    - Added automated feature tests in `DocumentScanTest.php`.
+11. **Explainable Forensic Decision Framework (EFDF) ([document_syntax_gate.py](file:///f:/aegis-capstone/aegis-ai/forensics/document_syntax_gate.py), [fusion_scoring.py](file:///f:/aegis-capstone/aegis-ai/forensics/fusion_scoring.py), [review.blade.php](file:///f:/aegis-capstone/resources/views/admin/review.blade.php), [forensic_certificate.blade.php](file:///f:/aegis-capstone/resources/views/reports/forensic_certificate.blade.php))**:
+   - Implemented Pillar 1 Document Syntax Gate to filter non-document graphics vs academic transcripts.
+   - Built 4-Pillar Evidence Breakdown (OCR 35%, Compression 25%, Sensor Continuity 25%, Metadata 15%).
+   - Added 1-Click Fast Triage remarks presets and 1-Page Official Forensic Audit PDF Certificate generator (`admin.forensicPdf`).
+12. **UI/UX Overhaul Batches A & B ([apply.blade.php](file:///f:/aegis-capstone/resources/views/student/apply.blade.php), [dashboard.blade.php](file:///f:/aegis-capstone/resources/views/student/dashboard.blade.php), [announcements/index.blade.php](file:///f:/aegis-capstone/resources/views/announcements/index.blade.php))**:
+   - Integrated floating 3-step interactive stepper in student application flow.
+   - Added beacon pulse animations to student dashboard status cards.
+   - Transformed Announcements Manager with top metrics summary cards.
