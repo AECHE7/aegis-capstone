@@ -1,228 +1,138 @@
 """
-Advanced fusion scoring system for combining multiple forensic detector outputs.
-Uses weighted averaging, confidence scoring, and detector agreement analysis.
+Explainable Multi-Pillar Forensic Fusion Engine.
+Calibrated scoring engine with 4-Pillar Evidence Breakdown and Document Syntax Gate.
 """
 
 import numpy as np
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional
 
 
 class ForensicFusionEngine:
     """
-    Intelligently combines outputs from multiple tamper detection algorithms.
-
-    Detectors:
-    - ELA patch analysis
-    - CLAHE LAB whiteout detection
-    - Font stroke consistency
-    - TruFor CNN Noiseprint++
-    - CAT-Net DCT analysis
-    - Software fingerprint
-    - Clone-stamp detection
-    - CNN model prediction
+    Combines outputs across 4 explainable pillars:
+    - Pillar 1: Structural & Textual Integrity (OCR GWA vs Declared)
+    - Pillar 2: Pixel Compression & Frequency (ELA + CAT-Net DCT)
+    - Pillar 3: Sensor & Spatial Continuity (TruFor Noiseprint + Clone-Stamp)
+    - Pillar 4: Metadata Provenance (EXIF software/camera headers)
     """
 
-    # Detector weights based on empirical reliability
     DETECTOR_WEIGHTS = {
-        'model_prediction': 0.30,      # Highest weight - trained on real data
-        'clahe_lab': 0.20,             # Strong for whiteout/erased cells
-        'ela_patch': 0.15,             # Good for localized edits
-        'trufor_cnn': 0.12,            # Noiseprint analysis
-        'catnet_dct': 0.10,            # DCT compression artifacts
-        'clone_detection': 0.08,       # Copy-paste detection
-        'font_stroke': 0.03,           # Lower - can have false positives
-        'software_fingerprint': 0.02   # Informative but not deterministic
-    }
-
-    # Confidence thresholds for each detector
-    CONFIDENCE_THRESHOLDS = {
-        'high': 85.0,      # Very confident detection
-        'medium': 60.0,    # Moderate confidence
-        'low': 35.0        # Low confidence / borderline
+        'model_prediction': 0.35,      # Primary learned model representation
+        'clone_detection': 0.20,       # Spliced text / duplicate grade cells
+        'catnet_dct': 0.15,            # DCT compression artifacts
+        'trufor_cnn': 0.12,            # Sensor noiseprint continuity
+        'ela_patch': 0.08,             # Localized ELA variance
+        'clahe_lab': 0.06,             # Whiteout / erased rectangular blocks
+        'font_stroke': 0.02,           # Font stroke irregularity
+        'software_fingerprint': 0.02   # Metadata tool signature
     }
 
     def __init__(self, mode: str = 'balanced'):
-        """
-        Initialize fusion engine.
-
-        Args:
-            mode: 'strict' (fewer false positives), 'balanced', or 'sensitive' (fewer false negatives)
-        """
         self.mode = mode
-        self.weights = self._adjust_weights_for_mode(mode)
+        total = sum(self.DETECTOR_WEIGHTS.values())
+        self.weights = {k: v / total for k, v in self.DETECTOR_WEIGHTS.items()}
 
-    def _adjust_weights_for_mode(self, mode: str) -> Dict[str, float]:
-        """Adjust detector weights based on operation mode."""
-        weights = self.DETECTOR_WEIGHTS.copy()
-
-        if mode == 'strict':
-            # Increase model weight, decrease heuristic detectors
-            weights['model_prediction'] = 0.40
-            weights['clahe_lab'] = 0.18
-            weights['font_stroke'] = 0.01
-            weights['software_fingerprint'] = 0.01
-
-        elif mode == 'sensitive':
-            # Increase sensitivity - boost heuristic detectors
-            weights['clahe_lab'] = 0.25
-            weights['ela_patch'] = 0.18
-            weights['clone_detection'] = 0.12
-
-        # Normalize to sum to 1.0
-        total = sum(weights.values())
-        return {k: v/total for k, v in weights.items()}
-
-    def fuse_scores(self, detector_results: Dict[str, Dict]) -> Dict:
-        """
-        Fuse multiple detector outputs into unified fraud assessment.
-
-        Args:
-            detector_results: Dict mapping detector name to result dict with keys:
-                - 'detected': bool
-                - 'risk_score': float (0-100)
-                - 'confidence': str (optional: 'high', 'medium', 'low')
-
-        Returns:
-            {
-                'fraud_probability': float,
-                'classification': str,
-                'confidence': str,
-                'detector_agreement': float,
-                'active_detectors': list,
-                'fusion_method': str
-            }
-        """
+    def fuse_scores(self, detector_results: Dict[str, Dict], ocr_matched: bool = False, syntax_gate: Optional[Dict] = None) -> Dict:
         active_detectors = []
-        weighted_sum = 0.0
-        total_weight = 0.0
+        weighted_risk_sum = 0.0
 
-        # Collect active detector scores
         for detector_name, result in detector_results.items():
             if result.get('detected', False):
-                risk = result.get('risk_score', 0.0)
-                weight = self.weights.get(detector_name, 0.01)
-
-                # Adjust weight based on confidence level
+                risk = float(result.get('risk_score', 0.0))
+                weight = self.weights.get(detector_name, 0.02)
                 confidence = result.get('confidence', 'medium')
-                confidence_multiplier = {
-                    'high': 1.2,
-                    'medium': 1.0,
-                    'low': 0.7
-                }.get(confidence, 1.0)
+                conf_mult = {'high': 1.1, 'medium': 1.0, 'low': 0.7}.get(confidence, 1.0)
+                
+                effective_weight = weight * conf_mult
+                weighted_risk_sum += (risk * effective_weight)
 
-                adjusted_weight = weight * confidence_multiplier
-
-                weighted_sum += risk * adjusted_weight
-                total_weight += adjusted_weight
                 active_detectors.append({
                     'name': detector_name,
-                    'risk': risk,
-                    'weight': adjusted_weight
+                    'risk': round(risk, 2),
+                    'weight': round(effective_weight, 3),
+                    'confidence': confidence
                 })
 
-        # Calculate weighted average fraud probability
-        if total_weight > 0:
-            fraud_probability = weighted_sum / total_weight
-        else:
-            # No detectors fired - likely authentic
-            fraud_probability = 12.5
-
-        # Calculate detector agreement (how many detectors agree)
-        total_detectors = len([r for r in detector_results.values() if 'detected' in r])
         num_detected = len(active_detectors)
+        baseline_score = 6.0
 
-        detector_agreement = num_detected / total_detectors if total_detectors > 0 else 0.0
+        # Syntax check: If uploaded asset is not an academic document (e.g. 3D shirt, arbitrary graphic)
+        is_academic_doc = syntax_gate.get('is_valid_academic_document', True) if syntax_gate else True
 
-        # Agreement boost: If many detectors agree, increase confidence
-        if detector_agreement >= 0.5 and num_detected >= 3:
-            # Multiple detectors agree - boost score slightly
-            fraud_probability = min(98.0, fraud_probability * 1.15)
-
-        # Agreement penalty: If only one weak detector fires, reduce confidence
-        if num_detected == 1 and detector_agreement < 0.3:
-            fraud_probability = fraud_probability * 0.85
-
-        # Determine classification
-        classification = "Tampered" if fraud_probability >= 50.0 else "Authentic"
-
-        # Determine overall confidence level
-        if fraud_probability >= 85.0 or (fraud_probability >= 70.0 and detector_agreement >= 0.6):
-            confidence = "high"
-        elif fraud_probability >= 60.0 or detector_agreement >= 0.4:
+        if not is_academic_doc:
+            # Unrecognized format: Center score around moderate review range (35% - 48%) rather than 98%
+            fraud_probability = round(38.0 + min(12.0, weighted_risk_sum * 0.3), 1)
+            classification = "Review Needed"
             confidence = "medium"
         else:
-            confidence = "low"
+            if num_detected == 0:
+                fraud_probability = baseline_score
+            elif num_detected == 1:
+                fraud_probability = baseline_score + min(24.0, weighted_risk_sum * 0.8)
+            elif num_detected == 2:
+                fraud_probability = baseline_score + min(46.0, weighted_risk_sum * 0.9)
+            else:
+                fraud_probability = baseline_score + min(65.0, weighted_risk_sum * 1.0)
 
-        return {
-            'fraud_probability': round(fraud_probability, 2),
-            'classification': classification,
-            'confidence': confidence,
-            'detector_agreement': round(detector_agreement, 3),
-            'active_detectors': [d['name'] for d in active_detectors],
-            'detector_details': active_detectors,
-            'fusion_method': f'weighted_average_{self.mode}'
+            # OCR Credit: Valid extracted grade table dampens innocent camera noise
+            if ocr_matched and fraud_probability > 15.0:
+                fraud_probability = max(6.0, fraud_probability - 15.0)
+
+            fraud_probability = round(max(5.0, min(95.0, fraud_probability)), 1)
+
+            if fraud_probability >= 70.0:
+                classification = "Tampered"
+                confidence = "high"
+            elif fraud_probability >= 35.0:
+                classification = "Review Needed"
+                confidence = "medium"
+            else:
+                classification = "Authentic"
+                confidence = "high" if num_detected == 0 else "medium"
+
+        # 4-Pillar Evidence Breakdown
+        evidence_pillars = {
+            "pillar_1_structural_ocr": {
+                "title": "Text & Grade Consistency",
+                "weight": "35%",
+                "status": "Verified" if ocr_matched else ("No Academic OCR" if not is_academic_doc else "Unchecked"),
+                "risk_contribution": 0.0 if ocr_matched else 10.0
+            },
+            "pillar_2_compression_frequency": {
+                "title": "Pixel Compression & Frequency (ELA/DCT)",
+                "weight": "25%",
+                "status": "Anomalous" if any(d['name'] in ['ela_patch', 'catnet_dct'] for d in active_detectors) else "Clean",
+                "risk_contribution": round(sum(d['risk'] * d['weight'] for d in active_detectors if d['name'] in ['ela_patch', 'catnet_dct']), 1)
+            },
+            "pillar_3_sensor_spatial": {
+                "title": "Sensor & Spatial Continuity (TruFor/Clone)",
+                "weight": "25%",
+                "status": "Anomalous" if any(d['name'] in ['trufor_cnn', 'clone_detection', 'clahe_lab'] for d in active_detectors) else "Uniform",
+                "risk_contribution": round(sum(d['risk'] * d['weight'] for d in active_detectors if d['name'] in ['trufor_cnn', 'clone_detection', 'clahe_lab']), 1)
+            },
+            "pillar_4_provenance_metadata": {
+                "title": "Metadata & Provenance",
+                "weight": "15%",
+                "status": "Software Trace" if any(d['name'] == 'software_fingerprint' for d in active_detectors) else "Verifiable",
+                "risk_contribution": round(sum(d['risk'] * d['weight'] for d in active_detectors if d['name'] == 'software_fingerprint'), 1)
+            }
         }
 
-    def fallback_deterministic_scoring(self, detector_results: Dict[str, Dict]) -> float:
-        """
-        Fallback when CNN model unavailable - use deterministic rules.
+        total_detectors = len([r for r in detector_results.values() if 'detected' in r])
+        agreement_ratio = round(num_detected / max(1, total_detectors), 3)
 
-        Returns fraud probability based on heuristic detectors only.
-        """
-        # High-priority detectors for deterministic mode
-        priority_scores = []
+        return {
+            'fraud_probability': fraud_probability,
+            'classification': classification,
+            'confidence': confidence,
+            'detector_agreement': agreement_ratio,
+            'document_syntax': syntax_gate or {"is_valid_academic_document": True, "document_category": "Standard Document"},
+            'evidence_pillars': evidence_pillars,
+            'active_detectors': [d['name'] for d in active_detectors],
+            'detector_details': active_detectors,
+            'fusion_method': f'explainable_framework_{self.mode}'
+        }
 
-        if detector_results.get('clahe_lab', {}).get('detected'):
-            priority_scores.append(detector_results['clahe_lab']['risk_score'])
-
-        if detector_results.get('ela_patch', {}).get('detected'):
-            priority_scores.append(detector_results['ela_patch']['risk_score'])
-
-        if detector_results.get('clone_detection', {}).get('detected'):
-            priority_scores.append(detector_results['clone_detection']['risk_score'])
-
-        if detector_results.get('trufor_cnn', {}).get('detected'):
-            priority_scores.append(detector_results['trufor_cnn']['risk_score'])
-
-        if len(priority_scores) >= 2:
-            # Multiple strong signals - take average of top 2
-            top_scores = sorted(priority_scores, reverse=True)[:2]
-            return round(np.mean(top_scores), 2)
-
-        elif len(priority_scores) == 1:
-            # Single detector - use it but cap at 85%
-            return min(85.0, priority_scores[0])
-
-        else:
-            # No strong signals - likely authentic
-            return 12.5
-
-
-def compute_detector_correlation(history: List[Dict[str, Dict]]) -> np.ndarray:
-    """
-    Analyze correlation between detectors across multiple scans.
-    Helps identify redundant or complementary detectors.
-
-    Args:
-        history: List of detector_results dicts from multiple document scans
-
-    Returns:
-        Correlation matrix (numpy array)
-    """
-    if len(history) < 5:
-        return None
-
-    detector_names = list(history[0].keys())
-    n_detectors = len(detector_names)
-
-    # Build detection matrix: rows = scans, cols = detectors
-    detection_matrix = np.zeros((len(history), n_detectors))
-
-    for i, scan_results in enumerate(history):
-        for j, detector_name in enumerate(detector_names):
-            detection_matrix[i, j] = 1.0 if scan_results[detector_name].get('detected') else 0.0
-
-    # Compute correlation matrix
-    correlation = np.corrcoef(detection_matrix, rowvar=False)
-
-    return correlation
+    def fallback_deterministic_scoring(self, detector_results: Dict[str, Dict], syntax_gate: Optional[Dict] = None) -> float:
+        fused = self.fuse_scores(detector_results, syntax_gate=syntax_gate)
+        return fused['fraud_probability']

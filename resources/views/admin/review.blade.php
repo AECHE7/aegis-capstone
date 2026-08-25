@@ -353,19 +353,28 @@
                 $isFailed    = $hasAiResult && $doc->aiResult->classification === 'failed';
 
                 $fraudScore  = $hasAiResult && !$isScanning && !$isFailed ? $doc->aiResult->fraud_probability : 0;
-                $riskColor   = $fraudScore >= 70 ? '#ef4444' : ($fraudScore >= 35 ? '#f59e0b' : '#22c55e');
-                $riskLabel   = $fraudScore >= 70 ? 'HIGH TAMPERING RISK' : ($fraudScore >= 35 ? 'REVIEW RECOMMENDED' : 'AUTHENTIC / LOW RISK');
-                $riskBadgeBg = $fraudScore >= 70 ? '#fee2e2' : ($fraudScore >= 35 ? '#fef3c7' : '#dcfce7');
-                $riskBadgeFg = $fraudScore >= 70 ? '#991b1b' : ($fraudScore >= 35 ? '#92400e' : '#166534');
+                $isUnrecognizedFormat = in_array('unrecognized_document_format', $doc->aiResult->anomaly_indicators ?? []);
+                
+                if ($isUnrecognizedFormat) {
+                    $riskColor   = '#d97706';
+                    $riskLabel   = 'UNRECOGNIZED FORMAT';
+                    $riskBadgeBg = '#fef3c7';
+                    $riskBadgeFg = '#92400e';
+                } else {
+                    $riskColor   = $fraudScore >= 70 ? '#ef4444' : ($fraudScore >= 35 ? '#f59e0b' : '#22c55e');
+                    $riskLabel   = $fraudScore >= 70 ? 'HIGH TAMPERING RISK' : ($fraudScore >= 35 ? 'REVIEW RECOMMENDED' : 'AUTHENTIC / LOW RISK');
+                    $riskBadgeBg = $fraudScore >= 70 ? '#fee2e2' : ($fraudScore >= 35 ? '#fef3c7' : '#dcfce7');
+                    $riskBadgeFg = $fraudScore >= 70 ? '#991b1b' : ($fraudScore >= 35 ? '#92400e' : '#166534');
+                }
             @endphp
 
             <div class="ai-panel-doc" id="ai-panel-{{ $doc->id }}" style="display: {{ $loop->first ? 'block' : 'none' }};">
                 
-                {{-- Card 1: AI Authenticity Verdict --}}
+                {{-- Card 1: AI Authenticity Verdict & 4-Pillar Evidence Matrix --}}
                 <div class="ai-deck-card p-4 mb-3">
                     <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
                         <span class="small fw-bold text-uppercase text-muted" style="letter-spacing: 0.8px; font-size: 0.7rem;">
-                            <i class="fa-solid fa-microchip text-success me-1"></i> AI Verification Score
+                            <i class="fa-solid fa-microchip text-success me-1"></i> Explainable Forensic Matrix
                         </span>
                         <span class="badge py-1 px-2.5 rounded-pill fw-bold" style="background: {{ $riskBadgeBg }}; color: {{ $riskBadgeFg }}; font-size: 0.72rem;">
                             {{ $riskLabel }}
@@ -373,6 +382,13 @@
                     </div>
 
                     @if($hasAiResult && !$isScanning && !$isFailed)
+                        @if($isUnrecognizedFormat)
+                            <div class="alert alert-warning p-2.5 rounded-3 mb-3 border border-warning border-opacity-30" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+                                <strong>Non-Academic Format:</strong> File lacks standard grade tables or university headers. Recommended Action: <em>Return for Correction</em>.
+                            </div>
+                        @endif
+
                         {{-- Radial Progress Gauge --}}
                         <div class="risk-ring-wrapper mb-3">
                             <svg class="risk-ring-svg" viewBox="0 0 140 140">
@@ -389,34 +405,18 @@
                             </div>
                         </div>
 
-                        {{-- Forensic Signals Checklist --}}
+                        {{-- 4-Pillar Evidence Breakdown --}}
                         <div class="p-3 bg-light rounded-3 border mb-3">
-                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
-                                <span class="small text-muted" style="font-size:0.75rem;">Original Metadata</span>
-                                @if(in_array('exif_metadata_cleaned', $doc->aiResult->anomaly_indicators ?? []))
-                                    <span class="badge bg-warning text-dark" style="font-size:0.68rem;">Stripped</span>
-                                @else
-                                    <span class="badge bg-success text-white" style="font-size:0.68rem;">Verifiable</span>
-                                @endif
+                            <div class="fw-bold text-muted text-uppercase mb-2 pb-1 border-bottom" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-scale-balanced text-primary me-1"></i> 4-Pillar Evidence Matrix
                             </div>
+                            
+                            {{-- Pillar 1: Text & OCR (35%) --}}
                             <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
-                                <span class="small text-muted" style="font-size:0.75rem;">Editing Software</span>
-                                @if(!empty($doc->aiResult->detected_software))
-                                    <span class="badge bg-danger text-white" style="font-size:0.68rem;">{{ $doc->aiResult->detected_software }}</span>
-                                @else
-                                    <span class="badge bg-success text-white" style="font-size:0.68rem;">None Detected</span>
-                                @endif
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
-                                <span class="small text-muted" style="font-size:0.75rem;">Compression Resampling</span>
-                                @if(in_array('resampling_traces_detected', $doc->aiResult->anomaly_indicators ?? []))
-                                    <span class="badge bg-danger text-white" style="font-size:0.68rem;">Resampled</span>
-                                @else
-                                    <span class="badge bg-success text-white" style="font-size:0.68rem;">Clean</span>
-                                @endif
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="small text-muted" style="font-size:0.75rem;">GWA OCR Consistency</span>
+                                <div>
+                                    <div class="small fw-semibold text-dark" style="font-size:0.75rem;">1. Text & Grade OCR</div>
+                                    <small class="text-muted" style="font-size:0.65rem;">Weight: 35%</small>
+                                </div>
                                 @php
                                     $gwaMismatch = false;
                                     $extracted = $doc->aiResult->deep_analysis_report['extracted_gwa'] ?? null;
@@ -430,6 +430,47 @@
                                     <span class="badge bg-danger text-white" style="font-size:0.68rem;">Mismatch</span>
                                 @else
                                     <span class="badge bg-success text-white" style="font-size:0.68rem;">Verified</span>
+                                @endif
+                            </div>
+
+                            {{-- Pillar 2: Pixel Compression (25%) --}}
+                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
+                                <div>
+                                    <div class="small fw-semibold text-dark" style="font-size:0.75rem;">2. Pixel Compression (ELA/DCT)</div>
+                                    <small class="text-muted" style="font-size:0.65rem;">Weight: 25%</small>
+                                </div>
+                                @if(in_array('resampling_traces_detected', $doc->aiResult->anomaly_indicators ?? []) || in_array('catnet_dct_compression_anomaly', $doc->aiResult->anomaly_indicators ?? []))
+                                    <span class="badge bg-danger text-white" style="font-size:0.68rem;">Resampled</span>
+                                @else
+                                    <span class="badge bg-success text-white" style="font-size:0.68rem;">Clean</span>
+                                @endif
+                            </div>
+
+                            {{-- Pillar 3: Sensor & Spatial Continuity (25%) --}}
+                            <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
+                                <div>
+                                    <div class="small fw-semibold text-dark" style="font-size:0.75rem;">3. Sensor Continuity (TruFor)</div>
+                                    <small class="text-muted" style="font-size:0.65rem;">Weight: 25%</small>
+                                </div>
+                                @if(in_array('trufor_noiseprint_anomaly', $doc->aiResult->anomaly_indicators ?? []) || in_array('clone_stamp_detected', $doc->aiResult->anomaly_indicators ?? []))
+                                    <span class="badge bg-danger text-white" style="font-size:0.68rem;">Anomalous</span>
+                                @else
+                                    <span class="badge bg-success text-white" style="font-size:0.68rem;">Uniform</span>
+                                @endif
+                            </div>
+
+                            {{-- Pillar 4: Metadata Provenance (15%) --}}
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="small fw-semibold text-dark" style="font-size:0.75rem;">4. Metadata & Provenance</div>
+                                    <small class="text-muted" style="font-size:0.65rem;">Weight: 15%</small>
+                                </div>
+                                @if(!empty($doc->aiResult->detected_software))
+                                    <span class="badge bg-danger text-white" style="font-size:0.68rem;">{{ $doc->aiResult->detected_software }}</span>
+                                @elseif(in_array('exif_metadata_cleaned', $doc->aiResult->anomaly_indicators ?? []))
+                                    <span class="badge bg-warning text-dark" style="font-size:0.68rem;">Stripped</span>
+                                @else
+                                    <span class="badge bg-success text-white" style="font-size:0.68rem;">Verifiable</span>
                                 @endif
                             </div>
                         </div>

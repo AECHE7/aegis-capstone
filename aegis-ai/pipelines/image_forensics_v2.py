@@ -270,17 +270,23 @@ def run_image_pipeline_v2(
     """
     from forensics.fusion_scoring import ForensicFusionEngine
     from forensics.clone_detection import detect_clone_stamp
+    from forensics.document_syntax_gate import evaluate_document_syntax
 
     indicators = []
     detector_results = {}
 
-    # 1. Generate ELA Image
+    # 1. Evaluate Document Syntax Gate (Pillar 1)
+    syntax_result = evaluate_document_syntax(original_path)
+    if not syntax_result.get('is_valid_academic_document'):
+        indicators.append("unrecognized_document_format")
+
+    # 2. Generate ELA Image
     generate_ela(original_path, ela_path)
 
-    # 2. Extract GWA via OCR
+    # 3. Extract GWA via OCR
     extracted_gwa = extract_gwa_from_image(original_path)
 
-    # 3. Run all forensic detectors and collect results
+    # 4. Run all forensic detectors and collect results
 
     # ELA Patch Detection
     patch_detected, patch_risk, patch_box, patch_heatmap, patch_conf = detect_ela_patch_anomalies(ela_path, original_path)
@@ -433,15 +439,16 @@ def run_image_pipeline_v2(
         model_name = "aegis_deterministic_v2"
         model_mode = "deterministic_forensic_engine"
 
-    # Calibrated Fusion Scoring Engine
+    # Calibrated Fusion Scoring Engine with Syntax Gate (Pillar 1)
     fusion_engine = ForensicFusionEngine(mode=fusion_mode)
     has_valid_ocr = extracted_gwa is not None and extracted_gwa > 0.0
 
-    fusion_result = fusion_engine.fuse_scores(detector_results, ocr_matched=has_valid_ocr)
+    fusion_result = fusion_engine.fuse_scores(detector_results, ocr_matched=has_valid_ocr, syntax_gate=syntax_result)
     fraud_probability = fusion_result['fraud_probability']
     classification = fusion_result['classification']
     fusion_confidence = fusion_result['confidence']
     detector_agreement = fusion_result['detector_agreement']
+    evidence_pillars = fusion_result.get('evidence_pillars', {})
 
     if fraud_probability >= 70.0 and "high_ela_energy" not in indicators:
         indicators.append("high_ela_energy")
@@ -493,6 +500,8 @@ def run_image_pipeline_v2(
         "confidence": fusion_confidence,
         "detector_agreement": detector_agreement,
         "extracted_gwa": extracted_gwa,
+        "document_syntax": syntax_result,
+        "evidence_pillars": evidence_pillars,
         "anomaly_indicators": indicators,
         "detected_software": detector_results.get('software_fingerprint', {}).get('detected'),
         "cropped_patch_base64": cropped_patch_base64,
