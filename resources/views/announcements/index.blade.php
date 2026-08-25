@@ -6,37 +6,18 @@
 
 @section('content')
 
-{{-- Top Metrics Deck --}}
-<div class="row g-3 mb-4">
-    <div class="col-sm-4">
-        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center gap-3" style="border-radius: 14px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:#e0f2fe;display:flex;align-items:center;justify-content:center;">
-                <i class="fa-solid fa-bullhorn text-primary fs-5"></i>
-            </div>
-            <div>
-                <div class="small fw-bold text-muted text-uppercase" style="font-size:0.68rem; letter-spacing:0.5px;">Total Broadcasts</div>
-                <h5 class="fw-bold text-dark mb-0">{{ $announcements->total() }}</h5>
-            </div>
-        </div>
+{{-- Header Action Bar --}}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold" style="font-size:0.8rem;">
+            <i class="fa-solid fa-bullhorn text-success me-1"></i> {{ $announcements->total() }} Announcements
+        </span>
     </div>
-    <div class="col-sm-4">
-        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center gap-3" style="border-radius: 14px;">
-            <div style="width:44px;height:44px;border-radius:12px;background:#dcfce7;display:flex;align-items:center;justify-content:center;">
-                <i class="fa-solid fa-circle-check text-success fs-5"></i>
-            </div>
-            <div>
-                <div class="small fw-bold text-muted text-uppercase" style="font-size:0.68rem; letter-spacing:0.5px;">Active on Portal</div>
-                <h5 class="fw-bold text-success mb-0">Live</h5>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="card p-3 border-0 shadow-sm d-flex align-items-center justify-content-center" style="border-radius: 14px; background: linear-gradient(135deg, var(--clsu-green), #16703f);">
-            <button class="btn fw-bold text-white w-100 p-1 border-0" data-bs-toggle="modal" data-bs-target="#newAnnouncementModal">
-                <i class="fa-solid fa-plus-circle me-1"></i> New Announcement
-            </button>
-        </div>
-    </div>
+    <button class="btn fw-bold px-4 py-2.5" 
+            style="background: linear-gradient(135deg, #00754A, #16703f); color: white; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,117,74,0.25); font-size:0.85rem;"
+            data-bs-toggle="modal" data-bs-target="#newAnnouncementModal">
+        <i class="fa-solid fa-bullhorn me-1.5"></i> Publish Announcement
+    </button>
 </div>
 
 <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden;">
