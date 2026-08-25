@@ -433,24 +433,17 @@ def run_image_pipeline_v2(
         model_name = "aegis_deterministic_v2"
         model_mode = "deterministic_forensic_engine"
 
-    # NEW: Fusion Scoring Engine
+    # Calibrated Fusion Scoring Engine
     fusion_engine = ForensicFusionEngine(mode=fusion_mode)
+    has_valid_ocr = extracted_gwa is not None and extracted_gwa > 0.0
 
-    if model_mode == "trained":
-        # Use weighted fusion
-        fusion_result = fusion_engine.fuse_scores(detector_results)
-        fraud_probability = fusion_result['fraud_probability']
-        classification = fusion_result['classification']
-        fusion_confidence = fusion_result['confidence']
-        detector_agreement = fusion_result['detector_agreement']
-    else:
-        # Deterministic fallback
-        fraud_probability = fusion_engine.fallback_deterministic_scoring(detector_results)
-        classification = "Tampered" if fraud_probability >= 50.0 else "Authentic"
-        fusion_confidence = "low"
-        detector_agreement = 0.0
+    fusion_result = fusion_engine.fuse_scores(detector_results, ocr_matched=has_valid_ocr)
+    fraud_probability = fusion_result['fraud_probability']
+    classification = fusion_result['classification']
+    fusion_confidence = fusion_result['confidence']
+    detector_agreement = fusion_result['detector_agreement']
 
-    if fraud_probability >= 50.0 and "high_ela_energy" not in indicators:
+    if fraud_probability >= 70.0 and "high_ela_energy" not in indicators:
         indicators.append("high_ela_energy")
 
     # Generate heatmap
