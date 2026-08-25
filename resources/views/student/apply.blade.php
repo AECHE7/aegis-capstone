@@ -4,30 +4,45 @@
 
 @push('styles')
 <style>
+    /* Container centering & max-width */
+    .apply-container {
+        max-width: 840px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 3.5rem;
+    }
+
     /* Scholarship selector cards */
-    .scholarship-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+    .scholarship-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 12px;
+    }
 
     .scholarship-card-select {
         border: 2px solid var(--border-color);
-        border-radius: 12px;
+        border-radius: 14px;
         padding: 14px 16px;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         background: var(--card-bg);
         position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 100px;
     }
 
     .scholarship-card-select:hover {
         border-color: var(--clsu-green);
         background: var(--clsu-green-muted);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(15,89,52,0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(15,89,52,0.1);
     }
 
     .scholarship-card-select.selected {
         border-color: var(--clsu-green);
         background: var(--clsu-green-muted);
-        box-shadow: 0 4px 16px rgba(15,89,52,0.15);
+        box-shadow: 0 6px 20px rgba(15,89,52,0.15);
     }
 
     .scholarship-card-select.selected::after {
@@ -38,7 +53,7 @@
         background: var(--clsu-green);
         color: white;
         border-radius: 50%;
-        font-size: 0.7rem;
+        font-size: 0.72rem;
         font-weight: 700;
         display: flex;
         align-items: center;
@@ -46,50 +61,6 @@
         line-height: 22px;
         text-align: center;
     }
-
-    /* Drag-and-drop upload zone — now theme-aware */
-    .upload-zone {
-        border: 2.5px dashed var(--border-color);
-        border-radius: 16px;
-        padding: 2.5rem 1.5rem;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.25s;
-        background: var(--clsu-bg);
-        position: relative;
-    }
-
-    .upload-zone:hover, .upload-zone.drag-over {
-        border-color: var(--clsu-green);
-        background: var(--clsu-green-muted);
-    }
-
-    .upload-zone.has-file {
-        border-color: var(--clsu-green);
-        background: var(--clsu-green-muted);
-        padding: 1rem;
-    }
-
-    .upload-zone input[type="file"] {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 2;
-    }
-
-    /* Preview image */
-    #previewImg {
-        max-height: 280px;
-        max-width: 100%;
-        border-radius: 10px;
-        object-fit: contain;
-        display: none;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    }
-
-    /* Eligibility badge */
-    .eligibility-badge { display: none; }
 
     /* Stepper System */
     .stepper-bubble {
@@ -128,7 +99,31 @@
         background: var(--clsu-green);
     }
 
-    /* Submit button — radius aligned with global pill system */
+    /* Upload Dropzone Container */
+    .file-dropzone-box {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 1.25rem 1rem;
+        background: #f8fafc;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .file-dropzone-box:hover {
+        border-color: var(--clsu-green);
+        background: #f0fdf4;
+    }
+    .file-dropzone-box input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Submit button */
     .btn-submit-app {
         background: linear-gradient(135deg, var(--clsu-green), #16703f);
         color: white; border: none;
@@ -143,20 +138,13 @@
         color: white;
     }
     .btn-submit-app:disabled { opacity: 0.6; transform: none; box-shadow: none; cursor: not-allowed; }
-
-    /* Tips panel — theme-aware */
-    .tips-panel { background: var(--clsu-bg); border-radius: 14px; padding: 1.25rem; border: 1px solid var(--border-color); }
-    .tip-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
-    .tip-item:last-child { margin-bottom: 0; }
-
-    /* Inline file validation message */
-    .file-validation-msg { font-size: 0.82rem; margin-top: 0.5rem; display: none; }
 </style>
 @endpush
 
 @section('content')
-<div class="container" style="max-width: 1050px; padding: 1.5rem 1rem 3rem;">
+<div class="apply-container">
 
+    {{-- Page Header --}}
     <div class="text-center mb-4">
         <div style="width:54px;height:54px;background:linear-gradient(135deg,var(--clsu-green),#16703f);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;box-shadow:0 6px 16px rgba(15,89,52,0.2);">
             <i class="fa-solid fa-file-signature text-white fs-5"></i>
@@ -185,113 +173,90 @@
         </div>
     </div>
 
-    <div class="row g-4">
-        {{-- LEFT: Form (Expanded to 8 cols) --}}
-        <div class="col-lg-8 order-last order-lg-first">
-            <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px;">
-                <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" id="applicationForm">
-                    @csrf
-                    <input type="hidden" name="program_name" id="programNameInput">
-                    <input type="hidden" name="scholarship_id" id="scholarshipIdInput">
-                    @if(isset($prevApp))
-                        <input type="hidden" name="is_renewal" value="1">
-                        <input type="hidden" name="previous_application_id" value="{{ $prevApp->id }}">
-                    @endif
-
-                    {{-- Step 1: Scholarship --}}
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-dark mb-2" style="font-size: 0.9rem;">
-                            <span class="badge me-1.5 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">1</span>
-                            {{ __('portal.select_scholarship_program') }}
-                        </label>
-                        <div class="scholarship-grid" id="scholarshipGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">
-                            @foreach($scholarships as $scholarship)
-                            <div class="scholarship-card-select p-3"
-                                 data-id="{{ $scholarship->id }}"
-                                 data-name="{{ $scholarship->name }}"
-                                 data-gwa="{{ $scholarship->min_gwa_required ?? '' }}"
-                                 onclick="selectScholarship(this)">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <div class="fw-semibold text-dark" style="font-size:0.85rem;">{{ $scholarship->name }}</div>
-                                        <div class="text-muted small mt-0.5" style="font-size:0.75rem;">{{ Str::limit($scholarship->description, 50) }}</div>
-                                    </div>
-                                    <span style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;font-size:0.68rem;font-weight:700;padding:2px 8px;white-space:nowrap;margin-left:6px;">
-                                        Max: {{ $scholarship->min_gwa_required ?? 'None' }}
-                                    </span>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- Dynamic Custom Fields Container --}}
-                    <div id="dynamicFieldsContainer" class="mb-4" style="display: none;">
-                        <label class="form-label fw-bold text-dark mb-2" style="font-size: 0.9rem;">
-                            <span class="badge me-1.5 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
-                            {{ __('portal.configure_parameters') }}
-                        </label>
-                        <div class="p-3 bg-light border row g-3 mx-0" id="dynamicFieldsBody" style="border-radius: 12px;">
-                            <!-- Dynamic inputs appended via JS -->
-                        </div>
-                    </div>
-
-                    {{-- Submit --}}
-                    <div class="mobile-sticky-action-bar mt-4">
-                        <button type="submit" class="btn-submit-app w-100" id="submitBtn" aria-describedby="submitHelpText">
-                            <i class="fa-solid fa-paper-plane me-2"></i> {{ __('portal.submit_to_osa') }}
-                        </button>
-                    </div>
-                    <div id="submitHelpText" class="text-danger small mt-2 text-center fw-semibold" style="display:none;" role="alert"></div>
-                </form>
+    {{-- Unified Guidelines Banner --}}
+    <div class="alert alert-light border shadow-sm p-3 mb-4 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="font-size:0.78rem;">
+        <div class="d-flex align-items-center gap-2.5">
+            <div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fa-solid fa-shield-halved text-success" style="font-size:0.85rem;"></i>
+            </div>
+            <div>
+                <strong class="text-dark">Official Student Guidelines:</strong>
+                <span class="text-muted d-block" style="font-size:0.72rem;">Submit clear, well-lit scans (PDF, PNG, JPG - Max 10MB). All uploads are encrypted with SHA-256.</span>
             </div>
         </div>
-
-        {{-- RIGHT: Single Minimal Guidelines Card --}}
-        <div class="col-lg-4 order-first order-lg-last">
-            <div class="card p-3.5 border-0 shadow-sm" style="border-radius:16px;">
-                <h6 class="fw-bold text-dark mb-3" style="font-size:0.85rem;">
-                    <i class="fa-solid fa-shield-check text-success me-1.5"></i> Submission Guidelines
-                </h6>
-                
-                <div class="d-flex flex-column gap-3 small text-muted" style="font-size:0.78rem; line-height:1.45;">
-                    <div class="d-flex align-items-start gap-2.5">
-                        <div style="width:28px;height:28px;border-radius:8px;background:#e0f2fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fa-solid fa-file-lines text-primary" style="font-size:0.75rem;"></i>
-                        </div>
-                        <div>Accepted files: <strong class="text-dark">PDF, PNG, JPG, WebP</strong> (Max 10MB).</div>
-                    </div>
-
-                    <div class="d-flex align-items-start gap-2.5">
-                        <div style="width:28px;height:28px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fa-solid fa-sun text-success" style="font-size:0.75rem;"></i>
-                        </div>
-                        <div>Ensure grade records are clearly lit, flat, and free of camera glare.</div>
-                    </div>
-
-                    <div class="d-flex align-items-start gap-2.5">
-                        <div style="width:28px;height:28px;border-radius:8px;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            <i class="fa-solid fa-lock text-warning" style="font-size:0.75rem;"></i>
-                        </div>
-                        <div>Student records are anonymized & SHA-256 encrypted for privacy.</div>
-                    </div>
-                </div>
-
-                <hr class="my-3 text-muted opacity-20">
-
-                <div class="p-2.5 rounded-3 bg-light text-center" style="font-size:0.72rem;">
-                    <span class="text-muted">Office of Student Affairs Support</span>
-                    <div class="fw-semibold text-dark mt-0.5"><i class="fa-solid fa-envelope text-primary me-1"></i> osa@clsu.edu.ph</div>
-                </div>
-            </div>
-        </div>
+        <span class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill" style="font-size:0.7rem;">
+            <i class="fa-solid fa-envelope text-primary me-1"></i> osa@clsu.edu.ph
+        </span>
     </div>
+
+    {{-- Form Body Card --}}
+    <div class="card p-4 p-md-4.5 border-0 shadow-sm" style="border-radius: 20px;">
+        <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" id="applicationForm">
+            @csrf
+            <input type="hidden" name="program_name" id="programNameInput">
+            <input type="hidden" name="scholarship_id" id="scholarshipIdInput">
+            @if(isset($prevApp))
+                <input type="hidden" name="is_renewal" value="1">
+                <input type="hidden" name="previous_application_id" value="{{ $prevApp->id }}">
+            @endif
+
+            {{-- Step 1: Program Selector --}}
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5" style="font-size: 0.9rem;">
+                    <span class="badge rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">1</span>
+                    {{ __('portal.select_scholarship_program') }}
+                </label>
+                
+                <div class="scholarship-grid" id="scholarshipGrid">
+                    @foreach($scholarships as $scholarship)
+                    <div class="scholarship-card-select"
+                         data-id="{{ $scholarship->id }}"
+                         data-name="{{ $scholarship->name }}"
+                         data-gwa="{{ $scholarship->min_gwa_required ?? '' }}"
+                         onclick="selectScholarship(this)">
+                        <div class="pe-4">
+                            <div class="fw-bold text-dark" style="font-size:0.85rem; line-height:1.35;">{{ $scholarship->name }}</div>
+                            @if($scholarship->description)
+                                <div class="text-muted small mt-1" style="font-size:0.72rem; line-height:1.3;">{{ Str::limit($scholarship->description, 60) }}</div>
+                            @endif
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                            <span class="badge rounded-pill bg-light text-dark border" style="font-size:0.68rem;">
+                                Max GWA: <strong>{{ $scholarship->min_gwa_required ?? 'None' }}</strong>
+                            </span>
+                            <small class="text-success fw-semibold" style="font-size:0.7rem;">Select &rarr;</small>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Step 2: Dynamic Custom Fields & Documents --}}
+            <div id="dynamicFieldsContainer" class="mb-4" style="display: none;">
+                <label class="form-label fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5" style="font-size: 0.9rem;">
+                    <span class="badge rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
+                    {{ __('portal.configure_parameters') }}
+                </label>
+                <div class="p-3.5 bg-light-subtle border rounded-3 row g-3 mx-0" id="dynamicFieldsBody">
+                    <!-- Dynamic inputs appended via JS -->
+                </div>
+            </div>
+
+            {{-- Submit Action --}}
+            <div class="mt-4 pt-2 border-top">
+                <button type="submit" class="btn-submit-app w-100" id="submitBtn" aria-describedby="submitHelpText">
+                    <i class="fa-solid fa-paper-plane me-2"></i> {{ __('portal.submit_to_osa') }}
+                </button>
+            </div>
+            <div id="submitHelpText" class="text-danger small mt-2 text-center fw-semibold" style="display:none;" role="alert"></div>
+        </form>
+    </div>
+
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    // Initialize localization dictionaries for JS usage
     window.portalTranslations = {
         select_scholarship_program: "{{ __('portal.select_scholarship_program') }}",
         optional: "{{ __('portal.optional') }}"
@@ -300,7 +265,6 @@
     let selectedScholarshipGwa = null;
 
     function selectScholarship(el) {
-        // Deselect all
         document.querySelectorAll('.scholarship-card-select').forEach(c => c.classList.remove('selected'));
         el.classList.add('selected');
 
@@ -317,7 +281,7 @@
         document.getElementById('scholarshipIdInput').value = el.dataset.id;
         selectedScholarshipGwa = parseFloat(el.dataset.gwa);
 
-        // Run GWA check if input already has value
+        // Run GWA check
         checkGwaEligibility();
 
         // Fetch custom fields dynamically
@@ -332,7 +296,6 @@
                     container.style.display = 'block';
                     fields.forEach(field => {
                         const formGroup = document.createElement('div');
-                        // Use full 12-column width for file uploads, textareas, or long field labels
                         const isFullWidth = (field.field_type === 'textarea' || field.field_type === 'file' || (field.field_label && field.field_label.length > 35));
                         formGroup.className = isFullWidth ? 'col-12 mb-3 text-start' : 'col-md-6 mb-3 text-start';
                         
@@ -371,13 +334,28 @@
                                   });
                             }
                         } else if (field.field_type === 'file') {
+                            // Styled Dropzone Box
+                            const dropzoneBox = document.createElement('div');
+                            dropzoneBox.className = 'file-dropzone-box';
+                            
                             input = document.createElement('input');
                             input.type = 'file';
-                            input.className = 'form-control shadow-sm p-2 bg-white';
                             input.accept = 'image/*,application/pdf';
                             if (window.innerWidth <= 768) {
                                 input.setAttribute('capture', 'environment');
                             }
+
+                            const dropzoneContent = document.createElement('div');
+                            dropzoneContent.className = 'dropzone-inner';
+                            dropzoneContent.innerHTML = `
+                                <i class="fa-solid fa-cloud-arrow-up text-success fs-4 mb-1"></i>
+                                <div class="fw-semibold text-dark small">Click to browse or drop ${field.field_label}</div>
+                                <small class="text-muted" style="font-size:0.7rem;">Accepted: PDF, PNG, JPG (Max 10MB)</small>
+                            `;
+
+                            dropzoneBox.appendChild(input);
+                            dropzoneBox.appendChild(dropzoneContent);
+                            formGroup.appendChild(dropzoneBox);
 
                             // Add file validation and preview
                             input.addEventListener('change', function(e) {
@@ -387,11 +365,11 @@
 
                                 if (!file) {
                                     if (preview) preview.remove();
+                                    dropzoneContent.style.display = 'block';
                                     updateChecklist();
                                     return;
                                 }
 
-                                // Size check (10MB limit)
                                 const maxSize = 10 * 1024 * 1024;
                                 if (file.size > maxSize) {
                                     Swal.fire({
@@ -402,11 +380,11 @@
                                     });
                                     input.value = '';
                                     if (preview) preview.remove();
+                                    dropzoneContent.style.display = 'block';
                                     updateChecklist();
                                     return;
                                 }
 
-                                // Format check
                                 const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf', 'image/webp'];
                                 if (!validTypes.includes(file.type)) {
                                     Swal.fire({
@@ -417,6 +395,7 @@
                                     });
                                     input.value = '';
                                     if (preview) preview.remove();
+                                    dropzoneContent.style.display = 'block';
                                     updateChecklist();
                                     return;
                                 }
@@ -425,8 +404,8 @@
                                 if (!preview) {
                                     preview = document.createElement('div');
                                     preview.id = previewId;
-                                    preview.className = 'alert alert-success mt-2 mb-0 d-flex align-items-center justify-content-between';
-                                    preview.style.fontSize = '0.85rem';
+                                    preview.className = 'alert alert-success mt-2 mb-0 d-flex align-items-center justify-content-between p-2.5';
+                                    preview.style.fontSize = '0.82rem';
                                     formGroup.appendChild(preview);
                                 }
 
@@ -434,18 +413,19 @@
                                 const fileColor = file.type === 'application/pdf' ? '#dc2626' : '#0284c7';
                                 preview.innerHTML = `
                                     <div class="d-flex align-items-center gap-2">
-                                        <i class="fa-solid ${fileIcon} fa-2x" style="color: ${fileColor};"></i>
+                                        <i class="fa-solid ${fileIcon} fs-4" style="color: ${fileColor};"></i>
                                         <div>
-                                            <div class="fw-bold">${file.name}</div>
+                                            <div class="fw-bold text-dark">${file.name}</div>
                                             <small class="text-muted">${(file.size / 1024).toFixed(1)} KB · ${file.type.split('/')[1].toUpperCase()}</small>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-danger clear-upload-btn">
-                                        <i class="fa-solid fa-xmark"></i> Clear
+                                    <button type="button" class="btn btn-sm btn-outline-danger py-0.5 px-2 clear-upload-btn" style="font-size:0.75rem;">
+                                        <i class="fa-solid fa-xmark"></i> Remove
                                     </button>
                                 `;
 
-                                preview.querySelector('.clear-upload-btn').addEventListener('click', function() {
+                                preview.querySelector('.clear-upload-btn').addEventListener('click', function(ev) {
+                                    ev.stopPropagation();
                                     input.value = '';
                                     preview.remove();
                                     updateChecklist();
@@ -458,7 +438,6 @@
                             input.type = 'number';
                             input.step = 'any';
                             input.className = 'form-control';
-                            // GWA, Income, and other numeric inputs get decimal keypad on mobile
                             input.setAttribute('inputmode', 'decimal');
                         } else if (field.field_type === 'date') {
                             input = document.createElement('input');
@@ -468,25 +447,29 @@
                             input = document.createElement('input');
                             input.type = 'email';
                             input.className = 'form-control';
-                            input.placeholder = 'e.g., student@example.com';
+                            input.setAttribute('inputmode', 'email');
                         } else {
                             input = document.createElement('input');
                             input.type = 'text';
                             input.className = 'form-control';
                         }
                         
-                        input.id = uniqueId;
                         input.name = `custom_fields[${field.field_name}]`;
-                        input.classList.add('custom-field-input');
-                        input.dataset.label = field.field_label;
+                        input.id = uniqueId;
                         input.dataset.required = field.is_required ? '1' : '0';
+                        input.dataset.label = field.field_label;
+                        input.classList.add('custom-field-input');
+                        
                         if (field.is_required) {
-                            input.setAttribute('required', 'required');
-                            input.setAttribute('aria-required', 'true');
-                            input.classList.add('required-custom-field');
+                            input.required = true;
                         }
                         
-                        formGroup.appendChild(input);
+                        input.addEventListener('input', updateChecklist);
+                        input.addEventListener('change', updateChecklist);
+                        
+                        if (field.field_type !== 'file') {
+                            formGroup.appendChild(input);
+                        }
                         body.appendChild(formGroup);
                     });
                 } else {
@@ -516,8 +499,6 @@
             return;
         }
         
-        // In the Philippine grading scale, a larger number means a worse grade (1.0 = best, 3.0 = pass, 5.0 = fail)
-        // If the student's entered GWA is higher than the scholarship GWA limit, show warning
         if (enteredVal > selectedScholarshipGwa) {
             if (!warningDiv) {
                 warningDiv = document.createElement('div');
@@ -536,7 +517,6 @@
     }
 
     function updateChecklist() {
-        const chkScholarship = document.getElementById('chkScholarship');
         const submitBtn = document.getElementById('submitBtn');
         const submitHelpText = document.getElementById('submitHelpText');
 
@@ -545,33 +525,13 @@
 
         // 1. Scholarship selected check
         const schId = document.getElementById('scholarshipIdInput').value;
-        if (schId) {
-            if (chkScholarship) {
-                const badge = chkScholarship.querySelector('.badge');
-                const icon = chkScholarship.querySelector('.badge i');
-                const span = chkScholarship.querySelector('span');
-                if (badge) badge.className = 'badge bg-success rounded-pill';
-                if (icon) icon.className = 'fa-solid fa-check';
-                if (span) span.className = 'text-dark fw-semibold';
-            }
-        } else {
-            if (chkScholarship) {
-                const badge = chkScholarship.querySelector('.badge');
-                const icon = chkScholarship.querySelector('.badge i');
-                const span = chkScholarship.querySelector('span');
-                if (badge) badge.className = 'badge bg-danger rounded-pill';
-                if (icon) icon.className = 'fa-solid fa-xmark';
-                if (span) span.className = 'text-muted';
-            }
+        if (!schId) {
             allValid = false;
             missingFields.push(window.portalTranslations.select_scholarship_program);
         }
 
         // 2. Dynamic custom fields checks
         const customFields = document.querySelectorAll('.custom-field-input');
-        // Remove existing dynamic checklist items
-        document.querySelectorAll('.dynamic-checklist-item').forEach(el => el.remove());
-
         customFields.forEach(input => {
             let isFilled = false;
             if (input.type === 'file') {
@@ -586,30 +546,9 @@
                 allValid = false;
                 missingFields.push(input.dataset.label);
             }
-
-            const checklistItems = document.getElementById('checklistItems');
-            if (checklistItems) {
-                const item = document.createElement('div');
-                item.className = 'd-flex align-items-center justify-content-between dynamic-checklist-item';
-                
-                let badgeHtml = '';
-                if (isFilled) {
-                    badgeHtml = `<span class="badge bg-success rounded-pill"><i class="fa-solid fa-check"></i></span>`;
-                } else if (isRequired) {
-                    badgeHtml = `<span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>`;
-                } else {
-                    badgeHtml = `<span class="badge bg-secondary rounded-pill" style="font-size: 0.65rem;">${window.portalTranslations.optional}</span>`;
-                }
-
-                item.innerHTML = `
-                    <span class="${isFilled ? 'text-dark fw-semibold' : 'text-muted'}">${input.dataset.label}${isRequired ? '' : ' (' + window.portalTranslations.optional + ')'}</span>
-                    ${badgeHtml}
-                `;
-                checklistItems.appendChild(item);
-            }
         });
 
-        // Accessible disabled states: Button remains focusable but styled disabled
+        // 3. Stepper state & submit button
         const b3 = document.getElementById('stepBubble3');
         const l2 = document.getElementById('stepperLine2');
 
@@ -636,194 +575,39 @@
                 submitHelpText.innerHTML = `<i class="fa-solid fa-circle-exclamation me-1"></i> Please complete: ${missingFields.join(', ')}`;
             }
         }
-        
-        // Cache the validation status on the form element
-        document.getElementById('applicationForm').dataset.valid = allValid ? '1' : '0';
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        updateChecklist();
-        const dynamicBody = document.getElementById('dynamicFieldsBody');
-        if (dynamicBody) {
-            dynamicBody.addEventListener('input', function(e) {
-                updateChecklist();
-                if (e.target.name && e.target.name.toLowerCase().includes('gwa')) {
-                    checkGwaEligibility();
-                }
-            });
-            dynamicBody.addEventListener('change', function(e) {
-                updateChecklist();
-                if (e.target.name && e.target.name.toLowerCase().includes('gwa')) {
-                    checkGwaEligibility();
-                }
-            });
-        }
-        
-        @if(isset($prevApp))
-            const prevCard = document.querySelector('.scholarship-card-select[data-id="{{ $prevApp->scholarship_id }}"]');
-            if (prevCard) {
-                selectScholarship(prevCard);
-            }
-        @endif
-    });
+    // Auto-save form inputs
+    const form = document.getElementById('applicationForm');
+    const FORM_KEY = 'aegis_apply_form_backup';
 
-    // ── AJAX Application Form Submission ──────────────
-    const appForm = document.getElementById('applicationForm');
-    if (appForm) {
-        appForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Perform accessibility and completion validation check
-            if (appForm.dataset.valid !== '1') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Form Incomplete',
-                    text: 'Please complete all required fields on the application form first.',
-                    confirmButtonColor: '#0C4E2D'
-                });
-                return;
-            }
-
-            if (!appForm.checkValidity()) {
-                appForm.reportValidity();
-                return;
-            }
-
-            const submitBtn = document.getElementById('submitBtn');
-            const originalHtml = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
-
-            // Show Uploading dialog with progress bar
-            Swal.fire({
-                title: 'Submitting Application',
-                html: `
-                    <p class="small text-muted mb-2">Encrypting files and uploading to OSA pipeline...</p>
-                    <div class="progress" style="height: 10px; border-radius: 5px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                `,
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                customClass: { popup: 'rounded-4' },
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Send via XMLHttpRequest for upload progress tracking
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', appForm.action);
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-            xhr.setRequestHeader('Accept', 'application/json');
-
-            xhr.upload.addEventListener('progress', function(event) {
-                if (event.lengthComputable) {
-                    const percent = Math.round((event.loaded / event.total) * 100);
-                    const progressBar = Swal.getPopup().querySelector('.progress-bar');
-                    if (progressBar) {
-                        progressBar.style.width = percent + '%';
-                        progressBar.setAttribute('aria-valuenow', percent);
-                    }
-                }
-            });
-
-            xhr.onload = function() {
-                let response = {};
-                try {
-                    response = JSON.parse(xhr.responseText);
-                } catch(e) {
-                    console.error('Error parsing response:', e);
-                }
-
-                if (xhr.status === 200 && response.success) {
-                    try { localStorage.removeItem(draftKey); } catch(e) {}
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success!',
-                        text: response.message,
-                        confirmButtonColor: '#0F5934',
-                        customClass: { popup: 'rounded-4' }
-                    }).then(() => {
-                        window.location.href = "{{ route('student.dashboard') }}";
-                    });
-                } else {
-                    let errMsg = response.message || 'Failed to submit application. Please try again.';
-                    if (xhr.status === 422 && response.errors) {
-                        errMsg = Object.values(response.errors).flat().join('<br>');
-                    }
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Submission Failed',
-                        html: errMsg,
-                        confirmButtonColor: '#dc2626',
-                        customClass: { popup: 'rounded-4' }
-                    });
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalHtml;
-                }
-            };
-
-            xhr.onerror = function() {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Network Error',
-                    text: 'A network error occurred. Please check your connection and try again.',
-                    confirmButtonColor: '#dc2626',
-                    customClass: { popup: 'rounded-4' }
-                });
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalHtml;
-            };
-
-            xhr.send(new FormData(appForm));
+    function saveDraft() {
+        const data = {};
+        form.querySelectorAll('input:not([type="file"]):not([type="hidden"]), select, textarea').forEach(el => {
+            if (el.name && el.value) data[el.name] = el.value;
         });
+        localStorage.setItem(FORM_KEY, JSON.stringify(data));
     }
 
-    // Form Draft Auto-Saver (User-scoped resilience)
-    const currentUserId = "{{ auth()->id() }}";
-    const draftKey = `aegis_application_draft_u${currentUserId}`;
-    
-    if (appForm) {
-        // Restore existing draft if present
+    function restoreDraft() {
+        const raw = localStorage.getItem(FORM_KEY);
+        if (!raw) return;
         try {
-            const savedDraft = localStorage.getItem(draftKey);
-            if (savedDraft) {
-                const draftData = JSON.parse(savedDraft);
-                Object.keys(draftData).forEach(name => {
-                    const field = appForm.querySelector(`[name="${name}"]`);
-                    if (field && field.type !== 'file' && field.type !== 'hidden') {
-                        field.value = draftData[name];
-                    }
-                });
-            }
-        } catch (e) {}
-
-        // Listen for input changes
-        appForm.addEventListener('input', function(e) {
-            if (e.target.name && e.target.type !== 'file' && e.target.type !== 'password') {
-                try {
-                    const formData = new FormData(appForm);
-                    const draftObj = {};
-                    formData.forEach((val, key) => {
-                        if (typeof val === 'string' && key !== '_token') {
-                            draftObj[key] = val;
-                        }
-                    });
-                    localStorage.setItem(draftKey, JSON.stringify(draftObj));
-                } catch(err) {}
-            }
-        });
+            const data = JSON.parse(raw);
+            Object.entries(data).forEach(([name, val]) => {
+                const el = form.querySelector(`[name="${name}"]`);
+                if (el) {
+                    el.value = val;
+                    el.dispatchEvent(new Event('input'));
+                }
+            });
+        } catch (e) {
+            localStorage.removeItem(FORM_KEY);
+        }
     }
 
-    @if ($errors->any())
-    Swal.fire({
-        icon: 'error',
-        title: 'Submission Failed',
-        html: `{!! implode('<br>', $errors->all()) !!}`,
-        confirmButtonColor: '#0F5934',
-        customClass: { popup: 'rounded-4' }
-    });
-    @endif
+    form.addEventListener('input', saveDraft);
+    form.addEventListener('submit', () => localStorage.removeItem(FORM_KEY));
+    document.addEventListener('DOMContentLoaded', restoreDraft);
 </script>
 @endpush
