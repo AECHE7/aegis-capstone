@@ -186,9 +186,9 @@
     </div>
 
     <div class="row g-4">
-        {{-- LEFT: Form --}}
-        <div class="col-lg-7 order-last order-lg-first">
-            <div class="card p-4" style="border-radius: 20px;">
+        {{-- LEFT: Form (Expanded to 8 cols) --}}
+        <div class="col-lg-8 order-last order-lg-first">
+            <div class="card p-4 border-0 shadow-sm" style="border-radius: 20px;">
                 <form action="{{ route('student.store') }}" method="POST" enctype="multipart/form-data" id="applicationForm">
                     @csrf
                     <input type="hidden" name="program_name" id="programNameInput">
@@ -200,24 +200,24 @@
 
                     {{-- Step 1: Scholarship --}}
                     <div class="mb-4">
-                        <label class="form-label fw-bold text-dark mb-2">
-                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">1</span>
+                        <label class="form-label fw-bold text-dark mb-2" style="font-size: 0.9rem;">
+                            <span class="badge me-1.5 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">1</span>
                             {{ __('portal.select_scholarship_program') }}
                         </label>
-                        <div class="scholarship-grid" id="scholarshipGrid">
+                        <div class="scholarship-grid" id="scholarshipGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">
                             @foreach($scholarships as $scholarship)
-                            <div class="scholarship-card-select"
+                            <div class="scholarship-card-select p-3"
                                  data-id="{{ $scholarship->id }}"
                                  data-name="{{ $scholarship->name }}"
                                  data-gwa="{{ $scholarship->min_gwa_required ?? '' }}"
                                  onclick="selectScholarship(this)">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div class="fw-semibold text-dark" style="font-size:0.9rem;">{{ $scholarship->name }}</div>
-                                        <div class="text-muted small mt-1">{{ $scholarship->description }}</div>
+                                        <div class="fw-semibold text-dark" style="font-size:0.85rem;">{{ $scholarship->name }}</div>
+                                        <div class="text-muted small mt-0.5" style="font-size:0.75rem;">{{ Str::limit($scholarship->description, 50) }}</div>
                                     </div>
-                                    <span style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;font-size:0.72rem;font-weight:700;padding:3px 10px;white-space:nowrap;margin-left:10px;">
-                                        {{ __('portal.max_gwa') }}: {{ $scholarship->min_gwa_required ?? __('portal.none') }}
+                                    <span style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;font-size:0.68rem;font-weight:700;padding:2px 8px;white-space:nowrap;margin-left:6px;">
+                                        Max: {{ $scholarship->min_gwa_required ?? 'None' }}
                                     </span>
                                 </div>
                             </div>
@@ -227,17 +227,17 @@
 
                     {{-- Dynamic Custom Fields Container --}}
                     <div id="dynamicFieldsContainer" class="mb-4" style="display: none;">
-                        <label class="form-label fw-bold text-dark mb-2">
-                            <span class="badge me-2 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
+                        <label class="form-label fw-bold text-dark mb-2" style="font-size: 0.9rem;">
+                            <span class="badge me-1.5 rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
                             {{ __('portal.configure_parameters') }}
                         </label>
                         <div class="p-3 bg-light border row g-3 mx-0" id="dynamicFieldsBody" style="border-radius: 12px;">
-                            <!-- Dynamic inputs will be appended here via JS -->
+                            <!-- Dynamic inputs appended via JS -->
                         </div>
                     </div>
 
                     {{-- Submit --}}
-                    <div class="mobile-sticky-action-bar">
+                    <div class="mobile-sticky-action-bar mt-4">
                         <button type="submit" class="btn-submit-app w-100" id="submitBtn" aria-describedby="submitHelpText">
                             <i class="fa-solid fa-paper-plane me-2"></i> {{ __('portal.submit_to_osa') }}
                         </button>
@@ -247,60 +247,42 @@
             </div>
         </div>
 
-        {{-- RIGHT: Tips Panel --}}
-        <div class="col-lg-5 order-first order-lg-last">
-            {{-- Application Checklist Card --}}
-            <div class="card p-4 mb-3 border-0 shadow-sm" style="border-radius:16px;">
-                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-list-check text-success me-2"></i> {{ __('portal.checklist') }}</h6>
-                <div id="checklistItems" class="d-flex flex-column gap-2 small">
-                    <div class="d-flex align-items-center justify-content-between" id="chkScholarship">
-                        <span class="text-muted">1. {{ __('portal.select_scholarship') }}</span>
-                        <span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>
+        {{-- RIGHT: Single Minimal Guidelines Card --}}
+        <div class="col-lg-4 order-first order-lg-last">
+            <div class="card p-3.5 border-0 shadow-sm" style="border-radius:16px;">
+                <h6 class="fw-bold text-dark mb-3" style="font-size:0.85rem;">
+                    <i class="fa-solid fa-shield-check text-success me-1.5"></i> Submission Guidelines
+                </h6>
+                
+                <div class="d-flex flex-column gap-3 small text-muted" style="font-size:0.78rem; line-height:1.45;">
+                    <div class="d-flex align-items-start gap-2.5">
+                        <div style="width:28px;height:28px;border-radius:8px;background:#e0f2fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-file-lines text-primary" style="font-size:0.75rem;"></i>
+                        </div>
+                        <div>Accepted files: <strong class="text-dark">PDF, PNG, JPG, WebP</strong> (Max 10MB).</div>
                     </div>
-                </div>
-            </div>
 
-            <div class="tips-panel mb-3">
-                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb text-warning me-2"></i> {{ __('portal.submission_tips') }}</h6>
-                <div class="tip-item">
-                    <div style="width:32px;height:32px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fa-solid fa-image" style="color:#16a34a;font-size:0.8rem;"></i>
+                    <div class="d-flex align-items-start gap-2.5">
+                        <div style="width:28px;height:28px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-sun text-success" style="font-size:0.75rem;"></i>
+                        </div>
+                        <div>Ensure grade records are clearly lit, flat, and free of camera glare.</div>
                     </div>
-                    <div class="small text-muted">Use a <strong class="text-dark">clear, unedited</strong> scan or photo of your official COG. Blurry images may fail verification.</div>
-                </div>
-                <div class="tip-item">
-                    <div style="width:32px;height:32px;border-radius:8px;background:#e0f2fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fa-solid fa-star" style="color:#0284c7;font-size:0.8rem;"></i>
-                    </div>
-                    <div class="small text-muted">Your declared GWA must match the grades on your COG. The AI system checks for consistency.</div>
-                </div>
-                <div class="tip-item">
-                    <div style="width:32px;height:32px;border-radius:8px;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fa-solid fa-shield-halved" style="color:#ca8a04;font-size:0.8rem;"></i>
-                    </div>
-                    <div class="small text-muted">Your file is <strong class="text-dark">anonymized and encrypted</strong> upon upload using SHA-256 hashing to protect your identity.</div>
-                </div>
-            </div>
 
-            {{-- What happens next --}}
-            <div class="card p-4" style="border-radius:16px;">
-                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-route text-primary me-2"></i> {{ __('portal.what_happens_next') }}</h6>
-                @foreach([
-                    ['icon' => 'fa-paper-plane', 'color' => '#0284c7', 'bg' => '#e0f2fe', 'title' => __('portal.step_submission_title'), 'desc' => __('portal.step_submission_desc')],
-                    ['icon' => 'fa-robot', 'color' => '#7c3aed', 'bg' => '#ede9fe', 'title' => __('portal.step_aiscan_title'), 'desc' => __('portal.step_aiscan_desc')],
-                    ['icon' => 'fa-user-shield', 'color' => '#0F5934', 'bg' => '#dcfce7', 'title' => __('portal.step_evaluation_title'), 'desc' => __('portal.step_evaluation_desc')],
-                    ['icon' => 'fa-envelope', 'color' => '#d97706', 'bg' => '#fef9c3', 'title' => __('portal.step_notification_title'), 'desc' => __('portal.step_notification_desc')],
-                ] as $step)
-                <div class="d-flex gap-3 mb-3 {{ $loop->last ? 'mb-0' : '' }}">
-                    <div style="width:34px;height:34px;border-radius:9px;background:{{ $step['bg'] }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                        <i class="fa-solid {{ $step['icon'] }}" style="color:{{ $step['color'] }};font-size:0.8rem;"></i>
-                    </div>
-                    <div>
-                        <div class="fw-semibold text-dark small">{{ $step['title'] }}</div>
-                        <div class="text-muted" style="font-size:0.78rem;">{{ $step['desc'] }}</div>
+                    <div class="d-flex align-items-start gap-2.5">
+                        <div style="width:28px;height:28px;border-radius:8px;background:#fef9c3;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-lock text-warning" style="font-size:0.75rem;"></i>
+                        </div>
+                        <div>Student records are anonymized & SHA-256 encrypted for privacy.</div>
                     </div>
                 </div>
-                @endforeach
+
+                <hr class="my-3 text-muted opacity-20">
+
+                <div class="p-2.5 rounded-3 bg-light text-center" style="font-size:0.72rem;">
+                    <span class="text-muted">Office of Student Affairs Support</span>
+                    <div class="fw-semibold text-dark mt-0.5"><i class="fa-solid fa-envelope text-primary me-1"></i> osa@clsu.edu.ph</div>
+                </div>
             </div>
         </div>
     </div>
@@ -564,13 +546,23 @@
         // 1. Scholarship selected check
         const schId = document.getElementById('scholarshipIdInput').value;
         if (schId) {
-            chkScholarship.querySelector('.badge').className = 'badge bg-success rounded-pill';
-            chkScholarship.querySelector('.badge i').className = 'fa-solid fa-check';
-            chkScholarship.querySelector('span').className = 'text-dark fw-semibold';
+            if (chkScholarship) {
+                const badge = chkScholarship.querySelector('.badge');
+                const icon = chkScholarship.querySelector('.badge i');
+                const span = chkScholarship.querySelector('span');
+                if (badge) badge.className = 'badge bg-success rounded-pill';
+                if (icon) icon.className = 'fa-solid fa-check';
+                if (span) span.className = 'text-dark fw-semibold';
+            }
         } else {
-            chkScholarship.querySelector('.badge').className = 'badge bg-danger rounded-pill';
-            chkScholarship.querySelector('.badge i').className = 'fa-solid fa-xmark';
-            chkScholarship.querySelector('span').className = 'text-muted';
+            if (chkScholarship) {
+                const badge = chkScholarship.querySelector('.badge');
+                const icon = chkScholarship.querySelector('.badge i');
+                const span = chkScholarship.querySelector('span');
+                if (badge) badge.className = 'badge bg-danger rounded-pill';
+                if (icon) icon.className = 'fa-solid fa-xmark';
+                if (span) span.className = 'text-muted';
+            }
             allValid = false;
             missingFields.push(window.portalTranslations.select_scholarship_program);
         }
@@ -596,35 +588,25 @@
             }
 
             const checklistItems = document.getElementById('checklistItems');
-            const item = document.createElement('div');
-            item.className = 'd-flex align-items-center justify-content-between dynamic-checklist-item';
-            
-            let badgeHtml = '';
-            if (isFilled) {
-                badgeHtml = `
-                    <span class="badge bg-success rounded-pill">
-                        <i class="fa-solid fa-check"></i>
-                    </span>
-                `;
-            } else if (isRequired) {
-                badgeHtml = `
-                    <span class="badge bg-danger rounded-pill">
-                        <i class="fa-solid fa-xmark"></i>
-                    </span>
-                `;
-            } else {
-                badgeHtml = `
-                    <span class="badge bg-secondary rounded-pill" style="font-size: 0.65rem;">
-                        ${window.portalTranslations.optional}
-                    </span>
-                `;
-            }
+            if (checklistItems) {
+                const item = document.createElement('div');
+                item.className = 'd-flex align-items-center justify-content-between dynamic-checklist-item';
+                
+                let badgeHtml = '';
+                if (isFilled) {
+                    badgeHtml = `<span class="badge bg-success rounded-pill"><i class="fa-solid fa-check"></i></span>`;
+                } else if (isRequired) {
+                    badgeHtml = `<span class="badge bg-danger rounded-pill"><i class="fa-solid fa-xmark"></i></span>`;
+                } else {
+                    badgeHtml = `<span class="badge bg-secondary rounded-pill" style="font-size: 0.65rem;">${window.portalTranslations.optional}</span>`;
+                }
 
-            item.innerHTML = `
-                <span class="${isFilled ? 'text-dark fw-semibold' : 'text-muted'}">${input.dataset.label}${isRequired ? '' : ' (' + window.portalTranslations.optional + ')'}</span>
-                ${badgeHtml}
-            `;
-            checklistItems.appendChild(item);
+                item.innerHTML = `
+                    <span class="${isFilled ? 'text-dark fw-semibold' : 'text-muted'}">${input.dataset.label}${isRequired ? '' : ' (' + window.portalTranslations.optional + ')'}</span>
+                    ${badgeHtml}
+                `;
+                checklistItems.appendChild(item);
+            }
         });
 
         // Accessible disabled states: Button remains focusable but styled disabled
