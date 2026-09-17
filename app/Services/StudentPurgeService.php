@@ -34,13 +34,26 @@ class StudentPurgeService
             $appIds = Application::whereIn('user_id', $studentIds)->pluck('id');
 
             if ($appIds->isNotEmpty()) {
-                // Delete AI results linked to documents
-                if (Schema::hasTable('document_ai_results')) {
-                    $docIds = Document::whereIn('application_id', $appIds)->pluck('id');
-                    DB::table('document_ai_results')->whereIn('document_id', $docIds)->delete();
+                // Delete physical files and records for documents
+                $docs = Document::whereIn('application_id', $appIds)->get();
+                foreach ($docs as $doc) {
+                    if (!empty($doc->file_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($doc->file_path);
+                        \Illuminate\Support\Facades\Storage::delete($doc->file_path);
+                    }
                 }
 
-                // Delete documents
+                $docIds = $docs->pluck('id');
+                if ($docIds->isNotEmpty()) {
+                    if (Schema::hasTable('a_i_results')) {
+                        DB::table('a_i_results')->whereIn('document_id', $docIds)->delete();
+                    }
+                    if (Schema::hasTable('document_ai_results')) {
+                        DB::table('document_ai_results')->whereIn('document_id', $docIds)->delete();
+                    }
+                }
+
+                // Delete document records
                 Document::whereIn('application_id', $appIds)->delete();
 
                 // Delete custom application fields
@@ -48,9 +61,19 @@ class StudentPurgeService
                     DB::table('application_fields')->whereIn('application_id', $appIds)->delete();
                 }
 
+                // Delete status logs
+                if (Schema::hasTable('status_logs')) {
+                    DB::table('status_logs')->whereIn('application_id', $appIds)->delete();
+                }
+
                 // Delete application status histories
                 if (Schema::hasTable('application_histories')) {
                     DB::table('application_histories')->whereIn('application_id', $appIds)->delete();
+                }
+
+                // Delete email logs linked to these applications
+                if (Schema::hasTable('email_logs')) {
+                    DB::table('email_logs')->whereIn('application_id', $appIds)->delete();
                 }
 
                 // Force delete applications
@@ -78,13 +101,33 @@ class StudentPurgeService
                 DB::table('user_trusted_devices')->whereIn('user_id', $studentIds)->delete();
             }
 
-            // 6. Delete password reset tokens if any
+            // 6. Delete password reset tokens and student email logs
+            $studentEmails = User::whereIn('id', $studentIds)->pluck('email');
             if (Schema::hasTable('password_reset_tokens')) {
-                $studentEmails = User::whereIn('id', $studentIds)->pluck('email');
                 DB::table('password_reset_tokens')->whereIn('email', $studentEmails)->delete();
             }
 
-            // 7. Force delete student users
+            if (Schema::hasTable('email_logs')) {
+                DB::table('email_logs')->whereIn('recipient', $studentEmails)->delete();
+            }
+
+            // 7. Delete auth logs for students
+            if (Schema::hasTable('auth_logs')) {
+                DB::table('auth_logs')
+                    ->whereIn('user_id', $studentIds)
+                    ->orWhereIn('email_attempted', $studentEmails)
+                    ->delete();
+            }
+
+            // 8. Delete student UAT feedback
+            if (Schema::hasTable('uat_feedbacks')) {
+                DB::table('uat_feedbacks')
+                    ->whereIn('user_id', $studentIds)
+                    ->orWhere('role', 'student')
+                    ->delete();
+            }
+
+            // 9. Force delete student users
             User::whereIn('id', $studentIds)->forceDelete();
 
             return $count;
