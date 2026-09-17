@@ -20,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->isProduction() || str_starts_with(config('app.url', ''), 'https://')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         Model::shouldBeStrict(! $this->app->isProduction());
 
         \Illuminate\Support\Facades\Mail::extend('brevo_api', function (array $config) {

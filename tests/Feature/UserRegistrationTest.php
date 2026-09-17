@@ -32,6 +32,7 @@ class UserRegistrationTest extends TestCase
             'email' => 'studenttest@clsu2.edu.ph',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'dpa_consent' => '1',
         ]);
 
         $response->assertRedirect(route('verification.notice'));
@@ -88,6 +89,18 @@ class UserRegistrationTest extends TestCase
             'password' => bcrypt('password123'),
             'role' => 'student',
             'email_verified_at' => now()
+        ]);
+
+        // Create student profile via Eloquent model so encrypted casts are applied properly
+        \App\Models\StudentProfile::create([
+            'user_id' => $user->id,
+            'clsu_id_number' => '22-1234',
+            'college' => 'College of Information Technology',
+            'course' => 'BS Information Technology',
+            'year_level' => 3,
+            'contact_number' => '09123456789',
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09987654321',
         ]);
 
         // Create a scholarship to prevent create view crashes
@@ -153,5 +166,29 @@ class UserRegistrationTest extends TestCase
             ]);
 
         $mfaResponse->assertRedirect(route('student.dashboard'));
+    }
+
+    public function test_email_verification_signed_url_successfully_verifies_student(): void
+    {
+        $user = User::create([
+            'name' => 'Verify Test Student',
+            'email' => 'student.verify@clsu2.edu.ph',
+            'password' => bcrypt('Password123!'),
+            'role' => 'student',
+            'email_verified_at' => null,
+        ]);
+
+        $notification = new CustomVerifyEmailNotification();
+        $mail = $notification->toMail($user);
+        $url = $mail->viewData['verificationUrl'];
+
+        $this->assertNotEmpty($url);
+        $this->assertStringContainsString('signature=', $url);
+
+        // Make the signed verification request
+        $response = $this->actingAs($user)->get($url);
+
+        $response->assertRedirect(route('student.dashboard'));
+        $this->assertNotNull($user->fresh()->email_verified_at);
     }
 }

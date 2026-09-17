@@ -33,6 +33,34 @@ class CustomVerifyEmailNotification extends VerifyEmail implements ShouldQueue
     }
 
     /**
+     * Get the verification URL for the given notifiable.
+     * Generates a cryptographically signed URL with the target domain and scheme.
+     *
+     * @param  mixed  $notifiable
+     * @return string
+     */
+    protected function verificationUrl($notifiable)
+    {
+        $domain = $this->getAppDomain();
+
+        if ($domain) {
+            \Illuminate\Support\Facades\URL::forceRootUrl($domain);
+            if (str_starts_with($domain, 'https://')) {
+                \Illuminate\Support\Facades\URL::forceScheme('https');
+            }
+        }
+
+        return \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'verification.verify',
+            \Illuminate\Support\Carbon::now()->addMinutes(\Illuminate\Support\Facades\Config::get('auth.verification.expire', 60)),
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
+        );
+    }
+
+    /**
      * Build the mail representation of the notification using custom CLSU HTML email template.
      *
      * @param  mixed  $notifiable
@@ -41,12 +69,6 @@ class CustomVerifyEmailNotification extends VerifyEmail implements ShouldQueue
     public function toMail($notifiable): MailMessage
     {
         $verificationUrl = $this->verificationUrl($notifiable);
-        $domain = $this->getAppDomain();
-        $parsed = parse_url($verificationUrl);
-        if (isset($parsed['path'])) {
-            $pathAndQuery = $parsed['path'] . (isset($parsed['query']) ? '?' . $parsed['query'] : '');
-            $verificationUrl = $domain . $pathAndQuery;
-        }
 
         // Audit Trail: Log email in EmailLog
         try {
