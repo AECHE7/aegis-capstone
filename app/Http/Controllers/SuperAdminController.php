@@ -1265,4 +1265,90 @@ class SuperAdminController extends Controller
 
         return back()->with('success', 'Email broadcast has been queued for delivery.');
     }
+
+    /**
+     * Check live health status of the AI microservice.
+     */
+    public function aiStatus()
+    {
+        $aiUrl = rtrim(config('services.ai.url', 'http://127.0.0.1:5000'), '/');
+        if (empty($aiUrl)) {
+            return response()->json([
+                'status' => 'unconfigured',
+                'message' => 'AI URL is not configured.',
+                'url' => null,
+            ]);
+        }
+
+        try {
+            $start = microtime(true);
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($aiUrl . '/health');
+            $latency = round((microtime(true) - $start) * 1000);
+
+            if ($response->successful()) {
+                return response()->json([
+                    'status' => 'online',
+                    'latency_ms' => $latency,
+                    'url' => $aiUrl,
+                    'details' => $response->json(),
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'degraded',
+                'http_code' => $response->status(),
+                'url' => $aiUrl,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'sleeping',
+                'url' => $aiUrl,
+                'message' => 'AI microservice container is sleeping or not responding: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Send an active wake-up probe to the AI microservice.
+     */
+    public function wakeAi(Request $request)
+    {
+        $aiUrl = rtrim(config('services.ai.url', 'http://127.0.0.1:5000'), '/');
+        if (empty($aiUrl)) {
+            return back()->with('error', 'AI URL is not configured.');
+        }
+
+        $start = microtime(true);
+        try {
+            // Generous 35s timeout to allow cold Hugging Face / Render container boot
+            $response = \Illuminate\Support\Facades\Http::timeout(35)->get($aiUrl . '/health');
+            $elapsed = round((microtime(true) - $start) * 1000);
+
+            if ($response->successful()) {
+                \App\Services\AuditLoggerService::logAdminAction(
+                    auth()->id(),
+                    'ai_manual_wake',
+                    'system',
+                    null,
+                    "Sent wake-up probe to AI microservice ({$aiUrl}). Active in {$elapsed}ms.",
+                    $request->ip()
+                );
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => "AI microservice is active and warmed up ({$elapsed}ms)!",
+                        'details' => $response->json(),
+                    ]);
+                }
+
+                return back()->with('success', "AI microservice is active and fully warmed up ({$elapsed}ms)!");
+            }
+
+            return back()->with('warning', "AI returned HTTP {$response->status()}. Please wait a moment and refresh.");
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to wake AI service: ' . $e->getMessage());
+        }
+    }
 }
+

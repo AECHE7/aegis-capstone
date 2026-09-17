@@ -40,12 +40,52 @@ Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
     }
     \Illuminate\Support\Facades\Artisan::call('scholarships:close-expired');
     $output = \Illuminate\Support\Facades\Artisan::output();
+
+    // Automated keep-warm ping for AI microservice container
+    $aiStatus = 'skipped';
+    try {
+        $aiUrl = rtrim(config('services.ai.url', 'http://127.0.0.1:5000'), '/');
+        if (!empty($aiUrl)) {
+            $aiRes = \Illuminate\Support\Facades\Http::timeout(15)->get($aiUrl . '/health');
+            $aiStatus = $aiRes->successful() ? 'healthy' : 'http_' . $aiRes->status();
+        }
+    } catch (\Throwable $e) {
+        $aiStatus = 'cold_start_or_timeout';
+    }
+
     return response()->json([
         'success' => true,
         'message' => 'Scheduler run complete.',
-        'output' => trim($output)
+        'output' => trim($output),
+        'ai_status' => $aiStatus,
     ]);
 });
+
+Route::get('/ai/wake', function () {
+    $aiUrl = rtrim(config('services.ai.url', 'http://127.0.0.1:5000'), '/');
+    if (empty($aiUrl)) {
+        return response()->json(['success' => false, 'message' => 'AI URL not configured.'], 400);
+    }
+    try {
+        $start = microtime(true);
+        $res = \Illuminate\Support\Facades\Http::timeout(35)->get($aiUrl . '/health');
+        $latency = round((microtime(true) - $start) * 1000);
+        return response()->json([
+            'success' => $res->successful(),
+            'status' => $res->status(),
+            'latency_ms' => $latency,
+            'url' => $aiUrl,
+            'data' => $res->json(),
+            'message' => $res->successful() ? 'AI microservice is active and responsive.' : 'AI returned HTTP ' . $res->status()
+        ], $res->status());
+    } catch (\Throwable $e) {
+        return response()->json([
+            'success' => false,
+            'url' => $aiUrl,
+            'message' => 'AI wake-up probe timed out or container is initializing: ' . $e->getMessage()
+        ], 504);
+    }
+})->name('ai.wake');
 
 Route::get('/favicon.ico', function () {
     $path = public_path('logo.png');
@@ -260,6 +300,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
         Route::post('/settings/security-reset', [SuperAdminController::class, 'revokeAllDevices'])->name('superadmin.settings.security-reset');
         Route::post('/settings/purge-students', [SuperAdminController::class, 'purgeStudents'])->name('superadmin.settings.purge-students');
+        Route::get('/settings/ai-status', [SuperAdminController::class, 'aiStatus'])->name('superadmin.settings.ai-status');
+        Route::post('/settings/wake-ai', [SuperAdminController::class, 'wakeAi'])->name('superadmin.settings.wake-ai');
 
         // Email Broadcast Center
         Route::get('/broadcast', [SuperAdminController::class, 'showBroadcast'])->name('superadmin.broadcast');

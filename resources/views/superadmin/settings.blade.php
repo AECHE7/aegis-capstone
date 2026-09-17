@@ -144,6 +144,59 @@
                             @enderror
                         </div>
                     </div>
+
+                    <!-- AI Microservice Health & Live Auto-Wake Controller -->
+                    <div class="mt-4 pt-4 border-top border-light">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-server text-success"></i> AI Microservice Container Health
+                                    <span id="aiLiveBadge" class="badge bg-secondary px-2 py-1 small" style="border-radius: 6px;">
+                                        <i class="fa-solid fa-spinner fa-spin me-1"></i> Checking status...
+                                    </span>
+                                </h6>
+                                <p class="small text-muted mb-0">
+                                    Endpoint: <code class="text-dark bg-light px-2 py-1 rounded" style="font-size: 0.8rem;">{{ config('services.ai.url', 'http://127.0.0.1:5000') }}</code>
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnRefreshAiStatus" onclick="checkAiHealth()" style="border-radius: 8px;">
+                                    <i class="fa-solid fa-arrows-rotate me-1"></i> Check Health
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success fw-bold text-white px-3" id="btnWakeAi" onclick="wakeAiService()" style="border-radius: 8px;">
+                                    <i class="fa-solid fa-bolt me-1"></i> Wake Up AI
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Wake Progress / Message Banner -->
+                        <div id="aiStatusAlert" class="alert py-2 px-3 small d-none" role="alert" style="border-radius: 10px;"></div>
+
+                        <!-- 24/7 Automated Keep-Alive Card -->
+                        <div class="card bg-light border-0 mt-3" style="border-radius: 12px;">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="fa-solid fa-bell text-warning mt-1"></i>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-dark small mb-1">How to Keep AI Awake 24/7 Automatically (Free)</div>
+                                        <div class="small text-muted mb-2">
+                                            Free cloud tiers (Hugging Face Spaces & Render) put inactive containers to sleep. To keep the AI hot 24/7 without manual intervention, configure a free keep-alive cron job (using <a href="https://cron-job.org" target="_blank" class="fw-semibold text-success">Cron-Job.org</a> or <a href="https://uptimerobot.com" target="_blank" class="fw-semibold text-success">UptimeRobot</a>) targeting either of these URLs every <strong>10 minutes</strong>:
+                                        </div>
+                                        <div class="input-group input-group-sm mb-2" style="max-width: 600px;">
+                                            <span class="input-group-text bg-white fw-semibold text-muted" style="font-size: 0.75rem;">AI Wake Endpoint</span>
+                                            <input type="text" class="form-control bg-white" readonly value="{{ route('ai.wake') }}" id="wakeEndpointInput" style="font-size: 0.78rem;">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('wakeEndpointInput').value); this.innerText='Copied!'; setTimeout(() => this.innerText='Copy', 2000);">Copy</button>
+                                        </div>
+                                        <div class="input-group input-group-sm" style="max-width: 600px;">
+                                            <span class="input-group-text bg-white fw-semibold text-muted" style="font-size: 0.75rem;">Unified Scheduler</span>
+                                            <input type="text" class="form-control bg-white" readonly value="{{ url('/scheduler/run?key=' . config('services.scheduler.key', 'aegis_cron_secret')) }}" id="schedulerEndpointInput" style="font-size: 0.78rem;">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('schedulerEndpointInput').value); this.innerText='Copied!'; setTimeout(() => this.innerText='Copy', 2000);">Copy</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -302,6 +355,97 @@
                     document.getElementById('purgeStudentsForm').submit();
                 }
             }
+
+            async function checkAiHealth() {
+                const badge = document.getElementById('aiLiveBadge');
+                const btn = document.getElementById('btnRefreshAiStatus');
+                if (!badge) return;
+                badge.className = 'badge bg-warning text-dark px-2 py-1 small';
+                badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Testing...';
+                if (btn) btn.disabled = true;
+
+                try {
+                    const res = await fetch('{{ route('superadmin.settings.ai-status') }}');
+                    const data = await res.json();
+                    if (data.status === 'online') {
+                        badge.className = 'badge bg-success px-2 py-1 small';
+                        badge.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i> Online & Warm (${data.latency_ms}ms)`;
+                    } else if (data.status === 'sleeping') {
+                        badge.className = 'badge bg-danger px-2 py-1 small';
+                        badge.innerHTML = '<i class="fa-solid fa-moon me-1"></i> Sleeping (Needs Wake-up)';
+                    } else {
+                        badge.className = 'badge bg-warning text-dark px-2 py-1 small';
+                        badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> ${data.status}`;
+                    }
+                } catch (e) {
+                    badge.className = 'badge bg-danger px-2 py-1 small';
+                    badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Unreachable';
+                } finally {
+                    if (btn) btn.disabled = false;
+                }
+            }
+
+            async function wakeAiService() {
+                const badge = document.getElementById('aiLiveBadge');
+                const btn = document.getElementById('btnWakeAi');
+                const alertBox = document.getElementById('aiStatusAlert');
+
+                if (badge) {
+                    badge.className = 'badge bg-warning text-dark px-2 py-1 small';
+                    badge.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Waking container...';
+                }
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Waking...';
+                }
+
+                if (alertBox) {
+                    alertBox.className = 'alert alert-info py-2 px-3 small d-block';
+                    alertBox.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> Sent wake-up handshake. Waiting for container to initialize TensorFlow model (takes 15–30 seconds)...';
+                }
+
+                try {
+                    const res = await fetch('{{ route('ai.wake') }}');
+                    const data = await res.json();
+                    if (data.success) {
+                        if (badge) {
+                            badge.className = 'badge bg-success px-2 py-1 small';
+                            badge.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i> Active & Warmed Up (${data.latency_ms}ms)`;
+                        }
+                        if (alertBox) {
+                            alertBox.className = 'alert alert-success py-2 px-3 small d-block';
+                            alertBox.innerHTML = `<strong>Success:</strong> ${data.message} Response time: ${data.latency_ms}ms.`;
+                        }
+                    } else {
+                        if (badge) {
+                            badge.className = 'badge bg-danger px-2 py-1 small';
+                            badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Wake Failed';
+                        }
+                        if (alertBox) {
+                            alertBox.className = 'alert alert-danger py-2 px-3 small d-block';
+                            alertBox.innerHTML = `<strong>Error:</strong> ${data.message || 'Service could not be reached.'}`;
+                        }
+                    }
+                } catch (e) {
+                    if (badge) {
+                        badge.className = 'badge bg-danger px-2 py-1 small';
+                        badge.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Timeout / Error';
+                    }
+                    if (alertBox) {
+                        alertBox.className = 'alert alert-danger py-2 px-3 small d-block';
+                        alertBox.innerHTML = '<strong>Wake notice:</strong> The wake probe timed out after 35s. The container is likely still spinning up in the background. Click "Check Health" in 10-15 seconds.';
+                    }
+                } finally {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-bolt me-1"></i> Wake Up AI';
+                    }
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                checkAiHealth();
+            });
         </script>
     </div>
 </div>

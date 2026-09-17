@@ -619,6 +619,10 @@
 
     form.addEventListener('input', saveDraft);
     form.addEventListener('submit', () => localStorage.removeItem(FORM_KEY));
-    document.addEventListener('DOMContentLoaded', restoreDraft);
+    document.addEventListener('DOMContentLoaded', () => {
+        restoreDraft();
+        // Silent pre-warming ping for AI microservice while student completes application
+        try { fetch('{{ route('ai.wake') }}').catch(() => {}); } catch (e) {}
+    });
 </script>
 @endpush

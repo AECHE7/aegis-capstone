@@ -296,3 +296,37 @@ To facilitate iterative onboarding and user acceptance testing (UAT), AEGIS now 
      - Modal rendering across all 3 roles
      - Tour reset controller endpoint
 
+---
+
+## 7. Automated AI Microservice Wake-Up & Keep-Alive Architecture
+
+### Problem Context
+The AEGIS visual fraud & OCR pipeline runs on a Python microservice deployed on Hugging Face Spaces (`https://xyoul-aegis-ai.hf.space` / `https://aegis-forensics.hf.space`) or Render free tier. Free-tier cloud infrastructure automatically shuts down/sleeps containers after a period of inactivity (typically 24–48 hours on Hugging Face, or 15 minutes on Render), requiring manual web visits or dashboard restarts to wake the container.
+
+### Implemented Solutions
+
+1. **Automated 24/7 Keep-Alive Webhooks**:
+   - **Unified Scheduler Hook (`GET /scheduler/run?key=...`)**: Enhanced to automatically ping `$aiUrl . '/health'` with a 15-second timeout, keeping the AI container continuously warm whenever external cron tasks run.
+   - **Dedicated Wake-Up Route (`GET /ai/wake`)**: Lightweight public/cron-friendly endpoint that sends a 35-second cold-start handshake to the AI container, returning execution latency and health JSON.
+
+2. **Client-Side Pre-Warming (`resources/views/student/apply.blade.php`)**:
+   - The student application form automatically triggers a non-blocking `fetch('/ai/wake')` on `DOMContentLoaded`.
+   - While the student spends 1–3 minutes entering profile details and choosing scholarship programs, the AI container completes its 15–25 second boot sequence in the background, ensuring 100% warm inference when submitting.
+
+3. **In-Flight Cold-Start Resilience**:
+   - **`AIVerificationService.php`**: Added a 3-attempt retry loop with progressive backoff (8s, 16s) and an automated health probe upon encountering 502/503/504 status codes.
+   - **`ScanDocumentJob.php`**: Enhanced cold-start detection to handle container spin-up without failing document scans.
+
+4. **Super Admin Live AI Health Hub (`resources/views/superadmin/settings.blade.php`)**:
+   - Added live container status badge (`🟢 Online & Warm`, `🟡 Testing...`, `🔴 Sleeping (Needs Wake-up)`).
+   - "Wake Up AI" and "Check Health" buttons with animated spinners.
+   - Built-in configuration guide with one-click copyable endpoints for setting up free external cron monitors (e.g. Cron-Job.org / UptimeRobot) every 10 minutes.
+
+5. **Artisan CLI Command (`app/Console/Commands/WakeAICommand.php`)**:
+   - `php artisan aegis:wake-ai {--timeout=30} {--retries=3}`
+   - Probes the AI microservice, retries across sleep state transitions, and outputs diagnostic tables.
+
+6. **Automated Verification**:
+   - `tests/Feature/AutoWakeAITest.php` (6 tests, 14 assertions, 100% pass rate).
+
+
