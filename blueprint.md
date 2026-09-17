@@ -406,4 +406,21 @@ When students submitted the standalone registration form on `/register` and enco
 3. **Targeted Alert Rendering**: Error alerts inside the modal are now constrained by `@if(old('from_modal') && ...)` to prevent ghost error messages.
 4. **Automated Verification**: Added regression test `test_standalone_registration_validation_error_does_not_flag_from_modal` in `tests/Feature/AuthModalTest.php` (8/8 tests passing).
 
+---
+
+## 11. Email Verification Signed URL Preservation Behind Cloud Proxies (`403 Invalid Signature`)
+
+### Problem
+When newly registered students clicked the verification button ("Verify Email Address") received in their Gmail inbox, the browser navigated to `https://aegis-capstone.onrender.com/email/verify/{id}/{hash}?expires=...&signature=...` but was rejected with a `403 | INVALID SIGNATURE` error. Because the verification route threw an exception, `email_verified_at` was never set, leaving the student waiting screen permanently polling without refreshing or unblocking the dashboard.
+
+### Root Cause
+1. **Post-Signing Domain Replacement**: `CustomVerifyEmailNotification` originally called Laravel's default `VerifyEmail::verificationUrl()`, which generated an HMAC signature based on the local/worker host. It then manually parsed the URL and string-replaced the scheme and domain with `https://aegis-capstone.onrender.com`. Because Laravel signatures are cryptographic HMAC-SHA256 hashes of the full URL (scheme + host + path + parameters), replacing the domain invalidated the signature hash.
+2. **Reverse Proxy SSL Offloading**: Render terminates SSL at its cloud load balancer and proxies requests internally. Without explicit `URL::forceScheme('https')` and standard proxy header declarations (`X-Forwarded-Proto`), Symfony/Laravel reconstructed incoming requests using `http://`, creating an HMAC signature mismatch against the signed URL.
+
+### Resolution
+1. **Targeted Signature Generation**: Overrode `verificationUrl()` in [`CustomVerifyEmailNotification.php`](file:///f:/aegis-capstone/app/Notifications/CustomVerifyEmailNotification.php) to call `URL::forceRootUrl($domain)` and `URL::forceScheme('https')` *before* invoking `URL::temporarySignedRoute()`, ensuring the cryptographic hash is computed directly against the actual public HTTPS address. Removed post-signing string replacement.
+2. **Production HTTPS Enforcement**: Added `URL::forceScheme('https')` in [`AppServiceProvider.php`](file:///f:/aegis-capstone/app/Providers/AppServiceProvider.php) when running in production or when `APP_URL` uses HTTPS.
+3. **Comprehensive Reverse Proxy Trust**: Updated [`bootstrap/app.php`](file:///f:/aegis-capstone/bootstrap/app.php) to explicitly trust all standard forwarded headers (`HEADER_X_FORWARDED_FOR`, `HEADER_X_FORWARDED_HOST`, `HEADER_X_FORWARDED_PORT`, `HEADER_X_FORWARDED_PROTO`, `HEADER_X_FORWARDED_AWS_ELB`).
+4. **Automated Verification**: Added `test_email_verification_signed_url_successfully_verifies_student` to `tests/Feature/UserRegistrationTest.php` (8/8 tests passing).
+
 
