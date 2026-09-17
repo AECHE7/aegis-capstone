@@ -94,7 +94,8 @@ class StudentPurgeAndDemoTest extends TestCase
         $response = $this->actingAs($this->superadmin)->get(route('superadmin.settings'));
 
         $response->assertStatus(200);
-        $response->assertSee('Interactive Training & Role Demo Guide', false);
+        $response->assertSee('Interactive Training & Director Walkthrough', false);
+        $response->assertSee('Launch Director Guide', false);
         $response->assertSee('Testing & Database Maintenance', false);
         $response->assertSee('Purge All Student User Accounts', false);
         $response->assertSee('openSystemTourModal', false);
@@ -127,16 +128,44 @@ class StudentPurgeAndDemoTest extends TestCase
     }
 
     #[Test]
-    public function system_demo_modal_renders_all_three_role_worksheets()
+    public function system_demo_modal_strictly_isolates_guides_by_user_role()
     {
-        $response = $this->actingAs($this->superadmin)->get(route('superadmin.settings'));
+        // 1. Student must only see student guide; staff & director guides must be completely absent from DOM
+        $student = User::factory()->create(['role' => 'student']);
+        $studentResp = $this->actingAs($student)->get(route('profile.security'));
+        $studentResp->assertStatus(200);
+        $studentResp->assertSee('id="systemDemoModal"', false);
+        $studentResp->assertSee('Student Applicant Guide', false);
+        $studentResp->assertSee('STAGE 01', false);
+        $studentResp->assertSee('Institutional Registration', false);
+        $studentResp->assertDontSee('OSA Staff Evaluator Guide', false);
+        $studentResp->assertDontSee('Live Review Queue', false);
+        $studentResp->assertDontSee('Forensic Dual-Pane Inspection', false);
+        $studentResp->assertDontSee('OSA Director / Super Admin Guide', false);
+        $studentResp->assertDontSee('Executive Analytics', false);
 
-        $response->assertStatus(200);
-        $response->assertSee('id="systemDemoModal"', false);
-        $response->assertSee('Student Applicant', false);
-        $response->assertSee('OSA Staff Evaluator', false);
-        $response->assertSee('OSA Director / Super Admin', false);
-        $response->assertSee('Launch Live Screen Tour', false);
+        // 2. Admin must only see staff evaluator guide; student & director guides must be absent
+        $adminResp = $this->actingAs($this->admin)->get(route('admin.dashboard'));
+        $adminResp->assertStatus(200);
+        $adminResp->assertSee('id="systemDemoModal"', false);
+        $adminResp->assertSee('OSA Staff Evaluator Guide', false);
+        $adminResp->assertSee('Live Review Queue', false);
+        $adminResp->assertDontSee('Student Applicant Guide', false);
+        $adminResp->assertDontSee('STAGE 01', false);
+        $adminResp->assertDontSee('Institutional Registration', false);
+        $adminResp->assertDontSee('OSA Director / Super Admin Guide', false);
+        $adminResp->assertDontSee('Executive Analytics', false);
+
+        // 3. Superadmin must only see director guide; student & admin guides must be absent
+        $superadminResp = $this->actingAs($this->superadmin)->get(route('superadmin.settings'));
+        $superadminResp->assertStatus(200);
+        $superadminResp->assertSee('id="systemDemoModal"', false);
+        $superadminResp->assertSee('OSA Director / Super Admin Guide', false);
+        $superadminResp->assertSee('Executive Analytics', false);
+        $superadminResp->assertDontSee('Student Applicant Guide', false);
+        $superadminResp->assertDontSee('STAGE 01', false);
+        $superadminResp->assertDontSee('OSA Staff Evaluator Guide', false);
+        $superadminResp->assertDontSee('Live Review Queue', false);
     }
 
     #[Test]

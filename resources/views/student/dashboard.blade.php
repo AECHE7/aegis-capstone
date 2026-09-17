@@ -184,7 +184,7 @@
             text-align: left !important;
         }
         .container-fluid {
-            padding: 1rem 0.25rem 2rem !important;
+            padding: 0.75rem 0.25rem calc(90px + env(safe-area-inset-bottom, 16px)) !important;
         }
         .status-hero-icon {
             width: 48px !important;
@@ -193,15 +193,19 @@
         }
         .scholar-actions-card {
             padding: 1.25rem 1rem !important;
+            margin-bottom: 2.5rem !important;
         }
         .scholar-actions-card .d-flex.flex-wrap {
             flex-direction: column !important;
             width: 100% !important;
+            gap: 10px !important;
         }
         .scholar-actions-card .d-flex.flex-wrap a,
         .scholar-actions-card .d-flex.flex-wrap button {
             width: 100% !important;
             text-align: center !important;
+            padding: 12px 16px !important;
+            font-size: 0.9rem !important;
         }
     }
 

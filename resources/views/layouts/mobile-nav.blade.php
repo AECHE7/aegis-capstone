@@ -142,10 +142,13 @@
         color: var(--clsu-gold, #D97706);
     }
 
-    /* Body padding buffer so content is never hidden behind fixed bottom bar on mobile */
+    /* Body & page-content padding buffer so content is never hidden behind fixed bottom bar on mobile */
     @media (max-width: 767.98px) {
         body {
-            padding-bottom: 72px !important;
+            padding-bottom: calc(72px + env(safe-area-inset-bottom, 16px)) !important;
+        }
+        .page-content {
+            padding-bottom: calc(88px + env(safe-area-inset-bottom, 16px)) !important;
         }
     }
 </style>

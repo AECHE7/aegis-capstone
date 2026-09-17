@@ -279,22 +279,14 @@
                                 <i class="fa-solid fa-graduation-cap fs-3 text-warning"></i>
                             </div>
                             <div>
-                                <h5 class="fw-bold mb-1 text-white">Interactive Training & Role Demo Guide</h5>
-                                <p class="text-white-50 small mb-0">Guide any user role through live step-by-step walkthroughs to teach them how to use every feature in AEGIS.</p>
+                                <h5 class="fw-bold mb-1 text-white">Interactive Training & Director Walkthrough</h5>
+                                <p class="text-white-50 small mb-0">Learn and review end-to-end executive governance workflows, scholarship setup, and audit logs.</p>
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <div class="btn-group shadow-sm" role="group">
-                                <button type="button" class="btn btn-outline-light btn-sm fw-semibold" onclick="openSystemTourModal('student')">
-                                    <i class="fa-solid fa-user-graduate me-1"></i> Student Demo
-                                </button>
-                                <button type="button" class="btn btn-outline-light btn-sm fw-semibold" onclick="openSystemTourModal('admin')">
-                                    <i class="fa-solid fa-user-shield me-1"></i> Staff Demo
-                                </button>
-                                <button type="button" class="btn btn-warning btn-sm text-dark fw-bold" onclick="openSystemTourModal('superadmin')">
-                                    <i class="fa-solid fa-crown me-1"></i> Director Demo
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-warning btn-sm text-dark fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="openSystemTourModal('superadmin')">
+                                <i class="fa-solid fa-crown me-1"></i> Launch Director Guide
+                            </button>
                         </div>
                     </div>
                 </div>

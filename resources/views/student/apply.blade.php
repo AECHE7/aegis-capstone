@@ -138,6 +138,27 @@
         color: white;
     }
     .btn-submit-app:disabled { opacity: 0.6; transform: none; box-shadow: none; cursor: not-allowed; }
+
+    @media (max-width: 575.98px) {
+        .apply-container {
+            padding: 1rem 0.5rem calc(90px + env(safe-area-inset-bottom, 16px)) !important;
+        }
+        .scholarship-grid {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .stepper-bubble {
+            width: 30px;
+            height: 30px;
+            font-size: 0.75rem;
+        }
+        .stepper-line {
+            margin-bottom: 16px;
+        }
+        #stepLabel1, #stepLabel2, #stepLabel3 {
+            font-size: 0.65rem !important;
+        }
+    }
 </style>
 @endpush
 

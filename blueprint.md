@@ -298,6 +298,10 @@ To facilitate iterative onboarding and user acceptance testing (UAT), AEGIS now 
 
 ---
 
+
+
+---
+
 ## 7. Automated AI Microservice Wake-Up & Keep-Alive Architecture
 
 ### Problem Context
@@ -329,4 +333,32 @@ The AEGIS visual fraud & OCR pipeline runs on a Python microservice deployed on 
 6. **Automated Verification**:
    - `tests/Feature/AutoWakeAITest.php` (6 tests, 14 assertions, 100% pass rate).
 
+---
+
+## 8. Role-Based System Demo Isolation & Mobile UI/UX Responsiveness
+
+### Problem Context
+1. **Role Information Leakage**: The interactive walkthrough modal (`system-demo-modal.blade.php`) exposed tabs and operational worksheets for all three roles (`student`, `admin`, `superadmin`) to any authenticated user. When a student accessed the guided tour, they could click into the "OSA Staff Evaluator" and "OSA Director / Super Admin" tabs, exposing evaluation triage queues, OCR discrepancy checks, neural ELA/Grad-CAM tamper inspection details, remarks presets, and executive governance modules.
+2. **Mobile UI Breakage & Content Clipping**:
+   - **Navbar Title & Role Badge Overflow**: On mobile viewports (e.g. 375px iPhone SE), long page titles combined with role text badges caused the topbar layout to collapse. Without text truncation or whitespace control, the role badge wrapped character-by-character into a vertical column of letters, breaking topbar symmetry.
+   - **Bottom Nav Overlap**: The fixed mobile navigation bar (`.mobile-bottom-nav`, 64px + safe area) hovered directly over action buttons at the bottom of the viewport (such as "Scholar Actions" / "Request Renewal for Next Term" on the student dashboard), clipping content and blocking click targets.
+   - **Form & Card Padding Scaling**: Large padding on cards and banners consumed excessive horizontal width on 320px–375px screens.
+
+### Implemented Solutions
+
+1. **Strict Server-Side Role Isolation ([system-demo-modal.blade.php](file:///F:/aegis-capstone/resources/views/components/system-demo-modal.blade.php))**:
+   - **Dynamic Role Scope**: Resolves `$userRole = auth()->user()->role` at render time.
+   - **Zero DOM Leakage**: Replaces multi-role clickable nav tabs with a single role-scoped badge. Excludes unauthorized worksheets entirely using server-side `@if($isStudent)`, `@if($isAdmin)`, and `@if($isSuperAdmin)` directives.
+   - **Client-Side Guarding**: JavaScript functions (`openSystemTourModal`, `startCurrentRoleTour`, `startLiveElementTour`) strictly bind to the authenticated user's role, preventing unauthorized console execution.
+   - **SuperAdmin Settings Streamlining ([settings.blade.php](file:///F:/aegis-capstone/resources/views/superadmin/settings.blade.php))**: Replaced multi-role buttons with a single "Launch Director Walkthrough" action.
+
+2. **Mobile UI/UX Responsiveness Across All Screens ([app.blade.php](file:///F:/aegis-capstone/resources/views/layouts/app.blade.php), [mobile-nav.blade.php](file:///F:/aegis-capstone/resources/views/layouts/mobile-nav.blade.php))**:
+   - **Navbar Mobile Role Badge**: On mobile screens (`< 576px`), the role badge switches to a compact 34x34px circular icon badge with an accessible tooltip, freeing horizontal space. On larger screens (`>= 576px`), it renders the full pill badge with `white-space: nowrap !important; text-nowrap`.
+   - **Truncating Topbar Titles**: The page title container features `overflow-hidden`, `min-width: 0;`, and `text-truncate` with a `flex-shrink-0 ms-auto` right-hand controls cluster, guaranteeing that long titles gracefully truncate rather than pushing notification icons off-screen.
+   - **Bottom Navigation Clearance**: Set `.page-content` and container padding on mobile (`@media (max-width: 767.98px)`) to `padding-bottom: calc(88px + env(safe-area-inset-bottom, 16px)) !important;`, preventing any card, button, or input from being obscured by the fixed bottom nav.
+   - **Responsive Modal & Touch Targets**: Modals use responsive padding (`p-3 p-md-4`) and comfortable touch buttons conforming to WCAG 2.5.5 minimum 44px tap targets.
+   - **iOS Safari Input Zoom Prevention**: Inputs maintain `font-size: 16px` on mobile to prevent automatic viewport zoom on focus.
+
+3. **Automated Verification**:
+   - Feature tests in `tests/Feature/StudentPurgeAndDemoTest.php` asserting that each role only renders its own guide and asserts `assertDontSee()` for other roles' guides.
 

@@ -1,69 +1,95 @@
 <!-- ── A.E.G.I.S. INTERACTIVE SYSTEM DEMO & GUIDED ROLE TOUR MODAL ── -->
+@php
+    $userRole = auth()->check() ? (auth()->user()->role ?? 'student') : 'student';
+    $isStudent = $userRole === 'student';
+    $isAdmin = $userRole === 'admin';
+    $isSuperAdmin = $userRole === 'superadmin';
+@endphp
 <div class="modal fade" id="systemDemoModal" tabindex="-1" aria-labelledby="systemDemoModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
             
             <!-- Modal Header -->
-            <div class="modal-header border-0 text-white p-4" style="background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 50%, #00754A 100%);">
+            <div class="modal-header border-0 text-white p-3 p-md-4" style="background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 50%, #00754A 100%);">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; min-width: 52px;">
-                        <i class="fa-solid fa-graduation-cap fs-3 text-warning"></i>
+                    <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px; min-width: 46px;">
+                        @if($isStudent)
+                            <i class="fa-solid fa-graduation-cap fs-4 text-warning"></i>
+                        @elseif($isAdmin)
+                            <i class="fa-solid fa-user-shield fs-4 text-warning"></i>
+                        @else
+                            <i class="fa-solid fa-crown fs-4 text-warning"></i>
+                        @endif
                     </div>
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                            <h4 class="modal-title fw-bold mb-0 text-white" id="systemDemoModalLabel">A.E.G.I.S. System Demo & Guided Walkthrough</h4>
-                            <span class="badge bg-warning text-dark fw-bold px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">Interactive Training</span>
+                            <h5 class="modal-title fw-bold mb-0 text-white" id="systemDemoModalLabel">
+                                @if($isStudent)
+                                    A.E.G.I.S. Student Walkthrough & System Guide
+                                @elseif($isAdmin)
+                                    A.E.G.I.S. Staff Evaluator Operational Guide
+                                @else
+                                    A.E.G.I.S. Director & Super Admin Walkthrough
+                                @endif
+                            </h5>
+                            <span class="badge bg-warning text-dark fw-bold px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                @if($isStudent)
+                                    Student Onboarding
+                                @elseif($isAdmin)
+                                    Evaluator Guide
+                                @else
+                                    Governance Guide
+                                @endif
+                            </span>
                         </div>
-                        <p class="mb-0 text-white-50 small">Learn end-to-end features and operational workflows across every user role in the portal.</p>
+                        <p class="mb-0 text-white-50 small d-none d-sm-block">
+                            @if($isStudent)
+                                Learn step-by-step how to submit applications, track requirements, and verify your scholarship grant.
+                            @elseif($isAdmin)
+                                Learn step-by-step how to triage queues, inspect AI forensic heatmaps, and issue official determinations.
+                            @else
+                                Learn end-to-end features and governance workflows for OSA Directors and Super Administrators.
+                            @endif
+                        </p>
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- Role Selector Nav Tabs -->
-            <div class="bg-light px-4 pt-3 border-bottom">
-                <ul class="nav nav-pills gap-2 pb-3" id="demoRoleTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link px-4 py-2 rounded-pill fw-semibold d-flex align-items-center gap-2 {{ (auth()->user()->role ?? 'student') === 'student' ? 'active' : '' }}" 
-                                id="student-demo-tab" data-bs-toggle="pill" data-bs-target="#student-demo-pane" type="button" role="tab">
-                            <i class="fa-solid fa-user-graduate"></i>
-                            <span>Student Applicant</span>
-                            @if((auth()->user()->role ?? '') === 'student')
-                                <span class="badge bg-light text-success ms-1" style="font-size: 0.65rem;">YOUR ROLE</span>
-                            @endif
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link px-4 py-2 rounded-pill fw-semibold d-flex align-items-center gap-2 {{ (auth()->user()->role ?? '') === 'admin' ? 'active' : '' }}" 
-                                id="admin-demo-tab" data-bs-toggle="pill" data-bs-target="#admin-demo-pane" type="button" role="tab">
-                            <i class="fa-solid fa-user-shield"></i>
-                            <span>OSA Staff Evaluator</span>
-                            @if((auth()->user()->role ?? '') === 'admin')
-                                <span class="badge bg-light text-success ms-1" style="font-size: 0.65rem;">YOUR ROLE</span>
-                            @endif
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link px-4 py-2 rounded-pill fw-semibold d-flex align-items-center gap-2 {{ (auth()->user()->role ?? '') === 'superadmin' ? 'active' : '' }}" 
-                                id="director-demo-tab" data-bs-toggle="pill" data-bs-target="#director-demo-pane" type="button" role="tab">
-                            <i class="fa-solid fa-crown text-warning"></i>
-                            <span>OSA Director / Super Admin</span>
-                            @if((auth()->user()->role ?? '') === 'superadmin')
-                                <span class="badge bg-light text-success ms-1" style="font-size: 0.65rem;">YOUR ROLE</span>
-                            @endif
-                        </button>
-                    </li>
-                </ul>
+            <!-- Role Scope Indicator Bar (Strict Single-Role View) -->
+            <div class="bg-light px-3 px-md-4 py-2.5 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    @if($isStudent)
+                        <span class="badge bg-success-subtle text-success px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.78rem;">
+                            <i class="fa-solid fa-user-graduate me-1"></i> Student Applicant Guide
+                        </span>
+                        <span class="text-muted small d-none d-sm-inline">6 Step-by-Step Milestones</span>
+                    @elseif($isAdmin)
+                        <span class="badge bg-primary-subtle text-primary px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.78rem;">
+                            <i class="fa-solid fa-user-shield me-1"></i> OSA Staff Evaluator Guide
+                        </span>
+                        <span class="text-muted small d-none d-sm-inline">6 Operational Review Steps</span>
+                    @else
+                        <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.78rem;">
+                            <i class="fa-solid fa-crown me-1"></i> OSA Director / Super Admin Guide
+                        </span>
+                        <span class="text-muted small d-none d-sm-inline">6 Executive Governance Modules</span>
+                    @endif
+                </div>
+                <span class="badge bg-white text-secondary border small px-2.5 py-1 rounded-pill shadow-xs">
+                    <i class="fa-solid fa-shield-halved text-success me-1"></i> Role-Scoped View
+                </span>
             </div>
 
             <!-- Modal Body with Tabs Content -->
-            <div class="modal-body p-4 bg-light bg-opacity-50">
+            <div class="modal-body p-3 p-md-4 bg-light bg-opacity-50">
                 <div class="tab-content" id="demoRoleTabsContent">
 
+                    @if($isStudent)
                     <!-- ========================================================= -->
                     <!-- TAB 1: STUDENT APPLICANT WORKFLOW                         -->
                     <!-- ========================================================= -->
-                    <div class="tab-pane fade {{ (auth()->user()->role ?? 'student') === 'student' ? 'show active' : '' }}" id="student-demo-pane" role="tabpanel">
+                    <div class="tab-pane fade show active" id="student-demo-pane" role="tabpanel">
                         
                         <!-- Role Banner -->
                         <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #0C4E2D, #166534); color: white;">
@@ -186,11 +212,13 @@
                         </div>
 
                     </div>
+                    @endif
 
+                    @if($isAdmin)
                     <!-- ========================================================= -->
                     <!-- TAB 2: OSA STAFF EVALUATOR WORKFLOW                       -->
                     <!-- ========================================================= -->
-                    <div class="tab-pane fade {{ (auth()->user()->role ?? '') === 'admin' ? 'show active' : '' }}" id="admin-demo-pane" role="tabpanel">
+                    <div class="tab-pane fade show active" id="admin-demo-pane" role="tabpanel">
                         
                         <!-- Role Banner -->
                         <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #1e3a8a, #0369a1); color: white;">
@@ -307,11 +335,13 @@
                         </div>
 
                     </div>
+                    @endif
 
+                    @if($isSuperAdmin)
                     <!-- ========================================================= -->
                     <!-- TAB 3: DIRECTOR & SUPER ADMIN WORKFLOW                    -->
                     <!-- ========================================================= -->
-                    <div class="tab-pane fade {{ (auth()->user()->role ?? '') === 'superadmin' ? 'show active' : '' }}" id="director-demo-pane" role="tabpanel">
+                    <div class="tab-pane fade show active" id="director-demo-pane" role="tabpanel">
                         
                         <!-- Role Banner -->
                         <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #78350f, #b45309); color: white;">
@@ -428,6 +458,7 @@
                         </div>
 
                     </div>
+                    @endif
 
                 </div>
             </div>
@@ -453,15 +484,19 @@
 </div>
 
 <style>
-    #demoRoleTabs .nav-link {
-        color: #475569;
-        background: #e2e8f0;
-        transition: all 0.2s ease;
-    }
-    #demoRoleTabs .nav-link.active {
-        background: var(--clsu-green, #0C4E2D) !important;
-        color: white !important;
-        box-shadow: 0 4px 12px rgba(12, 78, 45, 0.25);
+    @media (max-width: 575.98px) {
+        #systemDemoModal .modal-dialog {
+            margin: 0.5rem;
+        }
+        #systemDemoModal .modal-header {
+            padding: 1rem !important;
+        }
+        #systemDemoModal .modal-body {
+            padding: 0.85rem !important;
+        }
+        #systemDemoModal .card-body {
+            padding: 1rem !important;
+        }
     }
 </style>
 
@@ -469,16 +504,6 @@
     window.openSystemTourModal = function(role) {
         const modalEl = document.getElementById('systemDemoModal');
         if (!modalEl) return;
-
-        if (role) {
-            const tabBtn = document.getElementById(role + '-demo-tab') || 
-                           (role === 'superadmin' ? document.getElementById('director-demo-tab') : null);
-            if (tabBtn) {
-                const tab = new bootstrap.Tab(tabBtn);
-                tab.show();
-            }
-        }
-
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
     };
@@ -490,9 +515,7 @@
             if (modal) modal.hide();
         }
 
-        const activePane = document.querySelector('#demoRoleTabsContent .tab-pane.active');
-        const role = activePane && activePane.id.includes('admin') ? 'admin' :
-                    (activePane && activePane.id.includes('director') ? 'superadmin' : 'student');
+        const role = '{{ $userRole }}';
 
         setTimeout(() => {
             startLiveElementTour(role);
@@ -506,6 +529,8 @@
             if (modal) modal.hide();
         }
 
+        const activeRole = '{{ $userRole }}';
+
         // Ensure Shepherd is loaded
         if (typeof Shepherd === 'undefined') {
             const link = document.createElement('link');
@@ -515,10 +540,10 @@
 
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js';
-            script.onload = () => runShepherdTour(role);
+            script.onload = () => runShepherdTour(activeRole);
             document.body.appendChild(script);
         } else {
-            runShepherdTour(role);
+            runShepherdTour(activeRole);
         }
     };
 

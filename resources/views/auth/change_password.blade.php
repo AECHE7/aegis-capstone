@@ -9,9 +9,9 @@
     <!-- Interactive Guided Demo & Portal Walkthrough Card -->
     <div class="col-12">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 60%, #15803d 100%); color: white;">
-            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; min-width: 50px;">
+                    <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px; min-width: 46px;">
                         <i class="fa-solid fa-graduation-cap fs-3 text-warning"></i>
                     </div>
                     <div>
@@ -22,8 +22,8 @@
                         <p class="text-white-50 small mb-0">Learn how to navigate your portal, understand workflow stages, and use every feature step-by-step.</p>
                     </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-warning text-dark fw-bold px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center gap-2" onclick="openSystemTourModal('{{ auth()->user()->role }}')">
+                <div class="d-flex gap-2 w-100 w-sm-auto justify-content-end">
+                    <button type="button" class="btn btn-warning text-dark fw-bold px-4 py-2 rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto" onclick="openSystemTourModal('{{ auth()->user()->role }}')">
                         <i class="fa-solid fa-play"></i> Start Guided Tour
                     </button>
                 </div>

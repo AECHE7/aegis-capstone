@@ -5,11 +5,11 @@
 @section('page-subtitle', 'Official memoranda, deadline schedules, and guidelines from the Office of Student Affairs')
 
 @section('content')
-<div class="container-fluid px-0" style="max-width: 960px; margin: 0 auto; padding: 0.5rem 0 3rem;">
+<div class="container-fluid px-0" style="max-width: 960px; margin: 0 auto; padding: 0.5rem 0 calc(90px + env(safe-area-inset-bottom, 16px));">
 
     {{-- Header Banner --}}
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%); color: white; overflow: hidden;">
-        <div class="p-4 p-md-4.5 position-relative">
+        <div class="p-3 p-md-4.5 position-relative">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold mb-2" style="font-size: 0.72rem;">
@@ -34,7 +34,7 @@
     {{-- Announcements Feed --}}
     <div class="d-flex flex-column gap-3">
         @forelse($announcements as $announcement)
-            <div class="card border-0 shadow-sm p-4" style="border-radius: 16px; border-left: 4px solid var(--clsu-green) !important;">
+            <div class="card border-0 shadow-sm p-3 p-md-4" style="border-radius: 16px; border-left: 4px solid var(--clsu-green) !important;">
                 <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
                     <div>
                         <span class="badge bg-success-subtle text-success px-2.5 py-1 rounded-pill fw-semibold mb-1" style="font-size: 0.7rem;">
@@ -68,7 +68,7 @@
                 </div>
             </div>
         @empty
-            <div class="card border-0 shadow-sm p-5 text-center" style="border-radius: 18px;">
+            <div class="card border-0 shadow-sm p-4 p-md-5 text-center" style="border-radius: 18px;">
                 <div class="p-3 rounded-circle bg-light d-inline-block mx-auto mb-3 text-muted" style="width: 60px; height: 60px;">
                     <i class="fa-solid fa-bullhorn fs-3"></i>
                 </div>

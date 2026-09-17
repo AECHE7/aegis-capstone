@@ -685,11 +685,11 @@
             }
             
             .topbar {
-                padding: 0.75rem 1.25rem;
+                padding: 0.75rem 1rem;
             }
             
             .page-content {
-                padding: 1.25rem 1.25rem 3rem;
+                padding: 1.25rem 1rem calc(88px + env(safe-area-inset-bottom, 16px)) !important;
             }
             
             .sidebar-backdrop {
@@ -714,17 +714,21 @@
                 display: none !important;
             }
             .topbar-title {
-                font-size: 0.85rem !important;
+                font-size: 0.88rem !important;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                max-width: 170px;
+                max-width: 150px;
             }
             .topbar {
-                padding: 0.5rem 1rem !important;
+                padding: 0.5rem 0.75rem !important;
             }
             .page-content {
-                padding: 1rem 0.75rem 2.5rem !important;
+                padding: 0.85rem 0.65rem calc(88px + env(safe-area-inset-bottom, 16px)) !important;
+            }
+            /* iOS Safari auto-zoom prevention: ensure form controls are at least 16px */
+            input, select, textarea {
+                font-size: 16px !important;
             }
         }
 
@@ -1201,23 +1205,23 @@
     <div class="main-wrapper" id="mainWrapper">
         <!-- Top bar -->
         <div class="topbar">
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center overflow-hidden me-2" style="min-width: 0;">
                 <!-- Mobile Hamburger Toggle -->
-                <button class="btn btn-link topbar-icon-btn p-0 me-3 d-lg-none" id="mobileSidebarToggle"
+                <button class="btn btn-link topbar-icon-btn p-0 me-2 me-sm-3 d-lg-none flex-shrink-0" id="mobileSidebarToggle"
                         aria-label="Toggle Navigation"
                         aria-controls="mainSidebar"
                         aria-expanded="false"
                         style="box-shadow: none;">
-                    <i class="fa-solid fa-bars fs-4"></i>
+                    <i class="fa-solid fa-bars fs-5 fs-sm-4"></i>
                 </button>
-                <div>
-                    <p class="topbar-title">@yield('page-title', 'Dashboard')</p>
-                    <p class="topbar-subtitle">@yield('page-subtitle', 'A.E.G.I.S. Portal')</p>
+                <div class="overflow-hidden" style="min-width: 0;">
+                    <p class="topbar-title text-truncate">@yield('page-title', 'Dashboard')</p>
+                    <p class="topbar-subtitle text-truncate">@yield('page-subtitle', 'A.E.G.I.S. Portal')</p>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-1.5 gap-sm-2 flex-shrink-0 ms-auto">
                 <!-- Interactive Demo Guide Trigger Button in Topbar -->
-                <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-muted d-none d-sm-inline-flex align-items-center gap-1.5 shadow-xs" 
+                <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1 text-muted d-none d-sm-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" 
                         onclick="openSystemTourModal('{{ auth()->user()->role ?? 'student' }}')" 
                         title="Interactive System Demo & Role Walkthrough">
                     <i class="fa-solid fa-graduation-cap text-success"></i>
@@ -1225,7 +1229,7 @@
                 </button>
 
                 <!-- Notification Bell Dropdown -->
-                <div class="dropdown me-1">
+                <div class="dropdown me-0 me-sm-1">
                     {{-- WCAG 4.1.2: Name/Role/Value — accessible name on icon-only button --}}
                     <button class="btn btn-link position-relative p-1 topbar-icon-btn" type="button" 
                             id="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
@@ -1242,7 +1246,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" 
                         aria-labelledby="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
-                        style="width: 320px; border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
+                        style="width: 300px; max-width: calc(100vw - 32px); border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
                         <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
                             <span class="fw-bold">Notifications</span>
                             <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small text-success fw-semibold" onclick="clearAllNotifications(event)">Mark all as read</button>
@@ -1256,19 +1260,26 @@
                     </ul>
                 </div>
 
-
-
                 @if(auth()->user()->role === 'admin')
-                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: #dcfce7; color: #14532d; font-size: 0.75rem;">
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold text-nowrap d-none d-sm-inline-flex align-items-center" style="background: #dcfce7; color: #14532d; font-size: 0.75rem; white-space: nowrap;">
                         <i class="fa-solid fa-user-shield me-1"></i> OSA Administrator
                     </span>
+                    <span class="badge rounded-circle fw-semibold d-inline-flex d-sm-none align-items-center justify-content-center" style="background: #dcfce7; color: #14532d; width: 34px; height: 34px; font-size: 0.85rem;" title="OSA Administrator">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </span>
                 @elseif(auth()->user()->role === 'superadmin')
-                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="background: #fef9c3; color: #854d0e; font-size: 0.75rem;">
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold text-nowrap d-none d-sm-inline-flex align-items-center" style="background: #fef9c3; color: #854d0e; font-size: 0.75rem; white-space: nowrap;">
                         <i class="fa-solid fa-crown me-1"></i> Director
                     </span>
+                    <span class="badge rounded-circle fw-semibold d-inline-flex d-sm-none align-items-center justify-content-center" style="background: #fef9c3; color: #854d0e; width: 34px; height: 34px; font-size: 0.85rem;" title="Director">
+                        <i class="fa-solid fa-crown"></i>
+                    </span>
                 @else
-                    <span class="badge px-3 py-2 rounded-pill fw-semibold text-success" style="background: rgba(25,135,84,0.1); font-size: 0.75rem; border: 1px solid rgba(25,135,84,0.25);">
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold text-success text-nowrap d-none d-sm-inline-flex align-items-center" style="background: rgba(25,135,84,0.1); font-size: 0.75rem; border: 1px solid rgba(25,135,84,0.25); white-space: nowrap;">
                         <i class="fa-solid fa-user-graduate me-1"></i> Student Applicant
+                    </span>
+                    <span class="badge rounded-circle fw-semibold text-success d-inline-flex d-sm-none align-items-center justify-content-center" style="background: rgba(25,135,84,0.1); border: 1px solid rgba(25,135,84,0.25); width: 34px; height: 34px; font-size: 0.85rem;" title="Student Applicant">
+                        <i class="fa-solid fa-user-graduate"></i>
                     </span>
                 @endif
             </div>
