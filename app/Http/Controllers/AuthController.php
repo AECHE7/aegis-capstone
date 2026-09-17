@@ -74,10 +74,12 @@ class AuthController extends Controller
             $deviceToken = $request->cookie('mfa_device_token');
             $hasValidDevice = false;
             if ($deviceToken) {
-                $userAgentHash = hash('sha256', $request->userAgent() ?: '');
+                // NOTE: We match by token + user_id + expiry only.
+                // User-Agent hashes are stored for audit purposes but NOT used as a lookup filter,
+                // because Render's reverse proxy can produce subtle UA differences between requests,
+                // causing honest device tokens to fail silently on staging/production.
                 $deviceExists = UserMfaDevice::where('user_id', $user->id)
                     ->where('device_token', $deviceToken)
-                    ->where('user_agent_hash', $userAgentHash)
                     ->where('expires_at', '>', now())
                     ->exists();
                 if ($deviceExists) {
@@ -293,7 +295,22 @@ class AuthController extends Controller
                     'success'
                 );
 
-                Cookie::queue('mfa_device_token', $deviceToken, 30 * 24 * 60); // 30 days in minutes
+                // Explicitly set secure, httpOnly, sameSite to ensure the cookie
+                // is persisted correctly on HTTPS (Render) behind reverse proxies.
+                $isSecure = app()->environment('production', 'staging');
+                Cookie::queue(
+                    Cookie::make(
+                        'mfa_device_token',
+                        $deviceToken,
+                        30 * 24 * 60, // 30 days in minutes
+                        '/',
+                        null,
+                        $isSecure,    // secure: true on production/staging
+                        true,         // httpOnly: true
+                        false,        // raw: false (encrypted by Laravel)
+                        'lax'         // sameSite: lax
+                    )
+                );
             }
 
             // MASTER REDIRECTION GATEWAY

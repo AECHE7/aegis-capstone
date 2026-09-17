@@ -118,17 +118,18 @@ class MfaAuthenticationTest extends TestCase
         ]);
 
         $token = \Illuminate\Support\Str::random(60);
-        $userAgentHash = hash('sha256', 'Symfony'); // Default test user agent is Symfony
 
+        // NOTE: We store user_agent_hash for audit purposes only — it is no longer
+        // required for the device lookup query (removed to fix proxy UA instability on Render).
         \App\Models\UserMfaDevice::create([
             'user_id' => $user->id,
             'device_token' => $token,
             'ip_address' => '127.0.0.1',
-            'user_agent_hash' => $userAgentHash,
+            'user_agent_hash' => hash('sha256', 'Symfony'), // Stored for audit only
             'expires_at' => now()->addDays(30),
         ]);
 
-        // Making standard login request with the encrypted cookie
+        // Making standard login request with the valid remembered device cookie
         $response = $this->withCookie('mfa_device_token', $token)
             ->post('/login', [
                 'email' => 'student@clsu.edu.ph',
@@ -141,7 +142,7 @@ class MfaAuthenticationTest extends TestCase
         $this->assertEquals($user->id, auth()->id());
     }
 
-    public function test_login_does_not_bypass_mfa_with_invalid_user_agent_cookie()
+    public function test_login_does_not_bypass_mfa_with_expired_device_cookie()
     {
         $user = User::factory()->create([
             'email' => 'student@clsu.edu.ph',
@@ -151,14 +152,14 @@ class MfaAuthenticationTest extends TestCase
         ]);
 
         $token = \Illuminate\Support\Str::random(60);
-        
-        // Storing with a different user agent hash
+
+        // Storing an EXPIRED device record
         \App\Models\UserMfaDevice::create([
             'user_id' => $user->id,
             'device_token' => $token,
             'ip_address' => '127.0.0.1',
-            'user_agent_hash' => 'different_hash',
-            'expires_at' => now()->addDays(30),
+            'user_agent_hash' => hash('sha256', 'Symfony'),
+            'expires_at' => now()->subDays(1), // Expired yesterday
         ]);
 
         $response = $this->withCookie('mfa_device_token', $token)
@@ -167,7 +168,7 @@ class MfaAuthenticationTest extends TestCase
                 'password' => 'password123',
             ]);
 
-        // Should NOT bypass and redirect to MFA
+        // Should NOT bypass and must redirect to MFA (expired token)
         $response->assertRedirect(route('login.mfa'));
         $this->assertFalse(auth()->check());
     }
