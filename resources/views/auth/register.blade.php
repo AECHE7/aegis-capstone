@@ -581,7 +581,8 @@
                         <input class="form-check-input mt-1" type="checkbox" name="dpa_consent" id="dpaConsent" required {{ old('dpa_consent') ? 'checked' : '' }} style="cursor: pointer; min-width: 17px; height: 17px; accent-color: var(--green);">
                         <label class="form-check-label small text-muted" for="dpaConsent" style="font-size: 0.8rem; line-height: 1.45; cursor: pointer;">
                             I have read and agree to the collection, processing, and integrity verification of my educational records under the 
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#dpaPolicyModal" class="fw-semibold text-decoration-underline" style="color: var(--green);">Data Privacy Act of 2012 (R.A. 10173)</a> and the CLSU OSA Privacy Policy.
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#dpaPolicyModal" class="fw-semibold text-decoration-underline" style="color: var(--green);">Data Privacy Act of 2012 (R.A. 10173)</a> and the CLSU OSA Privacy Policy. 
+                            <a href="javascript:void(0)" onclick="showCorSealModal()" class="text-success text-decoration-none fw-semibold ms-1"><i class="fa-solid fa-shield-halved"></i> View NPC Seal</a>
                         </label>
                     </div>
                     @error('dpa_consent')
@@ -730,6 +731,7 @@
 </script>
 
     <x-auth-modal />
+    <x-cor-seal-modal :autoShow="false" />
 </main>
 </body>
 </html>

@@ -570,14 +570,20 @@
         </div>
 
         <!-- Hero footer -->
-        <div class="hero-footer mt-4">
-            <div class="brand-circle d-flex align-items-center justify-content-center" style="overflow: hidden; background: rgba(255,255,255,0.15);">
-                <img src="{{ \App\Models\Setting::getLogoUrl() }}" style="width: 28px; height: 28px; object-fit: contain;">
+        <div class="hero-footer mt-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <div class="brand-circle d-flex align-items-center justify-content-center" style="overflow: hidden; background: rgba(255,255,255,0.15);">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" style="width: 28px; height: 28px; object-fit: contain;">
+                </div>
+                <div>
+                    <div class="brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Portal</div>
+                    <div class="brand-sub">{{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}</div>
+                </div>
             </div>
-            <div>
-                <div class="brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Portal</div>
-                <div class="brand-sub">{{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}</div>
-            </div>
+            <button type="button" onclick="showCorSealModal()" class="btn btn-sm text-white text-opacity-90 border border-white-50 rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1.5 shadow-sm" style="background: rgba(255,255,255,0.12); font-size: 0.72rem; cursor: pointer;" title="National Privacy Commission DPO/DPS Registered Seal">
+                <i class="fa-solid fa-shield-halved text-warning"></i>
+                <span>NPC Registered DPO/DPS</span>
+            </button>
         </div>
 
     </div>
@@ -709,6 +715,16 @@
                 <p class="text-center text-muted mt-3 mb-0" style="font-size: 0.83rem;">
                     New student? <a href="{{ route('register') }}" class="fw-bold text-decoration-none" style="color: var(--green);">Create an account</a>
                 </p>
+
+                <!-- Official NPC Trust Seal Trigger -->
+                <div class="text-center mt-3 pt-3 border-top border-light-subtle">
+                    <button type="button" onclick="showCorSealModal()" class="btn btn-sm text-decoration-none d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill" style="background: rgba(12, 78, 45, 0.07); color: var(--green); border: 1px solid rgba(12, 78, 45, 0.2); font-size: 0.76rem; font-weight: 600; cursor: pointer;">
+                        <i class="fa-solid fa-shield-halved text-success"></i>
+                        <span>NPC Seal of Registration</span>
+                        <span class="badge bg-success text-white" style="font-size: 0.62rem; padding: 2px 5px; border-radius: 4px;">VERIFIED</span>
+                    </button>
+                    <div class="text-muted small mt-1" style="font-size: 0.68rem;">Data Privacy Act of 2012 (R.A. 10173) Registered</div>
+                </div>
             </form>
 
             @if(app()->environment('local', 'testing'))
@@ -774,6 +790,7 @@
 </script>
 
     <x-auth-modal :emergencyReadOnly="$emergencyReadOnly ?? false" />
+    <x-cor-seal-modal :autoShow="true" />
 </main>
 </body>
 </html>

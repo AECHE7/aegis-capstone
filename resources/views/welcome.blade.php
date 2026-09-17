@@ -42,7 +42,7 @@
     {{-- JSON-LD Structured Data --}}
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "A.E.G.I.S. CLSU Scholarship Portal",
         "url": "{{ url('/') }}",
@@ -856,9 +856,9 @@
                     <i class="fa-solid fa-gauge-high"></i> Dashboard
                 </a>
             @else
-                <button class="btn-nav-primary border-0" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-tab="login">
+                <a href="{{ route('login') }}" class="btn-nav-primary">
                     <i class="fa-solid fa-right-to-bracket"></i> Sign In / Register
-                </button>
+                </a>
             @endauth
         </div>
 
@@ -906,12 +906,12 @@
                         </a>
                         <form id="hero-logout-form" action="{{ route('logout') }}" method="POST" class="d-none">@csrf</form>
                     @else
-                        <button class="btn-hero-primary border-0" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-tab="register">
+                        <a href="{{ route('register') }}" class="btn-hero-primary">
                             Apply for a Scholarship <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                        <button class="btn-hero-outline border-0 ms-2" data-bs-toggle="modal" data-bs-target="#authModal" data-auth-tab="login">
+                        </a>
+                        <a href="{{ route('login') }}" class="btn-hero-outline ms-2">
                             <i class="fa-solid fa-right-to-bracket"></i> Sign In to Account
-                        </button>
+                        </a>
                     @endauth
                 </div>
 
@@ -949,7 +949,7 @@
                             </div>
                             <div>
                                 <div class="fw-bold text-title small">1. Digital Registration</div>
-                                <div class="text-muted small mt-1">Register using your official @clsu.edu.ph email and activate your account.</div>
+                                <div class="text-muted small mt-1">Register using your official @@clsu.edu.ph email and activate your account.</div>
                             </div>
                         </div>
 
@@ -1117,6 +1117,10 @@
             </div>
             <div class="col-md-6 text-md-end">
                 <p>
+                    <a href="javascript:void(0)" onclick="showCorSealModal()" class="footer-link d-inline-flex align-items-center gap-1 fw-semibold">
+                        <i class="fa-solid fa-shield-halved text-success"></i> NPC Seal of Registration
+                    </a>
+                    <span class="mx-2" style="color: var(--border-color);">|</span>
                     <a href="#" class="footer-link">Privacy Policy</a>
                     <span class="mx-2" style="color: var(--border-color);">|</span>
                     <span class="mono" style="font-size: 0.75rem; color: var(--text-main);">AEGIS Grade Integrity System v2.0</span>
@@ -1149,6 +1153,17 @@
         updateIcon(saved);
     });
 </script>
+
+<!-- Floating Trust Seal Badge (Bottom-Right) -->
+<div class="position-fixed bottom-0 end-0 m-3 z-3">
+    <button type="button" onclick="showCorSealModal()" class="btn btn-sm shadow-lg rounded-pill px-3 py-2 d-flex align-items-center gap-2 border bg-white" style="color: var(--clsu-green); border-color: rgba(12, 78, 45, 0.25) !important; font-size: 0.76rem; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;" title="View official National Privacy Commission Certificate of Registration">
+        <span class="d-inline-block rounded-circle bg-success" style="width: 8px; height: 8px; animation: pulse-dot 2s infinite;"></span>
+        <i class="fa-solid fa-shield-halved text-success"></i>
+        <span>NPC Seal of Registration</span>
+    </button>
+</div>
+
+<x-cor-seal-modal :autoShow="true" />
 
 </body>
 </html>

@@ -208,9 +208,33 @@ The current phase focuses on integrating critical operational, legal, and user-e
     - Validated in `RegisteredUserController` and `StoreApplicationRequest`.
 
 ### Automated Test Coverage
+- `Tests\Feature\NpcSealTest`: 4 passed, 20 assertions.
 - `Tests\Feature\UserManagementAndEnhancementsTest`: 6 passed, 22 assertions.
 - `Tests\Feature\AnnouncementBoardTest`: 3 passed, 10 assertions.
 - `Tests\Feature\MfaAuthenticationTest`: 9 passed, 38 assertions.
 - `Tests\Feature\ScholarshipRenewalTest`: 2 passed, 6 assertions.
-- **Total**: 20 feature tests passed (76 assertions) with zero regressions.
+- **Total**: 24 feature tests passed (96 assertions) with zero regressions.
 
+---
+
+## 5. National Privacy Commission (NPC) Seal of Registration Integration
+
+### Context & Implementation
+In compliance with Republic Act No. 10173 (Data Privacy Act of 2012) and matching the official Central Luzon State University (CLSU) Admissions system standard (`admissions.clsu.edu.ph/office-of-admissions/`), the official **NPC Seal of Registration** (DPO/DPS Registered) has been integrated into the AEGIS portal:
+
+1. **Official NPC Seal Asset (`public/images/CORSeal.jpg`)**:
+   - Downloaded and verified the high-resolution certificate seal issued to CLSU with Data Protection Officer (DPO) and Data Processing System (DPS) certification.
+   - Includes Commissioner signature, dynamic QR verification, validity period (12 November 2026), and motto *"Datos ng Pilipino, Protektado Ko!"*.
+
+2. **Reusable Component (`resources/views/components/cor-seal-modal.blade.php`)**:
+   - Created Blade component matching CLSU's official green gradient header (`#0C4E2D` to `#00754A`), gold shield icon, keyhole seal image, and green "I Understand" dismissal action.
+   - Smooth scale and opacity transitions, keyboard escape key dismissal, outside-click backdrop dismissal, and configurable auto-show trigger.
+
+3. **Landing Gateway (`resources/views/auth/login.blade.php`) & Full Portal (`resources/views/welcome.blade.php`)**:
+   - Integrated `<x-cor-seal-modal :autoShow="true" />` to greet visitors with official transparency.
+   - Added verified trust badges and footer links for on-demand re-opening of the certificate.
+   - Added floating trust seal widget at the bottom right corner of `welcome.blade.php`.
+   - Added NPC seal modal link to student registration form (`register.blade.php`) alongside Data Privacy Act agreement.
+
+4. **Automated Verification**:
+   - Created `tests/Feature/NpcSealTest.php` with 4 dedicated feature tests verifying asset integrity, landing page rendering, welcome page rendering, and register page DPA link.

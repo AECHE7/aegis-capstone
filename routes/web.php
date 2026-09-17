@@ -26,6 +26,10 @@ Route::get('/locale/{lang}', function (string $lang) {
     return redirect()->back();
 })->name('locale.set');
 
+Route::get('/welcome', function () {
+    return view('welcome');
+})->name('welcome');
+
 Route::get('/scholarships', [\App\Http\Controllers\ScholarshipController::class, 'catalog'])->name('scholarships.catalog');
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
 Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
