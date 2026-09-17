@@ -362,3 +362,35 @@ The AEGIS visual fraud & OCR pipeline runs on a Python microservice deployed on 
 3. **Automated Verification**:
    - Feature tests in `tests/Feature/StudentPurgeAndDemoTest.php` asserting that each role only renders its own guide and asserts `assertDontSee()` for other roles' guides.
 
+---
+
+## 9. Justifiable AI Forensic Image Scanning & Evidence Calibration
+
+### Context & Justifiability Analysis
+To maintain ethical alignment, academic due process, and algorithmic accountability for the Central Luzon State University (CLSU) Office of Student Affairs (OSA), the AI image scanning and grade verification pipeline was rigorously audited.
+
+### Justifiable Architectural Strengths
+1. **Explainable 4-Pillar Fusion Model (`fusion_scoring.py`)**: Fuses evidence across Structural OCR (35%), Compression/ELA (25%), Sensor/Spatial (25%), and Metadata/Provenance (15%) rather than relying on a black-box model.
+2. **Document Syntax Gate (`document_syntax_gate.py`)**: Distinguishes valid academic transcripts from non-document assets (memes, selfies, graduation photos), classifying unrecognized files as `"Review Needed"` (38%–50%) instead of branding the student as a 98% fraudulent forger.
+3. **OCR Credit Mechanism**: Valid GWA matches apply a dampening credit (`fraud_probability = max(6.0, fraud_probability - 15.0)`), insulating honest applicants from innocent mobile camera compression noise.
+4. **Advisory Human-in-the-Loop Review**: The AI never auto-rejects; auto-approval is reserved only for pristine, anomaly-free documents.
+
+### Unjustifiable Flaws & Identified Biases
+1. **Hardcoded 99.00% Fraud Penalty on Any OCR Variance (`ScanDocumentJob.php`)**: A minor single-character OCR misread (e.g. `1.75` read as `1.76` or `1.78`, diff `0.02`) instantly branded a student with 99.00% criminal fraud.
+2. **Destructive EXIF `max()` Override**: Overrode the 4-Pillar fusion engine, causing innocent gallery cropping tools or 7-day-old photos to push clean 6% documents into high risk.
+3. **Fragile OCR Regex (`gwa_ocr.py`)**: Failed to parse 3-decimal grades (`1.750`), commas (`1,75`), or standard Philippine registrar headers (`SEM. AVERAGE`, `GEN. WT. AVE.`).
+4. **Review Studio Data Disconnect (`review.blade.php`)**: Failed to render extracted GWA values in standard V2 scans, displaying "No OCR Data" even when extraction succeeded.
+
+### Planned Calibrated Adjustments
+1. **Tiered Discrepancy Engine in `ScanDocumentJob.php`**:
+   - Match (`diff <= 0.01`): Verified Authentic (`Authentic`).
+   - Minor Variance (`0.01 < diff <= 0.05`): Flagged as `Review Needed (Minor Grade Variance)` with moderate score (+20%), preserving due process for human eye review.
+   - Significant Grade Inflation (`diff > 0.05` where declared grade is higher than transcript): Flagged as `Tampered (Grade Discrepancy)` (`99.00%`).
+   - Inverse Variance (`diff > 0.05` where declared grade is lower than transcript): Flagged as `Review Needed (Grade Input Variance)` (`45.0%`).
+2. **Bounded Metadata Scoring**: Ingest EXIF risk into Pillar 4 rather than using a raw `max()` override.
+3. **Resilient OCR Normalization in `gwa_ocr.py`**: Support `[1-5][\.,][0-9]{1,3}`, comma-to-dot normalization, and 3-decimal rounding.
+4. **Transparent Evaluator Studio Display in `review.blade.php`**: Always pass `extracted_gwa` and render exact comparison badges (`Verified (1.75)`, `Variance (Decl: 1.75 vs OCR: 1.78)`, `Mismatch (Decl: 1.75 vs OCR: 2.50)`).
+5. **Hugging Face Spaces Synchronization (`Xyoul/aegis-ai`)**:
+   - Both `pipelines/gwa_ocr.py` (Philippine registrar regex expansion) and `pipelines/image_forensics_v2.py` (Document Syntax Gate & 4-Pillar evidence integration) were synchronized and deployed to the Hugging Face production Space via commit `f866b3c`.
+
+
