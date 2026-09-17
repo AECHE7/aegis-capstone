@@ -71,7 +71,7 @@
                             </div>
                         @endif
 
-                        @if(isset($errors) && $errors->any() && !old('is_register'))
+                        @if(old('from_modal') && isset($errors) && $errors->any() && !old('is_register'))
                             <div class="alert alert-danger alert-dismissible fade show small rounded-3 mb-3 border-0" role="alert" style="background: #fee2e2; color: #b91c1c;">
                                 <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ $errors->first() }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -80,6 +80,7 @@
 
                         <form method="POST" action="{{ route('login') }}" id="modalLoginForm">
                             @csrf
+                            <input type="hidden" name="from_modal" value="1">
                             <input type="hidden" name="is_register" value="0">
 
                             <div class="mb-3">
@@ -132,7 +133,7 @@
 
                     {{-- ── TAB 2: REGISTER FORM PANEL ─────────────────────────── --}}
                     <div class="tab-pane fade" id="registerTabPanel" role="tabpanel" aria-labelledby="authTabRegister">
-                        @if(isset($errors) && $errors->any() && old('is_register'))
+                        @if(old('from_modal') && isset($errors) && $errors->any() && old('is_register'))
                             <div class="alert alert-danger alert-dismissible fade show small rounded-3 mb-3 border-0" role="alert" style="background: #fee2e2; color: #b91c1c;">
                                 <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ $errors->first() }}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -141,6 +142,7 @@
 
                         <form method="POST" action="{{ route('register') }}" id="modalRegisterForm">
                             @csrf
+                            <input type="hidden" name="from_modal" value="1">
                             <input type="hidden" name="is_register" value="1">
 
                             <div class="mb-3">
@@ -378,13 +380,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Auto-launch modal if validation errors exist in session or URL query parameter requests it
+    // Auto-launch modal ONLY if the submission originated from the modal itself or URL query parameter requests it
     const urlParams = new URLSearchParams(window.location.search);
     const showModalParam = urlParams.get('showModal');
+    const fromModal = @json(old('from_modal') === '1');
     const hasErrors = @json(isset($errors) && $errors->any());
     const isRegister = @json(old('is_register') === '1');
 
-    if (hasErrors || showModalParam) {
+    if ((fromModal && hasErrors) || showModalParam) {
         const modalEl = document.getElementById('authModal');
         if (modalEl && typeof bootstrap !== 'undefined') {
             const authModal = bootstrap.Modal.getOrCreateInstance(modalEl);

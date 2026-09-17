@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AuthModalTest extends TestCase
 {
+    use RefreshDatabase;
     /**
      * Test that login page loads auth modal component
      *
@@ -116,5 +117,23 @@ class AuthModalTest extends TestCase
         $response->assertSee('passwordInput.addEventListener', false);
         $response->assertSee('checkPasswordMatch', false);
         $response->assertSee('strengthBar.style.width', false);
+    }
+
+    /**
+     * Test that validation error on standalone register page does not set from_modal
+     */
+    public function test_standalone_registration_validation_error_does_not_flag_from_modal()
+    {
+        $response = $this->from('/register')->post('/register', [
+            'name' => 'Juan Dela Cruz',
+            'email' => 'juan@gmail.com', // Non-CLSU domain
+            'password' => 'ValidPass123!',
+            'password_confirmation' => 'ValidPass123!',
+            'dpa_consent' => '1',
+        ]);
+
+        $response->assertRedirect('/register');
+        $response->assertSessionHasErrors(['email']);
+        $this->assertNull(session()->getOldInput('from_modal'));
     }
 }
