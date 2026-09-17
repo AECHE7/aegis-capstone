@@ -201,7 +201,10 @@ class SystemSettingsTest extends TestCase
     #[Test]
     public function scan_document_job_uses_custom_gwa_tolerance()
     {
-        // Let's set tolerance to 0.05. Mismatched GWA of 1.85 (diff is 0.10) exceeds tolerance.
+        // In the Philippine grading system, lower numbers = better grades (1.0 = excellent, 5.0 = failing).
+        // Set tolerance to 0.05. Declared GWA=1.75, extracted=2.50.
+        // Diff = 0.75 > 0.05, and declared(1.75) > extracted(2.50) in raw value BUT in academic quality,
+        // declared is HIGHER (better) quality than extracted → Grade inflation → Tier 3 → 99% Tampered.
         Setting::set('gwa_discrepancy_tolerance', '0.05');
 
         Http::fake([
@@ -209,7 +212,7 @@ class SystemSettingsTest extends TestCase
                 'status' => 'success',
                 'fraud_probability' => 15.0,
                 'classification' => 'authentic',
-                'extracted_gwa' => 1.85,
+                'extracted_gwa' => 2.50,  // Student declared 1.75 (better), transcript shows 2.50 (worse)
                 'paths' => [
                     'heatmap_path' => 'heatmap_outputs/test_heatmap.jpg',
                 ]
@@ -221,6 +224,7 @@ class SystemSettingsTest extends TestCase
         $aiResult = AIResult::where('document_id', $this->document->id)->first();
         $this->assertEquals(99.00, $aiResult->fraud_probability);
         $this->assertEquals('Tampered (Grade Discrepancy)', $aiResult->classification);
+        $this->assertContains('gwa_discrepancy:declared_1.75_vs_extracted_2.5', $aiResult->anomaly_indicators);
     }
 
     #[Test]

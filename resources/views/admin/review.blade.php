@@ -449,18 +449,41 @@
                                     <small class="text-muted" style="font-size:0.65rem;">Weight: 35%</small>
                                 </div>
                                 @php
+                                    // Resolve extracted GWA — prefer deep_analysis_report, fall back to top-level
+                                    $extracted = $doc->aiResult->deep_analysis_report['extracted_gwa']
+                                        ?? ($doc->aiResult->deep_analysis_report['gwa'] ?? null);
+
+                                    $gwaDiff = null;
+                                    $gwaVariance = false;
                                     $gwaMismatch = false;
-                                    $extracted = $doc->aiResult->deep_analysis_report['extracted_gwa'] ?? null;
+                                    $gwaVerified = false;
+                                    $gwaTolerance = (float) \App\Models\Setting::get('gwa_discrepancy_tolerance', 0.01);
+
                                     if ($extracted !== null && !empty($application->gwa)) {
-                                        $gwaMismatch = abs((float)$application->gwa - (float)$extracted) > 0.01;
+                                        $gwaDiff = abs((float)$application->gwa - (float)$extracted);
+                                        if ($gwaDiff <= $gwaTolerance) {
+                                            $gwaVerified = true;
+                                        } elseif ($gwaDiff <= 0.05) {
+                                            $gwaVariance = true;  // Minor OCR variance — amber
+                                        } else {
+                                            $gwaMismatch = true;  // Significant discrepancy — red
+                                        }
                                     }
                                 @endphp
                                 @if($extracted === null)
                                     <span class="badge bg-secondary text-white" style="font-size:0.68rem;">No OCR Data</span>
-                                @elseif($gwaMismatch)
-                                    <span class="badge bg-danger text-white" style="font-size:0.68rem;">Mismatch</span>
+                                @elseif($gwaVerified)
+                                    <span class="badge bg-success text-white" style="font-size:0.68rem;" title="Declared: {{ $application->gwa }}, Extracted: {{ number_format((float)$extracted, 2) }}">
+                                        Verified ({{ number_format((float)$extracted, 2) }})
+                                    </span>
+                                @elseif($gwaVariance)
+                                    <span class="badge bg-warning text-dark" style="font-size:0.68rem;" title="Minor OCR variance. Declared: {{ $application->gwa }}, OCR: {{ number_format((float)$extracted, 2) }}">
+                                        Variance (Decl: {{ $application->gwa }} vs OCR: {{ number_format((float)$extracted, 2) }})
+                                    </span>
                                 @else
-                                    <span class="badge bg-success text-white" style="font-size:0.68rem;">Verified</span>
+                                    <span class="badge bg-danger text-white" style="font-size:0.68rem;" title="Significant mismatch. Declared: {{ $application->gwa }}, OCR: {{ number_format((float)$extracted, 2) }}">
+                                        Mismatch (Decl: {{ $application->gwa }} vs OCR: {{ number_format((float)$extracted, 2) }})
+                                    </span>
                                 @endif
                             </div>
 

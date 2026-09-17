@@ -145,18 +145,61 @@ class ScanDocumentJob implements ShouldQueue
                 $thresholdSetting = (float) \App\Models\Setting::get('ai_fraud_threshold', 70.0);
                 $classification = $fraudProbability >= $thresholdSetting ? 'tampered' : ($result['classification'] ?? 'Authentic');
 
-                // GWA Integrity Validation (Logical Fraud Detection)
+                // GWA Integrity Validation — 4-Tier Justifiable Discrepancy Engine
+                // -----------------------------------------------------------------------
+                // Replacing the previous blunt 99.00% penalty on any OCR variance.
+                // Tesseract OCR on mobile photos frequently misreads single digits (e.g.
+                // 1.75 → 1.76) or reads a per-semester GWA when the student declared a
+                // cumulative GWA. A proportional tiered engine is academically defensible.
+                // -----------------------------------------------------------------------
+                $anomalyIndicators = []; // Initialized here; merged with AI indicators below
                 if ($extractedGwa !== null && !empty($application->gwa)) {
-                    $declaredGwa = (float) $application->gwa;
-                    $gwaTolerance = (float) \App\Models\Setting::get('gwa_discrepancy_tolerance', 0.01);
-                    if (abs($declaredGwa - (float)$extractedGwa) > $gwaTolerance) {
+                    $declaredGwa    = (float) $application->gwa;
+                    $extractedGwaF  = (float) $extractedGwa;
+                    $gwaTolerance   = (float) \App\Models\Setting::get('gwa_discrepancy_tolerance', 0.01);
+                    $diff           = abs($declaredGwa - $extractedGwaF);
+
+                    if ($diff <= $gwaTolerance) {
+                        // Tier 1 — Match: GWA verified. No penalty.
+                        Log::info("ScanDocumentJob: GWA verified for Application ID {$application->id}. Declared: {$declaredGwa}, Extracted: {$extractedGwaF}");
+
+                    } elseif ($diff <= 0.05) {
+                        // Tier 2 — Minor OCR Variance (≤ 0.05): Likely a Tesseract digit
+                        // misread or format rounding. Flag for human eye review — do NOT
+                        // criminally brand the student. Moderate advisory penalty only.
+                        $fraudProbability = min(100.0, $fraudProbability + 20.0);
+                        if ($fraudProbability < 35.0) { $fraudProbability = 35.0; } // Ensure Review Needed range
+                        $classification   = 'Review Needed (Minor Grade Variance)';
+                        $anomalyIndicators[] = "gwa_minor_variance:declared_{$declaredGwa}_vs_extracted_{$extractedGwaF}";
+                        Log::warning("ScanDocumentJob: Minor GWA variance (diff={$diff}) for Application ID {$application->id}. Declared: {$declaredGwa}, Extracted: {$extractedGwaF}. Flagged for review.");
+
+                    } elseif ($declaredGwa < $extractedGwaF) {
+                        // Tier 3 — Grade Inflation: In the Philippine grading system,
+                        // lower numbers = better grades (1.0 = excellent, 5.0 = failing).
+                        // Student declared a LOWER (better) numeric grade than what OCR
+                        // extracted from the transcript. This is a strong fraud signal.
                         $fraudProbability = 99.00;
-                        $classification = 'Tampered (Grade Discrepancy)';
-                        Log::warning("ScanDocumentJob: GWA mismatch detected for Application ID {$application->id}. Declared: {$declaredGwa}, Extracted: {$extractedGwa}");
+                        $classification   = 'Tampered (Grade Discrepancy)';
+                        $anomalyIndicators[] = "gwa_discrepancy:declared_{$declaredGwa}_vs_extracted_{$extractedGwaF}";
+                        Log::warning("ScanDocumentJob: Grade inflation discrepancy (diff={$diff}, PH-scale) for Application ID {$application->id}. Declared: {$declaredGwa}, Extracted: {$extractedGwaF}.");
+
+                    } else {
+                        // Tier 4 — Inverse Variance: Student declared a HIGHER (worse)
+                        // numeric grade than transcript shows. Likely a data-entry mistake,
+                        // not fraud — no student would intentionally claim a worse grade.
+                        // Moderate review flag — not a criminal accusation.
+                        $fraudProbability = min(100.0, max(45.0, $fraudProbability));
+                        $classification   = 'Review Needed (Grade Input Variance)';
+                        $anomalyIndicators[] = "gwa_input_variance:declared_{$declaredGwa}_vs_extracted_{$extractedGwaF}";
+                        Log::info("ScanDocumentJob: Inverse GWA variance (diff={$diff}, PH-scale) for Application ID {$application->id}. Declared: {$declaredGwa}, Extracted: {$extractedGwaF}.");
                     }
                 }
 
-                $anomalyIndicators = $result['anomaly_indicators'] ?? [];
+                // Merge AI-provided anomaly indicators with GWA-derived indicators.
+                // IMPORTANT: Do NOT overwrite with $result['anomaly_indicators'] directly — this
+                // would destroy the GWA discrepancy indicators we just appended above.
+                $aiAnomalyIndicators = $result['anomaly_indicators'] ?? [];
+                $anomalyIndicators = array_values(array_unique(array_merge($aiAnomalyIndicators, $anomalyIndicators)));
                 $detectedSoftware = $result['detected_software'] ?? null;
 
                 // Run native EXIF metadata inspection for image uploads
@@ -166,8 +209,12 @@ class ScanDocumentJob implements ShouldQueue
                     if (!empty($exifRes['indicators'])) {
                         $anomalyIndicators = array_values(array_unique(array_merge($anomalyIndicators, $exifRes['indicators'])));
                     }
+                    // EXIF metadata risk contributes proportionally as Pillar 4 (Metadata Provenance — 15% weight).
+                    // Using bounded additive scoring instead of a destructive max() override that previously
+                    // caused innocent gallery-cropped mobile photos to dominate the visual fusion score.
                     if ($exifRes['risk_score'] > 0) {
-                        $fraudProbability = min(100.0, max($fraudProbability, $exifRes['risk_score']));
+                        $exifContribution = $exifRes['risk_score'] * 0.15; // 15% Pillar 4 weight
+                        $fraudProbability = min(100.0, $fraudProbability + $exifContribution);
                     }
                     if (!empty($exifRes['software']) && empty($detectedSoftware)) {
                         $detectedSoftware = $exifRes['software'];
@@ -177,6 +224,15 @@ class ScanDocumentJob implements ShouldQueue
                 $deepReport = $result['deep_analysis_report'] ?? null;
                 if ($deepReport && isset($result['visualizations'])) {
                     $deepReport['visualizations'] = $result['visualizations'];
+                }
+
+                // Always store extracted_gwa in deep_analysis_report so the Evaluator Review
+                // Studio can display exact declared vs. extracted values in the OCR pillar badge.
+                if ($extractedGwa !== null) {
+                    if ($deepReport === null) { $deepReport = []; }
+                    if (!isset($deepReport['extracted_gwa'])) {
+                        $deepReport['extracted_gwa'] = (float) $extractedGwa;
+                    }
                 }
 
                 AIResult::updateOrCreate(
