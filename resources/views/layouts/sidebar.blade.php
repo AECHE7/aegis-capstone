@@ -191,19 +191,11 @@
             @endif
 
             <a href="{{ route('student.profile') }}"
-               class="sidebar-link {{ request()->routeIs('student.profile') ? 'active' : '' }}"
-               {{ request()->routeIs('student.profile') ? 'aria-current="page"' : '' }}
-               data-tooltip="My Profile">
+               class="sidebar-link {{ request()->routeIs('student.profile') || request()->routeIs('profile.security') ? 'active' : '' }}"
+               {{ request()->routeIs('student.profile') || request()->routeIs('profile.security') ? 'aria-current="page"' : '' }}
+               data-tooltip="Profile & Security">
                 <span class="sidebar-icon"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
-                <span class="sidebar-text">My Profile</span>
-            </a>
-
-            <a href="{{ route('profile.security') }}"
-               class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
-               {{ request()->routeIs('profile.security') ? 'aria-current="page"' : '' }}
-               data-tooltip="Settings">
-                <span class="sidebar-icon"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></span>
-                <span class="sidebar-text">Account Settings</span>
+                <span class="sidebar-text">Profile & Security</span>
             </a>
         @endif
 

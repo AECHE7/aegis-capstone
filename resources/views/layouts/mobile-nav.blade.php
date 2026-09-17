@@ -23,7 +23,7 @@
 
         <a href="{{ route('student.profile') }}" 
            class="mobile-nav-item {{ request()->routeIs('student.profile') || request()->routeIs('profile.security') ? 'active' : '' }}">
-            <i class="fa-solid fa-user-gear"></i>
+            <i class="fa-solid fa-id-card"></i>
             <span>Profile</span>
         </a>
     @elseif(auth()->user()->role === 'admin')
