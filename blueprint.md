@@ -393,4 +393,17 @@ To maintain ethical alignment, academic due process, and algorithmic accountabil
 5. **Hugging Face Spaces Synchronization (`Xyoul/aegis-ai`)**:
    - Both `pipelines/gwa_ocr.py` (Philippine registrar regex expansion) and `pipelines/image_forensics_v2.py` (Document Syntax Gate & 4-Pillar evidence integration) were synchronized and deployed to the Hugging Face production Space via commit `f866b3c`.
 
+---
+
+## 10. Auth Modal De-duplication on Standalone Pages (`/register` & `/login`)
+
+### Problem
+When students submitted the standalone registration form on `/register` and encountered a validation error (such as missing a required symbol in the password or entering an invalid domain), the session contained `$errors`. The `<x-auth-modal />` component included on the page had an unqualified auto-popup check (`if (hasErrors || showModalParam)`). This caused the interactive Sign-In/Register modal to unexpectedly pop up over the top of the standalone registration page, creating a confusing duplicate form interface.
+
+### Resolution
+1. **Modal Origin Flagging**: Added `<input type="hidden" name="from_modal" value="1">` to both `modalLoginForm` and `modalRegisterForm` within [`auth-modal.blade.php`](file:///f:/aegis-capstone/resources/views/components/auth-modal.blade.php).
+2. **Conditional Auto-Display Logic**: Updated the modal initialization JavaScript so it only automatically invokes `authModal.show()` if the submission originated from the modal itself (`fromModal && hasErrors`) or if explicitly requested via URL parameter (`?showModal=...`).
+3. **Targeted Alert Rendering**: Error alerts inside the modal are now constrained by `@if(old('from_modal') && ...)` to prevent ghost error messages.
+4. **Automated Verification**: Added regression test `test_standalone_registration_validation_error_does_not_flag_from_modal` in `tests/Feature/AuthModalTest.php` (8/8 tests passing).
+
 
