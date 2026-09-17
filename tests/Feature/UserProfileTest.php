@@ -202,4 +202,28 @@ class UserProfileTest extends TestCase
             'name' => 'Updated Admin Name',
         ]);
     }
+
+    public function test_student_can_update_profile_via_auth_profile_update_route(): void
+    {
+        $response = $this->actingAs($this->student)->post('/profile/update', [
+            'name' => 'Noriel Gadiano',
+            'clsu_id_number' => '2023-2546',
+            'college' => 'College of Engineering',
+            'course' => 'BS Information Technology',
+            'year_level' => '4th Year',
+            'contact_number' => '09071067137',
+            'guardian_name' => 'Renato Gadiano',
+            'emergency_contact_number' => '09071067137',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $profile = StudentProfile::where('user_id', $this->student->id)->first();
+        $this->assertNotNull($profile);
+        $this->assertEquals('2023-2546', $profile->clsu_id_number);
+        $this->assertEquals('Renato Gadiano', $profile->guardian_name);
+        $this->assertEquals('09071067137', $profile->emergency_contact_number);
+        $this->assertTrue($this->student->fresh()->isProfileComplete());
+    }
 }

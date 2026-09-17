@@ -43,15 +43,31 @@
                         <i class="fa-solid fa-triangle-exclamation fs-5"></i>
                         <div>{{ session('warning') }}</div>
                     </div>
-                @endif
-
-                @if(session('success') && (str_contains(session('success'), 'Profile') || str_contains(session('success'), 'profile')))
-                    <div class="alert alert-success border-0 small mb-4" style="background-color: #dcfce7; color: #14532d; border-radius: 12px;">
-                        <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
+                @elseif($user->role === 'student' && !$user->isProfileComplete())
+                    <div class="alert alert-warning border-0 small mb-4 d-flex align-items-center gap-2" style="background-color: #fef3c7; color: #92400e; border-radius: 12px;">
+                        <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                        <div>Please complete your basic student profile information below before accessing the scholarship portal.</div>
+                    </div>
+                @elseif($user->role === 'student' && $user->isProfileComplete())
+                    <div class="alert alert-success border-0 small mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background-color: #ecfdf5; color: #065f46; border-radius: 12px;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-check fs-5 text-success"></i>
+                            <div><strong>Student Profile Complete:</strong> Your verified student information is saved and active.</div>
+                        </div>
+                        <a href="{{ route('student.apply') }}" class="btn btn-sm btn-success text-white fw-bold px-3 shadow-sm" style="border-radius: 8px;">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Apply for Scholarship
+                        </a>
                     </div>
                 @endif
 
-                @if($errors->any() && ($errors->has('name') || $errors->has('clsu_id_number') || $errors->has('contact_number') || $errors->has('college') || $errors->has('course') || $errors->has('year_level')))
+                @if(session('success') && !str_contains(strtolower(session('success')), 'password'))
+                    <div class="alert alert-success border-0 small mb-4 d-flex align-items-center gap-2" style="background-color: #dcfce7; color: #14532d; border-radius: 12px;">
+                        <i class="fa-solid fa-circle-check fs-5"></i>
+                        <div>{{ session('success') }}</div>
+                    </div>
+                @endif
+
+                @if($errors->any() && ($errors->has('name') || $errors->has('clsu_id_number') || $errors->has('contact_number') || $errors->has('college') || $errors->has('course') || $errors->has('year_level') || $errors->has('guardian_name') || $errors->has('emergency_contact_number')))
                     <div class="alert alert-danger border-0 small mb-4" style="background-color: #fee2e2; color: #7f1d1d; border-radius: 12px;">
                         <ul class="mb-0 ps-3">
                             @foreach($errors->all() as $error)
@@ -61,7 +77,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('profile.update') }}" method="POST">
+                <form action="{{ $user->role === 'student' ? route('student.profile.update') : route('profile.update') }}" method="POST">
                     @csrf
                     
                     <div class="row g-3">

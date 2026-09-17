@@ -381,14 +381,17 @@ class AuthController extends Controller
         if ($user->role === 'student') {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'clsu_id_number' => ['required', 'string', 'regex:/^\d{4}-\d{4}$/'],
+                'clsu_id_number' => ['required', 'string', 'max:50', 'regex:/^\d{4}-\d{4}$/'],
+                'college' => 'required|string|max:255',
+                'course' => 'required|string|max:255',
+                'year_level' => 'required|string|max:50',
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
-                'college' => 'required|string',
-                'course' => 'required|string',
-                'year_level' => 'required|string',
+                'guardian_name' => 'required|string|max:255',
+                'emergency_contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
             ], [
-                'clsu_id_number.regex' => 'The CLSU ID number must be in the format YYYY-XXXX (e.g. 2023-1234).',
+                'clsu_id_number.regex' => 'The CLSU ID number format must be YYYY-XXXX (e.g. 2023-4567).',
                 'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
+                'emergency_contact_number.regex' => 'The emergency contact number must be a valid Philippine mobile number (e.g. 09123456789).',
             ]);
 
             $user->name = $request->name;
@@ -398,12 +401,17 @@ class AuthController extends Controller
                 ['user_id' => $user->id],
                 [
                     'clsu_id_number' => $request->clsu_id_number,
-                    'contact_number' => $request->contact_number,
                     'college' => $request->college,
                     'course' => $request->course,
                     'year_level' => $request->year_level,
+                    'contact_number' => $request->contact_number,
+                    'guardian_name' => $request->guardian_name,
+                    'emergency_contact_number' => $request->emergency_contact_number,
                 ]
             );
+
+            // Fresh profile state
+            $user->load('profile');
         } else {
             $request->validate([
                 'name' => 'required|string|max:255',
@@ -413,11 +421,15 @@ class AuthController extends Controller
             $user->save();
         }
 
-        if ($request->expectsJson()) {
+        if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Profile updated successfully!'
             ]);
+        }
+
+        if ($user->role === 'student') {
+            return redirect()->route('student.profile')->with('success', 'Student profile updated successfully!');
         }
 
         return redirect()->route('profile.security')->with('success', 'Profile updated successfully!');
