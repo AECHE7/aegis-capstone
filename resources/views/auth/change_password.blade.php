@@ -13,6 +13,13 @@
                 <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-user-gear me-2 text-success"></i> Profile Details</h5>
             </div>
             <div class="card-body p-4">
+                @if(session('warning'))
+                    <div class="alert alert-warning border-0 small mb-4 d-flex align-items-center gap-2" style="background-color: #fef3c7; color: #92400e; border-radius: 12px;">
+                        <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                        <div>{{ session('warning') }}</div>
+                    </div>
+                @endif
+
                 @if(session('success') && (str_contains(session('success'), 'Profile') || str_contains(session('success'), 'profile')))
                     <div class="alert alert-success border-0 small mb-4" style="background-color: #dcfce7; color: #14532d; border-radius: 12px;">
                         <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}

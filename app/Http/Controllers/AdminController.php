@@ -525,10 +525,18 @@ class AdminController extends Controller
 
         // 4. Send automated email notification
         if ($application->user && $application->user->email) {
-            $mailSubject = "[A.E.G.I.S.] Official Update: Application " . strtoupper($application->status);
+            $isApprovedRenewal = ($application->status === 'Approved' && $application->is_renewal);
+            $mailSubject = $isApprovedRenewal
+                ? "[A.E.G.I.S.] Scholarship Grant Successfully Renewed: {$application->program_name}"
+                : "[A.E.G.I.S.] Official Update: Application " . strtoupper($application->status);
+
             try {
-                $application->load(['user.profile', 'document.aiResult', 'evaluator']);
-                Mail::to($application->user->email)->send(new ApplicationStatusMail($application));
+                $application->load(['user.profile', 'document.aiResult', 'evaluator', 'academicTerm']);
+                if ($isApprovedRenewal) {
+                    Mail::to($application->user->email)->send(new \App\Mail\ScholarshipRenewalMail($application));
+                } else {
+                    Mail::to($application->user->email)->send(new ApplicationStatusMail($application));
+                }
 
                 // Log email in EmailLog
                 \App\Models\EmailLog::create([
@@ -565,6 +573,82 @@ class AdminController extends Controller
 
         return redirect()->route('admin.dashboard')
             ->with('success', 'Application APP-' . $application->id . ' has been successfully ' . $request->status . '.');
+    }
+
+    /**
+     * Revoke or remove an approved scholarship grant (Scholarship Revocation Workflow).
+     */
+    public function revokeScholarship(\Illuminate\Http\Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|min:5|max:1000'
+        ]);
+
+        $application = \App\Models\Application::findOrFail($id);
+        $this->validateAdminAccess($application);
+
+        $evaluatorId = auth()->id();
+        $reason = $request->input('reason');
+
+        $application->update([
+            'status' => 'Revoked',
+            'remarks' => $reason,
+            'evaluated_by' => $evaluatorId,
+        ]);
+
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => 'Revoked',
+            'remarks' => "Grant revoked: {$reason}",
+            'changed_by' => $evaluatorId,
+        ]);
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            $evaluatorId,
+            'scholarship_revoked',
+            'Application',
+            $application->id,
+            "Revoked scholarship grant for APP-{$application->id} ({$application->program_name}). Reason: {$reason}",
+            $request->ip()
+        );
+
+        // Send Revocation Email Notification
+        if ($application->user && $application->user->email) {
+            $mailSubject = "[A.E.G.I.S.] Official Notice: Scholarship Grant Revocation ({$application->program_name})";
+            try {
+                $application->load(['user.profile', 'evaluator']);
+                Mail::to($application->user->email)->send(new \App\Mail\ScholarshipRevocationMail($application, $reason));
+
+                \App\Models\EmailLog::create([
+                    'application_id' => $application->id,
+                    'recipient' => $application->user->email,
+                    'subject' => $mailSubject,
+                    'content' => "Grant revoked: {$reason}",
+                    'status' => 'sent',
+                ]);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send scholarship revocation email: ' . $e->getMessage());
+                \App\Models\EmailLog::create([
+                    'application_id' => $application->id,
+                    'recipient' => $application->user->email,
+                    'subject' => $mailSubject,
+                    'content' => "Grant revoked: {$reason}",
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Scholarship grant for APP-{$application->id} has been revoked and the student notified.",
+                'status' => 'Revoked',
+            ]);
+        }
+
+        return redirect()->route('admin.review', $application->id)
+            ->with('success', "Scholarship grant for APP-{$application->id} has been revoked and the student notified.");
     }
 
     // 4. Archive Application

@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1060" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="dia" viewBox="0 0 16 10" refX="15" refY="5" markerWidth="14" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,5 L8,0 L16,5 L8,10 z" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1300" height="1060" fill="#FFFFFF"/>
+  <text x="650" y="32" font-size="16" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Figure 11. Class Diagram (Core Domain Models)</text>
+
+  <!-- ============ RELATIONSHIP LINES (drawn first, under boxes) ============ -->
+  <!-- Scholarship to ScholarshipField -->
+  <line x1="290" y1="158" x2="340" y2="134" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="300" y="150" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="316" y="130" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <!-- User to StudentProfile -->
+  <line x1="880" y1="158" x2="930" y2="142" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="888" y="150" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="898" y="138" font-size="10.5" fill="#1A1A1A">0..1</text>
+
+  <!-- Scholarship to Application -->
+  <line x1="175" y1="246" x2="480" y2="440" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="185" y="268" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="435" y="425" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <!-- User to Application -->
+  <line x1="765" y1="246" x2="600" y2="440" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="748" y="268" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="608" y="425" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <!-- Application to ApplicationField -->
+  <line x1="390" y1="544" x2="290" y2="524" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="355" y="538" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="300" y="518" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <!-- Application to StatusLog -->
+  <line x1="640" y1="544" x2="800" y2="524" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="655" y="538" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="770" y="518" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <!-- Application to Document -->
+  <line x1="515" y1="648" x2="505" y2="760" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="524" y="666" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="524" y="748" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <!-- Document to AIResult -->
+  <line x1="620" y1="840" x2="700" y2="832" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="632" y="832" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="676" y="826" font-size="10.5" fill="#1A1A1A">0..1</text>
+
+  <!-- ============ CLASS BOXES ============ -->
+
+  <!-- Scholarship: x=60,y=70,w=230,h=176 -->
+  <g>
+    <rect x="60" y="70" width="230" height="176" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="175" y="90" font-size="12.5" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Scholarship</text>
+    <line x1="60" y1="98" x2="290" y2="98" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="70" y="114" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="70" y="130" font-size="10.5" fill="#1A1A1A">+ name: string</text>
+    <text x="70" y="146" font-size="10.5" fill="#1A1A1A">+ min_gwa_required: decimal</text>
+    <text x="70" y="162" font-size="10.5" fill="#1A1A1A">+ deadline: date</text>
+    <text x="70" y="178" font-size="10.5" fill="#1A1A1A">+ status: string</text>
+    <line x1="60" y1="188" x2="290" y2="188" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="70" y="204" font-size="10" fill="#1A1A1A">+ applications(): hasMany</text>
+    <text x="70" y="220" font-size="10" fill="#1A1A1A">+ fields(): hasMany</text>
+    <text x="70" y="236" font-size="10" fill="#1A1A1A">+ staff(): belongsToMany</text>
+  </g>
+
+  <!-- ScholarshipField: x=340,y=70,w=230,h=128 -->
+  <g>
+    <rect x="340" y="70" width="230" height="128" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="455" y="90" font-size="12.5" font-weight="bold" fill="#1A1A1A" text-anchor="middle">ScholarshipField</text>
+    <line x1="340" y1="98" x2="570" y2="98" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="350" y="114" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="350" y="130" font-size="10.5" fill="#1A1A1A">+ scholarship_id: bigint (FK)</text>
+    <text x="350" y="146" font-size="10.5" fill="#1A1A1A">+ field_name: string</text>
+    <text x="350" y="162" font-size="10.5" fill="#1A1A1A">+ field_type: string</text>
+    <line x1="340" y1="172" x2="570" y2="172" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="350" y="188" font-size="10" fill="#1A1A1A">+ scholarship(): belongsTo</text>
+  </g>
+
+  <!-- User: x=650,y=70,w=230,h=176 -->
+  <g>
+    <rect x="650" y="70" width="230" height="176" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="765" y="90" font-size="12.5" font-weight="bold" fill="#1A1A1A" text-anchor="middle">User</text>
+    <line x1="650" y1="98" x2="880" y2="98" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="660" y="114" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="660" y="130" font-size="10.5" fill="#1A1A1A">+ name: string</text>
+    <text x="660" y="146" font-size="10.5" fill="#1A1A1A">+ email: string</text>
+    <text x="660" y="162" font-size="10.5" fill="#1A1A1A">+ role: string (student/admin/superadmin)</text>
+    <text x="660" y="178" font-size="10.5" fill="#1A1A1A">+ is_active: boolean</text>
+    <line x1="650" y1="188" x2="880" y2="188" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="660" y="204" font-size="10" fill="#1A1A1A">+ applications(): hasMany</text>
+    <text x="660" y="220" font-size="10" fill="#1A1A1A">+ profile(): hasOne</text>
+    <text x="660" y="236" font-size="10" fill="#1A1A1A">+ scholarships(): belongsToMany</text>
+  </g>
+
+  <!-- StudentProfile: x=930,y=70,w=230,h=144 -->
+  <g>
+    <rect x="930" y="70" width="230" height="144" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="1045" y="90" font-size="12.5" font-weight="bold" fill="#1A1A1A" text-anchor="middle">StudentProfile</text>
+    <line x1="930" y1="98" x2="1160" y2="98" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="940" y="114" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="940" y="130" font-size="10.5" fill="#1A1A1A">+ user_id: bigint (FK)</text>
+    <text x="940" y="146" font-size="10.5" fill="#1A1A1A">+ clsu_id_number: string (encrypted)</text>
+    <text x="940" y="162" font-size="10.5" fill="#1A1A1A">+ college / course / year_level: string</text>
+    <line x1="930" y1="172" x2="1160" y2="172" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="940" y="188" font-size="10" fill="#1A1A1A">+ user(): belongsTo</text>
+  </g>
+
+  <!-- ApplicationField: x=60,y=460,w=230,h=128 -->
+  <g>
+    <rect x="60" y="460" width="230" height="128" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="175" y="480" font-size="12.5" font-weight="bold" fill="#1A1A1A" text-anchor="middle">ApplicationField</text>
+    <line x1="60" y1="488" x2="290" y2="488" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="70" y="504" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="70" y="520" font-size="10.5" fill="#1A1A1A">+ application_id: bigint (FK)</text>
+    <text x="70" y="536" font-size="10.5" fill="#1A1A1A">+ field_name: string</text>
+    <text x="70" y="552" font-size="10.5" fill="#1A1A1A">+ field_value: text (encrypted)</text>
+    <line x1="60" y1="562" x2="290" y2="562" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="70" y="578" font-size="10" fill="#1A1A1A">+ application(): belongsTo</text>
+  </g>
+
+  <!-- Application: x=390,y=440,w=250,h=208 -->
+  <g>
+    <rect x="390" y="440" width="250" height="208" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2.5"/>
+    <text x="515" y="462" font-size="13" font-weight="bold" fill="#1F4E79" text-anchor="middle">Application</text>
+    <line x1="390" y1="470" x2="640" y2="470" stroke="#1F4E79" stroke-width="1.5"/>
+    <text x="400" y="486" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="400" y="502" font-size="10.5" fill="#1A1A1A">+ user_id: bigint (FK)</text>
+    <text x="400" y="518" font-size="10.5" fill="#1A1A1A">+ scholarship_id: bigint (FK)</text>
+    <text x="400" y="534" font-size="10.5" fill="#1A1A1A">+ status: string (Pending/Approved/...)</text>
+    <text x="400" y="550" font-size="10.5" fill="#1A1A1A">+ gwa: string</text>
+    <line x1="390" y1="560" x2="640" y2="560" stroke="#1F4E79" stroke-width="1.5"/>
+    <text x="400" y="576" font-size="10" fill="#1A1A1A">+ user(): belongsTo</text>
+    <text x="400" y="592" font-size="10" fill="#1A1A1A">+ scholarship(): belongsTo</text>
+    <text x="400" y="608" font-size="10" fill="#1A1A1A">+ documents(): hasMany</text>
+    <text x="400" y="624" font-size="10" fill="#1A1A1A">+ fields(): hasMany</text>
+    <text x="400" y="640" font-size="10" fill="#1A1A1A">+ statusLogs(): hasMany</text>
+  </g>
+
+  <!-- StatusLog: x=800,y=460,w=230,h=128 -->
+  <g>
+    <rect x="800" y="460" width="230" height="128" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="915" y="480" font-size="12.5" font-weight="bold" fill="#1A1A1A" text-anchor="middle">StatusLog</text>
+    <line x1="800" y1="488" x2="1030" y2="488" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="810" y="504" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="810" y="520" font-size="10.5" fill="#1A1A1A">+ application_id: bigint (FK)</text>
+    <text x="810" y="536" font-size="10.5" fill="#1A1A1A">+ status: string</text>
+    <text x="810" y="552" font-size="10.5" fill="#1A1A1A">+ changed_by: bigint (FK, nullable)</text>
+    <line x1="800" y1="562" x2="1030" y2="562" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="810" y="578" font-size="10" fill="#1A1A1A">+ application(): belongsTo</text>
+  </g>
+
+  <!-- Document: x=390,y=760,w=230,h=160 -->
+  <g>
+    <rect x="390" y="760" width="230" height="160" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="505" y="780" font-size="12.5" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Document</text>
+    <line x1="390" y1="788" x2="620" y2="788" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="400" y="804" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="400" y="820" font-size="10.5" fill="#1A1A1A">+ application_id: bigint (FK)</text>
+    <text x="400" y="836" font-size="10.5" fill="#1A1A1A">+ file_path: string</text>
+    <text x="400" y="852" font-size="10.5" fill="#1A1A1A">+ document_type: string</text>
+    <text x="400" y="868" font-size="10.5" fill="#1A1A1A">+ uploaded_by: bigint (FK, nullable)</text>
+    <line x1="390" y1="878" x2="620" y2="878" stroke="#1A1A1A" stroke-width="1.5"/>
+    <text x="400" y="894" font-size="10" fill="#1A1A1A">+ application(): belongsTo</text>
+    <text x="400" y="910" font-size="10" fill="#1A1A1A">+ aiResult(): hasOne</text>
+  </g>
+
+  <!-- AIResult: x=700,y=760,w=230,h=144 -->
+  <g>
+    <rect x="700" y="760" width="230" height="144" fill="#FFFFFF" stroke="#C77C22" stroke-width="2.5"/>
+    <text x="815" y="780" font-size="12.5" font-weight="bold" fill="#C77C22" text-anchor="middle">AIResult</text>
+    <line x1="700" y1="788" x2="930" y2="788" stroke="#C77C22" stroke-width="1.5"/>
+    <text x="710" y="804" font-size="10.5" fill="#1A1A1A">+ id: bigint</text>
+    <text x="710" y="820" font-size="10.5" fill="#1A1A1A">+ document_id: bigint (FK)</text>
+    <text x="710" y="836" font-size="10.5" fill="#1A1A1A">+ fraud_probability: decimal(5,2)</text>
+    <text x="710" y="852" font-size="10.5" fill="#1A1A1A">+ classification: string</text>
+    <text x="710" y="868" font-size="10.5" fill="#1A1A1A">+ anomaly_indicators: json</text>
+    <line x1="700" y1="878" x2="930" y2="878" stroke="#C77C22" stroke-width="1.5"/>
+    <text x="710" y="894" font-size="10" fill="#1A1A1A">+ document(): belongsTo</text>
+  </g>
+
+  <!-- ============ Legend ============ -->
+  <rect x="60" y="960" width="1180" height="80" rx="10" fill="#FFFFFF" stroke="#D9D9D9" stroke-width="1.5"/>
+  <text x="76" y="984" font-size="12" font-weight="bold" fill="#1A1A1A">Legend</text>
+  <text x="76" y="1004" font-size="10.5" fill="#595959">Each box is a 3-compartment UML class: name / key attributes / key relationship methods. Lines denote Eloquent</text>
+  <text x="76" y="1020" font-size="10.5" fill="#595959">hasOne / hasMany / belongsTo relationships, labeled with cardinality at each end (e.g., "1" -- "0..*").</text>
+  <text x="700" y="1004" font-size="10.5" fill="#1F4E79" font-weight="bold">Application</text>
+  <text x="800" y="1004" font-size="10.5" fill="#595959">= central transactional entity</text>
+  <text x="700" y="1020" font-size="10.5" fill="#C77C22" font-weight="bold">AIResult</text>
+  <text x="785" y="1020" font-size="10.5" fill="#595959">= AI/ML forensic-scan output model</text>
+</svg>

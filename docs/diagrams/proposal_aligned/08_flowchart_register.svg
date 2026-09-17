@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="1000" fill="#FFFFFF"/>
+  <text x="500" y="36" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 16. Flowchart of the Student Registration Process</text>
+
+  <!-- Start -->
+  <ellipse cx="450" cy="90" rx="90" ry="32" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="96" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Start</text>
+  <line x1="450" y1="122" x2="450" y2="150" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Input: registration details -->
+  <polygon points="320,150 580,150 550,220 290,220" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="180" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Student enters registration</text>
+  <text x="450" y="198" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">details (name, email, password)</text>
+  <line x1="450" y1="220" x2="450" y2="248" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision 1: valid/unique email -->
+  <polygon points="450,248 565,308 450,368 335,308" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="300" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">Valid and unique</text>
+  <text x="450" y="316" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">email format?</text>
+
+  <!-- No branch -->
+  <line x1="565" y1="308" x2="680" y2="308" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="600" y="298" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#A6303E">No</text>
+  <rect x="680" y="273" width="220" height="70" fill="#FFFFFF" stroke="#A6303E" stroke-width="1.5"/>
+  <text x="790" y="303" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Show validation error;</text>
+  <text x="790" y="321" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">return to entry form</text>
+  <polyline points="790,273 790,135 555,135" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Yes branch -->
+  <text x="466" y="392" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Yes</text>
+  <line x1="450" y1="368" x2="450" y2="396" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Create Users record -->
+  <rect x="330" y="396" width="240" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="422" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Create Users record</text>
+  <text x="450" y="440" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">(role = Student)</text>
+  <line x1="450" y1="456" x2="450" y2="484" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Send verification email -->
+  <rect x="310" y="484" width="280" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="510" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Send email verification link</text>
+  <text x="450" y="528" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">to student's registered email</text>
+  <line x1="450" y1="544" x2="450" y2="572" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision 2: verified within window -->
+  <polygon points="450,572 590,642 450,712 310,642" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="634" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">Email verified within</text>
+  <text x="450" y="650" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">validity window?</text>
+
+  <!-- No branch -->
+  <line x1="590" y1="642" x2="720" y2="642" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="638" y="632" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#A6303E">No</text>
+  <rect x="720" y="607" width="240" height="70" fill="#FFFFFF" stroke="#A6303E" stroke-width="1.5"/>
+  <text x="840" y="637" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Account remains inactive;</text>
+  <text x="840" y="655" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">student may request resend</text>
+  <polyline points="840,607 840,514 595,514" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Yes branch -->
+  <text x="466" y="726" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Yes</text>
+  <line x1="450" y1="712" x2="450" y2="740" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Activate account -->
+  <rect x="350" y="740" width="200" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="776" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Activate account</text>
+  <line x1="450" y1="800" x2="450" y2="828" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- End -->
+  <ellipse cx="450" cy="860" rx="100" ry="32" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="866" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">End</text>
+  <text x="450" y="912" font-family="Arial, Helvetica, sans-serif" font-size="11" font-style="italic" text-anchor="middle" fill="#595959">Student may now log in</text>
+
+  <!-- Legend -->
+  <ellipse cx="90" cy="955" rx="26" ry="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="128" y="960" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Start / End</text>
+  <rect x="230" y="941" width="46" height="28" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="288" y="960" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Process</text>
+  <polygon points="430,941 465,955 430,969 395,955" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="478" y="960" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Decision</text>
+  <polygon points="610,941 665,941 653,969 598,969" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="678" y="960" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Input / Output</text>
+</svg>

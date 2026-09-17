@@ -242,6 +242,17 @@
                 </div>
             </div>
 
+            {{-- Step 3: Statutory Certification & Data Privacy Act Agreement --}}
+            <div class="mt-4 p-3 bg-light-subtle border rounded-3">
+                <div class="form-check d-flex align-items-start gap-2.5">
+                    <input class="form-check-input mt-1" type="checkbox" name="dpa_consent" id="dpaApplyConsent" required style="cursor: pointer; min-width: 18px; height: 18px; accent-color: var(--clsu-green);">
+                    <label class="form-check-label small text-muted" for="dpaApplyConsent" style="font-size: 0.82rem; line-height: 1.45; cursor: pointer;">
+                        <strong class="text-dark d-block mb-0.5">Republic Act No. 10173 (Data Privacy Act of 2012) & Integrity Certification:</strong>
+                        I hereby declare under penalty of administrative perjury that all statements, grades, and uploaded documents submitted in this application are authentic, unaltered, and complete. I authorize the CLSU Office of Student Affairs (OSA) to conduct automated OCR grade extraction, digital forensics authenticity screening, and academic cross-verifications in compliance with R.A. 10173.
+                    </label>
+                </div>
+            </div>
+
             {{-- Submit Action --}}
             <div class="mt-4 pt-2 border-top">
                 <button type="submit" class="btn-submit-app w-100" id="submitBtn" aria-describedby="submitHelpText">

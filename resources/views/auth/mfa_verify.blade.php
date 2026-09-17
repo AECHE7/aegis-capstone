@@ -203,6 +203,11 @@
                 const form = otpInput.closest('form');
                 if (form && !form.dataset.submitting) {
                     form.dataset.submitting = 'true';
+                    const btn = form.querySelector('.btn-verify');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Verifying...';
+                    }
                     form.submit();
                 }
             }
@@ -212,6 +217,11 @@
         otpInput.addEventListener('paste', function(e) {
             setTimeout(checkAutoSubmit, 50);
         });
+
+        @if($errors->has('code'))
+            otpInput.value = '';
+            otpInput.focus();
+        @endif
     }
 
     // Resend countdown timer (dynamic cooldown)
@@ -240,35 +250,41 @@
     var expirySeconds = {{ isset($remainingSeconds) ? $remainingSeconds : 600 }};
     var expiryDisplay = document.getElementById('expiryDisplay');
     var expiryContainer = document.getElementById('otpExpiry');
-    
-    // Initial display formatting
-    if (expiryDisplay) {
-        var initialM = Math.floor(expirySeconds / 60);
-        var initialS = expirySeconds % 60;
-        expiryDisplay.textContent = initialM + ':' + (initialS < 10 ? '0' : '') + initialS;
-    }
-    var expiryInterval = setInterval(function() {
-        expirySeconds--;
+    var expiryInterval = null;
+
+    function renderExpiry() {
+        if (!expiryDisplay) return;
         var m = Math.floor(expirySeconds / 60);
         var s = expirySeconds % 60;
-        if (expiryDisplay) {
-            expiryDisplay.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-            // Turn red in final 60 seconds
-            if (expirySeconds <= 60) {
-                expiryDisplay.style.color = '#dc2626';
-                expiryContainer.style.background = '#fee2e2';
-            }
+        expiryDisplay.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        if (expirySeconds <= 60) {
+            expiryDisplay.style.color = '#dc2626';
+            if (expiryContainer) expiryContainer.style.background = '#fee2e2';
+        } else {
+            expiryDisplay.style.color = '#0C4E2D';
+            if (expiryContainer) expiryContainer.style.background = '#f8fafc';
         }
-        if (expirySeconds <= 0) {
-            clearInterval(expiryInterval);
-            if (expiryDisplay) {
-                expiryContainer.innerHTML = '<i class="fa-solid fa-circle-xmark me-1" style="color:#dc2626;"></i>'
-                    + '<span style="color:#dc2626;font-weight:700;">Code expired.</span>'
-                    + ' <a href="{{ route("login") }}" style="color:#0C4E2D;font-weight:600;">Sign in again</a> to get a new code.';
-                expiryContainer.style.background = '#fee2e2';
+    }
+
+    function startExpiryTimer() {
+        if (expiryInterval) clearInterval(expiryInterval);
+        renderExpiry();
+        expiryInterval = setInterval(function() {
+            expirySeconds--;
+            renderExpiry();
+            if (expirySeconds <= 0) {
+                clearInterval(expiryInterval);
+                if (expiryContainer) {
+                    expiryContainer.innerHTML = '<i class="fa-solid fa-circle-xmark me-1" style="color:#dc2626;"></i>'
+                        + '<span style="color:#dc2626;font-weight:700;">Code expired.</span>'
+                        + ' <a href="{{ route("login") }}" style="color:#0C4E2D;font-weight:600;">Sign in again</a> to get a new code.';
+                    expiryContainer.style.background = '#fee2e2';
+                }
             }
-        }
-    }, 1000);
+        }, 1000);
+    }
+
+    startExpiryTimer();
 
     async function resendOtp() {
         resendBtn.disabled = true;
@@ -287,6 +303,16 @@
                 resendTimer.style.display = 'inline';
                 seconds = 60;
                 if (countdownEl) countdownEl.textContent = seconds;
+                
+                // Reset expiry countdown to 10 minutes (600s) and restore container DOM
+                expirySeconds = 600;
+                if (expiryContainer) {
+                    expiryContainer.innerHTML = '<i class="fa-solid fa-clock me-1" style="font-size: 0.75rem;"></i> Code expires in <span id="expiryDisplay" style="font-weight: 700; color: #0C4E2D; font-family: monospace;">10:00</span>';
+                    expiryDisplay = document.getElementById('expiryDisplay');
+                }
+                startExpiryTimer();
+
+                if (timer) clearInterval(timer);
                 timer = setInterval(function () {
                     seconds--;
                     if (countdownEl) countdownEl.textContent = seconds;

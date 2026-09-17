@@ -1,0 +1,193 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 880" font-family="Arial, Helvetica, sans-serif">
+  <rect x="0" y="0" width="1500" height="880" fill="#FFFFFF"/>
+  <text x="750" y="34" font-size="16" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Figure 16. Entity-Relationship Diagram &#8212; Audit &amp; Compliance Module</text>
+
+  <!-- ============ RELATIONSHIP LINES (drawn first, under boxes) ============ -->
+  <line x1="740" y1="129" x2="200" y2="395" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="613" y="192" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="356" y="326" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <line x1="740" y1="129" x2="560" y2="395" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="686" y="213" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="628" y="294" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <line x1="740" y1="129" x2="920" y2="402" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="794" y="215" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="853" y="312" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <line x1="740" y1="129" x2="1280" y2="395" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="855" y="192" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="1125" y="326" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <!-- ============ ENTITY: users (external reference) (x=640,y=60,w=200,h=138) :: Accent Red ============ -->
+  <g>
+    <rect x="640" y="60" width="200" height="138" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="640" y="60" width="200" height="34" fill="#A6303E"/>
+    <text x="740" y="82" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">users</text>
+    <rect x="640" y="120" width="200" height="26" fill="#D9D9D9"/>
+    <rect x="640" y="172" width="200" height="26" fill="#D9D9D9"/>
+    <text x="652" y="111" font-size="11" fill="#1A1A1A">id</text>
+    <text x="740" y="111" font-size="10" fill="#595959">bigint</text>
+    <text x="826" y="111" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="652" y="137" font-size="11" fill="#1A1A1A">name</text>
+    <text x="652" y="163" font-size="11" fill="#1A1A1A">email</text>
+    <text x="652" y="189" font-size="11" fill="#1A1A1A">role</text>
+    <line x1="640" y1="94" x2="840" y2="94" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="640" y1="120" x2="840" y2="120" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="640" y1="146" x2="840" y2="146" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="640" y1="172" x2="840" y2="172" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+  <text x="640" y="216" font-size="10" fill="#595959" font-style="italic">Full attribute detail in Fig. 13 (Identity &amp; Access module) &#8212; shown here only as the shared reference for every audit table below.</text>
+
+  <!-- ============ ENTITY: auth_logs (x=70,y=300,w=260,h=190) :: Accent Amber ============ -->
+  <g>
+    <rect x="70" y="300" width="260" height="190" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="70" y="300" width="260" height="34" fill="#C77C22"/>
+    <text x="200" y="322" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">auth_logs</text>
+    <rect x="70" y="360" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="70" y="412" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="70" y="464" width="260" height="26" fill="#D9D9D9"/>
+    <text x="82" y="351" font-size="11" fill="#1A1A1A">id</text>
+    <text x="180" y="351" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="316" y="351" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="82" y="377" font-size="11" fill="#1A1A1A">user_id</text>
+    <text x="180" y="377" font-size="10" fill="#595959">bigint, nullable</text>
+    <text x="316" y="377" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="82" y="403" font-size="11" fill="#1A1A1A">email_attempted</text>
+    <text x="180" y="403" font-size="10" fill="#595959">string, nullable</text>
+    <text x="82" y="429" font-size="11" fill="#1A1A1A">event_type</text>
+    <text x="180" y="429" font-size="10" fill="#595959">login_success, ...</text>
+    <text x="82" y="455" font-size="11" fill="#1A1A1A">status</text>
+    <text x="180" y="455" font-size="10" fill="#595959">success / failed</text>
+    <text x="82" y="481" font-size="11" fill="#1A1A1A">metadata</text>
+    <text x="180" y="481" font-size="10" fill="#595959">json, nullable</text>
+    <line x1="70" y1="334" x2="330" y2="334" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="360" x2="330" y2="360" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="386" x2="330" y2="386" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="412" x2="330" y2="412" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="438" x2="330" y2="438" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="464" x2="330" y2="464" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <!-- ============ ENTITY: admin_action_logs (x=430,y=300,w=260,h=190) :: Accent Amber ============ -->
+  <g>
+    <rect x="430" y="300" width="260" height="190" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="430" y="300" width="260" height="34" fill="#C77C22"/>
+    <text x="560" y="322" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">admin_action_logs</text>
+    <rect x="430" y="360" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="430" y="412" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="430" y="464" width="260" height="26" fill="#D9D9D9"/>
+    <text x="442" y="351" font-size="11" fill="#1A1A1A">id</text>
+    <text x="540" y="351" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="676" y="351" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="442" y="377" font-size="11" fill="#1A1A1A">user_id</text>
+    <text x="540" y="377" font-size="10" fill="#595959">bigint</text>
+    <text x="676" y="377" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="442" y="403" font-size="11" fill="#1A1A1A">action</text>
+    <text x="540" y="403" font-size="10" fill="#595959">free text code</text>
+    <text x="442" y="429" font-size="11" fill="#1A1A1A">target_type</text>
+    <text x="540" y="429" font-size="10" fill="#595959">Application/User/...</text>
+    <text x="442" y="455" font-size="11" fill="#1A1A1A">target_id</text>
+    <text x="540" y="455" font-size="10" fill="#595959">bigint, no FK constr.</text>
+    <text x="442" y="481" font-size="11" fill="#1A1A1A">ip_address</text>
+    <text x="540" y="481" font-size="10" fill="#595959">string(45)</text>
+    <line x1="430" y1="334" x2="690" y2="334" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="430" y1="360" x2="690" y2="360" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="430" y1="386" x2="690" y2="386" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="430" y1="412" x2="690" y2="412" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="430" y1="438" x2="690" y2="438" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="430" y1="464" x2="690" y2="464" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <!-- ============ ENTITY: config_change_logs (x=790,y=320,w=260,h=164) :: Accent Amber ============ -->
+  <g>
+    <rect x="790" y="320" width="260" height="164" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="790" y="320" width="260" height="34" fill="#C77C22"/>
+    <text x="920" y="342" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">config_change_logs</text>
+    <rect x="790" y="380" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="790" y="432" width="260" height="26" fill="#D9D9D9"/>
+    <text x="802" y="371" font-size="11" fill="#1A1A1A">id</text>
+    <text x="900" y="371" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="1036" y="371" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="802" y="397" font-size="11" fill="#1A1A1A">user_id</text>
+    <text x="900" y="397" font-size="10" fill="#595959">bigint</text>
+    <text x="1036" y="397" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="802" y="423" font-size="11" fill="#1A1A1A">setting_key</text>
+    <text x="900" y="423" font-size="10" fill="#595959">string, ~settings.key</text>
+    <text x="802" y="449" font-size="11" fill="#1A1A1A">old_value</text>
+    <text x="900" y="449" font-size="10" fill="#595959">text, nullable</text>
+    <text x="802" y="475" font-size="11" fill="#1A1A1A">new_value</text>
+    <text x="900" y="475" font-size="10" fill="#595959">text, nullable</text>
+    <line x1="790" y1="354" x2="1050" y2="354" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="790" y1="380" x2="1050" y2="380" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="790" y1="406" x2="1050" y2="406" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="790" y1="432" x2="1050" y2="432" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="790" y1="458" x2="1050" y2="458" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <!-- ============ ENTITY: export_access_logs (x=1150,y=300,w=260,h=190) :: Accent Amber ============ -->
+  <g>
+    <rect x="1150" y="300" width="260" height="190" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="1150" y="300" width="260" height="34" fill="#C77C22"/>
+    <text x="1280" y="322" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">export_access_logs</text>
+    <rect x="1150" y="360" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="1150" y="412" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="1150" y="464" width="260" height="26" fill="#D9D9D9"/>
+    <text x="1162" y="351" font-size="11" fill="#1A1A1A">id</text>
+    <text x="1260" y="351" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="1396" y="351" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="1162" y="377" font-size="11" fill="#1A1A1A">user_id</text>
+    <text x="1260" y="377" font-size="10" fill="#595959">bigint</text>
+    <text x="1396" y="377" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="1162" y="403" font-size="11" fill="#1A1A1A">export_type</text>
+    <text x="1260" y="403" font-size="10" fill="#595959">free text label</text>
+    <text x="1162" y="429" font-size="11" fill="#1A1A1A">format</text>
+    <text x="1260" y="429" font-size="10" fill="#595959">csv / pdf</text>
+    <text x="1162" y="455" font-size="11" fill="#1A1A1A">date_from</text>
+    <text x="1260" y="455" font-size="10" fill="#595959">date, nullable</text>
+    <text x="1162" y="481" font-size="11" fill="#1A1A1A">date_to</text>
+    <text x="1260" y="481" font-size="10" fill="#595959">date, nullable</text>
+    <line x1="1150" y1="334" x2="1410" y2="334" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="360" x2="1410" y2="360" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="386" x2="1410" y2="386" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="412" x2="1410" y2="412" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="438" x2="1410" y2="438" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="464" x2="1410" y2="464" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <!-- ============ ENTITY: master_transfers (x=1150,y=560,w=260,h=190) :: Accent Amber, unconnected ============ -->
+  <g>
+    <rect x="1150" y="560" width="260" height="190" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="1150" y="560" width="260" height="34" fill="#C77C22"/>
+    <text x="1280" y="582" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">master_transfers</text>
+    <rect x="1150" y="620" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="1150" y="672" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="1150" y="724" width="260" height="26" fill="#D9D9D9"/>
+    <text x="1162" y="611" font-size="11" fill="#1A1A1A">id</text>
+    <text x="1260" y="611" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="1396" y="611" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="1162" y="637" font-size="11" fill="#1A1A1A">sender_email</text>
+    <text x="1260" y="637" font-size="10" fill="#595959">string(255)</text>
+    <text x="1162" y="663" font-size="11" fill="#1A1A1A">recipient_email</text>
+    <text x="1260" y="663" font-size="10" fill="#595959">string(255)</text>
+    <text x="1162" y="689" font-size="11" fill="#1A1A1A">token</text>
+    <text x="1260" y="689" font-size="10" fill="#595959">string, unique</text>
+    <text x="1162" y="715" font-size="11" fill="#1A1A1A">expires_at</text>
+    <text x="1260" y="715" font-size="10" fill="#595959">timestamp</text>
+    <text x="1162" y="741" font-size="11" fill="#1A1A1A">accepted_at</text>
+    <text x="1260" y="741" font-size="10" fill="#595959">timestamp, nullable</text>
+    <line x1="1150" y1="594" x2="1410" y2="594" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="620" x2="1410" y2="620" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="646" x2="1410" y2="646" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="672" x2="1410" y2="672" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="698" x2="1410" y2="698" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="1150" y1="724" x2="1410" y2="724" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+  <text x="1150" y="768" font-size="10" fill="#595959" font-style="italic">No FK to users &#8212; deliberately keyed by sender/recipient</text>
+  <text x="1150" y="782" font-size="10" fill="#595959" font-style="italic">email address only (Sec. 4.3.27), so the transfer stays verifiable.</text>
+
+  <text x="70" y="270" font-size="10.5" fill="#595959" font-style="italic">auth_logs.user_id is nullable to capture failed logins against emails matching no account (credential-stuffing detection).</text>
+
+  <text x="70" y="810" font-size="10.5" fill="#595959" font-style="italic">All four logging tables record User-attributed events (cardinality 1:0..*). auth_logs sets user_id to null on user delete; the other three cascade.</text>
+  <text x="70" y="828" font-size="10.5" fill="#595959" font-style="italic">Written centrally through App\Services\AuditLoggerService (Sec. 4.5), except master_transfers, which its own controller writes and reads directly.</text>
+</svg>

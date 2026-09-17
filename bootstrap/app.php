@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'student.profile.complete' => \App\Http\Middleware\EnsureStudentProfileComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

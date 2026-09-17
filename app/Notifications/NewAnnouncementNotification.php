@@ -40,7 +40,7 @@ class NewAnnouncementNotification extends Notification
         return [
             'title' => 'Official Announcement',
             'message' => $this->announcement->title,
-            'url' => url('/student/dashboard'),
+            'url' => route('student.announcements'),
             'type' => 'announcement'
         ];
     }

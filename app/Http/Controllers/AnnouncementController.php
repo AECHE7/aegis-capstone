@@ -25,6 +25,26 @@ class AnnouncementController extends Controller
     }
 
     /**
+     * Display a published listing of announcements for student viewing.
+     */
+    public function studentFeed(): View
+    {
+        $announcements = Announcement::with('author')
+            ->where(function ($query) {
+                $query->whereNull('scheduled_publish_at')
+                      ->orWhere('scheduled_publish_at', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('scheduled_delete_at')
+                      ->orWhere('scheduled_delete_at', '>', now());
+            })
+            ->latest('created_at')
+            ->paginate(10);
+
+        return view('student.announcements', compact('announcements'));
+    }
+
+    /**
      * Store a newly created announcement and dispatch real-time notifications.
      */
     public function store(StoreAnnouncementRequest $request): JsonResponse

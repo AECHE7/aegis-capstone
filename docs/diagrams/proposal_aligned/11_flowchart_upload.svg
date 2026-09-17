@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1150">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="1150" fill="#FFFFFF"/>
+  <text x="450" y="36" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 19. Flowchart of the Document Upload Process</text>
+
+  <!-- Start -->
+  <ellipse cx="450" cy="80" rx="90" ry="28" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="86" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Start</text>
+  <line x1="450" y1="108" x2="450" y2="136" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Input: select file -->
+  <polygon points="320,136 580,136 550,196 290,196" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="162" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Student selects COG / ITR / ID</text>
+  <text x="450" y="180" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">file for upload</text>
+  <line x1="450" y1="196" x2="450" y2="224" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision 1: MIME + size -->
+  <polygon points="450,224 610,304 450,384 290,304" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="296" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">Valid MIME type (JPEG/PNG)</text>
+  <text x="450" y="312" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">and within file size limit?</text>
+
+  <!-- No branch -->
+  <line x1="610" y1="304" x2="700" y2="304" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="648" y="294" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#A6303E">No</text>
+  <rect x="700" y="269" width="230" height="70" fill="#FFFFFF" stroke="#A6303E" stroke-width="1.5"/>
+  <text x="815" y="299" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Reject file; show error;</text>
+  <text x="815" y="317" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">prompt re-selection</text>
+  <polyline points="815,269 815,166 585,166" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Yes branch -->
+  <text x="466" y="408" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Yes</text>
+  <line x1="450" y1="384" x2="450" y2="412" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Rename file -->
+  <rect x="310" y="412" width="280" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="438" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Rename file using UUID /</text>
+  <text x="450" y="456" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">SHA-256 scheme</text>
+  <line x1="450" y1="472" x2="450" y2="500" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Store file securely -->
+  <rect x="300" y="500" width="300" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="536" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Store file in secure server directory</text>
+  <line x1="450" y1="560" x2="450" y2="588" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Create Documents record -->
+  <rect x="290" y="588" width="320" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="614" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Create Documents record</text>
+  <text x="450" y="632" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">(document_type, file_path)</text>
+  <line x1="450" y1="648" x2="450" y2="676" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision 2: document_type == COG -->
+  <polygon points="450,676 590,746 450,816 310,746" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="738" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">document_type</text>
+  <text x="450" y="754" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">== COG?</text>
+
+  <!-- No branch: skip AI -->
+  <line x1="310" y1="746" x2="220" y2="746" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="240" y="736" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#8C8C8C">No</text>
+  <rect x="20" y="716" width="200" height="60" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.5"/>
+  <text x="120" y="742" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Skip AI analysis</text>
+  <text x="120" y="760" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" text-anchor="middle" fill="#595959">(ITR / ID documents)</text>
+  <polyline points="120,776 120,1000 330,1000" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Yes branch: dispatch to AI microservice -->
+  <text x="466" y="840" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Yes</text>
+  <line x1="450" y1="816" x2="450" y2="844" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="260" y="844" width="380" height="70" fill="#C77C22" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="872" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#FFFFFF">Dispatch document to AI Microservice</text>
+  <text x="450" y="890" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#FFFFFF">for ELA-CNN fraud analysis (see Figure 14)</text>
+  <line x1="450" y1="914" x2="450" y2="960" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- End -->
+  <ellipse cx="450" cy="1000" rx="120" ry="34" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="1006" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">End</text>
+  <text x="450" y="1054" font-family="Arial, Helvetica, sans-serif" font-size="11" font-style="italic" text-anchor="middle" fill="#595959">AIAnalysisResults record created upon AI response</text>
+
+  <!-- Legend -->
+  <ellipse cx="90" cy="1100" rx="26" ry="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="128" y="1105" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Start / End</text>
+  <rect x="230" y="1086" width="46" height="28" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="288" y="1105" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Process</text>
+  <polygon points="430,1086 465,1100 430,1114 395,1100" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="478" y="1105" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Decision</text>
+  <polygon points="610,1086 665,1086 653,1114 598,1114" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="678" y="1105" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Input / Output</text>
+  <rect x="770" y="1086" width="20" height="28" fill="#C77C22" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="798" y="1105" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">AI microservice step</text>
+</svg>

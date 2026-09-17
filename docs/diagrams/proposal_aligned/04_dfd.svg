@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 840">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1160" height="840" fill="#FFFFFF"/>
+  <text x="580" y="36" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 5. A.E.G.I.S. Data Flow Diagram (Level 0 / Context)</text>
+
+  <!-- External entity: Student -->
+  <rect x="60" y="120" width="220" height="90" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="170" y="160" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Student</text>
+  <text x="170" y="180" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#FFFFFF">(External Entity)</text>
+
+  <!-- External entity: OSA Staff -->
+  <rect x="880" y="120" width="220" height="90" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="990" y="160" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">OSA Staff</text>
+  <text x="990" y="180" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#FFFFFF">(External Entity)</text>
+
+  <!-- External entity: AI Microservice -->
+  <rect x="460" y="680" width="240" height="90" fill="#C77C22" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="580" y="718" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">AI Microservice</text>
+  <text x="580" y="738" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#FFFFFF">(External System)</text>
+
+  <!-- Central process circle -->
+  <circle cx="580" cy="440" r="140" fill="#FFFFFF" stroke="#A6303E" stroke-width="3"/>
+  <text x="580" y="424" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#595959">0</text>
+  <text x="580" y="446" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1A1A1A">A.E.G.I.S.</text>
+  <text x="580" y="466" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1A1A1A">System</text>
+
+  <!-- Student -> System -->
+  <line x1="255" y1="230" x2="470" y2="360" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="255" y="270" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Application data +</text>
+  <text x="255" y="284" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">uploaded documents</text>
+  <text x="255" y="298" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">(COG / ITR / ID)</text>
+
+  <!-- System -> Student -->
+  <line x1="450" y1="330" x2="205" y2="212" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="330" y="230" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Status notification</text>
+  <text x="330" y="244" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">(automated email)</text>
+
+  <!-- OSA Staff -> System -->
+  <line x1="905" y1="230" x2="690" y2="360" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="720" y="270" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Review decision</text>
+  <text x="720" y="284" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">(status update +</text>
+  <text x="720" y="298" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">remarks)</text>
+
+  <!-- System -> OSA Staff -->
+  <line x1="710" y1="330" x2="955" y2="212" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="740" y="230" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Queued application</text>
+  <text x="740" y="244" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">(score, risk tier,</text>
+  <text x="740" y="258" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">heatmap)</text>
+
+  <!-- System -> AI Microservice -->
+  <line x1="545" y1="575" x2="560" y2="678" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="330" y="620" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">COG document image</text>
+  <text x="330" y="634" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">(file path, internal HTTP POST)</text>
+
+  <!-- AI Microservice -> System -->
+  <line x1="615" y1="678" x2="618" y2="577" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="640" y="620" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Fraud probability score +</text>
+  <text x="640" y="634" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Grad-CAM heatmap (JSON)</text>
+
+  <!-- Legend -->
+  <rect x="60" y="800" width="16" height="16" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="82" y="812" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">External entity (human)</text>
+  <rect x="280" y="800" width="16" height="16" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="302" y="812" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">External system (AI service)</text>
+  <circle cx="565" cy="808" r="8" fill="#FFFFFF" stroke="#A6303E" stroke-width="2"/>
+  <text x="582" y="812" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Process (0 = context level)</text>
+</svg>

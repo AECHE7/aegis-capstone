@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 1080" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1A1A1A"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="1480" height="1080" fill="#FFFFFF"/>
+
+  <!-- title -->
+  <text x="740" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A1A">Figure 22. Activity Diagram — End-to-End Scholarship Application Lifecycle</text>
+
+  <!-- lane headers -->
+  <rect x="20" y="50" width="360" height="45" fill="#D9D9D9" stroke="#8C8C8C" stroke-width="1"/>
+  <rect x="380" y="50" width="420" height="45" fill="#D9D9D9" stroke="#8C8C8C" stroke-width="1"/>
+  <rect x="800" y="50" width="660" height="45" fill="#D9D9D9" stroke="#8C8C8C" stroke-width="1"/>
+  <text x="200" y="77" text-anchor="middle" font-size="12" font-weight="bold" fill="#595959">STUDENT</text>
+  <text x="590" y="77" text-anchor="middle" font-size="12" font-weight="bold" fill="#595959">SYSTEM (AEGIS + AI)</text>
+  <text x="1130" y="77" text-anchor="middle" font-size="12" font-weight="bold" fill="#595959">OSA STAFF</text>
+
+  <!-- lane dividers -->
+  <line x1="380" y1="95" x2="380" y2="1060" stroke="#8C8C8C" stroke-width="2"/>
+  <line x1="800" y1="95" x2="800" y2="1060" stroke="#8C8C8C" stroke-width="2"/>
+  <rect x="20" y="50" width="1440" height="1010" fill="none" stroke="#8C8C8C" stroke-width="1"/>
+
+  <!-- Initial node -->
+  <circle cx="200" cy="130" r="8" fill="#1A1A1A"/>
+  <line x1="200" y1="138" x2="200" y2="166" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- A1: Fill application -->
+  <rect x="70" y="168" width="260" height="54" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="200" y="195" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="200" dy="-6">Fill Out</tspan>
+    <tspan x="200" dy="14">Application Form</tspan>
+  </text>
+  <line x1="200" y1="222" x2="200" y2="250" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- A2: Upload documents -->
+  <rect x="70" y="252" width="260" height="54" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="200" y="279" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="200" dy="-6">Upload Supporting</tspan>
+    <tspan x="200" dy="14">Documents</tspan>
+  </text>
+  <polyline points="200,306 200,340 470,340" fill="none" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- A3: AI Forensic Scan -->
+  <rect x="470" y="313" width="260" height="54" rx="14" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="600" y="340" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="600" dy="-6">AI Forensic Scan</tspan>
+    <tspan x="600" dy="14">(EFDF 4-Pillar Analysis)</tspan>
+  </text>
+  <line x1="600" y1="367" x2="600" y2="390" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- D1: Auto-approval eligible? -->
+  <polygon points="600,392 740,467 600,542 460,467" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="600" y="467" text-anchor="middle" font-size="12" fill="#1A1A1A">
+    <tspan x="600" dy="-6">Auto-Approval</tspan>
+    <tspan x="600" dy="14">Eligible?</tspan>
+  </text>
+
+  <!-- Yes branch (straight down from right vertex, x=740) -->
+  <line x1="740" y1="467" x2="740" y2="540" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="768" y="505" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">Yes</text>
+
+  <rect x="640" y="542" width="200" height="54" rx="14" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="740" y="569" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="740" dy="-6">System Auto-Approves</tspan>
+    <tspan x="740" dy="14">(Smart Verification Engine)</tspan>
+  </text>
+  <line x1="740" y1="596" x2="740" y2="620" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="640" y="620" width="200" height="54" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="740" y="647" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="740" dy="-6">Approved —</tspan>
+    <tspan x="740" dy="14">Applicant Notified</tspan>
+  </text>
+  <line x1="740" y1="674" x2="740" y2="698" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <circle cx="740" cy="712" r="10" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+  <circle cx="740" cy="712" r="5" fill="#1A1A1A"/>
+  <text x="740" y="740" text-anchor="middle" font-size="11" fill="#1A1A1A">Approved (Auto)</text>
+
+  <!-- No branch (straight down from left vertex, x=460) -->
+  <line x1="460" y1="467" x2="460" y2="540" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="430" y="505" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">No</text>
+
+  <rect x="360" y="542" width="200" height="54" rx="14" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="460" y="569" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="460" dy="-6">System Assigns to</tspan>
+    <tspan x="460" dy="14">Staff Queue</tspan>
+  </text>
+  <polyline points="460,596 460,630 940,630" fill="none" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- A6: Staff opens review -->
+  <rect x="940" y="603" width="200" height="54" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="1040" y="630" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="1040" dy="-6">Staff Opens Review</tspan>
+    <tspan x="1040" dy="14">(Status → Under Review)</tspan>
+  </text>
+  <line x1="1040" y1="657" x2="1040" y2="680" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- D2: Staff decision -->
+  <polygon points="1040,682 1170,757 1040,832 910,757" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="1040" y="757" text-anchor="middle" font-size="12" fill="#1A1A1A">
+    <tspan x="1040" dy="-6">Staff</tspan>
+    <tspan x="1040" dy="14">Decision?</tspan>
+  </text>
+
+  <!-- Approve branch: diagonal from left vertex (910,757) to box centered at x=800 -->
+  <line x1="910" y1="757" x2="800" y2="830" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="838" y="793" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">Approve</text>
+  <rect x="700" y="832" width="200" height="54" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="800" y="859" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="800" dy="-6">Approve Application</tspan>
+    <tspan x="800" dy="14">(Decision Hub)</tspan>
+  </text>
+  <line x1="800" y1="886" x2="800" y2="908" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="700" y="910" width="200" height="54" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="800" y="937" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="800" dy="-6">Approved —</tspan>
+    <tspan x="800" dy="14">Applicant Notified</tspan>
+  </text>
+  <line x1="800" y1="964" x2="800" y2="988" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <circle cx="800" cy="1002" r="10" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+  <circle cx="800" cy="1002" r="5" fill="#1A1A1A"/>
+  <text x="800" y="1030" text-anchor="middle" font-size="11" fill="#1A1A1A">Approved</text>
+
+  <!-- Reject branch: straight down from bottom vertex (1040,832) -->
+  <line x1="1040" y1="832" x2="1040" y2="830" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1080" y="800" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">Reject</text>
+  <rect x="940" y="832" width="200" height="54" rx="14" fill="#A6303E" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="1040" y="859" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="1040" dy="-6">Reject Application</tspan>
+    <tspan x="1040" dy="14">(Decision Hub)</tspan>
+  </text>
+  <line x1="1040" y1="886" x2="1040" y2="908" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="940" y="910" width="200" height="54" rx="14" fill="#A6303E" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="1040" y="937" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="1040" dy="-6">Rejected —</tspan>
+    <tspan x="1040" dy="14">Applicant Notified</tspan>
+  </text>
+  <line x1="1040" y1="964" x2="1040" y2="988" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <circle cx="1040" cy="1002" r="10" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+  <circle cx="1040" cy="1002" r="5" fill="#1A1A1A"/>
+  <text x="1040" y="1030" text-anchor="middle" font-size="11" fill="#1A1A1A">Rejected</text>
+
+  <!-- Return-for-correction branch: diagonal from right vertex (1170,757) to box centered at x=1280 -->
+  <line x1="1170" y1="757" x2="1280" y2="830" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="1245" y="788" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">Return for</text>
+  <text x="1245" y="801" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">Correction</text>
+  <rect x="1180" y="832" width="200" height="54" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="1280" y="859" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="1280" dy="-6">Return Application</tspan>
+    <tspan x="1280" dy="14">(Status → Returned)</tspan>
+  </text>
+
+  <!-- loop back to student: resubmit -->
+  <polyline points="1280,886 1280,937 330,937" fill="none" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="90" y="910" width="240" height="54" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="210" y="937" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="210" dy="-6">Resubmit Corrected</tspan>
+    <tspan x="210" dy="14">Document (Re-upload)</tspan>
+  </text>
+
+  <!-- loop back to system scan -->
+  <polyline points="90,937 40,937 40,340 470,340" fill="none" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="48" y="650" text-anchor="start" font-size="11" font-style="italic" fill="#1A1A1A" transform="rotate(-90 48 650)">resubmit → re-scan</text>
+
+</svg>

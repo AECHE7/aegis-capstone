@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 980" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1A1A1A"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#A6303E"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="1300" height="980" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="650" y="36" font-size="16" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Figure 8. System Architecture Diagram</text>
+
+  <!-- ===================== CLIENT TIER ===================== -->
+  <rect x="40" y="70" width="1220" height="110" rx="10" fill="none" stroke="#8C8C8C" stroke-width="2" stroke-dasharray="10,6"/>
+  <text x="56" y="92" font-size="12" font-weight="bold" fill="#595959">CLIENT TIER (Student / Staff / Director devices)</text>
+  <rect x="480" y="106" width="340" height="56" rx="6" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="650" y="130" font-size="13" fill="#1A1A1A" text-anchor="middle">Web Browser</text>
+  <text x="650" y="148" font-size="10" fill="#595959" text-anchor="middle">Installable PWA (service worker, offline banner)</text>
+
+  <!-- arrow client -> app server (HTTPS) -->
+  <line x1="650" y1="180" x2="650" y2="230" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="662" y="210" font-size="10" fill="#595959">HTTPS (Blade HTML)</text>
+
+  <!-- ===================== APPLICATION SERVER TIER (Render) ===================== -->
+  <rect x="40" y="230" width="740" height="500" rx="10" fill="none" stroke="#8C8C8C" stroke-width="2" stroke-dasharray="10,6"/>
+  <text x="56" y="252" font-size="12" font-weight="bold" fill="#595959">APPLICATION SERVER TIER — Laravel 12 Monolith (Render.com, Docker)</text>
+
+  <!-- Blade views -->
+  <rect x="70" y="270" width="200" height="54" rx="6" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="170" y="292" font-size="12" fill="#FFFFFF" text-anchor="middle">Blade Views</text>
+  <text x="170" y="308" font-size="10" fill="#FFFFFF" text-anchor="middle">(Vite / Tailwind assets)</text>
+
+  <!-- Controllers -->
+  <rect x="290" y="270" width="200" height="54" rx="6" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="390" y="292" font-size="12" fill="#FFFFFF" text-anchor="middle">Controllers</text>
+  <text x="390" y="308" font-size="10" fill="#FFFFFF" text-anchor="middle">Auth / Application / Admin</text>
+
+  <!-- Services -->
+  <rect x="510" y="270" width="240" height="54" rx="6" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="630" y="292" font-size="12" fill="#FFFFFF" text-anchor="middle">Services</text>
+  <text x="630" y="308" font-size="10" fill="#FFFFFF" text-anchor="middle">AIVerification / AutoApproval / CloudStorage</text>
+
+  <!-- vertical connectors row1->row2 -->
+  <line x1="170" y1="324" x2="170" y2="360" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="390" y1="324" x2="390" y2="360" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="630" y1="324" x2="630" y2="360" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="270" y1="297" x2="290" y2="297" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="490" y1="297" x2="510" y2="297" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Jobs / Queue -->
+  <rect x="70" y="360" width="300" height="60" rx="6" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="220" y="384" font-size="12" fill="#FFFFFF" text-anchor="middle">Jobs / Queue Worker</text>
+  <text x="220" y="402" font-size="10" fill="#FFFFFF" text-anchor="middle">ScanDocumentJob, BroadcastAnnouncementEmailJob</text>
+  <text x="220" y="358" font-size="10" fill="#595959" text-anchor="middle"></text>
+
+  <!-- Eloquent Models -->
+  <rect x="400" y="360" width="350" height="60" rx="6" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="575" y="384" font-size="12" fill="#FFFFFF" text-anchor="middle">Eloquent Models</text>
+  <text x="575" y="402" font-size="10" fill="#FFFFFF" text-anchor="middle">User, Application, Document, AIResult, Scholarship, ...</text>
+
+  <line x1="370" y1="390" x2="400" y2="390" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- queue label note -->
+  <text x="220" y="440" font-size="10" fill="#595959" text-anchor="middle">database queue driver (QUEUE_CONNECTION=database)</text>
+
+  <!-- Down to data layer -->
+  <line x1="220" y1="450" x2="220" y2="490" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="575" y1="420" x2="575" y2="490" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ===================== DATA LAYER (nested inside App tier box) ===================== -->
+  <rect x="70" y="490" width="680" height="210" rx="10" fill="#D9D9D9" fill-opacity="0.25" stroke="#8C8C8C" stroke-width="2" stroke-dasharray="8,5"/>
+  <text x="86" y="512" font-size="12" font-weight="bold" fill="#595959">DATA LAYER</text>
+
+  <!-- Database -->
+  <rect x="100" y="528" width="270" height="80" rx="6" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="235" y="554" font-size="12" fill="#FFFFFF" text-anchor="middle">Relational Database</text>
+  <text x="235" y="572" font-size="10" fill="#FFFFFF" text-anchor="middle">SQLite (dev) / PostgreSQL (staging &amp; prod, Supabase)</text>
+  <text x="235" y="588" font-size="10" fill="#FFFFFF" text-anchor="middle">Sessions, cache, queue jobs also stored here</text>
+
+  <!-- Storage -->
+  <rect x="410" y="528" width="300" height="80" rx="6" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="560" y="552" font-size="12" fill="#FFFFFF" text-anchor="middle">Document Storage</text>
+  <text x="560" y="570" font-size="10" fill="#FFFFFF" text-anchor="middle">Local disk (Render persistent disk, 1GB) primary;</text>
+  <text x="560" y="586" font-size="10" fill="#FFFFFF" text-anchor="middle">Cloudflare R2 (S3-compatible) optional, via CloudStorageService</text>
+
+  <!-- fallback db longtext note -->
+  <rect x="100" y="630" width="610" height="52" rx="6" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="405" y="650" font-size="10" fill="#595959" text-anchor="middle">Base64 file_data / heatmap_data columns persisted in DB as a durable fallback</text>
+  <text x="405" y="665" font-size="10" fill="#595959" text-anchor="middle">tier, surviving container redeploys independent of local disk state</text>
+
+  <!-- ===================== AI MICROSERVICE TIER ===================== -->
+  <rect x="820" y="230" width="440" height="500" rx="10" fill="none" stroke="#A6303E" stroke-width="2" stroke-dasharray="10,6"/>
+  <text x="836" y="252" font-size="12" font-weight="bold" fill="#A6303E">AI MICROSERVICE TIER — aegis-ai (Hugging Face Spaces, Docker)</text>
+
+  <rect x="850" y="280" width="380" height="70" rx="6" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="1040" y="304" font-size="12" fill="#FFFFFF" text-anchor="middle">Flask App (Gunicorn)</text>
+  <text x="1040" y="322" font-size="10" fill="#FFFFFF" text-anchor="middle">/analyze-document, /health endpoints</text>
+  <text x="1040" y="338" font-size="10" fill="#FFFFFF" text-anchor="middle">Python 3.11</text>
+
+  <line x1="1040" y1="350" x2="1040" y2="386" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="850" y="386" width="380" height="90" rx="6" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="1040" y="408" font-size="12" fill="#FFFFFF" text-anchor="middle">Forensic Pipelines</text>
+  <text x="1040" y="426" font-size="10" fill="#FFFFFF" text-anchor="middle">image_forensics_v2 / V3 deep-analysis / PDF pipeline</text>
+  <text x="1040" y="442" font-size="10" fill="#FFFFFF" text-anchor="middle">TensorFlow/Keras, OpenCV, Tesseract OCR,</text>
+  <text x="1040" y="458" font-size="10" fill="#FFFFFF" text-anchor="middle">pikepdf, pdf2image (EFDF 4-pillar evidence model)</text>
+
+  <line x1="1040" y1="476" x2="1040" y2="512" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="850" y="512" width="380" height="70" rx="6" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="1040" y="536" font-size="12" fill="#FFFFFF" text-anchor="middle">Local / Ephemeral Storage</text>
+  <text x="1040" y="554" font-size="10" fill="#FFFFFF" text-anchor="middle">Generated heatmap &amp; cropped-patch images</text>
+  <text x="1040" y="568" font-size="10" fill="#FFFFFF" text-anchor="middle">(returned inline as base64 to Laravel, not Cloudinary)</text>
+
+  <!-- Keep-warm note -->
+  <rect x="850" y="600" width="380" height="46" rx="6" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="1040" y="618" font-size="10" fill="#595959" text-anchor="middle">Scale-to-zero free tier: keep-warm ping to /health</text>
+  <text x="1040" y="632" font-size="10" fill="#595959" text-anchor="middle">every 10 min from Laravel scheduler</text>
+
+  <!-- ===================== CROSS-BOUNDARY HTTP ARROW (Jobs -> AI service) ===================== -->
+  <line x1="370" y1="390" x2="850" y2="316" stroke="#A6303E" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowRed)"/>
+  <text x="470" y="345" font-size="11" fill="#A6303E" font-weight="bold">POST /analyze-document?mode=</text>
+  <text x="470" y="360" font-size="10" fill="#A6303E">multipart: document image / PDF</text>
+
+  <!-- return arrow AI -> Laravel (JSON result) -->
+  <line x1="850" y1="470" x2="400" y2="400" stroke="#A6303E" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowRed)"/>
+  <text x="470" y="470" font-size="11" fill="#A6303E" font-weight="bold">JSON: fraud probability, classification,</text>
+  <text x="470" y="486" font-size="10" fill="#A6303E">risk tier, anomaly indicators, heatmap (base64)</text>
+
+  <!-- Legend -->
+  <rect x="40" y="750" width="1220" height="200" rx="10" fill="#FFFFFF" stroke="#D9D9D9" stroke-width="1.5"/>
+  <text x="56" y="774" font-size="12" font-weight="bold" fill="#1A1A1A">Legend</text>
+
+  <rect x="60" y="790" width="22" height="16" fill="#1F4E79"/>
+  <text x="90" y="803" font-size="11" fill="#1A1A1A">Application-layer / core system component</text>
+
+  <rect x="60" y="816" width="22" height="16" fill="#C77C22"/>
+  <text x="90" y="829" font-size="11" fill="#1A1A1A">AI/ML subsystem or background job/processing component</text>
+
+  <line x1="60" y1="852" x2="90" y2="852" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="98" y="856" font-size="11" fill="#1A1A1A">Internal data / control flow</text>
+
+  <line x1="60" y1="878" x2="90" y2="878" stroke="#A6303E" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowRed)"/>
+  <text x="98" y="882" font-size="11" fill="#1A1A1A">Cross-boundary HTTP call (network / API contract)</text>
+
+  <text x="60" y="908" font-size="10.5" fill="#595959">Only one internal service boundary exists in the system: Laravel (Render) &#8596; aegis-ai (Hugging Face Spaces).</text>
+  <text x="60" y="924" font-size="10.5" fill="#595959">Sessions, cache, and queue state are all database-backed (QUEUE_CONNECTION=database, SESSION_DRIVER=database).</text>
+</svg>

@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1A1A1A"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="900" fill="#FFFFFF"/>
+
+  <text x="500" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A1A">Figure 23. Activity Diagram — Document Forensic Verification Process</text>
+
+  <!-- Initial node -->
+  <circle cx="500" cy="65" r="8" fill="#1A1A1A"/>
+  <line x1="500" y1="73" x2="500" y2="88" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Document Syntax Gate decision -->
+  <polygon points="500,90 660,170 500,250 340,170" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="170" text-anchor="middle" font-size="12" fill="#1A1A1A">
+    <tspan x="500" dy="-14">Document Syntax Gate:</tspan>
+    <tspan x="500" dy="16">Valid Academic</tspan>
+    <tspan x="500" dy="14">Document?</tspan>
+  </text>
+
+  <!-- No branch: gate fails -->
+  <line x1="340" y1="170" x2="230" y2="190" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="292" y="172" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">No (gate fails)</text>
+  <rect x="60" y="190" width="240" height="54" rx="14" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="180" y="217" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="180" dy="-6">Pin Score to Review Band</tspan>
+    <tspan x="180" dy="14">(38.0%–50.0%)</tspan>
+  </text>
+
+  <!-- gate-fail shortcut routed around cluster directly to Review Recommended terminal -->
+  <polyline points="180,244 20,244 20,730 390,730" fill="none" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="30" y="520" text-anchor="start" font-size="10" font-style="italic" fill="#1A1A1A" transform="rotate(-90 30 520)">deterministically within Review band</text>
+
+  <!-- Yes branch into pillar cluster -->
+  <line x1="500" y1="250" x2="500" y2="290" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="525" y="270" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">Yes</text>
+
+  <!-- cluster grouping box -->
+  <rect x="40" y="278" width="920" height="102" fill="none" stroke="#8C8C8C" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="955" y="268" text-anchor="end" font-size="11" fill="#595959">Four Evidence Pillars (EFDF) — parallel evaluation</text>
+
+  <line x1="500" y1="290" x2="500" y2="298" stroke="#1A1A1A" stroke-width="2"/>
+  <polyline points="165,298 165,300" stroke="#1A1A1A" stroke-width="2" fill="none"/>
+  <line x1="165" y1="298" x2="855" y2="298" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="165" y1="298" x2="165" y2="300" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="395" y1="298" x2="395" y2="300" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="625" y1="298" x2="625" y2="300" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="855" y1="298" x2="855" y2="300" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Pillar 1 -->
+  <rect x="60" y="300" width="210" height="70" rx="14" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="165" y="335" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="165" dy="-6">Pillar 1: Text &amp; Grade</tspan>
+    <tspan x="165" dy="14">OCR Consistency (35%)</tspan>
+  </text>
+
+  <!-- Pillar 2 -->
+  <rect x="290" y="300" width="210" height="70" rx="14" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="395" y="335" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="395" dy="-6">Pillar 2: Pixel Compression</tspan>
+    <tspan x="395" dy="14">ELA / DCT (25%)</tspan>
+  </text>
+
+  <!-- Pillar 3 -->
+  <rect x="520" y="300" width="210" height="70" rx="14" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="625" y="335" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="625" dy="-6">Pillar 3: Sensor Continuity</tspan>
+    <tspan x="625" dy="14">TruFor / Clone (25%)</tspan>
+  </text>
+
+  <!-- Pillar 4 -->
+  <rect x="750" y="300" width="210" height="70" rx="14" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="855" y="335" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="855" dy="-6">Pillar 4: Metadata &amp;</tspan>
+    <tspan x="855" dy="14">Provenance (15%)</tspan>
+  </text>
+
+  <!-- converge into fusion -->
+  <line x1="165" y1="370" x2="165" y2="400" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="395" y1="370" x2="395" y2="400" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="625" y1="370" x2="625" y2="400" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="855" y1="370" x2="855" y2="400" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="165" y1="400" x2="855" y2="400" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="500" y1="400" x2="500" y2="420" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Weighted Fusion Scoring: emphasized -->
+  <rect x="330" y="420" width="340" height="72" rx="16" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="500" y="456" text-anchor="middle" font-size="13" font-weight="bold" fill="#FFFFFF">
+    <tspan x="500" dy="-8">Weighted Fusion Scoring</tspan>
+    <tspan x="500" dy="16">(Detector-Count-Aware Formula)</tspan>
+  </text>
+
+  <line x1="500" y1="492" x2="500" y2="510" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Tier decision -->
+  <polygon points="500,510 670,600 500,690 330,600" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="600" text-anchor="middle" font-size="12" fill="#1A1A1A">
+    <tspan x="500" dy="-6">Fraud Probability</tspan>
+    <tspan x="500" dy="14">Tier?</tspan>
+  </text>
+
+  <!-- Low risk branch -->
+  <line x1="330" y1="600" x2="150" y2="698" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="210" y="655" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">&lt; 35%</text>
+  <rect x="40" y="700" width="220" height="60" rx="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="150" y="730" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="150" dy="-6">Low Risk — Authentic</tspan>
+    <tspan x="150" dy="14">Auto-Approval Eligible</tspan>
+  </text>
+  <line x1="150" y1="760" x2="150" y2="785" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <circle cx="150" cy="800" r="10" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+  <circle cx="150" cy="800" r="5" fill="#1A1A1A"/>
+
+  <!-- Review branch (also receives gate-fail shortcut) -->
+  <line x1="500" y1="690" x2="500" y2="698" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="540" y="670" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">35%–70%</text>
+  <rect x="390" y="700" width="220" height="60" rx="14" fill="#595959" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="500" y="730" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="500" dy="-6">Review Recommended</tspan>
+    <tspan x="500" dy="14">Routed to Staff Queue</tspan>
+  </text>
+  <line x1="500" y1="760" x2="500" y2="785" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <circle cx="500" cy="800" r="10" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+  <circle cx="500" cy="800" r="5" fill="#1A1A1A"/>
+
+  <!-- High risk branch -->
+  <line x1="670" y1="600" x2="850" y2="698" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="790" y="655" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">≥ 70%</text>
+  <rect x="740" y="700" width="220" height="60" rx="14" fill="#A6303E" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="850" y="730" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="850" dy="-6">High Tampering Risk</tspan>
+    <tspan x="850" dy="14">Escalated for Review</tspan>
+  </text>
+  <line x1="850" y1="760" x2="850" y2="785" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <circle cx="850" cy="800" r="10" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+  <circle cx="850" cy="800" r="5" fill="#1A1A1A"/>
+
+  <text x="150" y="830" text-anchor="middle" font-size="11" fill="#1A1A1A">Authentic</text>
+  <text x="500" y="830" text-anchor="middle" font-size="11" fill="#1A1A1A">Review Needed</text>
+  <text x="850" y="830" text-anchor="middle" font-size="11" fill="#1A1A1A">Tampered</text>
+
+</svg>

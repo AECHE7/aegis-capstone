@@ -62,3 +62,155 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
    - Integrated floating 3-step interactive stepper in student application flow.
    - Added beacon pulse animations to student dashboard status cards.
    - Transformed Announcements Manager with top metrics summary cards.
+13. **Academic Capstone Manuscript (Chapters 1 through 5 & Appendices)**:
+   - **Chapter IV (Results & Discussion)**: 65+ page exhaustive manuscript with 51 APA 7th Edition tables, 23 figures, calibrated open-source student development financials (₱0.00 software, ₱1,500.00 research consumables), 10 Agile Sprints, and 145 PHPUnit test assertions.
+   - **Chapter V (Summary, Conclusions, & Recommendations)**: Full synthesis of research findings, 1-to-1 objective achievement mapping, 3-tiered actionable recommendations (CLSU OSA, Future Researchers/Developers, Philippine Higher Education Sector), and directions for future research.
+   - **Monograph Compilation**: Produced `AEGIS_FINAL_MASTER_THESIS_MONOGRAPH.docx` and `AEGIS_CHAPTER_4_EXHAUSTIVE_RESULTS_AND_DISCUSSION_UPDATED.docx` with unified 300 DPI Black-and-White / Grayscale figures.
+14. **Post-Chapter 5 Implementation Plan (References & Appendices A through H)**:
+   - **Step 1: References Compilation**: 40+ APA 7th Edition academic, statutory, and institutional references with complete DOIs and publisher metadata.
+   - **Step 2: Appendix A (User Manual)**: Operational guide with numbered callout annotations `[1]`, `[2]`, `[3]` for Student Portal, Staff Review Portal, and Super Admin Dashboard.
+   - **Step 3: Appendix B (Technical Data Dictionary)**: Relational database table definitions across all 7 production entities and developer environment specifications.
+   - **Step 4: Appendix C (Comprehensive Test Case Matrix)**: Tabular execution logs of all 145 PHPUnit test assertions with Preconditions, Inputs, Expected Outcomes, and Verification Status.
+   - **Step 5: Appendices D through H**: Standardized ISO/IEC 25010 instrument, Data Privacy Act consent forms, official institutional transmittal letters, Grammarian Certificate, and Researcher CVs.
+   - **Step 6: Master Document & Preview Assembly**: Automated compilation into `AEGIS_POST_CHAPTER_5_AND_APPENDICES.docx` and the unified 180+ page `AEGIS_COMPLETE_CAPSTONE_MANUSCRIPT_FINAL.docx`.
+15. **Full Masterpiece Monograph Generation (160+ Pages Completed)**:
+   - **Primary Monograph Deliverable**: `AEGIS_COMPLETE_150P_CAPSTONE_MASTERPIECE.docx` (4.43 MB, 26,274 total words, 122 tables, 34 monochrome figures, ~164 printed pages).
+   - **Preliminaries**: Title Page, Disclaimer, Approval Sheet, Certification of Proofreading, Abstract, Acknowledgement, Table of Contents, List of Tables, List of Figures.
+   - **Chapters I through V**: Expanded literature reviews with mathematical formulations of ELA/Grad-CAM, 10 Agile Sprints with code snippets, calibrated ₱1,500 open-source budget, and ISO 25010 analysis.
+   - **Appendices A through H**: 9-figure annotated User Manual, SQL DDL scripts & 7 Data Dictionaries, 25 individual test case specification tables, 25-item ISO questionnaire, Consent, Transmittal letters, Grammarian Certificate, and Researcher CVs.
+
+---
+
+## 4. Current Work: 13-Point System Integration & Enhancement Roadmap
+
+The current phase focuses on integrating critical operational, legal, and user-experience enhancements discussed by the team:
+
+1. **After-Work-Hours Application Queue**:
+   - Define CLSU OSA operational window (08:00 AM – 05:00 PM PHT, Monday to Friday).
+   - Automatically tag submissions received outside business hours as queued.
+   - Provide explicit confirmation notice and dashboard badge to the student.
+
+2. **Picture Testing & Actual Edited COG Fixtures**:
+   - Provide sample authentic vs. digitally tampered Certificate of Grades (COG) image files with modified GWA and metadata artifacts.
+   - Embed test sample helper in admin review for immediate picture forensics validation.
+
+3. **Approved Application Form PDF & Email Redesign**:
+   - Make PDF title dynamic to reflect the specific grant applied for (`{{ $application->program_name }} Application & Evaluation Form`).
+   - Refine approval email body with stipend claim instructions, physical submission timeline, and official OSA seal.
+
+4. **Director Complete User Management (Students & Staff)**:
+   - Expand `/superadmin/staff` into a unified User Management module (`/superadmin/users`) with tabs for OSA Staff and Student Accounts.
+   - Full student search, filtering, account deactivation/reactivation, MFA reset, and profile inspection.
+
+5. **Renewal & Removal Scholarship Emails**:
+   - Dedicated `ScholarshipRenewalMail` notifying students of their renewal status and maintenance requirements.
+   - Dedicated `ScholarshipRevocationMail` sent upon grant removal/revocation with administrative remarks.
+   - Add grant revocation action in admin active scholars panel.
+
+6. **Auto-Redirect for Profile Basic Info Completion**:
+   - Middleware `EnsureStudentProfileComplete` ensuring students fill basic info (`clsu_id_number`, `college`, `course`, `year_level`, `contact_number`, `emergency_contact_number`) before accessing the portal.
+
+7. **Available Scholarships Catalog & Full Descriptions**:
+   - Public and student-accessible `/scholarships` directory showing all programs with full, untruncated descriptions, benefits, GWA requirements, and application CTAs.
+
+8. **Super-Admin Edit Announcements**:
+   - Fix modal JS submission and ensure Director (`role: superadmin`) can seamlessly edit and update any announcement.
+
+9. **Announcements Module & Tab for Students**:
+   - Add `/student/announcements` feed with official bulletin board styling.
+   - Add sidebar link and update notification target URLs.
+
+10. **Remove Language Switcher from Template**:
+    - Remove language switcher dropdown from top navigation bar in `layouts/app.blade.php`.
+
+11. **Mobile Responsiveness & Navigation Fixes**:
+    - Fix broken routes in `mobile-nav.blade.php` (`student.apply`, `student.announcements`, `student.profile`).
+    - Add mobile sidebar toggle listener with backdrop overlay.
+    - Ensure all tables have `.table-responsive` containers.
+
+12. **MFA Issue Stabilization**:
+    - Fix client-side countdown timer reset on "Resend Code" (preventing false "Code expired" state).
+    - Guard 6-digit auto-submit against double-submission lockup.
+
+13. **Data Privacy Act (RA 10173) Agreement**:
+    - Add mandatory DPA consent checkbox and modal to student registration and application submission.
+    - Store consent timestamp in database entities.
+
+---
+
+## 5. Implementation Summary & Verification (All 13 Items Completed)
+
+1. **After-Hours Application Queueing**:
+   - Implemented `App\Services\OfficeHoursService` (Monday–Friday 8:00 AM – 5:00 PM PHT).
+   - Tagged applications with `submitted_after_hours` boolean column.
+   - Status logs record after-hours queuing remarks and flash alert provides next-business-day processing estimates.
+   - Distinct badges displayed on student dashboard and administrative review dossiers.
+
+2. **Ground Truth Edited COG Fixtures for Picture Forensics**:
+   - `public/samples/authentic_clsu_cog.jpg` (authentic university Certificate of Grades with GWA 2.75).
+   - `public/samples/tampered_clsu_cog.jpg` (manipulated university Certificate of Grades with edited GWA 1.00).
+   - Documented in `public/samples/README.md`.
+   - 1-click Test COG Fixtures dropdown integrated into `resources/views/admin/review.blade.php`.
+
+3. **Approved Application Form PDF & Email Redesign**:
+   - `resources/views/emails/application_form_pdf.blade.php`: Header dynamically renders `{{ strtoupper($application->program_name ?? 'SCHOLARSHIP GRANT') }} APPLICATION & EVALUATION FORM`. Dynamic page title tag.
+   - `resources/views/emails/application_status.blade.php`: Enhanced approval notification with clear grant claim instructions, stipend release instructions, and reference to the attached PDF.
+
+4. **Director Complete User Management (Students & Staff)**:
+   - Created `superadmin.users` (`GET /superadmin/users`) with tabbed interface for Student Accounts and Staff Personnel.
+   - Search by name, email, student ID, or course; filter by college and account status (active/inactive).
+   - Executive KPI cards for total students, total staff personnel, active scholars, and deactivated accounts.
+   - Actions: Deactivate/Reactivate account (`toggleUserStatus`), Reset MFA security keys and clear remembered devices (`resetUserMfa`), and send password reset link (`sendUserPasswordReset`).
+   - Updated Director navigation links in sidebar and mobile navigation drawer.
+
+5. **Renewal & Removal of Scholarship Email**:
+   - Created `App\Mail\ScholarshipRenewalMail` with attached renewal approval PDF.
+   - Created `App\Mail\ScholarshipRevocationMail` with detailed cause and appeal instructions.
+   - Templates `resources/views/emails/scholarship_renewal.blade.php` and `resources/views/emails/scholarship_revocation.blade.php`.
+   - `AdminController@updateStatus` dispatches `ScholarshipRenewalMail` when an approved application is a renewal (`is_renewal = true`).
+   - Implemented `AdminController@revokeScholarship` (`POST /admin/review/{id}/revoke`), logging audit trails and emailing scholars with full rationale.
+   - Added Revoke Grant action button and modal in `resources/views/admin/review.blade.php`.
+
+6. **Auto-Redirect for Profile Basic Info Completion**:
+   - Created and registered middleware `App\Http\Middleware\EnsureStudentProfileComplete` (`student.profile.complete`).
+   - Added `isProfileComplete()` helper to `App\Models\User`.
+   - Redirects students with incomplete profiles (`clsu_id_number`, `college`, `course`, `year_level`, `contact_number`, `emergency_contact_number`) to `/student/profile` with an alert. Safely exempts profile routes, security settings, and logout to prevent loops.
+
+7. **Available Scholarships Catalog & Full Descriptions**:
+   - Created `ScholarshipController@catalog` (`GET /scholarships`).
+   - Created view `resources/views/scholarships/catalog.blade.php` displaying complete descriptions, criteria, benefits, max GWA, and application action buttons.
+   - Linked in Student Sidebar, Landing Page, and Mobile Bottom Navigation.
+
+8. **Super-Admin Edit Announcements**:
+   - Added edit announcement modal in `resources/views/announcements/index.blade.php`.
+   - Route `admin.announcements.update` supports `POST` and `PATCH` with `@method('PATCH')` spoofing.
+   - `AnnouncementController@update` persists changes and refreshes author relations.
+
+9. **Announcements Tab/Module for Students**:
+   - Added `AnnouncementController@studentFeed` (`GET /student/announcements`).
+   - Created view `resources/views/student/announcements.blade.php` with bulletin board styling, active state filtering, and auto-hiding of expired posts.
+   - Linked in Student Sidebar, Mobile Bottom Nav, and `NewAnnouncementNotification` target URLs.
+
+10. **Removed Language Switcher**:
+    - Removed `#languageSwitcher` element and dropdown from `resources/views/layouts/app.blade.php`.
+
+11. **Mobile Responsiveness**:
+    - Fixed named route references in `resources/views/layouts/mobile-nav.blade.php`.
+    - Added mobile hamburger sidebar toggle and backdrop overlay in `resources/views/layouts/app.blade.php`.
+    - All tables wrapped in `.table-responsive` containers.
+
+12. **MFA Issue Stabilization**:
+    - Refactored `resources/views/auth/mfa_verify.blade.php`: `resendOtp()` dynamically resets countdown to 600 seconds, restores DOM counter elements, and unsets `dataset.submitting` on failure to prevent button lockup.
+
+13. **Data Privacy Act (R.A. 10173) Agreement**:
+    - Database migration `2026_09_17_090000_add_dpa_consent_columns.php` added `dpa_consent_at` timestamp on `users` and `applications`.
+    - Mandatory statutory agreement checkbox and modal in `resources/views/auth/register.blade.php` and `resources/views/student/apply.blade.php`.
+    - Validated in `RegisteredUserController` and `StoreApplicationRequest`.
+
+### Automated Test Coverage
+- `Tests\Feature\UserManagementAndEnhancementsTest`: 6 passed, 22 assertions.
+- `Tests\Feature\AnnouncementBoardTest`: 3 passed, 10 assertions.
+- `Tests\Feature\MfaAuthenticationTest`: 9 passed, 38 assertions.
+- `Tests\Feature\ScholarshipRenewalTest`: 2 passed, 6 assertions.
+- **Total**: 20 feature tests passed (76 assertions) with zero regressions.
+

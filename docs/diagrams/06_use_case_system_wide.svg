@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1450 1150" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="openArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M1,1 L9,5 L1,9" fill="none" stroke="#1A1A1A" stroke-width="1.6"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="1450" height="1150" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="725" y="40" font-size="16" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Figure 6. System-Wide Use Case Diagram</text>
+
+  <!-- ===================== ASSOCIATION LINES (drawn first, covered at ends by shapes) ===================== -->
+  <g stroke="#1A1A1A" stroke-width="1.2">
+    <!-- Student (110,320) -->
+    <line x1="110" y1="320" x2="420" y2="180"/>
+    <line x1="110" y1="320" x2="420" y2="300"/>
+    <line x1="110" y1="320" x2="420" y2="540"/>
+    <line x1="110" y1="320" x2="700" y2="180"/>
+    <line x1="110" y1="320" x2="700" y2="300"/>
+    <line x1="110" y1="320" x2="700" y2="660"/>
+
+    <!-- OSA Staff (1290,590) -->
+    <line x1="1290" y1="590" x2="700" y2="180"/>
+    <line x1="1290" y1="590" x2="700" y2="300"/>
+    <line x1="1290" y1="590" x2="980" y2="180"/>
+    <line x1="1290" y1="590" x2="980" y2="420"/>
+    <line x1="1290" y1="590" x2="980" y2="540"/>
+    <line x1="1290" y1="590" x2="980" y2="660"/>
+    <line x1="1290" y1="590" x2="700" y2="660"/>
+
+    <!-- OSA Director / Super Admin (1290,890) -->
+    <line x1="1290" y1="890" x2="700" y2="180"/>
+    <line x1="1290" y1="890" x2="700" y2="300"/>
+    <line x1="1290" y1="890" x2="980" y2="180"/>
+    <line x1="1290" y1="890" x2="980" y2="420"/>
+    <line x1="1290" y1="890" x2="980" y2="540"/>
+    <line x1="1290" y1="890" x2="980" y2="660"/>
+    <line x1="1290" y1="890" x2="980" y2="780"/>
+    <line x1="1290" y1="890" x2="980" y2="900"/>
+    <line x1="1290" y1="890" x2="980" y2="1020"/>
+    <line x1="1290" y1="890" x2="700" y2="660"/>
+
+    <!-- AI Forensics Service (1195,300) -->
+    <line x1="1195" y1="300" x2="980" y2="300"/>
+  </g>
+
+  <!-- ===================== SYSTEM BOUNDARY ===================== -->
+  <rect x="260" y="90" width="880" height="1000" fill="none" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="700" y="118" font-size="14" font-weight="bold" fill="#1A1A1A" text-anchor="middle">AEGIS System</text>
+
+  <!-- ===================== USE CASES ===================== -->
+  <g>
+    <!-- Student lane x=420 -->
+    <ellipse cx="420" cy="180" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="420" y="185" font-size="12" fill="#1A1A1A" text-anchor="middle">Register Account</text>
+
+    <ellipse cx="420" cy="300" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="420" y="295" font-size="12" fill="#1A1A1A" text-anchor="middle">Submit Scholarship</text>
+    <text x="420" y="311" font-size="12" fill="#1A1A1A" text-anchor="middle">Application</text>
+
+    <ellipse cx="420" cy="420" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="420" y="415" font-size="12" fill="#1A1A1A" text-anchor="middle">Upload Supporting</text>
+    <text x="420" y="431" font-size="12" fill="#1A1A1A" text-anchor="middle">Documents</text>
+
+    <ellipse cx="420" cy="540" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="420" y="535" font-size="12" fill="#1A1A1A" text-anchor="middle">Track Application</text>
+    <text x="420" y="551" font-size="12" fill="#1A1A1A" text-anchor="middle">Status</text>
+
+    <!-- Shared lane x=700 -->
+    <ellipse cx="700" cy="180" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="700" y="185" font-size="12" fill="#1A1A1A" text-anchor="middle">Login with MFA</text>
+
+    <ellipse cx="700" cy="300" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="700" y="295" font-size="12" fill="#1A1A1A" text-anchor="middle">Manage Trusted</text>
+    <text x="700" y="311" font-size="12" fill="#1A1A1A" text-anchor="middle">Devices</text>
+
+    <ellipse cx="700" cy="660" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="700" y="655" font-size="12" fill="#1A1A1A" text-anchor="middle">Submit UAT</text>
+    <text x="700" y="671" font-size="12" fill="#1A1A1A" text-anchor="middle">Feedback</text>
+
+    <!-- Staff / Director lane x=980 -->
+    <ellipse cx="980" cy="180" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="980" y="175" font-size="12" fill="#1A1A1A" text-anchor="middle">Review Assigned</text>
+    <text x="980" y="191" font-size="12" fill="#1A1A1A" text-anchor="middle">Applications</text>
+
+    <ellipse cx="980" cy="300" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="980" y="295" font-size="12" fill="#1A1A1A" text-anchor="middle">Perform Document</text>
+    <text x="980" y="311" font-size="12" fill="#1A1A1A" text-anchor="middle">Forensic Scan</text>
+
+    <ellipse cx="980" cy="420" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="980" y="415" font-size="12" fill="#1A1A1A" text-anchor="middle">Approve / Reject</text>
+    <text x="980" y="431" font-size="12" fill="#1A1A1A" text-anchor="middle">Application</text>
+
+    <ellipse cx="980" cy="540" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="980" y="535" font-size="12" fill="#1A1A1A" text-anchor="middle">Generate Forensic</text>
+    <text x="980" y="551" font-size="12" fill="#1A1A1A" text-anchor="middle">Certificate</text>
+
+    <ellipse cx="980" cy="660" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="980" y="655" font-size="12" fill="#1A1A1A" text-anchor="middle">Broadcast</text>
+    <text x="980" y="671" font-size="12" fill="#1A1A1A" text-anchor="middle">Announcement</text>
+
+    <ellipse cx="980" cy="780" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="980" y="775" font-size="12" fill="#1A1A1A" text-anchor="middle">Configure Scholarship</text>
+    <text x="980" y="791" font-size="12" fill="#1A1A1A" text-anchor="middle">Program</text>
+
+    <ellipse cx="980" cy="900" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="980" y="895" font-size="12" fill="#1A1A1A" text-anchor="middle">Manage User</text>
+    <text x="980" y="911" font-size="12" fill="#1A1A1A" text-anchor="middle">Accounts</text>
+
+    <ellipse cx="980" cy="1020" rx="118" ry="42" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+    <text x="980" y="1025" font-size="12" fill="#1A1A1A" text-anchor="middle">View Audit Logs</text>
+  </g>
+
+  <!-- ===================== INCLUDE RELATIONSHIPS (drawn on top of ellipses, precise edges) ===================== -->
+  <g stroke="#1A1A1A" stroke-width="1.4" stroke-dasharray="5,4">
+    <line x1="420" y1="342" x2="420" y2="378" marker-end="url(#openArrow)"/>
+    <line x1="980" y1="222" x2="980" y2="258" marker-end="url(#openArrow)"/>
+  </g>
+  <text x="440" y="364" font-size="10" font-style="italic" fill="#1A1A1A">&#171;include&#187;</text>
+  <text x="1000" y="244" font-size="10" font-style="italic" fill="#1A1A1A">&#171;include&#187;</text>
+
+  <!-- ===================== ACTORS ===================== -->
+  <!-- Student -->
+  <g>
+    <circle cx="110" cy="292" r="12" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="110" y1="304" x2="110" y2="335" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="92" y1="315" x2="128" y2="315" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="110" y1="335" x2="95" y2="360" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="110" y1="335" x2="125" y2="360" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="110" y="380" font-size="12" fill="#1A1A1A" text-anchor="middle">Student</text>
+  </g>
+
+  <!-- OSA Staff -->
+  <g>
+    <circle cx="1290" cy="562" r="12" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1290" y1="574" x2="1290" y2="605" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1272" y1="585" x2="1308" y2="585" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1290" y1="605" x2="1275" y2="630" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1290" y1="605" x2="1305" y2="630" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="1290" y="650" font-size="12" fill="#1A1A1A" text-anchor="middle">OSA Staff</text>
+  </g>
+
+  <!-- OSA Director / Super Admin -->
+  <g>
+    <circle cx="1290" cy="862" r="12" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1290" y1="874" x2="1290" y2="905" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1272" y1="885" x2="1308" y2="885" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1290" y1="905" x2="1275" y2="930" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1290" y1="905" x2="1305" y2="930" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="1290" y="950" font-size="12" fill="#1A1A1A" text-anchor="middle">OSA Director</text>
+    <text x="1290" y="965" font-size="12" fill="#1A1A1A" text-anchor="middle">(Super Admin)</text>
+  </g>
+
+  <!-- AI Forensics Service (system actor) -->
+  <g>
+    <rect x="1195" y="265" width="190" height="70" rx="10" ry="10" fill="#FFFFFF" stroke="#C77C22" stroke-width="2"/>
+    <text x="1290" y="292" font-size="11" font-style="italic" fill="#C77C22" text-anchor="middle">&#171;system&#187;</text>
+    <text x="1290" y="310" font-size="12" fill="#1A1A1A" text-anchor="middle">AI Forensics Service</text>
+  </g>
+</svg>

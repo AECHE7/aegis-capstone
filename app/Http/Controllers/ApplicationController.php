@@ -115,6 +115,9 @@ class ApplicationController extends Controller
             return \App\Models\AcademicTerm::where('is_active', true)->first();
         });
 
+        $isAfterHours = \App\Services\OfficeHoursService::isOutsideOfficeHours();
+        $nextOpening = \App\Services\OfficeHoursService::getNextOpeningTime()->format('l, M j, Y \a\t g:i A');
+
         $application = \App\Models\Application::create([
             'user_id' => $userId,
             'scholarship_id' => $request->scholarship_id,
@@ -124,13 +127,19 @@ class ApplicationController extends Controller
             'status' => 'Pending',
             'is_renewal' => $request->boolean('is_renewal') || !empty($request->previous_application_id),
             'previous_application_id' => $request->previous_application_id ?: null,
+            'dpa_consent_at' => now(),
+            'submitted_after_hours' => $isAfterHours,
         ]);
+
+        $initialRemarks = $isAfterHours
+            ? "Application received outside regular OSA office hours (Mon-Fri 8:00 AM - 5:00 PM PHT). Safely queued for administrative evaluation on {$nextOpening}."
+            : 'Application submitted and entered the verification pipeline.';
 
         // Log the initial status transition
         \App\Models\StatusLog::create([
             'application_id' => $application->id,
             'status' => 'Pending',
-            'remarks' => 'Application submitted and entered the verification pipeline.',
+            'remarks' => $initialRemarks,
             'changed_by' => $userId
         ]);
 
@@ -223,15 +232,20 @@ class ApplicationController extends Controller
             \Illuminate\Support\Facades\Log::error('Failed to notify staff on new application: ' . $e->getMessage());
         }
 
+        $successMsg = $isAfterHours
+            ? "Your application has been received! Because it was submitted outside regular OSA office hours (Mon-Fri 8:00 AM - 5:00 PM PHT), it is safely queued and will be evaluated on the next business day ({$nextOpening})."
+            : 'Your application has been submitted successfully to the OSA pipeline!';
+
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Your application has been submitted successfully to the OSA pipeline!'
+                'message' => $successMsg,
+                'is_queued_after_hours' => $isAfterHours,
             ]);
         }
 
         return redirect()->route('student.dashboard')
-            ->with('success', 'Your application has been submitted successfully to the OSA pipeline!');
+            ->with('success', $successMsg);
     }
 
     // Dynamic schema helper for students

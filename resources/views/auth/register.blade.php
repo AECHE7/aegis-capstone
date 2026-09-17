@@ -575,6 +575,20 @@
                     </button>
                 </div>
 
+                <!-- Data Privacy Act (RA 10173) Agreement Checkbox -->
+                <div class="mb-4">
+                    <div class="form-check d-flex align-items-start gap-2 text-start">
+                        <input class="form-check-input mt-1" type="checkbox" name="dpa_consent" id="dpaConsent" required {{ old('dpa_consent') ? 'checked' : '' }} style="cursor: pointer; min-width: 17px; height: 17px; accent-color: var(--green);">
+                        <label class="form-check-label small text-muted" for="dpaConsent" style="font-size: 0.8rem; line-height: 1.45; cursor: pointer;">
+                            I have read and agree to the collection, processing, and integrity verification of my educational records under the 
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#dpaPolicyModal" class="fw-semibold text-decoration-underline" style="color: var(--green);">Data Privacy Act of 2012 (R.A. 10173)</a> and the CLSU OSA Privacy Policy.
+                        </label>
+                    </div>
+                    @error('dpa_consent')
+                        <div class="text-danger small mt-1 text-start" style="font-size: 0.78rem;">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <!-- Submit -->
                 <button type="submit" class="btn btn-register w-100 d-flex justify-content-center align-items-center gap-2"
                         onclick="showSpinner()">
@@ -594,6 +608,59 @@
 
 </div>
 
+<!-- Data Privacy Act (RA 10173) Official Statutory Modal -->
+<div class="modal fade" id="dpaPolicyModal" tabindex="-1" aria-labelledby="dpaPolicyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header border-0 text-white" style="background: linear-gradient(135deg, #07331c, #0C4E2D); padding: 1.5rem;">
+                <div>
+                    <h5 class="modal-title fw-bold text-white mb-0 d-flex align-items-center gap-2" id="dpaPolicyModalLabel">
+                        <i class="fa-solid fa-shield-halved text-warning"></i> Data Privacy Act of 2012 (R.A. 10173) Consent & Policy
+                    </h5>
+                    <small class="text-white-50">Central Luzon State University — Office of Student Affairs (CLSU OSA)</small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" style="max-height: 65vh; overflow-y: auto; font-size: 0.875rem; color: #334155; line-height: 1.6;">
+                <div class="p-3 bg-light rounded-3 mb-3 border-start border-4 border-success">
+                    <strong class="text-dark d-block mb-1">Statutory Statement:</strong>
+                    In compliance with the <strong>Republic Act No. 10173</strong>, also known as the <em>Data Privacy Act of 2012</em> (DPA), the CLSU Office of Student Affairs (OSA) is committed to protecting your personal data, academic credentials, and privacy.
+                </div>
+
+                <h6 class="fw-bold text-dark mt-3 mb-2">1. Scope of Data Collection</h6>
+                <p>When applying for or renewing scholarships through the A.E.G.I.S. portal, the system collects:</p>
+                <ul>
+                    <li>Personal identification (Full Name, CLSU Student ID number, institutional email).</li>
+                    <li>Academic records (Certificate of Grades / COG, General Weighted Average / GWA, enrolled college and degree program).</li>
+                    <li>Socio-economic credentials and contact information (mobile numbers, parent/guardian contact).</li>
+                    <li>Cryptographic checksums and forensic metadata from uploaded academic documents.</li>
+                </ul>
+
+                <h6 class="fw-bold text-dark mt-3 mb-2">2. Purpose of Data Processing</h6>
+                <p>Your information is processed strictly for:</p>
+                <ul>
+                    <li>Determining grant qualification, renewal eligibility, and academic standing.</li>
+                    <li>Automated OCR extraction and AI-driven document tamper detection to safeguard grant integrity.</li>
+                    <li>Official communication regarding application status, approval notices, and stipend disbursements.</li>
+                </ul>
+
+                <h6 class="fw-bold text-dark mt-3 mb-2">3. Storage, Encryption & Security Safeguards</h6>
+                <p>All sensitive student profiles and financial data are secured at-rest using <strong>AES-256 column-level encryption</strong> and SHA-256 document hashing. Access is strictly role-restricted to authorized OSA evaluators and the OSA Director.</p>
+
+                <h6 class="fw-bold text-dark mt-3 mb-2">4. Your Data Subject Rights</h6>
+                <p>Under R.A. 10173, you retain the right to be informed, right to access, right to rectify errors in your records, and right to object or request withdrawal of your application in accordance with university scholarship regulations.</p>
+            </div>
+            <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-between">
+                <span class="text-muted small"><i class="fa-solid fa-lock text-success me-1"></i> 256-Bit Encrypted Portal</span>
+                <button type="button" class="btn btn-success fw-bold px-4" data-bs-dismiss="modal" onclick="document.getElementById('dpaConsent').checked = true;" style="border-radius: 50px; background: var(--green);">
+                    I Understand & Accept
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     /* ── Password Toggle ──────────────────────── */
     function togglePwd(inputId, iconId) {
@@ -652,6 +719,8 @@
 
     /* ── Submit Spinner ───────────────────────── */
     function showSpinner() {
+        const dpa = document.getElementById('dpaConsent');
+        if (dpa && !dpa.checked) return;
         setTimeout(() => {
             document.getElementById('regText').textContent = 'Creating account...';
             document.getElementById('regSpinner').classList.remove('d-none');

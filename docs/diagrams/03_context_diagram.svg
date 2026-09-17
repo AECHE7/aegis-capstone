@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<rect x="0" y="0" width="1200" height="800" fill="#FFFFFF"/>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="#1A1A1A"/>
+</marker>
+</defs>
+
+<text x="600" y="40" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 3. System Context Diagram (Level 0 DFD)</text>
+
+<!-- Central process -->
+<ellipse cx="600" cy="420" rx="150" ry="90" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+<text x="600" y="412" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" text-anchor="middle" fill="#FFFFFF">0</text>
+<text x="600" y="432" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#FFFFFF">AEGIS System</text>
+
+<!-- External entities -->
+<rect x="60" y="120" width="240" height="90" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+<text x="180" y="170" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Student</text>
+<text x="180" y="188" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#595959">(Scholarship Applicant)</text>
+
+<rect x="900" y="120" width="240" height="90" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+<text x="1020" y="160" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1A1A1A">OSA Staff</text>
+<text x="1020" y="178" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#595959">(Application Reviewer /</text>
+<text x="1020" y="194" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#595959">"admin" role)</text>
+
+<rect x="900" y="630" width="240" height="90" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+<text x="1020" y="668" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1A1A1A">OSA Director /</text>
+<text x="1020" y="686" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Super Admin</text>
+<text x="1020" y="704" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#595959">("superadmin" role)</text>
+
+<rect x="60" y="630" width="260" height="90" fill="#FFFFFF" stroke="#C77C22" stroke-width="3"/>
+<text x="190" y="668" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1A1A1A">AI Forensics</text>
+<text x="190" y="686" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Microservice</text>
+<text x="190" y="704" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#595959">(external Python "aegis-ai" service)</text>
+
+<!-- Student <-> AEGIS -->
+<line x1="300" y1="195" x2="500" y2="350" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="330" y="255" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">application + documents</text>
+
+<line x1="503" y1="368" x2="303" y2="213" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="315" y="300" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">status notifications</text>
+
+<!-- OSA Staff <-> AEGIS -->
+<line x1="900" y1="195" x2="700" y2="350" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="740" y="255" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">review decision</text>
+
+<line x1="697" y1="368" x2="897" y2="213" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="770" y="300" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">application + AI verdict</text>
+
+<!-- OSA Director <-> AEGIS -->
+<line x1="900" y1="645" x2="700" y2="490" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="735" y="590" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">scholarship program</text>
+<text x="735" y="604" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">configuration</text>
+
+<line x1="697" y1="472" x2="897" y2="627" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="760" y="545" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">audit logs + analytics</text>
+
+<!-- AI Forensics <-> AEGIS -->
+<line x1="500" y1="490" x2="300" y2="645" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="330" y="605" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">document image</text>
+
+<line x1="303" y1="627" x2="503" y2="472" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="325" y="545" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">fraud probability +</text>
+<text x="325" y="559" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#1A1A1A">risk tier</text>
+
+<text x="1160" y="770" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" text-anchor="end" fill="#C77C22">amber outline = AI/ML subsystem boundary</text>
+</svg>

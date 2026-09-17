@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 780" font-family="Arial, Helvetica, sans-serif">
+  <rect x="0" y="0" width="1300" height="780" fill="#FFFFFF"/>
+  <text x="650" y="34" font-size="16" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Figure 15. Entity-Relationship Diagram &#8212; Application Lifecycle Module</text>
+
+  <!-- ============ RELATIONSHIP LINES (drawn first, under boxes) ============ -->
+  <line x1="200" y1="321" x2="750" y2="122" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="350" y="261" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="596" y="180" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <line x1="200" y1="321" x2="750" y2="322" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="350" y="317" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="596" y="318" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <line x1="200" y1="321" x2="750" y2="522" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="350" y="380" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="596" y="471" font-size="10.5" fill="#1A1A1A">0..*</text>
+
+  <line x1="750" y1="322" x2="1100" y2="322" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="895" y="315" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="945" y="315" font-size="10.5" fill="#1A1A1A">0..1</text>
+
+  <!-- self-referencing FK: previous_application_id (renewal chain) -->
+  <polyline points="150,200 150,158 250,158 250,200" fill="none" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="200" y="148" font-size="9.5" fill="#595959" font-style="italic" text-anchor="middle">previous_application_id (self, 0..1)</text>
+
+  <!-- ============ ENTITY: applications (x=70,y=200,w=260,h=242) ============ -->
+  <g>
+    <rect x="70" y="200" width="260" height="242" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="70" y="200" width="260" height="34" fill="#1F4E79"/>
+    <text x="200" y="222" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">applications</text>
+    <rect x="70" y="260" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="70" y="312" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="70" y="364" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="70" y="416" width="260" height="26" fill="#D9D9D9"/>
+    <text x="82" y="251" font-size="11" fill="#1A1A1A">id</text>
+    <text x="180" y="251" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="316" y="251" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="82" y="277" font-size="11" fill="#1A1A1A">user_id</text>
+    <text x="180" y="277" font-size="10" fill="#595959">bigint, applicant</text>
+    <text x="316" y="277" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="82" y="303" font-size="11" fill="#1A1A1A">scholarship_id</text>
+    <text x="180" y="303" font-size="10" fill="#595959">bigint</text>
+    <text x="316" y="303" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="82" y="329" font-size="11" fill="#1A1A1A">academic_term_id</text>
+    <text x="180" y="329" font-size="10" fill="#595959">bigint, nullable</text>
+    <text x="316" y="329" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="82" y="355" font-size="11" fill="#1A1A1A">status</text>
+    <text x="180" y="355" font-size="10" fill="#595959">Pending/Approved/...</text>
+    <text x="82" y="381" font-size="11" fill="#1A1A1A">is_renewal</text>
+    <text x="180" y="381" font-size="10" fill="#595959">boolean</text>
+    <text x="82" y="407" font-size="9.5" fill="#1A1A1A">prev_application_id</text>
+    <text x="205" y="407" font-size="9.5" fill="#595959">bigint, nullable</text>
+    <text x="316" y="407" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="82" y="433" font-size="11" fill="#1A1A1A">evaluated_by</text>
+    <text x="180" y="433" font-size="10" fill="#595959">bigint, nullable</text>
+    <text x="316" y="433" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <line x1="70" y1="234" x2="330" y2="234" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="260" x2="330" y2="260" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="286" x2="330" y2="286" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="312" x2="330" y2="312" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="338" x2="330" y2="338" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="364" x2="330" y2="364" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="390" x2="330" y2="390" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="70" y1="416" x2="330" y2="416" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <!-- ============ ENTITY: application_fields (x=620,y=40,w=260,h=164) ============ -->
+  <g>
+    <rect x="620" y="40" width="260" height="164" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="620" y="40" width="260" height="34" fill="#1F4E79"/>
+    <text x="750" y="62" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">application_fields</text>
+    <rect x="620" y="100" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="620" y="152" width="260" height="26" fill="#D9D9D9"/>
+    <text x="632" y="91" font-size="11" fill="#1A1A1A">id</text>
+    <text x="730" y="91" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="866" y="91" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="632" y="117" font-size="11" fill="#1A1A1A">application_id</text>
+    <text x="730" y="117" font-size="10" fill="#595959">bigint</text>
+    <text x="866" y="117" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="632" y="143" font-size="11" fill="#1A1A1A">field_name</text>
+    <text x="730" y="143" font-size="10" fill="#595959">string, key</text>
+    <text x="632" y="169" font-size="11" fill="#1A1A1A">field_value</text>
+    <text x="730" y="169" font-size="10" fill="#595959">text, encrypted</text>
+    <text x="632" y="195" font-size="11" fill="#1A1A1A">is_synced</text>
+    <text x="730" y="195" font-size="10" fill="#595959">boolean</text>
+    <line x1="620" y1="74" x2="880" y2="74" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="100" x2="880" y2="100" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="126" x2="880" y2="126" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="152" x2="880" y2="152" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="178" x2="880" y2="178" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <!-- ============ ENTITY: documents (x=620,y=240,w=260,h=164) ============ -->
+  <g>
+    <rect x="620" y="240" width="260" height="164" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="620" y="240" width="260" height="34" fill="#1F4E79"/>
+    <text x="750" y="262" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">documents</text>
+    <rect x="620" y="300" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="620" y="352" width="260" height="26" fill="#D9D9D9"/>
+    <text x="632" y="291" font-size="11" fill="#1A1A1A">id</text>
+    <text x="730" y="291" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="866" y="291" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="632" y="317" font-size="11" fill="#1A1A1A">application_id</text>
+    <text x="730" y="317" font-size="10" fill="#595959">bigint</text>
+    <text x="866" y="317" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="632" y="343" font-size="11" fill="#1A1A1A">file_path</text>
+    <text x="730" y="343" font-size="10" fill="#595959">string(255)</text>
+    <text x="632" y="369" font-size="11" fill="#1A1A1A">document_type</text>
+    <text x="730" y="369" font-size="10" fill="#595959">e.g. COG</text>
+    <text x="632" y="395" font-size="11" fill="#1A1A1A">uploaded_by</text>
+    <text x="730" y="395" font-size="10" fill="#595959">bigint, nullable</text>
+    <text x="866" y="395" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <line x1="620" y1="274" x2="880" y2="274" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="300" x2="880" y2="300" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="326" x2="880" y2="326" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="352" x2="880" y2="352" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="378" x2="880" y2="378" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <!-- ============ ENTITY: status_logs (x=620,y=440,w=260,h=164) ============ -->
+  <g>
+    <rect x="620" y="440" width="260" height="164" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="620" y="440" width="260" height="34" fill="#1F4E79"/>
+    <text x="750" y="462" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">status_logs</text>
+    <rect x="620" y="500" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="620" y="552" width="260" height="26" fill="#D9D9D9"/>
+    <text x="632" y="491" font-size="11" fill="#1A1A1A">id</text>
+    <text x="730" y="491" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="866" y="491" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="632" y="517" font-size="11" fill="#1A1A1A">application_id</text>
+    <text x="730" y="517" font-size="10" fill="#595959">bigint</text>
+    <text x="866" y="517" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="632" y="543" font-size="11" fill="#1A1A1A">status</text>
+    <text x="730" y="543" font-size="10" fill="#595959">transitioned-to value</text>
+    <text x="632" y="569" font-size="11" fill="#1A1A1A">changed_by</text>
+    <text x="730" y="569" font-size="10" fill="#595959">bigint, nullable</text>
+    <text x="866" y="569" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="632" y="595" font-size="11" fill="#1A1A1A">remarks</text>
+    <text x="730" y="595" font-size="10" fill="#595959">text, nullable</text>
+    <line x1="620" y1="474" x2="880" y2="474" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="500" x2="880" y2="500" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="526" x2="880" y2="526" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="552" x2="880" y2="552" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="620" y1="578" x2="880" y2="578" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <!-- ============ ENTITY: a_i_results (x=970,y=240,w=260,h=164) :: Accent Amber (AI-related) ============ -->
+  <g>
+    <rect x="970" y="240" width="260" height="164" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1"/>
+    <rect x="970" y="240" width="260" height="34" fill="#C77C22"/>
+    <text x="1100" y="262" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">a_i_results</text>
+    <rect x="970" y="300" width="260" height="26" fill="#D9D9D9"/>
+    <rect x="970" y="352" width="260" height="26" fill="#D9D9D9"/>
+    <text x="982" y="291" font-size="11" fill="#1A1A1A">id</text>
+    <text x="1080" y="291" font-size="10" fill="#595959">bigint, auto-inc</text>
+    <text x="1216" y="291" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">PK</text>
+    <text x="982" y="317" font-size="11" fill="#1A1A1A">document_id</text>
+    <text x="1080" y="317" font-size="10" fill="#595959">bigint</text>
+    <text x="1216" y="317" font-size="11" font-weight="bold" fill="#1A1A1A" text-anchor="end">FK</text>
+    <text x="982" y="343" font-size="11" fill="#1A1A1A">fraud_probability</text>
+    <text x="1080" y="343" font-size="10" fill="#595959">decimal(5,2)</text>
+    <text x="982" y="369" font-size="11" fill="#1A1A1A">classification</text>
+    <text x="1080" y="369" font-size="10" fill="#595959">Authentic/Tampered</text>
+    <text x="982" y="395" font-size="11" fill="#1A1A1A">anomaly_indicators</text>
+    <text x="1080" y="395" font-size="10" fill="#595959">json</text>
+    <line x1="970" y1="274" x2="1230" y2="274" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="970" y1="300" x2="1230" y2="300" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="970" y1="326" x2="1230" y2="326" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="970" y1="352" x2="1230" y2="352" stroke="#1A1A1A" stroke-width="1"/>
+    <line x1="970" y1="378" x2="1230" y2="378" stroke="#1A1A1A" stroke-width="1"/>
+  </g>
+
+  <text x="70" y="700" font-size="10.5" fill="#595959" font-style="italic">Application is the operational core: it owns ApplicationField answers (EAV values), Document uploads, and StatusLog transitions.</text>
+  <text x="70" y="718" font-size="10.5" fill="#595959" font-style="italic">Each Document may carry exactly one AIResult (forensic scan outcome). All four owned relationships cascade on delete; evaluated_by/previous_application_id set null.</text>
+</svg>

@@ -27,6 +27,7 @@ class StoreApplicationRequest extends FormRequest
             'scholarship_id' => 'required|exists:scholarships,id',
             'gwa' => 'nullable|numeric|min:1.00|max:5.00',
             'document' => 'nullable|file|mimes:jpeg,png,pdf|max:5120',
+            'dpa_consent' => 'nullable',
         ];
 
         $scholarshipId = $this->input('scholarship_id');

@@ -1,0 +1,201 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 520">
+  <rect x="0" y="0" width="1480" height="520" fill="#FFFFFF"/>
+
+  <text x="740" y="26" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#1A1A1A">Figure 28. ISO/IEC 25010 Software Quality Model Mapping</text>
+
+  <!-- Root -->
+  <rect x="570" y="60" width="340" height="60" rx="6" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="740" y="85" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" fill="#FFFFFF">ISO/IEC 25010:2011</text>
+  <text x="740" y="103" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">Quality Model</text>
+
+  <!-- Trunk + bus -->
+  <line x1="740" y1="120" x2="740" y2="140" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="110" y1="140" x2="1370" y2="140" stroke="#1A1A1A" stroke-width="2"/>
+
+  <!-- Drops to each characteristic -->
+  <line x1="110" y1="140" x2="110" y2="160" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="290" y1="140" x2="290" y2="160" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="470" y1="140" x2="470" y2="160" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="650" y1="140" x2="650" y2="160" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="830" y1="140" x2="830" y2="160" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="1010" y1="140" x2="1010" y2="160" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="1190" y1="140" x2="1190" y2="160" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="1370" y1="140" x2="1370" y2="160" stroke="#1A1A1A" stroke-width="1.5"/>
+
+  <!-- ===================== Characteristic boxes ===================== -->
+  <!-- 1. Functional Suitability -->
+  <rect x="35" y="160" width="150" height="60" rx="4" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="110" y="186" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Functional</text>
+  <text x="110" y="202" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Suitability</text>
+
+  <!-- 2. Performance Efficiency -->
+  <rect x="215" y="160" width="150" height="60" rx="4" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="290" y="186" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Performance</text>
+  <text x="290" y="202" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Efficiency</text>
+
+  <!-- 3. Compatibility -->
+  <rect x="395" y="160" width="150" height="60" rx="4" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="470" y="194" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Compatibility</text>
+
+  <!-- 4. Usability -->
+  <rect x="575" y="160" width="150" height="60" rx="4" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="650" y="194" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Usability</text>
+
+  <!-- 5. Reliability -->
+  <rect x="755" y="160" width="150" height="60" rx="4" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="830" y="194" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Reliability</text>
+
+  <!-- 6. Security -->
+  <rect x="935" y="160" width="150" height="60" rx="4" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="1010" y="194" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Security</text>
+
+  <!-- 7. Maintainability -->
+  <rect x="1115" y="160" width="150" height="60" rx="4" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="1190" y="186" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Maintain-</text>
+  <text x="1190" y="202" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">ability</text>
+
+  <!-- 8. Portability -->
+  <rect x="1295" y="160" width="150" height="60" rx="4" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+  <text x="1370" y="194" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF">Portability</text>
+
+  <!-- ===================== Leaf connector stems ===================== -->
+  <!-- col 0: 2 leaves -->
+  <line x1="110" y1="220" x2="110" y2="240" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="110" y1="298" x2="110" y2="308" stroke="#1A1A1A" stroke-width="1.5"/>
+  <!-- col 1: 3 leaves -->
+  <line x1="290" y1="220" x2="290" y2="240" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="290" y1="298" x2="290" y2="308" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="290" y1="366" x2="290" y2="376" stroke="#1A1A1A" stroke-width="1.5"/>
+  <!-- col 2: 2 leaves -->
+  <line x1="470" y1="220" x2="470" y2="240" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="470" y1="298" x2="470" y2="308" stroke="#1A1A1A" stroke-width="1.5"/>
+  <!-- col 3: 1 leaf -->
+  <line x1="650" y1="220" x2="650" y2="240" stroke="#1A1A1A" stroke-width="1.5"/>
+  <!-- col 4: 3 leaves -->
+  <line x1="830" y1="220" x2="830" y2="240" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="830" y1="298" x2="830" y2="308" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="830" y1="366" x2="830" y2="376" stroke="#1A1A1A" stroke-width="1.5"/>
+  <!-- col 5: 2 leaves -->
+  <line x1="1010" y1="220" x2="1010" y2="240" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="1010" y1="298" x2="1010" y2="308" stroke="#1A1A1A" stroke-width="1.5"/>
+  <!-- col 6: 3 leaves -->
+  <line x1="1190" y1="220" x2="1190" y2="240" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="1190" y1="298" x2="1190" y2="308" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="1190" y1="366" x2="1190" y2="376" stroke="#1A1A1A" stroke-width="1.5"/>
+  <!-- col 7: 3 leaves -->
+  <line x1="1370" y1="220" x2="1370" y2="240" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="1370" y1="298" x2="1370" y2="308" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="1370" y1="366" x2="1370" y2="376" stroke="#1A1A1A" stroke-width="1.5"/>
+
+  <!-- ===================== Leaf boxes ===================== -->
+  <!-- Col 0: Functional Suitability -->
+  <rect x="30" y="240" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="110" y="260" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Application, AI review</text>
+  <text x="110" y="273" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">&amp; multi-tier decision</text>
+  <text x="110" y="286" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">workflows (apply&#8594;award)</text>
+
+  <rect x="30" y="308" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="110" y="333" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Exercised by 200-method</text>
+  <text x="110" y="346" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Feature test suite (Ch. 20)</text>
+
+  <!-- Col 1: Performance Efficiency -->
+  <rect x="210" y="240" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="290" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">GzipResponse compression</text>
+  <text x="290" y="278" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">(80&#8211;85% payload cut)</text>
+
+  <rect x="210" y="308" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="290" y="328" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Eager-loading eliminates</text>
+  <text x="290" y="341" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">N+1 queries in</text>
+  <text x="290" y="354" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">AdminController</text>
+
+  <rect x="210" y="376" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="290" y="401" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">OPcache: 128MB pool,</text>
+  <text x="290" y="414" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">validate_timestamps=0</text>
+
+  <!-- Col 2: Compatibility -->
+  <rect x="390" y="240" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="470" y="265" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">HTTP/JSON contract with</text>
+  <text x="470" y="278" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">aegis-ai Python service</text>
+
+  <rect x="390" y="308" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="470" y="333" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Bootstrap 5, vanilla JS,</text>
+  <text x="470" y="346" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">PWA service worker</text>
+
+  <!-- Col 3: Usability (generic, no Ch.19-specific evidence) -->
+  <rect x="570" y="240" width="160" height="58" rx="4" fill="#D9D9D9" stroke="#595959" stroke-width="1.5"/>
+  <text x="650" y="260" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Addressed in UI/UX</text>
+  <text x="650" y="273" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">chapters (Ch. 18) &#8212;</text>
+  <text x="650" y="286" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">not re-analyzed in Ch. 19</text>
+
+  <!-- Col 4: Reliability -->
+  <rect x="750" y="240" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="830" y="260" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">ScanDocumentJob: 5</text>
+  <text x="830" y="273" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">retries, backoff up</text>
+  <text x="830" y="286" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">to 360 seconds</text>
+
+  <rect x="750" y="308" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="830" y="333" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Queued email fan-out +</text>
+  <text x="830" y="346" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">EmailLog audit trail</text>
+
+  <rect x="750" y="376" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="830" y="396" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Client-side localStorage</text>
+  <text x="830" y="409" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">autosave for in-progress</text>
+  <text x="830" y="422" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">applications</text>
+
+  <!-- Col 5: Security -->
+  <rect x="930" y="240" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="1010" y="260" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Full architecture in</text>
+  <text x="1010" y="273" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Chapter 16 (headers,</text>
+  <text x="1010" y="286" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">CSRF, RBAC, encryption)</text>
+
+  <rect x="930" y="308" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="1010" y="328" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Regression-tested via</text>
+  <text x="1010" y="341" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">MfaAuthenticationTest,</text>
+  <text x="1010" y="354" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">SecurityHardeningTest</text>
+
+  <!-- Col 6: Maintainability -->
+  <rect x="1110" y="240" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="1190" y="260" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">6 single-responsibility</text>
+  <text x="1190" y="273" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">service classes</text>
+  <text x="1190" y="286" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">(app/Services/)</text>
+
+  <rect x="1110" y="308" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="1190" y="328" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Settings-driven</text>
+  <text x="1190" y="341" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">thresholds &#8212; tunable</text>
+  <text x="1190" y="354" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">without a deployment</text>
+
+  <rect x="1110" y="376" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="1190" y="401" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">41 test files / 200</text>
+  <text x="1190" y="414" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">test methods (Ch. 20)</text>
+
+  <!-- Col 7: Portability -->
+  <rect x="1290" y="240" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="1370" y="260" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Docker images:</text>
+  <text x="1370" y="273" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">php8.4-fpm-alpine &amp;</text>
+  <text x="1370" y="286" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">python:3.11-slim</text>
+
+  <rect x="1290" y="308" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="1370" y="328" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">SQLite (dev) /</text>
+  <text x="1370" y="341" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">PostgreSQL (prod) via</text>
+  <text x="1370" y="354" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">DB_CONNECTION env var</text>
+
+  <rect x="1290" y="376" width="160" height="58" rx="4" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="1370" y="396" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Independently deployed</text>
+  <text x="1370" y="409" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">aegis-ai on Hugging Face</text>
+  <text x="1370" y="422" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#1A1A1A">Spaces + Render</text>
+
+  <!-- ===================== Legend ===================== -->
+  <rect x="130" y="464" width="18" height="18" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="154" y="478" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1A1A1A">Root: ISO/IEC 25010 Quality Model</text>
+
+  <rect x="480" y="464" width="18" height="18" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="504" y="478" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1A1A1A">Quality characteristic (8 total)</text>
+
+  <rect x="800" y="464" width="18" height="18" fill="#FFFFFF" stroke="#595959" stroke-width="1.5"/>
+  <text x="824" y="478" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1A1A1A">AEGIS implementation evidence</text>
+
+  <rect x="1080" y="464" width="18" height="18" fill="#D9D9D9" stroke="#595959" stroke-width="1.5"/>
+  <text x="1104" y="478" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1A1A1A">Generic note &#8212; no specific Ch.19 evidence</text>
+
+  <text x="740" y="510" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#8C8C8C">Source: A.E.G.I.S. System Documentation, Chapter 19 — Non-Functional Requirements and Quality Attributes</text>
+</svg>

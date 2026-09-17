@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1350 1000">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+    <marker id="arrowOpen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1A1A1A" stroke-width="1.3"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1350" height="1000" fill="#FFFFFF"/>
+  <text x="675" y="30" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 21. Sequence Diagram - Application Submission, AI Analysis, and OSA Decision</text>
+
+  <!-- Lifelines -->
+  <line x1="110" y1="110" x2="110" y2="850" stroke="#8C8C8C" stroke-width="1.3" stroke-dasharray="4,4"/>
+  <line x1="380" y1="110" x2="380" y2="850" stroke="#8C8C8C" stroke-width="1.3" stroke-dasharray="4,4"/>
+  <line x1="650" y1="110" x2="650" y2="850" stroke="#8C8C8C" stroke-width="1.3" stroke-dasharray="4,4"/>
+  <line x1="920" y1="110" x2="920" y2="850" stroke="#8C8C8C" stroke-width="1.3" stroke-dasharray="4,4"/>
+  <line x1="1190" y1="110" x2="1190" y2="850" stroke="#8C8C8C" stroke-width="1.3" stroke-dasharray="4,4"/>
+
+  <!-- Participant headers -->
+  <rect x="15" y="60" width="190" height="50" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="110" y="90" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Student (Browser)</text>
+
+  <rect x="285" y="60" width="190" height="50" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="380" y="90" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Laravel Backend</text>
+
+  <rect x="555" y="60" width="190" height="50" fill="#C77C22" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="650" y="84" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">AI Microservice</text>
+  <text x="650" y="100" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#FFFFFF">(Python)</text>
+
+  <rect x="825" y="60" width="190" height="50" fill="#595959" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="920" y="84" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Database</text>
+  <text x="920" y="100" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#FFFFFF">(MySQL)</text>
+
+  <rect x="1095" y="60" width="190" height="50" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1190" y="90" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#1A1A1A">OSA Staff (Browser)</text>
+
+  <!-- Activation bars -->
+  <rect x="375" y="150" width="10" height="650" fill="#D9D9D9" stroke="#1A1A1A" stroke-width="1"/>
+  <rect x="645" y="290" width="10" height="114" fill="#D9D9D9" stroke="#1A1A1A" stroke-width="1"/>
+  <rect x="916" y="244" width="8" height="14" fill="#D9D9D9" stroke="#1A1A1A" stroke-width="1"/>
+  <rect x="916" y="434" width="8" height="14" fill="#D9D9D9" stroke="#1A1A1A" stroke-width="1"/>
+  <rect x="916" y="504" width="8" height="24" fill="#D9D9D9" stroke="#1A1A1A" stroke-width="1"/>
+  <rect x="916" y="634" width="8" height="14" fill="#D9D9D9" stroke="#1A1A1A" stroke-width="1"/>
+  <rect x="916" y="746" width="8" height="14" fill="#D9D9D9" stroke="#1A1A1A" stroke-width="1"/>
+
+  <!-- 1: Student submits application + uploads COG -->
+  <text x="245" y="144" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">1: Submit application + upload COG</text>
+  <line x1="110" y1="150" x2="375" y2="150" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 2: Laravel validates and stores file (self) -->
+  <polyline points="385,190 450,190 450,220 385,220" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="460" y="196" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">2: Validate and</text>
+  <text x="460" y="212" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">store uploaded file</text>
+
+  <!-- 3: Laravel creates Applications/Documents records -> Database -->
+  <text x="650" y="244" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">3: Create Applications / Documents records</text>
+  <line x1="385" y1="250" x2="916" y2="250" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 4: Laravel sends COG path to AI Microservice -->
+  <text x="515" y="284" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">4: POST COG file path (internal HTTP)</text>
+  <line x1="385" y1="290" x2="645" y2="290" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 5: AI Microservice runs ELA+CNN pipeline (self) -->
+  <polyline points="655,330 720,330 720,360 655,360" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="730" y="336" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">5: Run ELA + CNN</text>
+  <text x="730" y="352" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">fraud pipeline</text>
+  <text x="730" y="368" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">(see Figure 14)</text>
+
+  <!-- 6: AI returns JSON result (dashed) -->
+  <text x="515" y="398" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">6: Return JSON {score, label, heatmap_path}</text>
+  <line x1="645" y1="404" x2="385" y2="404" stroke="#1A1A1A" stroke-width="1.3" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 7: Laravel persists AIAnalysisResults -> Database -->
+  <text x="650" y="434" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">7: Persist AIAnalysisResults</text>
+  <line x1="385" y1="440" x2="916" y2="440" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 8: OSA Staff opens application queue -> Laravel -->
+  <text x="785" y="474" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">8: Open application queue</text>
+  <line x1="1190" y1="480" x2="385" y2="480" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 9: Database returns application + AI result + heatmap (dashed) -->
+  <text x="650" y="514" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">9: Retrieve application + AI result + heatmap</text>
+  <line x1="916" y1="520" x2="385" y2="520" stroke="#1A1A1A" stroke-width="1.3" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 10: Laravel renders review screen -> OSA Staff -->
+  <text x="785" y="554" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">10: Render review screen</text>
+  <line x1="385" y1="560" x2="1190" y2="560" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 11: OSA Staff submits decision -> Laravel -->
+  <text x="785" y="594" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">11: Submit decision (Approved / Under Review /</text>
+  <text x="785" y="608" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">Rejected) + remarks</text>
+  <line x1="1190" y1="618" x2="385" y2="618" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 12: Laravel writes StatusLogs -> Database -->
+  <text x="650" y="652" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">12: Write StatusLogs entry</text>
+  <line x1="385" y1="658" x2="916" y2="658" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 13: Laravel dispatches automated email (self / via Email Service) -->
+  <polyline points="385,698 320,698 320,728 385,728" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="230" y="704" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">13: Dispatch automated</text>
+  <text x="230" y="720" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">status-update email</text>
+  <text x="230" y="736" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" text-anchor="middle" fill="#595959">(via Email Service / SMTP)</text>
+
+  <!-- 14: Laravel logs -> EmailLogs (Database) -->
+  <text x="650" y="764" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">14: Write EmailLogs entry</text>
+  <line x1="385" y1="770" x2="916" y2="770" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Closing dashed return / confirmation to OSA Staff -->
+  <text x="785" y="804" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#1A1A1A">Confirmation: decision recorded and notification sent</text>
+  <line x1="385" y1="810" x2="1190" y2="810" stroke="#1A1A1A" stroke-width="1.3" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- Legend -->
+  <line x1="60" y1="890" x2="120" y2="890" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="130" y="894" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Synchronous call</text>
+  <line x1="300" y1="890" x2="360" y2="890" stroke="#1A1A1A" stroke-width="1.3" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+  <text x="370" y="894" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Return</text>
+  <rect x="470" y="882" width="10" height="16" fill="#D9D9D9" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="490" y="894" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Activation bar</text>
+  <rect x="650" y="882" width="16" height="16" fill="#C77C22" stroke="#1A1A1A" stroke-width="1"/>
+  <text x="674" y="894" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">AI-related participant</text>
+</svg>

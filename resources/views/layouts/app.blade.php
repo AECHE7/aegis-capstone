@@ -1248,30 +1248,6 @@
                     </ul>
                 </div>
 
-                <!-- Language Switcher Dropdown -->
-                <div class="dropdown">
-                    <button class="btn btn-link p-1 topbar-icon-btn d-flex align-items-center gap-1" type="button" 
-                            id="languageSwitcher" 
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                            aria-label="{{ __('portal.select_language') }}"
-                            style="box-shadow: none; text-decoration: none;">
-                        <i class="fa-solid fa-globe fs-5"></i>
-                        <span class="d-none d-md-inline small fw-semibold text-dark">{{ session('locale') === 'ph' ? '🇵🇭 PH' : '🇺🇸 EN' }}</span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-1" aria-labelledby="languageSwitcher" style="border-radius: 12px; font-size: 0.85rem; min-width: 120px;">
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center gap-2 @if(session('locale', 'en') === 'en') active bg-success text-white @endif" href="{{ route('locale.set', 'en') }}">
-                                🇺🇸 English
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center gap-2 @if(session('locale') === 'ph') active bg-success text-white @endif" href="{{ route('locale.set', 'ph') }}">
-                                🇵🇭 Filipino
-                            </a>
-                        </li>
-                    </ul>
-                </div>
 
 
                 @if(auth()->user()->role === 'admin')
@@ -1824,6 +1800,51 @@
             input.addEventListener('change', check);
             check(); // Run on page load for pre-filled values
         });
+
+        // ── Mobile Sidebar Toggle & Backdrop ──────────────────────────
+        const mobileToggle = document.getElementById('mobileSidebarToggle');
+        const sidebar = document.getElementById('mainSidebar');
+        if (mobileToggle && sidebar) {
+            let backdrop = document.querySelector('.sidebar-backdrop');
+            if (!backdrop) {
+                backdrop = document.createElement('div');
+                backdrop.className = 'sidebar-backdrop d-none';
+                document.body.appendChild(backdrop);
+            }
+
+            const toggleMobileSidebar = (forceState) => {
+                const isOpening = forceState !== undefined ? forceState : !sidebar.classList.contains('mobile-show');
+                if (isOpening) {
+                    sidebar.classList.add('mobile-show');
+                    backdrop.classList.remove('d-none');
+                    mobileToggle.setAttribute('aria-expanded', 'true');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    sidebar.classList.remove('mobile-show');
+                    backdrop.classList.add('d-none');
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    document.body.style.overflow = '';
+                }
+            };
+
+            mobileToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMobileSidebar();
+            });
+
+            backdrop.addEventListener('click', () => {
+                toggleMobileSidebar(false);
+            });
+
+            // Close sidebar on navigation click on small screens
+            sidebar.querySelectorAll('.sidebar-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 992) {
+                        toggleMobileSidebar(false);
+                    }
+                });
+            });
+        }
     });
 </script>
 

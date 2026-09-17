@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>CLSU | Student Part-Time Employment Service Application Form</title>
+    <title>CLSU | {{ $application->program_name ?? 'Scholarship Grant' }} Application & Evaluation Form</title>
     <style>
         @page {
             margin: 15px 20px;
@@ -199,7 +199,7 @@
         <tr>
             <td style="width: 78%; padding: 8px; vertical-align: middle; border-right: 1px solid #0f5934;">
                 <div style="font-size: 12px; font-weight: bold; color: #0f5934; text-transform: uppercase; margin-bottom: 6px;">
-                    STUDENT PART-TIME EMPLOYMENT SERVICE APPLICATION FORM
+                    {{ strtoupper($application->program_name ?? 'OFFICIAL SCHOLARSHIP GRANT') }} APPLICATION & EVALUATION FORM
                 </div>
                 <div style="margin-top: 6px;">
                     @php

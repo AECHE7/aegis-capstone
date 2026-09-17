@@ -47,3 +47,8 @@ thesis_content.txt
 /aegis-ai/mock/
 /public/uploads/
 /vendor_old
+~$*
+*.tmp.*
+nul
+.claude/
+_render_tmp/

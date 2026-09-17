@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1260">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1000" height="1260" fill="#FFFFFF"/>
+  <text x="500" y="36" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 17. Flowchart of the Student Login Process</text>
+
+  <!-- Start -->
+  <ellipse cx="500" cy="80" rx="90" ry="30" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="86" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Start</text>
+  <line x1="500" y1="110" x2="500" y2="140" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Input: email/password -->
+  <polygon points="390,140 630,140 600,200 360,200" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="166" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Student enters email</text>
+  <text x="500" y="184" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">and password</text>
+  <line x1="500" y1="200" x2="500" y2="228" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Lookup Users -->
+  <rect x="330" y="228" width="340" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="264" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">System looks up Users record by email</text>
+  <line x1="500" y1="288" x2="500" y2="316" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision 1: record found and active -->
+  <polygon points="500,316 650,396 500,476 350,396" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="388" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">Record found and</text>
+  <text x="500" y="404" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">account active?</text>
+
+  <!-- No branch 1 -->
+  <line x1="650" y1="396" x2="740" y2="396" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="688" y="386" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#A6303E">No</text>
+  <rect x="740" y="361" width="220" height="70" fill="#FFFFFF" stroke="#A6303E" stroke-width="1.5"/>
+  <text x="850" y="391" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">"Invalid credentials"</text>
+  <text x="850" y="409" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">error message</text>
+  <polyline points="850,361 850,120 605,120" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Yes branch 1 -->
+  <text x="516" y="500" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Yes</text>
+  <line x1="500" y1="476" x2="500" y2="504" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision 2: password hash matches -->
+  <polygon points="500,504 650,584 500,664 350,584" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="576" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">Password hash matches</text>
+  <text x="500" y="592" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">(bcrypt verify)?</text>
+
+  <!-- No branch 2 -->
+  <line x1="650" y1="584" x2="740" y2="584" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="688" y="574" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#A6303E">No</text>
+  <rect x="740" y="549" width="220" height="70" fill="#FFFFFF" stroke="#A6303E" stroke-width="1.5"/>
+  <text x="850" y="579" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">"Invalid credentials"</text>
+  <text x="850" y="597" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">error message</text>
+  <polyline points="900,549 900,100 505,100 505,140" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Yes branch 2 -->
+  <text x="516" y="688" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Yes</text>
+  <line x1="500" y1="664" x2="500" y2="692" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Create session -->
+  <rect x="370" y="692" width="260" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="718" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Create authenticated</text>
+  <text x="500" y="736" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">session</text>
+  <line x1="500" y1="752" x2="500" y2="780" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision 3: role-based redirect -->
+  <polygon points="500,780 640,850 500,920 360,850" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="842" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">Role-based</text>
+  <text x="500" y="858" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">redirect</text>
+
+  <!-- Three branches -->
+  <line x1="360" y1="850" x2="200" y2="960" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="230" y="905" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Student</text>
+  <rect x="120" y="960" width="220" height="60" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="230" y="995" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Student Portal</text>
+
+  <line x1="500" y1="920" x2="500" y2="960" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="512" y="945" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">OSA Staff</text>
+  <rect x="390" y="960" width="220" height="60" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="500" y="995" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Admin Dashboard</text>
+
+  <line x1="640" y1="850" x2="800" y2="960" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="722" y="905" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Super Admin</text>
+  <rect x="660" y="960" width="220" height="60" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="770" y="985" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Super Admin</text>
+  <text x="770" y="1003" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Panel</text>
+
+  <!-- Converge to End -->
+  <line x1="230" y1="1020" x2="470" y2="1080" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="500" y1="1020" x2="500" y2="1080" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="770" y1="1020" x2="530" y2="1080" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- End -->
+  <ellipse cx="500" cy="1112" rx="90" ry="30" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="1118" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">End</text>
+
+  <!-- Legend -->
+  <ellipse cx="90" cy="1200" rx="26" ry="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="128" y="1205" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Start / End</text>
+  <rect x="230" y="1186" width="46" height="28" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="288" y="1205" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Process</text>
+  <polygon points="430,1186 465,1200 430,1214 395,1200" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="478" y="1205" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Decision</text>
+  <polygon points="610,1186 665,1186 653,1214 598,1214" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="678" y="1205" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Input / Output</text>
+</svg>

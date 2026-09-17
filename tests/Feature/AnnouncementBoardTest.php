@@ -34,6 +34,17 @@ class AnnouncementBoardTest extends TestCase
             'role' => 'student',
             'is_active' => true,
             'email_verified_at' => now(),
+            'dpa_consent_at' => now(),
+        ]);
+
+        \App\Models\StudentProfile::create([
+            'user_id' => $this->student->id,
+            'clsu_id_number' => '2023-1234',
+            'college' => 'College of Science',
+            'course' => 'BS Information Technology',
+            'year_level' => '2nd Year',
+            'contact_number' => '09123456789',
+            'emergency_contact_number' => '09998887777',
         ]);
     }
 

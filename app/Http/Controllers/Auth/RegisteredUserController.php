@@ -47,6 +47,9 @@ class RegisteredUserController extends Controller
                 }
             ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'dpa_consent' => ['required', 'accepted'],
+        ], [
+            'dpa_consent.accepted' => 'You must review and accept the Republic Act No. 10173 (Data Privacy Act) agreement to register.',
         ]);
 
         $user = User::create([
@@ -54,6 +57,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'student',
+            'dpa_consent_at' => now(),
         ]);
 
         event(new Registered($user));

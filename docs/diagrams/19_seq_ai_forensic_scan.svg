@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 925" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrowFilled" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+    <marker id="arrowOpen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1A1A1A" stroke-width="1.3"/>
+    </marker>
+    <marker id="arrowOpenRed" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#A6303E" stroke-width="1.3"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="925" fill="#FFFFFF"/>
+  <text x="600" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A1A">Figure 19. Sequence Diagram &#8212; AI-Powered Document Forensic Scan</text>
+
+  <!-- Participant headers -->
+  <rect x="65" y="55" width="190" height="50" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="160" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">ApplicationController /</text>
+  <text x="160" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">DocumentController</text>
+
+  <rect x="285" y="55" width="190" height="50" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="380" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">ScanDocumentJob</text>
+  <text x="380" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">(Queue Worker)</text>
+
+  <rect x="505" y="55" width="190" height="50" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="600" y="84" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">AIVerificationService</text>
+
+  <rect x="725" y="55" width="190" height="50" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="820" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">AI Forensics Microservice</text>
+  <text x="820" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">(Python)</text>
+
+  <rect x="945" y="55" width="190" height="50" fill="#595959" stroke="#1A1A1A"/>
+  <text x="1040" y="84" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">AIResult (DB)</text>
+
+  <!-- Note on AIVerificationService not being the production call path -->
+  <rect x="505" y="112" width="190" height="79" fill="#D9D9D9" stroke="#8C8C8C"/>
+  <text x="600" y="126" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">Note (Ch.11.1): a simpler,</text>
+  <text x="600" y="139" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">synchronous alternate integration</text>
+  <text x="600" y="152" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">retained in the codebase; NOT the</text>
+  <text x="600" y="165" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">path invoked by ScanDocumentJob,</text>
+  <text x="600" y="178" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">which calls the microservice directly.</text>
+
+  <!-- Lifelines -->
+  <line x1="160" y1="105" x2="160" y2="895" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="380" y1="105" x2="380" y2="895" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="600" y1="191" x2="600" y2="895" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="820" y1="105" x2="820" y2="895" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="1040" y1="105" x2="1040" y2="895" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- Activation bars -->
+  <rect x="374" y="255" width="12" height="600" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="814" y="345" width="12" height="210" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="1034" y="645" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+
+  <!-- 1 -->
+  <text x="600" y="207" text-anchor="middle" font-size="11" fill="#1A1A1A">1: create placeholder AIResult (classification='scanning', fraud_probability=0.00)</text>
+  <line x1="160" y1="215" x2="1040" y2="215" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 2 -->
+  <text x="270" y="247" text-anchor="middle" font-size="11" fill="#1A1A1A">2: dispatch ScanDocumentJob::dispatch(application.id, mode)</text>
+  <line x1="160" y1="255" x2="380" y2="255" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 3 self -->
+  <text x="450" y="287" text-anchor="middle" font-size="11" fill="#1A1A1A">3: resolve file bytes: disk &#8594; path probing &#8594; file_data fallback</text>
+  <path d="M 386,295 L 456,295 L 456,317 L 386,317" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 4 -->
+  <text x="600" y="337" text-anchor="middle" font-size="11" fill="#1A1A1A">4: POST /analyze-document {file bytes, mode}</text>
+  <line x1="380" y1="345" x2="820" y2="345" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 5 self -->
+  <text x="890" y="377" text-anchor="middle" font-size="11" fill="#1A1A1A">5: runs 4-pillar EFDF analysis</text>
+  <path d="M 826,385 L 896,385 L 896,407 L 826,407" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- divider 1 -->
+  <line x1="60" y1="435" x2="1140" y2="435" stroke="#8C8C8C" stroke-width="1" stroke-dasharray="7,4"/>
+  <text x="600" y="427" text-anchor="middle" font-size="11" font-style="italic" fill="#595959">alt &#8212; microservice cold-start (502 / 503 / 504)</text>
+
+  <!-- 6 return red -->
+  <text x="600" y="467" text-anchor="middle" font-size="11" fill="#A6303E">6: 503 AI service unavailable (fail-closed)</text>
+  <line x1="820" y1="475" x2="380" y2="475" stroke="#A6303E" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpenRed)"/>
+
+  <!-- 7 -->
+  <text x="600" y="507" text-anchor="middle" font-size="11" fill="#1A1A1A">7: GET /health warm-up; retry POST (up to 3x, backoff)</text>
+  <line x1="380" y1="515" x2="820" y2="515" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 8 return -->
+  <text x="600" y="547" text-anchor="middle" font-size="11" fill="#1A1A1A">8: 200 OK {fraud_probability, classification, heatmap, anomalies}</text>
+  <line x1="820" y1="555" x2="380" y2="555" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 9 self -->
+  <text x="450" y="587" text-anchor="middle" font-size="11" fill="#1A1A1A">9: cross-validate GWA; merge ImageExifInspector risk floor</text>
+  <path d="M 386,595 L 456,595 L 456,617 L 386,617" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 10 -->
+  <text x="710" y="637" text-anchor="middle" font-size="11" fill="#1A1A1A">10: persist updateOrCreate {fraud_probability, classification vs threshold, deep_analysis_report}</text>
+  <line x1="380" y1="645" x2="1040" y2="645" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 11 return -->
+  <text x="710" y="677" text-anchor="middle" font-size="11" fill="#1A1A1A">11: saved</text>
+  <line x1="1040" y1="685" x2="380" y2="685" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- divider 2 -->
+  <line x1="60" y1="725" x2="1140" y2="725" stroke="#8C8C8C" stroke-width="1" stroke-dasharray="7,4"/>
+  <text x="600" y="717" text-anchor="middle" font-size="11" font-style="italic" fill="#595959">alt &#8212; all documents clear auto-approval gates (min_confidence, max_anomalies, threshold)</text>
+
+  <!-- 12 self -->
+  <text x="450" y="757" text-anchor="middle" font-size="11" fill="#1A1A1A">12: 'authentic' &amp; gates pass &#8594; ApplicationAutoApprovalService::evaluate() &#8594; Approved</text>
+  <path d="M 386,765 L 456,765 L 456,787 L 386,787" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 13 -->
+  <text x="270" y="807" text-anchor="middle" font-size="11" fill="#1A1A1A">13: else &#8212; flag for manual staff review (Pending / Under Review)</text>
+  <line x1="380" y1="815" x2="160" y2="815" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+</svg>

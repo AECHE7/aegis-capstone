@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1000">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="1000" fill="#FFFFFF"/>
+  <text x="450" y="36" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 18. Flowchart of the Scholarship Application Submission Process</text>
+
+  <!-- Start -->
+  <ellipse cx="450" cy="80" rx="90" ry="30" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="86" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Start</text>
+  <line x1="450" y1="110" x2="450" y2="140" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Input: select program/term -->
+  <polygon points="320,140 580,140 550,200 290,200" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="166" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Student selects a Scholarship</text>
+  <text x="450" y="184" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Program and Academic Term</text>
+  <line x1="450" y1="200" x2="450" y2="228" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Complete form fields -->
+  <rect x="290" y="228" width="320" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="264" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Student completes application form fields</text>
+  <line x1="450" y1="288" x2="450" y2="316" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision: required fields + GWA eligibility -->
+  <polygon points="450,316 620,406 450,496 280,406" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="398" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">All required fields complete and</text>
+  <text x="450" y="414" font-family="Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" fill="#1A1A1A">GWA meets minimum eligibility?</text>
+
+  <!-- No branch -->
+  <line x1="620" y1="406" x2="700" y2="406" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="648" y="396" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#A6303E">No</text>
+  <rect x="700" y="371" width="230" height="70" fill="#FFFFFF" stroke="#A6303E" stroke-width="1.5"/>
+  <text x="815" y="401" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Show validation / eligibility</text>
+  <text x="815" y="419" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">error; return to form</text>
+  <polyline points="815,371 815,170 585,170" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Yes branch -->
+  <text x="466" y="520" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#1F4E79">Yes</text>
+  <line x1="450" y1="496" x2="450" y2="524" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Create Applications record -->
+  <rect x="330" y="524" width="240" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="550" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Create Applications record</text>
+  <text x="450" y="568" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">(status = Pending)</text>
+  <line x1="450" y1="584" x2="450" y2="612" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Predefined process: document upload sub-process -->
+  <rect x="290" y="612" width="320" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="312" y1="612" x2="312" y2="672" stroke="#1A1A1A" stroke-width="1.5"/>
+  <line x1="588" y1="612" x2="588" y2="672" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="638" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Proceed to document upload</text>
+  <text x="450" y="656" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" fill="#595959">(see Figure 19, Document Upload Process)</text>
+  <line x1="450" y1="672" x2="450" y2="700" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Write StatusLogs -->
+  <rect x="330" y="700" width="240" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="726" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">Write StatusLogs entry</text>
+  <text x="450" y="744" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" fill="#1A1A1A">(initial status recorded)</text>
+  <line x1="450" y1="760" x2="450" y2="788" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- End -->
+  <ellipse cx="450" cy="820" rx="110" ry="32" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="450" y="826" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">End</text>
+  <text x="450" y="872" font-family="Arial, Helvetica, sans-serif" font-size="11" font-style="italic" text-anchor="middle" fill="#595959">Application queued for OSA review</text>
+
+  <!-- Legend -->
+  <ellipse cx="90" cy="925" rx="26" ry="14" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="128" y="930" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Start / End</text>
+  <rect x="230" y="911" width="46" height="28" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="288" y="930" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Process</text>
+  <polygon points="430,911 465,925 430,939 395,925" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="478" y="930" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Decision</text>
+  <polygon points="610,911 665,911 653,939 598,939" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="678" y="930" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Input / Output</text>
+  <rect x="770" y="911" width="52" height="28" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.2"/>
+  <line x1="778" y1="911" x2="778" y2="939" stroke="#1A1A1A" stroke-width="1.2"/>
+  <line x1="814" y1="911" x2="814" y2="939" stroke="#1A1A1A" stroke-width="1.2"/>
+  <text x="828" y="930" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Sub-process</text>
+</svg>

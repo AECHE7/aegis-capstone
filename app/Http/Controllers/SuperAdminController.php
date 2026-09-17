@@ -699,6 +699,188 @@ class SuperAdminController extends Controller
     }
 
     // ==========================================
+    // DIRECTOR (SUPER ADMIN) USER MANAGEMENT (STAFF & STUDENTS)
+    // ==========================================
+
+    public function manageUsers(Request $request)
+    {
+        $search = $request->input('q');
+        $role = $request->input('role', 'all');
+        $status = $request->input('status', 'all');
+        $college = $request->input('college');
+        $tab = $request->input('tab', 'students');
+
+        // Student query
+        $studentQuery = \App\Models\User::where('role', 'student')
+            ->with(['profile', 'applications' => function ($q) {
+                $q->latest();
+            }, 'mfaDevices']);
+
+        if ($search) {
+            $studentQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhereHas('profile', function ($pq) use ($search) {
+                      $pq->where('clsu_id_number', 'like', "%{$search}%")
+                         ->orWhere('course', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($status === 'active') {
+            $studentQuery->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $studentQuery->where('is_active', false);
+        }
+
+        if ($college) {
+            $studentQuery->whereHas('profile', function ($pq) use ($college) {
+                $pq->where('college', $college);
+            });
+        }
+
+        $students = $studentQuery->latest()->paginate(15, ['*'], 'students_page')->withQueryString();
+
+        // Staff query
+        $staffQuery = \App\Models\User::whereIn('role', ['admin', 'superadmin'])
+            ->with(['invitation', 'scholarships', 'assignedApplications']);
+
+        if ($search) {
+            $staffQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status === 'active') {
+            $staffQuery->where('is_active', true);
+        } elseif ($status === 'inactive') {
+            $staffQuery->where('is_active', false);
+        }
+
+        if ($role === 'admin') {
+            $staffQuery->where('role', 'admin');
+        } elseif ($role === 'superadmin') {
+            $staffQuery->where('role', 'superadmin');
+        }
+
+        $staffList = $staffQuery->latest()->get();
+
+        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
+            return \App\Models\Scholarship::where('status', 'Active')->get();
+        });
+
+        // Overview metrics
+        $metrics = [
+            'total_students' => \App\Models\User::where('role', 'student')->count(),
+            'total_staff' => \App\Models\User::whereIn('role', ['admin', 'superadmin'])->count(),
+            'active_scholars' => \App\Models\Application::where('status', 'Approved')->distinct('user_id')->count('user_id'),
+            'inactive_users' => \App\Models\User::where('is_active', false)->count(),
+        ];
+
+        return view('superadmin.users', compact('students', 'staffList', 'scholarships', 'metrics', 'tab', 'search', 'role', 'status', 'college'));
+    }
+
+    public function toggleUserStatus(Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        if ($user->id === auth()->id()) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'You cannot deactivate your own account.'], 403);
+            }
+            return back()->with('error', 'You cannot deactivate your own account.');
+        }
+
+        if ($user->isMaster()) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'The Master account status cannot be modified.'], 403);
+            }
+            return back()->with('error', 'The Master account status cannot be modified.');
+        }
+
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        if (!$user->is_active && $user->role === 'admin') {
+            \App\Services\ApplicationAssignmentService::reassignPending($user);
+        }
+
+        $statusText = $user->is_active ? 'activated' : 'deactivated';
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id(),
+            'user_status_toggled',
+            'User',
+            $user->id,
+            "User {$user->name} ({$user->email}) {$statusText} by Director.",
+            $request->ip()
+        );
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Account for {$user->name} has been {$statusText}.",
+                'is_active' => $user->is_active,
+            ]);
+        }
+
+        return back()->with('success', "Account for {$user->name} has been {$statusText}.");
+    }
+
+    public function resetUserMfa(Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        $user->otp_code = null;
+        $user->otp_expires_at = null;
+        $user->mfaDevices()->delete();
+        $user->save();
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id(),
+            'user_mfa_reset',
+            'User',
+            $user->id,
+            "MFA security session and OTP reset for user {$user->name} ({$user->email}) by Director.",
+            $request->ip()
+        );
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "MFA security keys and remembered devices have been reset for {$user->name}.",
+            ]);
+        }
+
+        return back()->with('success', "MFA security keys and remembered devices have been reset for {$user->name}.");
+    }
+
+    public function sendUserPasswordReset(Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        $token = \Illuminate\Support\Facades\Password::broker()->createToken($user);
+        $user->sendPasswordResetNotification($token);
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id(),
+            'password_reset_sent',
+            'User',
+            $user->id,
+            "Password reset link dispatched for user {$user->name} ({$user->email}) by Director.",
+            $request->ip()
+        );
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Password reset email successfully sent to {$user->email}.",
+            ]);
+        }
+
+        return back()->with('success', "Password reset email successfully sent to {$user->email}.");
+    }
+
+    // ==========================================
     // DIRECTOR (SUPER ADMIN) TRASH MANAGEMENT
     // ==========================================
 

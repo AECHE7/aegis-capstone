@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 970" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrowFilled" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+    <marker id="arrowOpen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1A1A1A" stroke-width="1.3"/>
+    </marker>
+    <marker id="arrowOpenRed" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#A6303E" stroke-width="1.3"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="970" fill="#FFFFFF"/>
+  <text x="600" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A1A">Figure 17. Sequence Diagram &#8212; Registration and MFA Login</text>
+
+  <!-- Participant headers -->
+  <rect x="110" y="55" width="200" height="50" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="210" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">Student</text>
+  <text x="210" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">(Browser)</text>
+
+  <rect x="370" y="55" width="200" height="50" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="470" y="84" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">AuthController</text>
+
+  <rect x="630" y="55" width="200" height="50" fill="#595959" stroke="#1A1A1A"/>
+  <text x="730" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">User /</text>
+  <text x="730" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">StudentProfile (DB)</text>
+
+  <rect x="890" y="55" width="200" height="50" fill="#A6303E" stroke="#1A1A1A"/>
+  <text x="990" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">MFA Service</text>
+  <text x="990" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">(OTP Gen / Verify)</text>
+
+  <!-- Lifelines -->
+  <line x1="210" y1="105" x2="210" y2="940" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="470" y1="105" x2="470" y2="940" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="730" y1="105" x2="730" y2="940" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="990" y1="105" x2="990" y2="940" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- Activation bars -->
+  <rect x="464" y="140" width="12" height="120" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="464" y="340" width="12" height="590" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="724" y="180" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="724" y="380" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="724" y="660" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="984" y="460" width="12" height="160" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="984" y="830" width="12" height="80" fill="#FFFFFF" stroke="#1A1A1A"/>
+
+  <!-- 1 -->
+  <text x="340" y="132" text-anchor="middle" font-size="11" fill="#1A1A1A">1: POST /register {name, email, password}</text>
+  <line x1="210" y1="140" x2="470" y2="140" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 2 -->
+  <text x="600" y="172" text-anchor="middle" font-size="11" fill="#1A1A1A">2: validate CLSU domain; create User (role=student)</text>
+  <line x1="470" y1="180" x2="730" y2="180" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 3 return -->
+  <text x="600" y="212" text-anchor="middle" font-size="11" fill="#1A1A1A">3: User row created</text>
+  <line x1="730" y1="220" x2="470" y2="220" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 4 return -->
+  <text x="340" y="252" text-anchor="middle" font-size="11" fill="#1A1A1A">4: redirect &#8594; verification.notice</text>
+  <line x1="470" y1="260" x2="210" y2="260" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- divider 1 -->
+  <line x1="60" y1="300" x2="1140" y2="300" stroke="#8C8C8C" stroke-width="1" stroke-dasharray="7,4"/>
+  <text x="600" y="292" text-anchor="middle" font-size="11" font-style="italic" fill="#595959">Later &#8212; student returns to sign in</text>
+
+  <!-- 5 -->
+  <text x="340" y="332" text-anchor="middle" font-size="11" fill="#1A1A1A">5: POST /login {email, password}</text>
+  <line x1="210" y1="340" x2="470" y2="340" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 6 -->
+  <text x="600" y="372" text-anchor="middle" font-size="11" fill="#1A1A1A">6: lookup user; Hash::check(); check is_active</text>
+  <line x1="470" y1="380" x2="730" y2="380" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 7 return -->
+  <text x="600" y="412" text-anchor="middle" font-size="11" fill="#1A1A1A">7: credentials valid, account active</text>
+  <line x1="730" y1="420" x2="470" y2="420" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 8 -->
+  <text x="730" y="452" text-anchor="middle" font-size="11" fill="#1A1A1A">8: generate OTP (6-digit, 10-min expiry)</text>
+  <line x1="470" y1="460" x2="990" y2="460" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 9 -->
+  <text x="600" y="492" text-anchor="middle" font-size="11" fill="#1A1A1A">9: email OTP code (MfaOtpMail)</text>
+  <line x1="990" y1="500" x2="210" y2="500" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 10 -->
+  <text x="340" y="532" text-anchor="middle" font-size="11" fill="#1A1A1A">10: POST /login/mfa {code}</text>
+  <line x1="210" y1="540" x2="470" y2="540" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 11 -->
+  <text x="730" y="572" text-anchor="middle" font-size="11" fill="#1A1A1A">11: verify(code): equality + expiry check</text>
+  <line x1="470" y1="580" x2="990" y2="580" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 12 return -->
+  <text x="730" y="612" text-anchor="middle" font-size="11" fill="#1A1A1A">12: OTP valid; otp_code cleared (single-use)</text>
+  <line x1="990" y1="620" x2="470" y2="620" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 13 -->
+  <text x="600" y="652" text-anchor="middle" font-size="11" fill="#1A1A1A">13: create UserMfaDevice (token, UA-hash, 30d expiry)</text>
+  <line x1="470" y1="660" x2="730" y2="660" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 14 return -->
+  <text x="600" y="692" text-anchor="middle" font-size="11" fill="#1A1A1A">14: trusted device enrolled</text>
+  <line x1="730" y1="700" x2="470" y2="700" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 15 self message -->
+  <text x="545" y="732" text-anchor="middle" font-size="11" fill="#1A1A1A">15: Auth::login(); session()-&gt;regenerate()</text>
+  <path d="M 476,740 L 546,740 L 546,762 L 476,762" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 16 return -->
+  <text x="340" y="782" text-anchor="middle" font-size="11" fill="#1A1A1A">16: set trusted-device cookie; redirect &#8594; dashboard</text>
+  <line x1="470" y1="790" x2="210" y2="790" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- divider 2 -->
+  <line x1="60" y1="830" x2="1140" y2="830" stroke="#8C8C8C" stroke-width="1" stroke-dasharray="7,4"/>
+  <text x="600" y="822" text-anchor="middle" font-size="11" font-style="italic" fill="#595959">alt &#8212; step 11 verify() fails: wrong or expired code</text>
+
+  <!-- 17 return red -->
+  <text x="730" y="862" text-anchor="middle" font-size="11" fill="#A6303E">17: mismatch / expired</text>
+  <line x1="990" y1="870" x2="470" y2="870" stroke="#A6303E" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpenRed)"/>
+
+  <!-- 18 return red -->
+  <text x="340" y="902" text-anchor="middle" font-size="11" fill="#A6303E">18: 422 invalid/expired code (mfa_user_id retained)</text>
+  <line x1="470" y1="910" x2="210" y2="910" stroke="#A6303E" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpenRed)"/>
+
+</svg>

@@ -165,11 +165,37 @@
             <span class="badge bg-info-subtle text-info-emphasis rounded-pill px-3 py-1.5 fw-bold"><i class="fa-solid fa-magnifying-glass me-1"></i> Under Review</span>
         @elseif($application->status == 'Approved')
             <span class="badge bg-success-subtle text-success-emphasis rounded-pill px-3 py-1.5 fw-bold"><i class="fa-solid fa-check me-1"></i> Approved</span>
-        @elseif($application->status == 'Returned')
-            <span class="badge bg-warning text-dark rounded-pill px-3 py-1.5 fw-bold"><i class="fa-solid fa-reply me-1"></i> Returned</span>
+        @elseif($application->status == 'Revoked')
+            <span class="badge bg-danger text-white rounded-pill px-3 py-1.5 fw-bold"><i class="fa-solid fa-ban me-1"></i> Revoked</span>
         @else
             <span class="badge bg-danger-subtle text-danger-emphasis rounded-pill px-3 py-1.5 fw-bold"><i class="fa-solid fa-times me-1"></i> Rejected</span>
         @endif
+        @if($application->submitted_after_hours)
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-1.5 fw-bold" title="Submitted outside official office hours">
+                <i class="fa-solid fa-clock me-1"></i> After-Hours Queue
+            </span>
+        @endif
+        {{-- Test COG Fixtures Dropdown --}}
+        <div class="dropdown d-inline-block">
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size:0.75rem;">
+                <i class="fa-solid fa-vial me-1"></i> Test COG Fixtures
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius:12px; font-size:0.8rem;">
+                <li><h6 class="dropdown-header small text-muted uppercase fw-bold">Evaluation Samples</h6></li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="{{ asset('samples/authentic_clsu_cog.jpg') }}" target="_blank" download>
+                        <span><i class="fa-solid fa-file-circle-check text-success me-2"></i> Authentic COG (GWA 2.75)</span>
+                        <i class="fa-solid fa-download text-muted small ms-2"></i>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="{{ asset('samples/tampered_clsu_cog.jpg') }}" target="_blank" download>
+                        <span><i class="fa-solid fa-file-circle-xmark text-danger me-2"></i> Tampered COG (Edited GWA 1.00)</span>
+                        <i class="fa-solid fa-download text-muted small ms-2"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -550,14 +576,64 @@
                         </button>
                     </div>
                     <input type="hidden" name="status" id="statusInput">
+                @elseif($application->status === 'Approved')
+                    <div class="alert mb-2 text-center fw-bold rounded-3"
+                         style="background: #dcfce7; color: #15803d; border: none; font-size: 0.85rem;">
+                        <i class="fa-solid fa-circle-check me-1"></i> Active Scholar (Approved)
+                    </div>
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#revokeGrantModal">
+                        <i class="fa-solid fa-ban me-1"></i> Revoke / Terminate Grant
+                    </button>
+                @elseif($application->status === 'Revoked')
+                    <div class="alert mb-0 text-center fw-bold rounded-3"
+                         style="background: #fee2e2; color: #b91c1c; border: none; font-size: 0.85rem;">
+                        <i class="fa-solid fa-ban me-1"></i> Scholarship Grant Revoked
+                    </div>
                 @else
                     <div class="alert mb-0 text-center fw-bold rounded-3"
-                         style="background: {{ $application->status == 'Approved' ? '#dcfce7' : ($application->status == 'Returned' ? '#fffbeb' : '#fee2e2') }}; color: {{ $application->status == 'Approved' ? '#15803d' : ($application->status == 'Returned' ? '#b45309' : '#b91c1c') }}; border: none; font-size: 0.85rem;">
+                         style="background: {{ $application->status == 'Returned' ? '#fffbeb' : '#fee2e2' }}; color: {{ $application->status == 'Returned' ? '#b45309' : '#b91c1c' }}; border: none; font-size: 0.85rem;">
                         <i class="fa-solid fa-lock me-1"></i> Finalized as {{ $application->status }}.
                     </div>
                 @endif
             </form>
         </div>
+
+        @if($application->status === 'Approved')
+        {{-- Revoke Grant Modal --}}
+        <div class="modal fade" id="revokeGrantModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                    <div class="modal-header border-0 bg-danger text-white p-4">
+                        <div>
+                            <h5 class="modal-title fw-bold text-white mb-0">
+                                <i class="fa-solid fa-triangle-exclamation me-2"></i> Revoke Scholarship Grant
+                            </h5>
+                            <small class="text-white-50">This will terminate the grant and dispatch an official revocation email.</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('admin.revoke', $application->id) }}" method="POST">
+                        @csrf
+                        <div class="modal-body p-4">
+                            <div class="alert alert-warning small border-0 mb-3" style="background: #fffbeb; color: #92400e; border-radius: 10px;">
+                                <strong>Warning:</strong> You are about to revoke the <strong>{{ $application->program_name }}</strong> grant for <strong>{{ $application->user->name ?? 'Applicant' }}</strong>.
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Reason for Revocation</label>
+                                <textarea name="reason" class="form-control" rows="4" required placeholder="Specify administrative or academic cause (e.g. Failure to maintain minimum GWA, unauthorized dual scholarship, academic disciplinary sanction)..." style="font-size: 0.85rem; border-radius: 10px; resize: none;"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 p-4 pt-0">
+                            <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal" style="border-radius: 10px;">Cancel</button>
+                            <button type="submit" class="btn btn-danger fw-bold px-4" style="border-radius: 10px;">
+                                Confirm Revocation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endif
 
         {{-- Card 3: Tabbed Administrative Dossier (Custom Fields, Staff Notes, History) --}}
         <div class="ai-deck-card p-3.5 mb-3">

@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrowFilled" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+    <marker id="arrowOpen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1A1A1A" stroke-width="1.3"/>
+    </marker>
+    <marker id="arrowFilledRed" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#A6303E"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="900" fill="#FFFFFF"/>
+  <text x="600" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A1A">Figure 21. Sequence Diagram &#8212; Announcement Broadcast and Notification Delivery</text>
+
+  <!-- Participant headers -->
+  <rect x="23" y="55" width="180" height="50" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="113" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">OSA Director /</text>
+  <text x="113" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">Admin (Browser)</text>
+
+  <rect x="218" y="55" width="180" height="50" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="308" y="84" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">AnnouncementController</text>
+
+  <rect x="413" y="55" width="180" height="50" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="503" y="76" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">BroadcastAnnouncement-</text>
+  <text x="503" y="92" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">EmailJob (Queue)</text>
+
+  <rect x="608" y="55" width="180" height="50" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="698" y="84" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">Notification classes</text>
+
+  <rect x="803" y="55" width="180" height="50" fill="#595959" stroke="#1A1A1A"/>
+  <text x="893" y="84" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">EmailLog (DB)</text>
+
+  <rect x="998" y="55" width="180" height="50" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="1088" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">Student</text>
+  <text x="1088" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">(recipient)</text>
+
+  <!-- Lifelines -->
+  <line x1="113" y1="105" x2="113" y2="870" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="308" y1="105" x2="308" y2="870" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="503" y1="105" x2="503" y2="870" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="698" y1="105" x2="698" y2="870" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="893" y1="105" x2="893" y2="870" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="1088" y1="105" x2="1088" y2="870" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- Activation bars -->
+  <rect x="302" y="140" width="12" height="90" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="302" y="490" width="12" height="80" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="692" y="270" width="12" height="130" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="497" y="530" width="12" height="340" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="887" y="700" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="887" y="780" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+
+  <!-- Section label -->
+  <text x="113" y="122" font-size="10" font-style="italic" fill="#595959">Announcements Manager (in-app notification path):</text>
+
+  <!-- 1 -->
+  <text x="210" y="132" text-anchor="middle" font-size="11" fill="#1A1A1A">1: POST /admin/announcements {title, content, scheduled_publish_at?}</text>
+  <line x1="113" y1="140" x2="308" y2="140" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 2 self -->
+  <text x="378" y="172" text-anchor="middle" font-size="10.5" fill="#1A1A1A">2: create Announcement; shouldNotify = empty(publish_at) || isPast()</text>
+  <path d="M 314,180 L 384,180 L 384,202 L 314,202" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- divider A -->
+  <line x1="60" y1="230" x2="1140" y2="230" stroke="#8C8C8C" stroke-width="1" stroke-dasharray="7,4"/>
+  <text x="600" y="222" text-anchor="middle" font-size="11" font-style="italic" fill="#595959">if shouldNotify</text>
+
+  <!-- 3 -->
+  <text x="503" y="262" text-anchor="middle" font-size="11" fill="#1A1A1A">3: Notification::send(all students, NewAnnouncementNotification)</text>
+  <line x1="308" y1="270" x2="698" y2="270" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 4 self -->
+  <text x="768" y="302" text-anchor="middle" font-size="10.5" fill="#1A1A1A">4: toArray() &#8594; {title, message, url:'/student/dashboard'}</text>
+  <path d="M 704,310 L 774,310 L 774,332 L 704,332" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 5 -->
+  <text x="893" y="352" text-anchor="middle" font-size="11" fill="#1A1A1A">5: persist notification row (database channel only, no email)</text>
+  <line x1="698" y1="360" x2="1088" y2="360" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 6 self -->
+  <text x="1088" y="392" text-anchor="middle" font-size="10.5" fill="#1A1A1A">6: fetchNotifications() polls /notifications every 20s</text>
+  <path d="M 1088,400 L 1158,400 L 1158,422 L 1088,422" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- divider B -->
+  <line x1="60" y1="450" x2="1140" y2="450" stroke="#8C8C8C" stroke-width="1" stroke-dasharray="7,4"/>
+  <text x="600" y="442" text-anchor="middle" font-size="11" font-style="italic" fill="#595959">Email Broadcast Center &#8212; independent of the Announcement model (Ch.12.4)</text>
+
+  <!-- 7 -->
+  <text x="210" y="482" text-anchor="middle" font-size="10.5" fill="#1A1A1A">7: POST /superadmin/broadcast {title, body, target}</text>
+  <line x1="113" y1="490" x2="308" y2="490" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 8 -->
+  <text x="405" y="522" text-anchor="middle" font-size="10.5" fill="#1A1A1A">8: dispatch BroadcastAnnouncementEmailJob(title, body, target)</text>
+  <line x1="308" y1="530" x2="503" y2="530" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 9 return -->
+  <text x="210" y="562" text-anchor="middle" font-size="11" fill="#1A1A1A">9: "queued for delivery" flash message (immediate)</text>
+  <line x1="308" y1="570" x2="113" y2="570" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 10 self -->
+  <text x="573" y="602" text-anchor="middle" font-size="10.5" fill="#1A1A1A">10: resolve target &#8594; all_students / approved_scholars / scholarship_id</text>
+  <path d="M 509,610 L 579,610 L 579,632 L 509,632" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 11 -->
+  <text x="795" y="652" text-anchor="middle" font-size="11" fill="#1A1A1A">11: Mail::to(recipient).send(AnnouncementMail) &#8212; serial, per recipient</text>
+  <line x1="503" y1="660" x2="1088" y2="660" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 12 -->
+  <text x="698" y="692" text-anchor="middle" font-size="11" fill="#1A1A1A">12: create EmailLog {status:'sent', subject:'[A.E.G.I.S. Broadcast]...'}</text>
+  <line x1="503" y1="700" x2="893" y2="700" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- divider C -->
+  <line x1="60" y1="740" x2="1140" y2="740" stroke="#8C8C8C" stroke-width="1" stroke-dasharray="7,4"/>
+  <text x="600" y="732" text-anchor="middle" font-size="11" font-style="italic" fill="#595959">alt &#8212; Mail::send() throws (bad address / transient failure)</text>
+
+  <!-- 13 -->
+  <text x="698" y="772" text-anchor="middle" font-size="11" fill="#A6303E">13: create EmailLog {status:'failed', error_message}</text>
+  <line x1="503" y1="780" x2="893" y2="780" stroke="#A6303E" stroke-width="1.3" marker-end="url(#arrowFilledRed)"/>
+
+  <!-- 14 self -->
+  <text x="573" y="812" text-anchor="middle" font-size="10.5" fill="#1A1A1A">14: catch swallows error; continue loop to next recipient</text>
+  <path d="M 509,820 L 579,820 L 579,842 L 509,842" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+</svg>

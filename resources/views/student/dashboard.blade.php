@@ -460,6 +460,16 @@
                                         @else Your Application is Pending Review
                                         @endif
                                     </h4>
+                                    @if($application->submitted_after_hours && in_array($application->status, ['Pending', 'Under Review']))
+                                        <div class="mt-2">
+                                            <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill fw-semibold" style="font-size:0.72rem;">
+                                                <i class="fa-solid fa-clock me-1"></i> Queued (After-Hours Submission)
+                                            </span>
+                                            <span class="d-block mt-1 small" style="opacity:0.85; font-size:0.75rem;">
+                                                Received outside official office hours (Mon-Fri 8AM - 5PM PHT). Queued for regular office evaluation.
+                                            </span>
+                                        </div>
+                                    @endif
                                     @if($application->remarks && $application->status !== 'Pending' && $application->status !== 'Returned')
                                     <p class="mb-0 mt-1" style="opacity:0.8;font-size:0.875rem;">
                                         <i class="fa-solid fa-quote-left me-1" style="font-size:0.65rem;opacity:0.6;"></i>

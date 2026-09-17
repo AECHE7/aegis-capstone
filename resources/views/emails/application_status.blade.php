@@ -12,7 +12,12 @@
     <div style="text-align: center; margin: 20px 0;">
         @if($application->status == 'Approved')
             <span style="display: inline-block; padding: 10px 20px; border-radius: 50px; font-weight: bold; color: white; background-color: #198754; font-size: 16px; letter-spacing: 0.5px;">APPROVED</span>
-            <p style="margin-top: 15px; font-weight: 500;">Congratulations! Your academic documents have been verified as authentic and you are eligible for the grant.</p>
+            <p style="margin-top: 15px; font-weight: 500;">Congratulations! Your academic documents have been verified as authentic and you are officially eligible for the scholarship grant.</p>
+            <div style="background-color: #ecfdf5; border-left: 4px solid #10b981; padding: 12px 16px; border-radius: 6px; margin-top: 14px; text-align: left;">
+                <p style="margin: 0; font-size: 13px; color: #065f46; line-height: 1.5;">
+                    <strong>Grant Claim Instructions:</strong> Attached is your official <strong>{{ $application->program_name }} Application & Evaluation Form (PDF)</strong>. Print a copy and present it with your validated CLSU student ID to the Office of Student Affairs (OSA) for stipend release and payroll processing.
+                </p>
+            </div>
         @elseif($application->status == 'Cancelled' && $application->forfeit_reason)
             <span style="display: inline-block; padding: 10px 20px; border-radius: 50px; font-weight: bold; color: white; background-color: #64748b; font-size: 16px; letter-spacing: 0.5px;">FORFEITED / BACKED OUT</span>
             <p style="margin-top: 15px; font-weight: 500; color: #475569;">You have successfully backed out of the scholarship program. Your slots have been released. Reason: <em>{{ $application->forfeit_reason }}</em></p>

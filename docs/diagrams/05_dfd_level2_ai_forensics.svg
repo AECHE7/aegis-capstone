@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 1000">
+<rect x="0" y="0" width="1300" height="1000" fill="#FFFFFF"/>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="#1A1A1A"/>
+</marker>
+<marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="#595959"/>
+</marker>
+</defs>
+
+<text x="650" y="40" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 5. Data Flow Diagram &#8212; Level 2 (Decomposition of Process 2.0: Document Forensic Verification)</text>
+
+<!-- Boundary input -->
+<rect x="40" y="100" width="340" height="55" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.5" stroke-dasharray="6,4"/>
+<text x="210" y="122" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" fill="#595959">From 1.0 Manage Student</text>
+<text x="210" y="138" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" fill="#595959">Application &#8212; uploaded document</text>
+
+<line x1="480" y1="155" x2="600" y2="205" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+<!-- 2.1 Document Syntax Gate -->
+<ellipse cx="650" cy="230" rx="190" ry="55" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+<text x="650" y="223" font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">2.1 Document</text>
+<text x="650" y="241" font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Syntax Gate</text>
+
+<text x="650" y="310" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" text-anchor="middle" fill="#595959">if is_valid_academic_document &#8594; run detector suite</text>
+
+<!-- Row of 4 sub-processes -->
+<ellipse cx="190" cy="400" rx="115" ry="60" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+<text x="190" y="390" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#FFFFFF">2.2 Error Level</text>
+<text x="190" y="408" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Analysis (ELA)</text>
+
+<ellipse cx="480" cy="400" rx="115" ry="60" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+<text x="480" y="390" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#FFFFFF">2.3 CNN Tamper</text>
+<text x="480" y="408" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Classification</text>
+
+<ellipse cx="800" cy="400" rx="115" ry="60" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+<text x="800" y="390" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#FFFFFF">2.4 Clone / Copy-</text>
+<text x="800" y="408" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Move Detection</text>
+
+<ellipse cx="1090" cy="400" rx="115" ry="60" fill="#1F4E79" stroke="#1A1A1A" stroke-width="2"/>
+<text x="1090" y="385" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">2.5 Metadata &amp;</text>
+<text x="1090" y="402" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Software</text>
+<text x="1090" y="419" font-family="Arial, Helvetica, sans-serif" font-size="11.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Fingerprinting</text>
+
+<!-- 2.1 fan-out to 4 processes -->
+<line x1="560" y1="260" x2="240" y2="355" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="610" y1="280" x2="500" y2="343" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="690" y1="280" x2="770" y2="343" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="740" y1="260" x2="1030" y2="352" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+<!-- 2.6 Weighted Fusion Scoring (Amber) -->
+<ellipse cx="650" cy="610" rx="220" ry="65" fill="#C77C22" stroke="#1A1A1A" stroke-width="2"/>
+<text x="650" y="603" font-family="Arial, Helvetica, sans-serif" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">2.6 Weighted Fusion</text>
+<text x="650" y="622" font-family="Arial, Helvetica, sans-serif" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Scoring</text>
+
+<!-- 2.1 -> 2.6 (OCR pillar) -->
+<path d="M 500,270 C 350,450 400,540 470,565" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="300" y="470" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">OCR / structural evidence</text>
+<text x="300" y="484" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">(Pillar 1: 35%)</text>
+
+<!-- 2.2 -> 2.6 (Compression pillar) -->
+<line x1="220" y1="455" x2="470" y2="580" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="235" y="525" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">compression/frequency</text>
+<text x="235" y="539" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">evidence (Pillar 2: 25%)</text>
+
+<!-- 2.3 -> 2.6 (CNN score, no pillar %) -->
+<line x1="480" y1="460" x2="560" y2="550" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="470" y="500" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">CNN tamper probability</text>
+
+<!-- 2.4 -> 2.6 (Sensor continuity pillar) -->
+<line x1="800" y1="460" x2="740" y2="550" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="770" y="510" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">sensor/spatial continuity</text>
+<text x="770" y="524" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">evidence (Pillar 3: 25%)</text>
+
+<!-- 2.5 -> 2.6 (Metadata pillar) -->
+<path d="M 1000,440 C 900,540 850,570 830,580" fill="none" stroke="#1A1A1A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="870" y="490" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">metadata/provenance</text>
+<text x="870" y="504" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">evidence (Pillar 4: 15%)</text>
+
+<!-- 2.7 Risk Tier Classification (Red) -->
+<ellipse cx="650" cy="770" rx="190" ry="60" fill="#A6303E" stroke="#1A1A1A" stroke-width="2"/>
+<text x="650" y="763" font-family="Arial, Helvetica, sans-serif" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">2.7 Risk Tier</text>
+<text x="650" y="782" font-family="Arial, Helvetica, sans-serif" font-size="13.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Classification</text>
+
+<!-- 2.6 -> 2.7 -->
+<line x1="650" y1="675" x2="650" y2="710" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="660" y="698" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">fraud probability % + classification</text>
+
+<!-- D6 settings <-> 2.7 -->
+<line x1="990" y1="748" x2="1210" y2="748" stroke="#1A1A1A" stroke-width="2"/>
+<line x1="990" y1="800" x2="1210" y2="800" stroke="#1A1A1A" stroke-width="2"/>
+<text x="1100" y="770" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" fill="#1A1A1A">D6 settings</text>
+<text x="1100" y="787" font-family="Arial, Helvetica, sans-serif" font-size="9.5" text-anchor="middle" fill="#595959">(ai_fraud_threshold)</text>
+
+<line x1="840" y1="765" x2="985" y2="765" stroke="#1A1A1A" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+<text x="855" y="755" font-family="Arial, Helvetica, sans-serif" font-size="9.5" font-style="italic" fill="#1A1A1A">configurable threshold (default 70%)</text>
+
+<!-- D3 ai_results -->
+<line x1="530" y1="880" x2="770" y2="880" stroke="#1A1A1A" stroke-width="2"/>
+<line x1="530" y1="940" x2="770" y2="940" stroke="#1A1A1A" stroke-width="2"/>
+<text x="650" y="915" font-family="Arial, Helvetica, sans-serif" font-size="13" text-anchor="middle" fill="#1A1A1A">D3 ai_results</text>
+
+<!-- 2.7 -> D3 -->
+<line x1="620" y1="830" x2="600" y2="880" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="365" y="862" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">write final fraud probability, risk tier</text>
+<text x="365" y="876" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#1A1A1A">+ evidence pillar breakdown</text>
+
+<!-- Boundary output -->
+<rect x="850" y="880" width="340" height="60" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1.5" stroke-dasharray="6,4"/>
+<text x="1020" y="903" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" fill="#595959">To 3.0 Review &amp; Decision &#8212;</text>
+<text x="1020" y="919" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" fill="#595959">application + AI verdict</text>
+
+<!-- D3 -> boundary output -->
+<line x1="770" y1="905" x2="845" y2="905" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+</svg>

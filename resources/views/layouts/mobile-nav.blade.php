@@ -7,24 +7,22 @@
             <span>Home</span>
         </a>
 
-        <a href="{{ Route::has('student.applications.create') ? route('student.applications.create') : route('student.dashboard') }}" 
-           class="mobile-nav-item {{ request()->routeIs('student.applications.create') ? 'active' : '' }}">
+        <a href="{{ route('student.apply') }}" 
+           class="mobile-nav-item {{ request()->routeIs('student.apply') ? 'active' : '' }}">
             <div class="nav-fab-wrapper">
                 <i class="fa-solid fa-plus-circle"></i>
             </div>
             <span>Apply</span>
         </a>
 
-        @if(Route::has('announcements.index'))
-        <a href="{{ route('announcements.index') }}" 
-           class="mobile-nav-item {{ request()->routeIs('announcements.index') ? 'active' : '' }}">
+        <a href="{{ Route::has('student.announcements') ? route('student.announcements') : (Route::has('admin.announcements.index') ? route('admin.announcements.index') : '#') }}" 
+           class="mobile-nav-item {{ request()->routeIs('student.announcements') || request()->routeIs('admin.announcements.index') ? 'active' : '' }}">
             <i class="fa-solid fa-bullhorn"></i>
-            <span>Updates</span>
+            <span>News</span>
         </a>
-        @endif
 
-        <a href="{{ Route::has('student.profile.show') ? route('student.profile.show') : route('profile.security') }}" 
-           class="mobile-nav-item {{ request()->routeIs('student.profile.show') || request()->routeIs('profile.security') ? 'active' : '' }}">
+        <a href="{{ route('student.profile') }}" 
+           class="mobile-nav-item {{ request()->routeIs('student.profile') || request()->routeIs('profile.security') ? 'active' : '' }}">
             <i class="fa-solid fa-user-gear"></i>
             <span>Profile</span>
         </a>
@@ -65,10 +63,10 @@
             <span>Grants</span>
         </a>
 
-        <a href="{{ route('superadmin.staff') }}" 
-           class="mobile-nav-item {{ request()->routeIs('superadmin.staff') ? 'active' : '' }}">
+        <a href="{{ Route::has('superadmin.users') ? route('superadmin.users') : route('superadmin.staff') }}" 
+           class="mobile-nav-item {{ request()->routeIs('superadmin.users') || request()->routeIs('superadmin.staff') ? 'active' : '' }}">
             <i class="fa-solid fa-users-gear"></i>
-            <span>Staff</span>
+            <span>Users</span>
         </a>
 
         <a href="{{ route('superadmin.settings') }}" 

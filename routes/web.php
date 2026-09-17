@@ -26,6 +26,7 @@ Route::get('/locale/{lang}', function (string $lang) {
     return redirect()->back();
 })->name('locale.set');
 
+Route::get('/scholarships', [\App\Http\Controllers\ScholarshipController::class, 'catalog'])->name('scholarships.catalog');
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
 Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
     $expectedKey = config('services.scheduler.key', 'aegis_cron_secret');
@@ -133,8 +134,8 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('verification.status');
 
-    // STUDENT PORTAL (Requires Email Verification)
-    Route::middleware(['verified'])->group(function () {
+    // STUDENT PORTAL (Requires Email Verification & Complete Profile)
+    Route::middleware(['verified', 'student.profile.complete'])->group(function () {
         Route::get('/apply', [ApplicationController::class, 'create'])->name('student.apply');
         Route::post('/apply', [ApplicationController::class, 'store'])->name('student.store');
         Route::get('/student/dashboard', [ApplicationController::class, 'dashboard'])->name('student.dashboard');
@@ -151,6 +152,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/student/complete-tour', [ApplicationController::class, 'completeTour'])->name('student.complete-tour');
         Route::post('/application/{id}/forfeit', [ApplicationController::class, 'forfeit'])->name('student.application.forfeit');
         Route::post('/application/{id}/reupload', [ApplicationController::class, 'reupload'])->name('student.application.reupload');
+
+        // Announcements feed for students
+        Route::get('/student/announcements', [\App\Http\Controllers\AnnouncementController::class, 'studentFeed'])->name('student.announcements');
     });
 
     // OSA ADMIN DASHBOARD
@@ -161,6 +165,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/review/{id}/scan', [AdminController::class, 'runScan'])->name('admin.scan');
         Route::post('/review/{id}/scan-sync', [AdminController::class, 'runScanSync'])->name('admin.scanSync');
         Route::post('/review/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.updateStatus');
+        Route::post('/review/{id}/revoke', [AdminController::class, 'revokeScholarship'])->name('admin.revoke');
         Route::post('/review/{id}/archive', [AdminController::class, 'archive'])->name('admin.archive');
         Route::post('/review/{id}/unarchive', [AdminController::class, 'unarchive'])->name('admin.unarchive');
         Route::get('/document/{id}/download', [AdminController::class, 'downloadDocument'])->name('admin.document.download');
@@ -178,7 +183,7 @@ Route::middleware(['auth'])->group(function () {
         // Announcement Board Management
         Route::get('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('admin.announcements.index');
         Route::post('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'store'])->name('admin.announcements.store');
-        Route::patch('/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'update'])->name('admin.announcements.update');
+        Route::match(['post', 'patch'], '/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'update'])->name('admin.announcements.update');
         Route::delete('/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'destroy'])->name('admin.announcements.destroy');
     });
 
@@ -196,6 +201,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/staff/{id}/revoke', [SuperAdminController::class, 'revokeStaff'])->name('superadmin.staff.revoke');
         Route::post('/staff/{id}/reactivate', [SuperAdminController::class, 'reactivateStaff'])->name('superadmin.staff.reactivate');
         Route::post('/staff/{id}/assign', [SuperAdminController::class, 'updateStaffAssignments'])->name('superadmin.staff.assign');
+
+        // Complete User Management (Students & Staff)
+        Route::get('/users', [SuperAdminController::class, 'manageUsers'])->name('superadmin.users');
+        Route::post('/users/{id}/toggle-status', [SuperAdminController::class, 'toggleUserStatus'])->name('superadmin.users.toggle-status');
+        Route::post('/users/{id}/reset-mfa', [SuperAdminController::class, 'resetUserMfa'])->name('superadmin.users.reset-mfa');
+        Route::post('/users/{id}/send-reset', [SuperAdminController::class, 'sendUserPasswordReset'])->name('superadmin.users.send-reset');
 
         // System Trash Dashboard
         Route::get('/trash', [SuperAdminController::class, 'trashIndex'])->name('superadmin.trash');

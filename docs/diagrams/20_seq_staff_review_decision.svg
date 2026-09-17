@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrowFilled" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1A1A1A"/>
+    </marker>
+    <marker id="arrowOpen" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L10,5 L0,10" fill="none" stroke="#1A1A1A" stroke-width="1.3"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="1000" fill="#FFFFFF"/>
+  <text x="600" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A1A">Figure 20. Sequence Diagram &#8212; Staff Review and Application Decision</text>
+
+  <!-- Participant headers -->
+  <rect x="65" y="55" width="190" height="50" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="160" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">OSA Staff</text>
+  <text x="160" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">(Browser)</text>
+
+  <rect x="285" y="55" width="190" height="50" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="380" y="84" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">AdminController</text>
+
+  <rect x="505" y="55" width="190" height="50" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="600" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">ApplicationAssignment-</text>
+  <text x="600" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">Service</text>
+
+  <rect x="725" y="55" width="190" height="50" fill="#595959" stroke="#1A1A1A"/>
+  <text x="820" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">StatusLog /</text>
+  <text x="820" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">AdminActionLog (DB)</text>
+
+  <rect x="945" y="55" width="190" height="50" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="1040" y="76" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">Notification</text>
+  <text x="1040" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#FFFFFF">Service</text>
+
+  <!-- Note on ApplicationAssignmentService context -->
+  <rect x="505" y="112" width="190" height="79" fill="#D9D9D9" stroke="#8C8C8C"/>
+  <text x="600" y="126" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">Note (Ch.8.2): assign() already ran</text>
+  <text x="600" y="139" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">at submission time (least-loaded</text>
+  <text x="600" y="152" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">staff on scholarship_staff pivot).</text>
+  <text x="600" y="165" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">reassignPending() only re-homes a</text>
+  <text x="600" y="178" text-anchor="middle" font-size="9" font-style="italic" fill="#595959">caseload if staff is deactivated.</text>
+
+  <!-- Lifelines -->
+  <line x1="160" y1="105" x2="160" y2="960" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="380" y1="105" x2="380" y2="960" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="600" y1="191" x2="600" y2="960" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="820" y1="105" x2="820" y2="960" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="1040" y1="105" x2="1040" y2="960" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- Activation bars -->
+  <rect x="374" y="225" width="12" height="120" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="374" y="385" width="12" height="580" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="814" y="225" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="814" y="435" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="814" y="635" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="814" y="715" width="12" height="40" fill="#FFFFFF" stroke="#1A1A1A"/>
+  <rect x="1034" y="795" width="12" height="90" fill="#FFFFFF" stroke="#1A1A1A"/>
+
+  <!-- 1 -->
+  <text x="270" y="132" text-anchor="middle" font-size="11" fill="#1A1A1A">1: GET /admin (review queue; assignment=mine/unassigned)</text>
+  <line x1="160" y1="140" x2="380" y2="140" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 2 -->
+  <text x="600" y="217" text-anchor="middle" font-size="11" fill="#1A1A1A">2: query Application scoped to assigned scholarships (validateAdminAccess)</text>
+  <line x1="380" y1="225" x2="820" y2="225" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 3 return -->
+  <text x="600" y="257" text-anchor="middle" font-size="11" fill="#1A1A1A">3: scoped application list</text>
+  <line x1="820" y1="265" x2="380" y2="265" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 4 return -->
+  <text x="270" y="297" text-anchor="middle" font-size="11" fill="#1A1A1A">4: render review queue</text>
+  <line x1="380" y1="305" x2="160" y2="305" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 5 -->
+  <text x="270" y="337" text-anchor="middle" font-size="11" fill="#1A1A1A">5: GET /admin/review/{id}</text>
+  <line x1="160" y1="345" x2="380" y2="345" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 6 self -->
+  <text x="450" y="377" text-anchor="middle" font-size="11" fill="#1A1A1A">6: validateAdminAccess() &#8212; scholarship in assigned pivot?</text>
+  <path d="M 386,385 L 456,385 L 456,407 L 386,407" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 7 -->
+  <text x="600" y="427" text-anchor="middle" font-size="11" fill="#1A1A1A">7: if Pending &#8594; Under Review; write StatusLog "opened for review"</text>
+  <line x1="380" y1="435" x2="820" y2="435" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 8 return -->
+  <text x="600" y="467" text-anchor="middle" font-size="11" fill="#1A1A1A">8: logged</text>
+  <line x1="820" y1="475" x2="380" y2="475" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 9 return -->
+  <text x="270" y="507" text-anchor="middle" font-size="11" fill="#1A1A1A">9: render AI risk tier + 4-pillar forensic evidence</text>
+  <line x1="380" y1="515" x2="160" y2="515" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 10 -->
+  <text x="270" y="547" text-anchor="middle" font-size="11" fill="#1A1A1A">10: POST /admin/review/{id}/status {status, remarks}</text>
+  <line x1="160" y1="555" x2="380" y2="555" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- divider -->
+  <line x1="60" y1="595" x2="1140" y2="595" stroke="#8C8C8C" stroke-width="1" stroke-dasharray="7,4"/>
+  <text x="600" y="587" text-anchor="middle" font-size="11" font-style="italic" fill="#595959">decision: Approved / Rejected / Returned</text>
+
+  <!-- 11 -->
+  <text x="600" y="627" text-anchor="middle" font-size="11" fill="#1A1A1A">11: update Application {status, remarks, evaluated_by}; create StatusLog</text>
+  <line x1="380" y1="635" x2="820" y2="635" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 12 return -->
+  <text x="600" y="667" text-anchor="middle" font-size="11" fill="#1A1A1A">12: saved</text>
+  <line x1="820" y1="675" x2="380" y2="675" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 13 -->
+  <text x="600" y="707" text-anchor="middle" font-size="11" fill="#1A1A1A">13: create AdminActionLog {approve/reject/return_application}</text>
+  <line x1="380" y1="715" x2="820" y2="715" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 14 return -->
+  <text x="600" y="747" text-anchor="middle" font-size="11" fill="#1A1A1A">14: saved</text>
+  <line x1="820" y1="755" x2="380" y2="755" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 15 -->
+  <text x="710" y="787" text-anchor="middle" font-size="11" fill="#1A1A1A">15: dispatch ApplicationStatusNotification (DB) + ApplicationStatusMail</text>
+  <line x1="380" y1="795" x2="1040" y2="795" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 16 self -->
+  <text x="1185" y="827" text-anchor="end" font-size="10" fill="#1A1A1A">16: toArray()&#8594;notifications; Mail::send()&#8594;EmailLog</text>
+  <path d="M 1046,835 L 1116,835 L 1116,857 L 1046,857" fill="none" stroke="#1A1A1A" stroke-width="1.3" marker-end="url(#arrowFilled)"/>
+
+  <!-- 17 return -->
+  <text x="710" y="877" text-anchor="middle" font-size="11" fill="#1A1A1A">17: dispatched / EmailLog recorded</text>
+  <line x1="1040" y1="885" x2="380" y2="885" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+  <!-- 18 return -->
+  <text x="270" y="917" text-anchor="middle" font-size="11" fill="#1A1A1A">18: confirmation &#8212; decision recorded</text>
+  <line x1="380" y1="925" x2="160" y2="925" stroke="#1A1A1A" stroke-width="1.1" stroke-dasharray="6,4" marker-end="url(#arrowOpen)"/>
+
+</svg>

@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1160" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1A1A1A"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1100" height="1160" fill="#FFFFFF"/>
+  <text x="550" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="#1A1A1A">Figure 26. Flowchart — Application Assignment Algorithm</text>
+
+  <!-- Start -->
+  <rect x="270" y="40" width="460" height="50" rx="25" fill="#1A1A1A"/>
+  <text x="500" y="71" text-anchor="middle" font-size="12" fill="#FFFFFF">Start: ApplicationAssignmentService::assign(Application)</text>
+  <line x1="500" y1="90" x2="500" y2="113" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Input parallelogram -->
+  <polygon points="350,115 680,115 650,185 320,185" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="155" text-anchor="middle" font-size="12" fill="#1A1A1A">Input: Application (scholarship_id)</text>
+  <line x1="500" y1="185" x2="500" y2="198" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Decision 1: scholarship-affinity pool -->
+  <polygon points="500,200 720,300 500,400 280,300" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="300" text-anchor="middle" font-size="12" fill="#1A1A1A">
+    <tspan x="500" dy="-14">Active Admin Staff Linked to</tspan>
+    <tspan x="500" dy="16">This Scholarship?</tspan>
+    <tspan x="500" dy="16">(scholarship_staff pivot)</tspan>
+  </text>
+
+  <!-- D1 Yes -->
+  <line x1="720" y1="300" x2="758" y2="300" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="738" y="285" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">Yes</text>
+  <rect x="760" y="265" width="240" height="70" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="880" y="300" text-anchor="middle" font-size="11" fill="#1A1A1A">
+    <tspan x="880" dy="-6">Candidate Pool = Staff</tspan>
+    <tspan x="880" dy="16">Assigned to This Scholarship</tspan>
+  </text>
+
+  <!-- D1 No -->
+  <line x1="500" y1="400" x2="500" y2="428" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="522" y="418" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">No</text>
+
+  <!-- Decision 2: system-wide fallback -->
+  <polygon points="500,430 720,530 500,630 280,530" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="530" text-anchor="middle" font-size="12" fill="#1A1A1A">
+    <tspan x="500" dy="-6">Any Active Admin-Role</tspan>
+    <tspan x="500" dy="16">User System-Wide?</tspan>
+  </text>
+
+  <!-- D2 Yes -->
+  <line x1="720" y1="530" x2="758" y2="530" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="738" y="515" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">Yes</text>
+  <rect x="760" y="495" width="240" height="70" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="880" y="530" text-anchor="middle" font-size="11" fill="#1A1A1A">
+    <tspan x="880" dy="-6">Candidate Pool = All Active</tspan>
+    <tspan x="880" dy="16">Admin Staff (System-Wide Fallback)</tspan>
+  </text>
+
+  <!-- D2 No -> unassigned end -->
+  <line x1="410" y1="590" x2="250" y2="658" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="370" y="630" text-anchor="middle" font-size="11" font-style="italic" fill="#1A1A1A">No</text>
+  <rect x="60" y="660" width="280" height="60" rx="30" fill="#1A1A1A"/>
+  <text x="200" y="686" text-anchor="middle" font-size="11" fill="#FFFFFF">
+    <tspan x="200" dy="-2">Return null — Application</tspan>
+    <tspan x="200" dy="15">Left Unassigned</tspan>
+  </text>
+
+  <!-- converge candidate pools into workload computation -->
+  <line x1="880" y1="335" x2="1030" y2="335" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="880" y1="565" x2="1030" y2="565" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="1030" y1="335" x2="1030" y2="650" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="1030" y1="650" x2="500" y2="650" stroke="#1A1A1A" stroke-width="2"/>
+  <line x1="500" y1="650" x2="500" y2="668" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Process: compute workload -->
+  <rect x="120" y="670" width="760" height="70" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="705" text-anchor="middle" font-size="12" fill="#1A1A1A">
+    <tspan x="500" dy="-6">For Each Candidate: Open Workload =</tspan>
+    <tspan x="500" dy="16">count(assignedApplications WHERE status IN ['Pending','Under Review'])</tspan>
+  </text>
+  <line x1="500" y1="740" x2="500" y2="768" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Process: sort/select -->
+  <rect x="200" y="770" width="600" height="70" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="805" text-anchor="middle" font-size="12" fill="#1A1A1A">
+    <tspan x="500" dy="-6">Sort Candidates Ascending by Workload;</tspan>
+    <tspan x="500" dy="16">Select Least-Loaded Candidate</tspan>
+  </text>
+  <line x1="500" y1="840" x2="500" y2="863" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Process: assign and save -->
+  <rect x="200" y="865" width="600" height="60" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="500" y="900" text-anchor="middle" font-size="12" fill="#1A1A1A">Set application.assigned_to = Selected Candidate; Save</text>
+  <line x1="500" y1="925" x2="500" y2="963" stroke="#1A1A1A" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- End: assigned -->
+  <rect x="290" y="965" width="420" height="60" rx="30" fill="#1A1A1A"/>
+  <text x="500" y="991" text-anchor="middle" font-size="12" fill="#FFFFFF">
+    <tspan x="500" dy="-2">Return Assigned Staff — Application</tspan>
+    <tspan x="500" dy="15">Enters Their Review Queue</tspan>
+  </text>
+
+  <text x="550" y="1075" text-anchor="middle" font-size="10.5" fill="#595959">Companion operation ApplicationAssignmentService::reassignPending() re-runs this identical workload-balanced logic for every</text>
+  <text x="550" y="1091" text-anchor="middle" font-size="10.5" fill="#595959">Pending / Under Review application still held by a staff member deactivated via SuperAdminController::revokeStaff() (§8.2).</text>
+
+</svg>

@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 980">
+  <rect x="0" y="0" width="1200" height="980" fill="#FFFFFF"/>
+  <text x="600" y="36" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#1A1A1A">Figure 15. A.E.G.I.S. Relational Schema Diagram</text>
+
+  <!-- ===== Relationship lines (drawn first, under boxes) ===== -->
+  <!-- Users - StudentProfiles -->
+  <line x1="180" y1="156" x2="180" y2="220" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="188" y="172" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="188" y="214" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="196" y="195" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">user_id</text>
+
+  <!-- Users - Applications -->
+  <line x1="260" y1="140" x2="500" y2="392" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="270" y="152" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="466" y="392" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1..*</text>
+  <text x="300" y="250" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">user_id</text>
+
+  <!-- ScholarshipPrograms - Applications -->
+  <line x1="940" y1="140" x2="720" y2="386" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="912" y="152" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="726" y="382" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1..*</text>
+  <text x="812" y="240" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">program_id</text>
+
+  <!-- AcademicTerms - Applications -->
+  <line x1="940" y1="248" x2="720" y2="444" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="900" y="244" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="726" y="448" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1..*</text>
+  <text x="800" y="340" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">term_id</text>
+
+  <!-- Applications - StatusLogs -->
+  <line x1="560" y1="460" x2="300" y2="580" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="536" y="474" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="308" y="574" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1..*</text>
+  <text x="400" y="510" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">application_id</text>
+
+  <!-- Applications - Documents -->
+  <line x1="610" y1="460" x2="610" y2="580" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="620" y="476" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="620" y="574" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1..*</text>
+  <text x="620" y="524" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">application_id</text>
+
+  <!-- Applications - EmailLogs -->
+  <line x1="660" y1="460" x2="920" y2="580" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="666" y="474" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="880" y="574" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1..*</text>
+  <text x="770" y="510" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">application_id</text>
+
+  <!-- Documents - AIAnalysisResults -->
+  <line x1="610" y1="636" x2="610" y2="740" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="620" y="652" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="620" y="734" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">1</text>
+  <text x="620" y="694" font-family="Arial, Helvetica, sans-serif" font-size="10" font-style="italic" fill="#595959">document_id</text>
+
+  <!-- ===== Table boxes (small, name only) ===== -->
+  <!-- Users -->
+  <rect x="100" y="100" width="160" height="56" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="180" y="133" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Users</text>
+
+  <!-- StudentProfiles -->
+  <rect x="100" y="220" width="160" height="56" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="180" y="253" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">StudentProfiles</text>
+
+  <!-- ScholarshipPrograms -->
+  <rect x="940" y="100" width="160" height="56" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="1020" y="127" font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Scholarship-</text>
+  <text x="1020" y="143" font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Programs</text>
+
+  <!-- AcademicTerms -->
+  <rect x="940" y="220" width="160" height="56" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="1020" y="253" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">AcademicTerms</text>
+
+  <!-- Applications (hub) -->
+  <rect x="500" y="380" width="220" height="80" fill="#A6303E" stroke="#1A1A1A" stroke-width="2.5"/>
+  <text x="610" y="426" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Applications</text>
+  <text x="610" y="444" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" fill="#FFFFFF">(central hub table)</text>
+
+  <!-- StatusLogs -->
+  <rect x="220" y="580" width="160" height="56" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="300" y="613" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">StatusLogs</text>
+
+  <!-- Documents -->
+  <rect x="530" y="580" width="160" height="56" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="610" y="613" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Documents</text>
+
+  <!-- EmailLogs -->
+  <rect x="840" y="580" width="160" height="56" fill="#1F4E79" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="920" y="613" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#FFFFFF">EmailLogs</text>
+
+  <!-- AIAnalysisResults -->
+  <rect x="510" y="740" width="200" height="56" fill="#C77C22" stroke="#1A1A1A" stroke-width="1.5"/>
+  <text x="610" y="765" font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">AIAnalysis-</text>
+  <text x="610" y="781" font-family="Arial, Helvetica, sans-serif" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#FFFFFF">Results</text>
+
+  <!-- ===== Legend ===== -->
+  <rect x="80" y="860" width="1040" height="90" fill="#FFFFFF" stroke="#8C8C8C" stroke-width="1"/>
+  <text x="100" y="882" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="bold" fill="#1A1A1A">Legend</text>
+  <rect x="100" y="892" width="16" height="16" fill="#A6303E" stroke="#1A1A1A"/>
+  <text x="122" y="904" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Central hub table</text>
+  <rect x="280" y="892" width="16" height="16" fill="#C77C22" stroke="#1A1A1A"/>
+  <text x="302" y="904" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">AI-related table</text>
+  <rect x="440" y="892" width="16" height="16" fill="#1F4E79" stroke="#1A1A1A"/>
+  <text x="462" y="904" font-family="Arial, Helvetica, sans-serif" font-size="10.5" fill="#1A1A1A">Standard table</text>
+  <text x="600" y="904" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#595959">Line labels: cardinality (1, 1..*) and the driving foreign-key column</text>
+  <text x="100" y="928" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#595959">This is the physical relational schema (foreign-key linkage view) at table level, showing only table names and FK-driven cardinalities.</text>
+  <text x="100" y="944" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-style="italic" fill="#595959">It complements the attribute-level Entity-Relationship Diagram (Figure 3), which lists primary/foreign keys and column detail per entity.</text>
+</svg>

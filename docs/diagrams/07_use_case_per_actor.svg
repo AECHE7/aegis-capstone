@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1200" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="openArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M1,1 L9,5 L1,9" fill="none" stroke="#1A1A1A" stroke-width="1.6"/>
+    </marker>
+  </defs>
+
+  <!-- background -->
+  <rect x="0" y="0" width="1440" height="1200" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="720" y="40" font-size="16" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Figure 7. Detailed Use Case Diagram by Actor Role</text>
+
+  <!-- ===================== PANEL DIVIDERS ===================== -->
+  <line x1="480" y1="130" x2="480" y2="1160" stroke="#D9D9D9" stroke-width="2"/>
+  <line x1="960" y1="130" x2="960" y2="1160" stroke="#D9D9D9" stroke-width="2"/>
+
+  <!-- ===================== PANEL HEADERS ===================== -->
+  <rect x="0" y="70" width="480" height="60" fill="#1F4E79"/>
+  <text x="240" y="106" font-size="15" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Student Portal</text>
+
+  <rect x="480" y="70" width="480" height="60" fill="#C77C22"/>
+  <text x="720" y="106" font-size="15" font-weight="bold" fill="#FFFFFF" text-anchor="middle">OSA Staff Review</text>
+
+  <rect x="960" y="70" width="480" height="60" fill="#A6303E"/>
+  <text x="1200" y="106" font-size="15" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Super Admin / OSA Director</text>
+
+  <!-- ===================== PANEL 1: STUDENT ===================== -->
+  <!-- association spine -->
+  <g stroke="#1A1A1A" stroke-width="1.2">
+    <line x1="240" y1="240" x2="240" y2="340"/>
+    <line x1="240" y1="240" x2="240" y2="450"/>
+    <line x1="240" y1="240" x2="240" y2="560"/>
+    <line x1="240" y1="240" x2="240" y2="670"/>
+    <line x1="240" y1="240" x2="240" y2="780"/>
+    <line x1="240" y1="240" x2="240" y2="890"/>
+    <line x1="240" y1="240" x2="240" y2="1000"/>
+  </g>
+
+  <!-- actor: Student -->
+  <g>
+    <circle cx="240" cy="172" r="12" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="240" y1="184" x2="240" y2="215" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="222" y1="195" x2="258" y2="195" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="240" y1="215" x2="225" y2="240" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="240" y1="215" x2="255" y2="240" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="240" y="260" font-size="12" font-weight="bold" fill="#1A1A1A" text-anchor="middle">Student</text>
+  </g>
+
+  <!-- use cases -->
+  <ellipse cx="240" cy="340" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="240" y="345" font-size="12" fill="#1A1A1A" text-anchor="middle">Complete Student Profile</text>
+
+  <ellipse cx="240" cy="450" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="240" y="445" font-size="12" fill="#1A1A1A" text-anchor="middle">Save Application Draft</text>
+  <text x="240" y="461" font-size="12" fill="#1A1A1A" text-anchor="middle">(Autosave)</text>
+
+  <ellipse cx="240" cy="560" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="240" y="565" font-size="12" fill="#1A1A1A" text-anchor="middle">Resubmit Corrected Document</text>
+
+  <ellipse cx="240" cy="670" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="240" y="675" font-size="12" fill="#1A1A1A" text-anchor="middle">Track Application Status</text>
+
+  <ellipse cx="240" cy="780" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="240" y="785" font-size="12" fill="#1A1A1A" text-anchor="middle">Request Scholarship Renewal</text>
+
+  <ellipse cx="240" cy="890" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="240" y="895" font-size="12" fill="#1A1A1A" text-anchor="middle">Forfeit Scholarship</text>
+
+  <ellipse cx="240" cy="1000" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="240" y="1005" font-size="12" fill="#1A1A1A" text-anchor="middle">View Notifications</text>
+
+  <!-- ===================== PANEL 2: OSA STAFF ===================== -->
+  <g stroke="#1A1A1A" stroke-width="1.2">
+    <line x1="720" y1="240" x2="720" y2="340"/>
+    <line x1="720" y1="240" x2="720" y2="450"/>
+    <line x1="720" y1="240" x2="720" y2="560"/>
+    <line x1="720" y1="240" x2="720" y2="670"/>
+    <line x1="720" y1="240" x2="720" y2="780"/>
+    <line x1="720" y1="240" x2="720" y2="890"/>
+    <line x1="720" y1="240" x2="720" y2="1000"/>
+    <line x1="720" y1="240" x2="720" y2="1110"/>
+  </g>
+
+  <!-- actor: OSA Staff -->
+  <g>
+    <circle cx="720" cy="172" r="12" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="720" y1="184" x2="720" y2="215" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="702" y1="195" x2="738" y2="195" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="720" y1="215" x2="705" y2="240" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="720" y1="215" x2="735" y2="240" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="720" y="260" font-size="12" font-weight="bold" fill="#1A1A1A" text-anchor="middle">OSA Staff (Admin)</text>
+  </g>
+
+  <ellipse cx="720" cy="340" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="720" y="345" font-size="12" fill="#1A1A1A" text-anchor="middle">Open Application for Review</text>
+
+  <ellipse cx="720" cy="450" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="720" y="455" font-size="12" fill="#1A1A1A" text-anchor="middle">Interpret AI Forensic Evidence</text>
+
+  <ellipse cx="720" cy="560" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="720" y="565" font-size="12" fill="#1A1A1A" text-anchor="middle">Apply Quick-Preset Remarks</text>
+
+  <ellipse cx="720" cy="670" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="720" y="665" font-size="12" fill="#1A1A1A" text-anchor="middle">Approve / Reject / Return</text>
+  <text x="720" y="681" font-size="12" fill="#1A1A1A" text-anchor="middle">Application</text>
+
+  <ellipse cx="720" cy="780" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="720" y="775" font-size="12" fill="#1A1A1A" text-anchor="middle">Bulk Approve / Reject</text>
+  <text x="720" y="791" font-size="12" fill="#1A1A1A" text-anchor="middle">Applications</text>
+
+  <ellipse cx="720" cy="890" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="720" y="895" font-size="12" fill="#1A1A1A" text-anchor="middle">Save Internal Staff Notes</text>
+
+  <ellipse cx="720" cy="1000" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="720" y="1005" font-size="12" fill="#1A1A1A" text-anchor="middle">Generate Forensic Certificate</text>
+
+  <ellipse cx="720" cy="1110" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="720" y="1115" font-size="12" fill="#1A1A1A" text-anchor="middle">Export Review Report</text>
+
+  <!-- ===================== PANEL 3: SUPER ADMIN / DIRECTOR ===================== -->
+  <g stroke="#1A1A1A" stroke-width="1.2">
+    <line x1="1200" y1="240" x2="1200" y2="340"/>
+    <line x1="1200" y1="240" x2="1200" y2="450"/>
+    <line x1="1200" y1="240" x2="1200" y2="560"/>
+    <line x1="1200" y1="240" x2="1200" y2="670"/>
+    <line x1="1200" y1="240" x2="1200" y2="780"/>
+    <line x1="1200" y1="240" x2="1200" y2="890"/>
+    <line x1="1200" y1="240" x2="1200" y2="1000"/>
+    <line x1="1200" y1="240" x2="1200" y2="1110"/>
+  </g>
+
+  <!-- actor: OSA Director -->
+  <g>
+    <circle cx="1200" cy="172" r="12" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1200" y1="184" x2="1200" y2="215" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1182" y1="195" x2="1218" y2="195" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1200" y1="215" x2="1185" y2="240" stroke="#1A1A1A" stroke-width="2"/>
+    <line x1="1200" y1="215" x2="1215" y2="240" stroke="#1A1A1A" stroke-width="2"/>
+    <text x="1200" y="260" font-size="12" font-weight="bold" fill="#1A1A1A" text-anchor="middle">OSA Director (Superadmin)</text>
+  </g>
+
+  <ellipse cx="1200" cy="340" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1200" y="345" font-size="12" fill="#1A1A1A" text-anchor="middle">Configure Scholarship Program</text>
+
+  <ellipse cx="1200" cy="450" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1200" y="455" font-size="12" fill="#1A1A1A" text-anchor="middle">Manage Academic Terms</text>
+
+  <ellipse cx="1200" cy="560" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1200" y="565" font-size="12" fill="#1A1A1A" text-anchor="middle">Invite New Staff Account</text>
+
+  <ellipse cx="1200" cy="670" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1200" y="675" font-size="12" fill="#1A1A1A" text-anchor="middle">Revoke / Reactivate Staff</text>
+
+  <ellipse cx="1200" cy="780" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1200" y="775" font-size="12" fill="#1A1A1A" text-anchor="middle">Configure Auto-Approval</text>
+  <text x="1200" y="791" font-size="12" fill="#1A1A1A" text-anchor="middle">Thresholds</text>
+
+  <ellipse cx="1200" cy="890" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1200" y="885" font-size="12" fill="#1A1A1A" text-anchor="middle">View Configuration</text>
+  <text x="1200" y="901" font-size="12" fill="#1A1A1A" text-anchor="middle">Change Log</text>
+
+  <ellipse cx="1200" cy="1000" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1200" y="1005" font-size="12" fill="#1A1A1A" text-anchor="middle">Manage System Trash</text>
+
+  <ellipse cx="1200" cy="1110" rx="195" ry="34" fill="#FFFFFF" stroke="#1F4E79" stroke-width="2"/>
+  <text x="1200" y="1115" font-size="12" fill="#1A1A1A" text-anchor="middle">Send Email Broadcast</text>
+</svg>

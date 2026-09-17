@@ -25,12 +25,16 @@ class Application extends Model
         'is_renewal',
         'previous_application_id',
         'forfeit_reason',
+        'dpa_consent_at',
+        'submitted_after_hours',
     ];
 
     protected $casts = [
         'is_archived' => 'boolean',
         'is_renewal'  => 'boolean',
         'assigned_to' => 'integer',
+        'dpa_consent_at' => 'datetime',
+        'submitted_after_hours' => 'boolean',
     ];
 
     /**

@@ -86,12 +86,12 @@
                 <span class="sidebar-icon"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Scholarship Programs</span>
             </a>
-            <a href="{{ route('superadmin.staff') }}"
-               class="sidebar-link {{ request()->routeIs('superadmin.staff') ? 'active' : '' }}"
-               {{ request()->routeIs('superadmin.staff') ? 'aria-current="page"' : '' }}
-               data-tooltip="Staff">
+            <a href="{{ route('superadmin.users') }}"
+               class="sidebar-link {{ request()->routeIs('superadmin.users') || request()->routeIs('superadmin.staff') ? 'active' : '' }}"
+               {{ request()->routeIs('superadmin.users') || request()->routeIs('superadmin.staff') ? 'aria-current="page"' : '' }}
+               data-tooltip="Users">
                 <span class="sidebar-icon"><i class="fa-solid fa-users-gear" aria-hidden="true"></i></span>
-                <span class="sidebar-text">Staff Accounts</span>
+                <span class="sidebar-text">User Management</span>
             </a>
             <a href="{{ route('admin.announcements.index') }}"
                class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
@@ -146,6 +146,22 @@
                 <span class="sidebar-text">My Application</span>
             </a>
 
+            <a href="{{ route('scholarships.catalog') }}"
+               class="sidebar-link {{ request()->routeIs('scholarships.catalog') ? 'active' : '' }}"
+               {{ request()->routeIs('scholarships.catalog') ? 'aria-current="page"' : '' }}
+               data-tooltip="Scholarships">
+                <span class="sidebar-icon"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span>
+                <span class="sidebar-text">Available Scholarships</span>
+            </a>
+
+            <a href="{{ route('student.announcements') }}"
+               class="sidebar-link {{ request()->routeIs('student.announcements') ? 'active' : '' }}"
+               {{ request()->routeIs('student.announcements') ? 'aria-current="page"' : '' }}
+               data-tooltip="Announcements">
+                <span class="sidebar-icon"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span>
+                <span class="sidebar-text">Announcements</span>
+            </a>
+
             @if($isScholar && !$canRenew)
                 {{-- Scholar with active grant — show disabled Apply link --}}
                 <span class="sidebar-link text-muted" style="opacity:0.45; cursor:not-allowed;" data-tooltip="Already a Scholar"
@@ -157,22 +173,30 @@
             @elseif($canRenew)
                 {{-- Term ended, scholar can now renew --}}
                 <a href="{{ route('student.apply', ['renew_from' => $latestApp->id]) }}"
-                   class="sidebar-link {{ request()->routeIs('student.apply') ? 'active' : '' }}"
-                   {{ request()->routeIs('student.apply') ? 'aria-current="page"' : '' }}
-                   data-tooltip="Renew">
+                    class="sidebar-link {{ request()->routeIs('student.apply') ? 'active' : '' }}"
+                    {{ request()->routeIs('student.apply') ? 'aria-current="page"' : '' }}
+                    data-tooltip="Renew">
                     <span class="sidebar-icon"><i class="fa-solid fa-rotate-right" aria-hidden="true"></i></span>
                     <span class="sidebar-text">Renew Scholarship</span>
                 </a>
             @else
                 {{-- No active application — show normal Apply link --}}
                 <a href="{{ route('student.apply') }}"
-                   class="sidebar-link {{ request()->routeIs('student.apply') ? 'active' : '' }}"
-                   {{ request()->routeIs('student.apply') ? 'aria-current="page"' : '' }}
-                   data-tooltip="Apply">
+                    class="sidebar-link {{ request()->routeIs('student.apply') ? 'active' : '' }}"
+                    {{ request()->routeIs('student.apply') ? 'aria-current="page"' : '' }}
+                    data-tooltip="Apply">
                     <span class="sidebar-icon"><i class="fa-solid fa-plus" aria-hidden="true"></i></span>
                     <span class="sidebar-text">Apply for Scholarship</span>
                 </a>
             @endif
+
+            <a href="{{ route('student.profile') }}"
+               class="sidebar-link {{ request()->routeIs('student.profile') ? 'active' : '' }}"
+               {{ request()->routeIs('student.profile') ? 'aria-current="page"' : '' }}
+               data-tooltip="My Profile">
+                <span class="sidebar-icon"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
+                <span class="sidebar-text">My Profile</span>
+            </a>
 
             <a href="{{ route('profile.security') }}"
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"

@@ -51,6 +51,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'otp_code',
         'otp_expires_at',
         'has_completed_tour',
+        'dpa_consent_at',
     ];
 
     /**
@@ -84,6 +85,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_active' => 'boolean',
             'otp_expires_at' => 'datetime',
             'has_completed_tour' => 'boolean',
+            'dpa_consent_at' => 'datetime',
         ];
     }
 
@@ -172,5 +174,27 @@ class User extends Authenticatable implements MustVerifyEmail
     public function mfaDevices()
     {
         return $this->hasMany(UserMfaDevice::class);
+    }
+
+    /**
+     * Check if the student user has completed their basic profile information.
+     */
+    public function isProfileComplete(): bool
+    {
+        if ($this->role !== 'student') {
+            return true;
+        }
+
+        $profile = $this->profile;
+        if (!$profile) {
+            return false;
+        }
+
+        return !empty($profile->clsu_id_number)
+            && !empty($profile->college)
+            && !empty($profile->course)
+            && !empty($profile->year_level)
+            && !empty($profile->contact_number)
+            && !empty($profile->emergency_contact_number);
     }
 }
