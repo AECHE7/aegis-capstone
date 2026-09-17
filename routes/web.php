@@ -122,6 +122,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/security', [AuthController::class, 'updatePassword'])->name('profile.security.update');
     Route::delete('/profile/security/devices/{id}', [AuthController::class, 'revokeDevice'])->name('profile.security.devices.revoke');
     Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/tour/reset', [ApplicationController::class, 'resetTour'])->name('tour.reset');
 
     // Notifications routes
     Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');
@@ -258,6 +259,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/settings', [SuperAdminController::class, 'settings'])->name('superadmin.settings');
         Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
         Route::post('/settings/security-reset', [SuperAdminController::class, 'revokeAllDevices'])->name('superadmin.settings.security-reset');
+        Route::post('/settings/purge-students', [SuperAdminController::class, 'purgeStudents'])->name('superadmin.settings.purge-students');
 
         // Email Broadcast Center
         Route::get('/broadcast', [SuperAdminController::class, 'showBroadcast'])->name('superadmin.broadcast');

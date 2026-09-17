@@ -1215,7 +1215,15 @@
                     <p class="topbar-subtitle">@yield('page-subtitle', 'A.E.G.I.S. Portal')</p>
                 </div>
             </div>
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <!-- Interactive Demo Guide Trigger Button in Topbar -->
+                <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-muted d-none d-sm-inline-flex align-items-center gap-1.5 shadow-xs" 
+                        onclick="openSystemTourModal('{{ auth()->user()->role ?? 'student' }}')" 
+                        title="Interactive System Demo & Role Walkthrough">
+                    <i class="fa-solid fa-graduation-cap text-success"></i>
+                    <span class="small fw-semibold" style="font-size: 0.76rem;">Demo Guide</span>
+                </button>
+
                 <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-1">
                     {{-- WCAG 4.1.2: Name/Role/Value — accessible name on icon-only button --}}
@@ -1953,6 +1961,8 @@
 </script>
 
 @include('layouts.mobile-nav')
+
+<x-system-demo-modal />
 
 @stack('scripts')
 </body>

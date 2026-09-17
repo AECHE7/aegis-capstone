@@ -1228,6 +1228,22 @@ class SuperAdminController extends Controller
         return back()->with('success', 'All trusted devices system-wide have been successfully revoked.');
     }
 
+    public function purgeStudents(Request $request)
+    {
+        $count = \App\Services\StudentPurgeService::purgeAllStudents();
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id(),
+            'purge_students',
+            'System',
+            null,
+            "Purged {$count} student users and their associated records for fresh testing.",
+            $request->ip()
+        );
+
+        return back()->with('success', "Successfully purged {$count} student user accounts and all related applications. The portal is ready for fresh testing!");
+    }
+
     public function showBroadcast()
     {
         $scholarships = \App\Models\Scholarship::latest()->get();

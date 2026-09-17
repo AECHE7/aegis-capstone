@@ -449,6 +449,22 @@ class ApplicationController extends Controller
         return response()->json(['success' => true]);
     }
 
+    // Reset Guided Onboarding Tour
+    public function resetTour()
+    {
+        $user = auth()->user();
+        if ($user) {
+            $user->has_completed_tour = false;
+            $user->save();
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->back()->with('success', 'Interactive tour reset. You can now experience the guided demo on your dashboard.');
+    }
+
     // 9. Forfeit / Backout Scholarship
     public function forfeit(Request $request, $id)
     {

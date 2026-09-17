@@ -238,3 +238,61 @@ In compliance with Republic Act No. 10173 (Data Privacy Act of 2012) and matchin
 
 4. **Automated Verification**:
    - Created `tests/Feature/NpcSealTest.php` with 4 dedicated feature tests verifying asset integrity, landing page rendering, welcome page rendering, and register page DPA link.
+
+---
+
+## 6. Student User Database Purge Utility & Multi-Role Interactive Demo Hub
+
+### Overview
+To facilitate iterative onboarding and user acceptance testing (UAT), AEGIS now includes:
+1. **Clean-Slate Student User Database Purge**: Safely wipes student test data while preserving administrator, staff, and director accounts, system settings, and scholarship configurations intact.
+2. **Multi-Role Interactive Demo Hub**: Comprehensive guidance modal and live interactive element spotlighting for all 3 user roles (`student`, `admin`, `superadmin`) accessible throughout the platform.
+
+### Key Components
+
+1. **Student Purge Engine (`app/Services/StudentPurgeService.php`)**:
+   - Executes inside a database transaction to ensure complete atomicity.
+   - Deletes all users with `role = 'student'` and cascades across:
+     - `document_ai_results`
+     - `documents`
+     - `application_fields`
+     - `application_histories`
+     - `applications`
+     - `student_profiles`
+     - `user_mfa_devices`
+     - `user_trusted_devices`
+     - `notifications`
+     - `password_reset_tokens`
+   - Explicitly preserves all staff (`admin`) and director (`superadmin`) accounts.
+
+2. **Artisan Command (`app/Console/Commands/PurgeStudentUsersCommand.php`)**:
+   - Command: `php artisan aegis:purge-students {--force}`
+   - Prompts for confirmation when running interactively unless `--force` is provided.
+   - Displays real-time student count and feedback.
+
+3. **Super Admin Settings Action (`SuperAdminController@purgeStudents` & `POST /settings/purge-students`)**:
+   - Protected by `superadmin` middleware.
+   - Includes full audit logging with IP address and action description.
+   - Confirmation dialog in UI prevents accidental clicks.
+
+4. **Multi-Role Interactive Demo Modal (`resources/views/components/system-demo-modal.blade.php`)**:
+   - Global component `<x-system-demo-modal />` embedded in `resources/views/layouts/app.blade.php`.
+   - Accessible via:
+     - Top Navigation Bar ("Demo Guide" button)
+     - System Settings page (`resources/views/superadmin/settings.blade.php`)
+     - Account Settings / Profile Security page (`resources/views/auth/change_password.blade.php`)
+   - Features 3 role-tailored worksheets:
+     - **Student Applicant**: Profile setup, scholarship discovery, multi-step application, OCR document verification, status tracker, and notifications.
+     - **OSA Staff Evaluator**: Application queue, OCR GWA audit, document verification, application approval/rejection, fraud inspection, and student communication.
+     - **OSA Director / Super Admin**: Executive dashboard analytics, scholarship lifecycle, staff RBAC, batch CSV exports, audit compliance logs, and announcement publishing.
+   - Includes live screen spotlight walkthrough via Shepherd.js with automated tour reset (`POST /tour/reset`).
+
+5. **Automated Verification**:
+   - Feature tests in `tests/Feature/StudentPurgeAndDemoTest.php` covering:
+     - Service purge logic and staff retention
+     - Artisan CLI execution
+     - Settings page UI and purge POST action
+     - Account settings demo card
+     - Modal rendering across all 3 roles
+     - Tour reset controller endpoint
+

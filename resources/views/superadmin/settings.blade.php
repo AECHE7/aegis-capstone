@@ -217,6 +217,62 @@
                 </div>
             </div>
 
+            <!-- Interactive Training & Role Guided Demos -->
+            <div class="card mb-4 border-0 shadow-sm" style="border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #072F1B, #0C4E2D); color: white;">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; min-width: 50px;">
+                                <i class="fa-solid fa-graduation-cap fs-3 text-warning"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1 text-white">Interactive Training & Role Demo Guide</h5>
+                                <p class="text-white-50 small mb-0">Guide any user role through live step-by-step walkthroughs to teach them how to use every feature in AEGIS.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <div class="btn-group shadow-sm" role="group">
+                                <button type="button" class="btn btn-outline-light btn-sm fw-semibold" onclick="openSystemTourModal('student')">
+                                    <i class="fa-solid fa-user-graduate me-1"></i> Student Demo
+                                </button>
+                                <button type="button" class="btn btn-outline-light btn-sm fw-semibold" onclick="openSystemTourModal('admin')">
+                                    <i class="fa-solid fa-user-shield me-1"></i> Staff Demo
+                                </button>
+                                <button type="button" class="btn btn-warning btn-sm text-dark fw-bold" onclick="openSystemTourModal('superadmin')">
+                                    <i class="fa-solid fa-crown me-1"></i> Director Demo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Testing & Student Purge Utilities -->
+            <div class="card mb-4 border-0 shadow-sm" style="border-radius: 16px; overflow: hidden; border-left: 4px solid #ef4444 !important;">
+                <div class="card-header bg-transparent py-3 border-bottom border-light d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold text-danger"><i class="fa-solid fa-database me-2"></i> Testing & Database Maintenance</h5>
+                    <span class="badge bg-secondary rounded-pill px-3 py-1">
+                        {{ \App\Models\User::where('role', 'student')->count() }} Students Active
+                    </span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row align-items-center g-3">
+                        <div class="col-lg-8">
+                            <h6 class="fw-bold text-dark mb-1">Purge All Student User Accounts</h6>
+                            <p class="text-muted small mb-0">
+                                Removes all student records, student profiles, applications, uploaded documents, and notifications for a clean testing environment.
+                                <strong>Staff and Director accounts are completely preserved.</strong>
+                            </p>
+                        </div>
+                        <div class="col-lg-4 text-lg-end text-start">
+                            <button type="button" class="btn btn-outline-danger py-2 px-3 fw-bold rounded-pill" onclick="confirmPurgeStudents()">
+                                <i class="fa-solid fa-trash-can me-1"></i> Purge Test Students
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Actions -->
             <div class="d-flex justify-content-end mb-5">
                 <button type="submit" class="btn fw-bold px-4 py-2" 
@@ -230,10 +286,20 @@
             @csrf
         </form>
 
+        <form id="purgeStudentsForm" action="{{ route('superadmin.settings.purge-students') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+
         <script>
             function confirmRevokeDevices() {
                 if (confirm('CAUTION: Are you sure you want to revoke all remembered trusted devices system-wide? Every user will be required to re-verify using MFA on their next login.')) {
                     document.getElementById('revokeDevicesForm').submit();
+                }
+            }
+
+            function confirmPurgeStudents() {
+                if (confirm('WARNING: Are you sure you want to delete ALL student users and their application data from the database? This action cannot be undone and is intended for clean-slate testing.')) {
+                    document.getElementById('purgeStudentsForm').submit();
                 }
             }
         </script>
