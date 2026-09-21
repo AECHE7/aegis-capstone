@@ -145,17 +145,17 @@
 
             <div class="col-12 col-md-4">
                 <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0" style="border-radius: 10px 0 0 10px;">
+                    <span class="input-group-text bg-light border-end-0" style="border-radius: 20px 0 0 20px; border-color: var(--border-color);">
                         <i class="fa-solid fa-magnifying-glass text-muted"></i>
                     </span>
                     <input type="text" name="q" class="form-control bg-light border-start-0" 
                            placeholder="{{ $tab === 'students' ? 'Search by name, email, student ID, course...' : 'Search staff by name or institutional email...' }}" 
-                           value="{{ $search }}" style="border-radius: 0 10px 10px 0; font-size: 0.85rem;">
+                           value="{{ $search }}" style="border-radius: 0 20px 20px 0; font-size: 0.85rem; min-height: 38px; border-color: var(--border-color);">
                 </div>
             </div>
 
             <div class="col-6 col-md-3">
-                <select name="status" class="form-select bg-light" style="border-radius: 10px; font-size: 0.85rem;">
+                <select name="status" class="form-select bg-light" style="border-radius: 20px; font-size: 0.85rem; min-height: 38px; border-color: var(--border-color);">
                     <option value="all" {{ $status === 'all' ? 'selected' : '' }}>All Account Statuses</option>
                     <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Active Accounts Only</option>
                     <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Deactivated Only</option>
@@ -164,7 +164,7 @@
 
             @if($tab === 'students')
             <div class="col-6 col-md-3">
-                <select name="college" class="form-select bg-light" style="border-radius: 10px; font-size: 0.85rem;">
+                <select name="college" class="form-select bg-light" style="border-radius: 20px; font-size: 0.85rem; min-height: 38px; border-color: var(--border-color);">
                     <option value="">All Colleges</option>
                     <option value="College of Agriculture" {{ $college === 'College of Agriculture' ? 'selected' : '' }}>College of Agriculture</option>
                     <option value="College of Arts and Social Sciences" {{ $college === 'College of Arts and Social Sciences' ? 'selected' : '' }}>College of Arts and Social Sciences</option>
@@ -180,16 +180,17 @@
             @endif
 
             <div class="col-12 col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-dark fw-bold w-100" style="border-radius: 10px; font-size: 0.85rem;">
+                <button type="submit" class="btn btn-clsu-primary w-100 rounded-pill" style="min-height: 38px; font-size: 0.85rem;">
                     <i class="fa-solid fa-filter me-1"></i> Filter
                 </button>
                 @if($search || $status !== 'all' || $college)
-                    <a href="{{ route('superadmin.users', ['tab' => $tab]) }}" class="btn btn-light border" style="border-radius: 10px; font-size: 0.85rem;" title="Reset filters">
+                    <a href="{{ route('superadmin.users', ['tab' => $tab]) }}" class="btn btn-clsu-secondary rounded-pill px-3" style="min-height: 38px; font-size: 0.85rem;" title="Reset filters">
                         <i class="fa-solid fa-rotate-left"></i>
                     </a>
                 @endif
             </div>
         </form>
+
     </div>
 
     {{-- Content Body --}}

@@ -50,38 +50,38 @@
 
 {{-- Header Banner & Search Filter --}}
 <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%); color: white; overflow: hidden; position: relative;">
-    <div class="p-4 p-md-5 position-relative" style="z-index: 2;">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+    <div class="p-4 position-relative" style="z-index: 2;">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-2">
             <div>
-                <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold mb-2" style="font-size: 0.75rem;">
+                <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2" style="font-size: 0.72rem;">
                     <i class="fa-solid fa-graduation-cap me-1"></i> CLSU Office of Student Affairs
                 </span>
-                <h2 class="fw-bold text-white mb-1" style="font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">
+                <h3 class="fw-bold text-white mb-1" style="font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">
                     Available Scholarship Programs
-                </h2>
-                <p class="text-white-50 mb-0 small" style="max-width: 600px;">
-                    Review complete requirements, maximum GWA thresholds, renewal limits, and program descriptions for the current academic term.
+                </h3>
+                <p class="text-white-50 mb-0 small" style="max-width: 600px; font-size: 0.85rem;">
+                    Review complete requirements, maximum GWA thresholds, renewal limits, and program guidelines for the active academic term.
                 </p>
             </div>
             @if(isset($activeTerm) && $activeTerm)
-                <div class="text-md-end bg-white bg-opacity-10 p-3 rounded-4 border border-white border-opacity-10">
-                    <span class="text-white-50 d-block small" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px;">Active Academic Term</span>
-                    <strong class="text-warning fs-6">{{ $activeTerm->semester }} Semester, A.Y. {{ $activeTerm->academic_year }}</strong>
+                <div class="text-md-end bg-white bg-opacity-10 px-3 py-2 rounded-4 border border-white border-opacity-10">
+                    <span class="text-white-50 d-block small" style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px;">Active Academic Term</span>
+                    <strong class="text-warning small">{{ $activeTerm->semester }} Semester, A.Y. {{ $activeTerm->academic_year }}</strong>
                 </div>
             @endif
         </div>
 
         {{-- Live Search Filter --}}
-        <form method="GET" action="{{ route('scholarships.catalog') }}" class="mt-4">
+        <form method="GET" action="{{ route('scholarships.catalog') }}" class="mt-3">
             <div class="row g-2 align-items-center">
-                <div class="col-md-8 col-lg-9">
+                <div class="col-md-9 col-lg-9">
                     <div class="input-group bg-white rounded-pill p-1 shadow-sm">
                         <span class="input-group-text bg-transparent border-0 text-muted ps-3">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
-                        <input type="text" name="search" class="form-control border-0 bg-transparent py-2" 
+                        <input type="text" name="search" class="form-control border-0 bg-transparent py-1.5" 
                                placeholder="Search scholarship name, eligibility terms, or guidelines..." 
-                               value="{{ request('search') }}" style="box-shadow: none;">
+                               value="{{ request('search') }}" style="box-shadow: none; font-size: 0.88rem;">
                         @if(request('search'))
                             <a href="{{ route('scholarships.catalog') }}" class="btn btn-link text-muted text-decoration-none">
                                 <i class="fa-solid fa-xmark"></i>
@@ -89,15 +89,16 @@
                         @endif
                     </div>
                 </div>
-                <div class="col-md-4 col-lg-3">
-                    <button type="submit" class="btn btn-warning w-100 fw-bold rounded-pill py-2.5 text-dark">
-                        <i class="fa-solid fa-filter me-1"></i> Filter Programs
+                <div class="col-md-3 col-lg-3">
+                    <button type="submit" class="btn btn-warning w-100 fw-bold rounded-pill py-2 text-dark shadow-sm" style="font-size: 0.88rem;">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i> Search
                     </button>
                 </div>
             </div>
         </form>
     </div>
 </div>
+
 
 {{-- Programs Summary Badge Bar --}}
 <div class="d-flex justify-content-between align-items-center mb-3 px-1">

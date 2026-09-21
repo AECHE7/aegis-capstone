@@ -121,72 +121,138 @@
     </div>
 </div>
 
-{{-- Filter Bar --}}
-<div class="filter-bar mb-4">
-    <form action="{{ route('admin.dashboard') }}" method="GET">
-        <div class="row g-2 align-items-end">
-            <div class="col-md-2 col-lg">
-                <label class="form-label fw-semibold small text-muted mb-1" for="searchInput"><i class="fa-solid fa-magnifying-glass me-1"></i> Search</label>
-                <input type="text" name="search" id="searchInput" class="form-control" value="{{ request('search') }}" placeholder="Search..." autocomplete="off">
-            </div>
-            <div class="col-md-2 col-lg">
-                <label class="form-label fw-semibold small text-muted mb-1" for="scholarshipSelect"><i class="fa-solid fa-graduation-cap me-1"></i> Scholarship</label>
-                <select name="scholarship_id" id="scholarshipSelect" class="form-select">
-                    <option value="">All Programs</option>
-                    @foreach($scholarships as $s)
-                        <option value="{{ $s->id }}" {{ request('scholarship_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-2 col-lg">
-                <label class="form-label fw-semibold small text-muted mb-1" for="statusSelect"><i class="fa-solid fa-circle-half-stroke me-1"></i> Status</label>
-                <select name="status" id="statusSelect" class="form-select">
-                    <option value="">All Statuses</option>
-                    <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>⏳ Pending</option>
-                    <option value="Under Review" {{ request('status') === 'Under Review' ? 'selected' : '' }}>🔍 Under Review</option>
-                    <option value="Approved" {{ request('status') === 'Approved' ? 'selected' : '' }}>✅ Approved</option>
-                    <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>❌ Rejected</option>
-                    <option value="Cancelled" {{ request('status') === 'Cancelled' ? 'selected' : '' }}>🗑️ Cancelled / Trash</option>
-                </select>
-            </div>
-            <div class="col-md-2 col-lg">
-                <label class="form-label fw-semibold small text-muted mb-1" for="typeSelect"><i class="fa-solid fa-arrows-spin me-1"></i> Type</label>
-                <select name="type" id="typeSelect" class="form-select">
-                    <option value="">All Types</option>
-                    <option value="new" {{ request('type') === 'new' ? 'selected' : '' }}>🆕 First Time</option>
-                    <option value="renewal" {{ request('type') === 'renewal' ? 'selected' : '' }}>🔄 Renewal</option>
-                </select>
-            </div>
-            <div class="col-md-2 col-lg">
-                <label class="form-label fw-semibold small text-muted mb-1" for="academicPeriodSelect"><i class="fa-solid fa-calendar me-1"></i> Period</label>
-                <select name="academic_term_id" id="academicPeriodSelect" class="form-select">
-                    <option value="">All Periods</option>
-                    @foreach($academicTerms as $term)
-                        <option value="{{ $term->id }}" {{ request('academic_term_id') == $term->id ? 'selected' : '' }}>
-                            {{ $term->semester }}, SY {{ $term->academic_year }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-2 col-lg">
-                <label class="form-label fw-semibold small text-muted mb-1" for="sortSelect"><i class="fa-solid fa-arrow-down-wide-short me-1"></i> Sort By</label>
-                <select name="sort" id="sortSelect" class="form-select">
-                    <option value="">Newest</option>
-                    <option value="priority" {{ request('sort') === 'priority' ? 'selected' : '' }}>🔥 AEGIS Priority</option>
-                    <option value="gwa_asc" {{ request('sort') === 'gwa_asc' ? 'selected' : '' }}>📈 GWA (Lowest First)</option>
-                    <option value="gwa_desc" {{ request('sort') === 'gwa_desc' ? 'selected' : '' }}>📉 GWA (Highest First)</option>
-                    <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>⏳ Oldest</option>
-                </select>
-            </div>
-            <div class="col-md-2 col-lg-auto d-flex gap-2">
-                <button type="submit" class="btn fw-bold px-3" style="background: var(--clsu-green); color: white; border-radius: 8px; font-size:0.875rem;">
-                    Filter
+{{-- Space-Efficient Unified Control Bar --}}
+<div class="unified-control-bar mb-3">
+    <form action="{{ route('admin.dashboard') }}" method="GET" class="d-flex align-items-center gap-2 flex-wrap w-100 mb-0">
+        {{-- Search Input (Live Debounced) --}}
+        <div class="position-relative flex-grow-1" style="min-width: 220px; max-width: 320px;">
+            <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 0.82rem;" aria-hidden="true"></i>
+            <input type="text" name="search" id="searchInput" class="form-control ps-5 py-1.5" 
+                   value="{{ request('search') }}" placeholder="Search applicant, ID, program..." 
+                   autocomplete="off" style="font-size: 0.85rem; border-radius: 20px; min-height: 38px;">
+            @if(request('search'))
+                <button type="button" class="btn btn-link position-absolute p-0 text-muted" style="right: 12px; top: 50%; transform: translateY(-50%); text-decoration: none;" onclick="document.getElementById('searchInput').value=''; reloadQueue();">
+                    <i class="fa-solid fa-xmark"></i>
                 </button>
-                <a href="{{ route('admin.dashboard') }}" class="btn btn-light fw-bold" style="border-radius:8px;font-size:0.875rem;" title="Clear">
-                    <i class="fa-solid fa-rotate-left"></i>
-                </a>
+            @endif
+        </div>
+
+        {{-- Quick Status Filter Pills (1-Click Toggling) --}}
+        <div class="d-flex align-items-center gap-1.5 flex-wrap" id="statusPillsGroup">
+            <button type="button" class="filter-status-pill {{ !request('status') ? 'active' : '' }}" data-status="">
+                <i class="fa-solid fa-layer-group" aria-hidden="true"></i> All
+            </button>
+            <button type="button" class="filter-status-pill {{ request('status') === 'Pending' ? 'active' : '' }}" data-status="Pending">
+                <i class="fa-solid fa-hourglass-half text-warning" aria-hidden="true"></i> Pending
+                <span class="pill-count count-up" data-target="{{ $pendingCount }}">{{ $pendingCount }}</span>
+            </button>
+            <button type="button" class="filter-status-pill {{ request('status') === 'Under Review' ? 'active' : '' }}" data-status="Under Review">
+                <i class="fa-solid fa-magnifying-glass-chart text-info" aria-hidden="true"></i> In Review
+                <span class="pill-count count-up" data-target="{{ $underReviewCount }}">{{ $underReviewCount }}</span>
+            </button>
+            <button type="button" class="filter-status-pill {{ request('status') === 'Approved' ? 'active' : '' }}" data-status="Approved">
+                <i class="fa-solid fa-user-graduate text-success" aria-hidden="true"></i> Approved
+                <span class="pill-count count-up" data-target="{{ $approvedCount }}">{{ $approvedCount }}</span>
+            </button>
+            <button type="button" class="filter-status-pill {{ request('status') === 'Rejected' ? 'active' : '' }}" data-status="Rejected">
+                <i class="fa-solid fa-shield-virus text-danger" aria-hidden="true"></i> Rejected
+                <span class="pill-count count-up" data-target="{{ $rejectedCount }}">{{ $rejectedCount }}</span>
+            </button>
+        </div>
+
+        {{-- More Filters & Sort Dropdown Popover --}}
+        <div class="dropdown ms-auto">
+            @php
+                $activeSecondaryCount = 0;
+                if(request('scholarship_id')) $activeSecondaryCount++;
+                if(request('type')) $activeSecondaryCount++;
+                if(request('academic_term_id')) $activeSecondaryCount++;
+                if(request('sort')) $activeSecondaryCount++;
+            @endphp
+            <button class="btn btn-sm btn-clsu-secondary rounded-pill px-3 py-1.5 text-nowrap d-inline-flex align-items-center gap-1.5" 
+                    type="button" id="moreFiltersDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                <i class="fa-solid fa-sliders text-success" aria-hidden="true"></i>
+                <span>Filters & Sort</span>
+                @if($activeSecondaryCount > 0)
+                    <span class="badge bg-success rounded-pill px-1.5 py-0.5" id="activeFilterBadge" style="font-size:0.65rem;">{{ $activeSecondaryCount }}</span>
+                @endif
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-3 shadow-lg border-0" aria-labelledby="moreFiltersDropdown" style="width: 320px; border-radius: 16px; z-index: 1050;">
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                    <span class="fw-bold small text-dark"><i class="fa-solid fa-filter text-success me-1"></i> Secondary Filters</span>
+                    <a href="{{ route('admin.dashboard') }}" class="small text-decoration-none text-muted" title="Reset All Filters">Reset</a>
+                </div>
+
+                {{-- Controlled Status Selector --}}
+                <select name="status" id="statusSelect" class="d-none">
+                    <option value="" {{ !request('status') ? 'selected' : '' }}>All</option>
+                    <option value="Pending" {{ request('status') === 'Pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="Under Review" {{ request('status') === 'Under Review' ? 'selected' : '' }}>Under Review</option>
+                    <option value="Approved" {{ request('status') === 'Approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                    <option value="Cancelled" {{ request('status') === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+                </select>
+
+                <div class="mb-2">
+                    <label class="form-label fw-semibold small text-muted mb-1" for="scholarshipSelect">Scholarship Program</label>
+                    <select name="scholarship_id" id="scholarshipSelect" class="form-select form-select-sm" style="border-radius: 8px;">
+                        <option value="">All Programs</option>
+                        @foreach($scholarships as $s)
+                            <option value="{{ $s->id }}" {{ request('scholarship_id') == $s->id ? 'selected' : '' }}>{{ $s->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label fw-semibold small text-muted mb-1" for="academicPeriodSelect">Academic Period</label>
+                    <select name="academic_term_id" id="academicPeriodSelect" class="form-select form-select-sm" style="border-radius: 8px;">
+                        <option value="">All Periods</option>
+                        @foreach($academicTerms as $term)
+                            <option value="{{ $term->id }}" {{ request('academic_term_id') == $term->id ? 'selected' : '' }}>
+                                {{ $term->semester }}, SY {{ $term->academic_year }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold small text-muted mb-1" for="typeSelect">App Type</label>
+                        <select name="type" id="typeSelect" class="form-select form-select-sm" style="border-radius: 8px;">
+                            <option value="">All Types</option>
+                            <option value="new" {{ request('type') === 'new' ? 'selected' : '' }}>First Time</option>
+                            <option value="renewal" {{ request('type') === 'renewal' ? 'selected' : '' }}>Renewal</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold small text-muted mb-1" for="sortSelect">Sort Order</label>
+                        <select name="sort" id="sortSelect" class="form-select form-select-sm" style="border-radius: 8px;">
+                            <option value="">Newest</option>
+                            <option value="priority" {{ request('sort') === 'priority' ? 'selected' : '' }}>AEGIS Priority</option>
+                            <option value="gwa_asc" {{ request('sort') === 'gwa_asc' ? 'selected' : '' }}>GWA (Lowest)</option>
+                            <option value="gwa_desc" {{ request('sort') === 'gwa_desc' ? 'selected' : '' }}>GWA (Highest)</option>
+                            <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Oldest</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-clsu-primary btn-sm w-100">
+                        <i class="fa-solid fa-check me-1"></i> Apply
+                    </button>
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light btn-sm border" style="border-radius: 8px;" title="Reset">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </a>
+                </div>
             </div>
         </div>
+
+        {{-- 1-Click Clear Button (Only visible when filters active) --}}
+        @if(request('search') || request('status') || request('scholarship_id') || request('academic_term_id') || request('type') || request('sort'))
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-light border rounded-pill px-2.5 py-1 text-muted" title="Clear all filters">
+                <i class="fa-solid fa-rotate-left me-1"></i> Clear
+            </a>
+        @endif
     </form>
 </div>
 
@@ -195,18 +261,24 @@
     @include('admin.partials.application_table')
 </div>
 
-{{-- Active Scholars Monitoring Panel --}}
+{{-- Active Scholars Monitoring Panel (Collapsible to prevent visual crowding) --}}
 <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
     <div class="card-body p-4">
-        <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="d-flex align-items-center justify-content-between" data-bs-toggle="collapse" data-bs-target="#activeScholarsCollapse" style="cursor: pointer;" aria-expanded="false" aria-controls="activeScholarsCollapse">
             <div>
-                <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-graduation-cap text-success me-2"></i> Current Term Scholars Monitoring</h5>
-                <small class="text-muted">Direct oversight of active approved scholars and grade performance</small>
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-success"></i> Current Term Scholars Monitoring
+                    <i class="fa-solid fa-chevron-down text-muted fs-6 transition" style="transition: transform 0.2s;"></i>
+                </h5>
+                <small class="text-muted">Direct oversight of active approved scholars and grade performance (click to toggle)</small>
             </div>
             <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold small" style="background-color: #dcfce7; color: #14532d;">
                 Active Grants: {{ $activeScholars->count() }}
             </span>
         </div>
+
+        <div class="collapse mt-4" id="activeScholarsCollapse">
+
 
         <div class="table-responsive">
             <table class="table mb-0 align-middle">
@@ -277,6 +349,7 @@
                 </tbody>
             </table>
         </div>
+        </div>
     </div>
 </div>
 
@@ -341,6 +414,7 @@
     const scholarshipSelect = document.getElementById('scholarshipSelect');
     const statusSelect = document.getElementById('statusSelect');
     const academicPeriodSelect = document.getElementById('academicPeriodSelect');
+    const typeSelect = document.getElementById('typeSelect');
     const sortSelect = document.getElementById('sortSelect');
     
     let debounceTimer;
@@ -348,10 +422,11 @@
 
     function getFilterParams(page = 1) {
         const params = new URLSearchParams();
-        if (searchInput.value) params.set('search', searchInput.value);
-        if (scholarshipSelect.value) params.set('scholarship_id', scholarshipSelect.value);
-        if (statusSelect.value) params.set('status', statusSelect.value);
-        if (academicPeriodSelect.value) params.set('academic_term_id', academicPeriodSelect.value);
+        if (searchInput && searchInput.value) params.set('search', searchInput.value);
+        if (scholarshipSelect && scholarshipSelect.value) params.set('scholarship_id', scholarshipSelect.value);
+        if (statusSelect && statusSelect.value) params.set('status', statusSelect.value);
+        if (academicPeriodSelect && academicPeriodSelect.value) params.set('academic_term_id', academicPeriodSelect.value);
+        if (typeSelect && typeSelect.value) params.set('type', typeSelect.value);
         if (sortSelect && sortSelect.value) params.set('sort', sortSelect.value);
         if (currentArchivedState === '1') params.set('archived', '1');
         params.set('page', page);
@@ -379,7 +454,7 @@
             tableContainer.innerHTML = data.html;
             tableContainer.style.opacity = '1';
             
-            // Update counts cards
+            // Update counts cards and pills
             if (data.counts) {
                 const countMappings = {
                     'pending': '.stat-card:nth-of-type(1) .stat-number',
@@ -391,7 +466,23 @@
                     const el = document.querySelector(selector);
                     if (el) animateCountUp(el, data.counts[key]);
                 }
+
+                // Update pill count badges
+                const pendingPill = document.querySelector('.filter-status-pill[data-status="Pending"] .pill-count');
+                if (pendingPill) pendingPill.textContent = data.counts.pending || 0;
+                const reviewPill = document.querySelector('.filter-status-pill[data-status="Under Review"] .pill-count');
+                if (reviewPill) reviewPill.textContent = data.counts.under_review || 0;
+                const approvedPill = document.querySelector('.filter-status-pill[data-status="Approved"] .pill-count');
+                if (approvedPill) approvedPill.textContent = data.counts.approved || 0;
+                const rejectedPill = document.querySelector('.filter-status-pill[data-status="Rejected"] .pill-count');
+                if (rejectedPill) rejectedPill.textContent = data.counts.rejected || 0;
             }
+
+            // Sync active pill selection
+            const currentStatusVal = statusSelect ? statusSelect.value : '';
+            document.querySelectorAll('.filter-status-pill').forEach(pill => {
+                pill.classList.toggle('active', pill.dataset.status === currentStatusVal);
+            });
 
             // Sync address bar
             window.history.pushState({}, '', url);
@@ -406,22 +497,40 @@
         }
     }
 
+    // Status Pill Event Listeners (1-click quick filtering)
+    document.querySelectorAll('.filter-status-pill').forEach(pill => {
+        pill.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelectorAll('.filter-status-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            if (statusSelect) {
+                statusSelect.value = pill.dataset.status;
+                reloadQueue();
+            }
+        });
+    });
+
     // Event listeners
-    filterForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        reloadQueue();
-    });
+    if (filterForm) {
+        filterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            reloadQueue();
+        });
+    }
 
-    searchInput.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => reloadQueue(), 300);
-    });
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => reloadQueue(), 300);
+        });
+    }
 
-    [scholarshipSelect, statusSelect, academicPeriodSelect, sortSelect].forEach(select => {
+    [scholarshipSelect, statusSelect, academicPeriodSelect, typeSelect, sortSelect].forEach(select => {
         if (select) {
             select.addEventListener('change', () => reloadQueue());
         }
     });
+
 
     // Handle pagination links click via event delegation
     tableContainer.addEventListener('click', (e) => {

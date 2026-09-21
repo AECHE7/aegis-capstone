@@ -1055,6 +1055,133 @@
             transform: scale(0.96) !important;
         }
 
+        /* ── Standardized Institutional Button System (WCAG 2.2 AA / ISO 9241-210) ── */
+        .btn-clsu-primary {
+            background: linear-gradient(135deg, #00754A 0%, #0C4E2D 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            font-weight: 600 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 8px rgba(12, 78, 45, 0.2) !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            padding: 8px 18px !important;
+            font-size: 0.85rem !important;
+            min-height: 40px !important;
+        }
+        .btn-clsu-primary:hover {
+            background: linear-gradient(135deg, #098757 0%, #0F5E38 100%) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 14px rgba(12, 78, 45, 0.3) !important;
+        }
+        .btn-clsu-primary:active {
+            transform: scale(0.97) !important;
+        }
+
+        .btn-clsu-secondary {
+            background: var(--card-bg, #ffffff) !important;
+            color: var(--text-main, #1e293b) !important;
+            border: 1.5px solid var(--border-color, #e2e8f0) !important;
+            font-weight: 600 !important;
+            border-radius: 10px !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            padding: 8px 16px !important;
+            font-size: 0.85rem !important;
+            min-height: 40px !important;
+        }
+        .btn-clsu-secondary:hover {
+            background: var(--clsu-bg, #f8fafc) !important;
+            color: var(--text-title, #0f172a) !important;
+            border-color: var(--clsu-green-light, #16a34a) !important;
+            transform: translateY(-1px) !important;
+        }
+
+        .btn-clsu-danger {
+            background: rgba(220, 38, 38, 0.08) !important;
+            color: #dc2626 !important;
+            border: 1.5px solid rgba(220, 38, 38, 0.3) !important;
+            font-weight: 600 !important;
+            border-radius: 10px !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            padding: 8px 16px !important;
+            font-size: 0.85rem !important;
+            min-height: 40px !important;
+        }
+        .btn-clsu-danger:hover {
+            background: #dc2626 !important;
+            color: #ffffff !important;
+            border-color: #dc2626 !important;
+            transform: translateY(-1px) !important;
+        }
+
+        /* Unified Control Bar & Quick-Filter Pill Ribbon */
+        .unified-control-bar {
+            background: var(--card-bg, #ffffff);
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 14px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.025);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        [data-theme="dark"] .unified-control-bar {
+            background: rgba(17, 24, 39, 0.65);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .filter-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-color, #e2e8f0);
+            background: var(--clsu-bg, #f1f5f9);
+            color: var(--text-muted, #64748b);
+            transition: all 0.15s ease;
+            user-select: none;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+        .filter-status-pill:hover {
+            color: var(--text-main, #1e293b);
+            background: rgba(12, 78, 45, 0.08);
+            border-color: rgba(12, 78, 45, 0.2);
+        }
+        .filter-status-pill.active {
+            background: var(--clsu-green, #0C4E2D) !important;
+            color: #ffffff !important;
+            border-color: var(--clsu-green, #0C4E2D) !important;
+            box-shadow: 0 2px 8px rgba(12, 78, 45, 0.25);
+        }
+        .filter-status-pill .pill-count {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+        .filter-status-pill.active .pill-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
         /* --- Slide-in Floating Toast Notifications (WCAG 4.1.3 / Awwwards Polish) --- */
         .toast-container-custom {
             position: fixed;
@@ -1220,12 +1347,28 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-1.5 gap-sm-2 flex-shrink-0 ms-auto">
+                <!-- Official Philippine Standard Time (PST / PHT) Live Institutional Clock -->
+                <div class="d-none d-md-flex align-items-center gap-1.5 px-3 py-1 rounded-pill bg-light border text-muted shadow-xs text-nowrap" 
+                     title="Official Philippine Standard Time (UTC+8) - CLSU Institutional Clock" style="font-size: 0.76rem;">
+                    <i class="fa-regular fa-clock text-success" aria-hidden="true"></i>
+                    <span id="pstLiveClock" class="fw-semibold font-monospace" style="color: var(--text-title, #1e293b);">--:--:--</span>
+                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-1.5 py-0.5" style="font-size:0.62rem; font-weight: 700;">PHT</span>
+                </div>
+
                 <!-- Interactive Demo Guide Trigger Button in Topbar -->
                 <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1 text-muted d-none d-sm-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" 
                         onclick="openSystemTourModal('{{ auth()->user()->role ?? 'student' }}')" 
                         title="Interactive System Demo & Role Walkthrough">
                     <i class="fa-solid fa-graduation-cap text-success"></i>
                     <span class="small fw-semibold" style="font-size: 0.76rem;">Demo Guide</span>
+                </button>
+
+                <!-- UAT System Evaluation Feedback Trigger Button in Topbar -->
+                <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1 text-muted d-none d-lg-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" 
+                        data-bs-toggle="modal" data-bs-target="#uatFeedbackModal"
+                        title="Submit ISO/IEC 25010 System Evaluation Feedback">
+                    <i class="fa-solid fa-star text-warning" aria-hidden="true"></i>
+                    <span class="small fw-semibold" style="font-size: 0.76rem;">Feedback</span>
                 </button>
 
                 <!-- Notification Bell Dropdown -->
@@ -1320,7 +1463,7 @@
     {{-- ═══════════════════════════════════════════
          UAT FEEDBACK BUTTON & MODAL (ALL ROLES)
     ═══════════════════════════════════════════ --}}
-    <button class="uat-fab" data-bs-toggle="modal" data-bs-target="#uatFeedbackModal" title="Submit UAT Evaluation" aria-label="Submit system evaluation feedback">
+    <button class="uat-fab d-none d-md-flex" data-bs-toggle="modal" data-bs-target="#uatFeedbackModal" title="Submit UAT Evaluation" aria-label="Submit system evaluation feedback">
         <i class="fa-solid fa-star fs-5" aria-hidden="true"></i>
     </button>
 
@@ -1741,8 +1884,34 @@
         }
     }
 
+    // ── Philippine Standard Time (PST / PHT, UTC+8) Live Clock ────────────
+    function updatePstClock() {
+        const clockEl = document.getElementById('pstLiveClock');
+        if (!clockEl) return;
+        try {
+            const now = new Date();
+            const options = {
+                timeZone: 'Asia/Manila',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+            const formatter = new Intl.DateTimeFormat('en-US', options);
+            clockEl.textContent = formatter.format(now);
+        } catch (e) {
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const phtDate = new Date(utc + (3600000 * 8));
+            clockEl.textContent = phtDate.toLocaleTimeString('en-US', { hour12: true });
+        }
+    }
+    setInterval(updatePstClock, 1000);
+    updatePstClock();
+
     document.addEventListener('DOMContentLoaded', () => {
         fetchNotifications();
+        updatePstClock();
 
         // Use standard AJAX polling instead of EventSource/SSE to prevent PHP worker exhaustion and session locking
         setInterval(fetchNotifications, 20000);

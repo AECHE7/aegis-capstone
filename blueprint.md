@@ -470,5 +470,31 @@ When newly registered students clicked the verification button ("Verify Email Ad
   - `tests/Feature/BroadcastNotificationTest.php` (4 tests, 25 assertions covering in-app dispatch, all_users target, validation, and audit logging).
   - `tests/Feature/EnsureStudentProfileCompleteTest.php` (4 tests, 16 assertions covering route exemptions, dashboard redirects, and AJAX blocks).
 
+---
+
+## 13. UI/UX Modernization, Space-Efficient Control Bars, and Philippine Standard Time Calibration
+
+### Objectives & Plan Overview
+1. **Philippine Standard Time (PST / PHT, UTC+8) System-Wide Synchronization**:
+   - Resolve hardcoded `'timezone' => 'UTC'` in `config/app.php` to `env('APP_TIMEZONE', 'Asia/Manila')`.
+   - Update `.env` and `.env.example` with `APP_TIMEZONE=Asia/Manila`.
+   - Add a live, ticking Philippine Standard Time clock (`#pstLiveClock`) to the topbar with `PHT` tag, synchronizing student and staff awareness of official deadlines and OSA office hours.
+2. **Space-Efficient Unified Control Bar**:
+   - Replace the vertical-heavy 7-column filter row in `resources/views/admin/dashboard.blade.php` with a compact, modern toolbar:
+     - Search input with clear button.
+     - 1-click segmented quick-status pills (`All`, `Pending`, `Under Review`, `Approved`, `Rejected`).
+     - "More Filters & Sort" popover dropdown housing scholarship, period, type, and sort selectors.
+     - Preserves all element IDs (`searchInput`, `scholarshipSelect`, `statusSelect`, `academicPeriodSelect`, `sortSelect`) for seamless debounced AJAX reloading.
+   - Streamline filters in `superadmin/users.blade.php` and `scholarships/catalog.blade.php`.
+3. **Component Redundancy Elimination & Visual Clarity**:
+   - Relocate or condense overlapping floating buttons (UAT feedback FAB).
+   - Convert duplicate monitoring tables into clean collapsible drawers.
+   - Eliminate redundant emojis in favor of crisp FontAwesome 6 icons and high-contrast badges.
+4. **Button Design Polish & International Standards Compliance**:
+   - Enforce WCAG 2.2 Level AA target sizes (minimum 44x44px for touch elements).
+   - Standardize button hierarchies with CLSU emerald primary gradients (`#00754A` to `#0C4E2D`), bordered secondary pills, and tactile press micro-interactions (`.btn-animate-click`).
+   - Maintain visible gold focus rings (`:focus-visible` with `#F2A900`) for complete keyboard accessibility under ISO 9241-210.
+
+
 
 
