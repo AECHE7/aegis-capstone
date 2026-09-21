@@ -492,39 +492,6 @@
                                             </li>
                                         </ul>
                                     </div>
-
-                                    {{-- Assignment Modal for this staff --}}
-                                    <div class="modal fade" id="assignModal-{{ $staff->id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
-                                                <div class="modal-header border-0 bg-light">
-                                                    <h6 class="modal-title fw-bold text-dark">
-                                                        Assign Programs: {{ $staff->name }}
-                                                    </h6>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <form action="{{ route('superadmin.staff.assign', $staff->id) }}" method="POST">
-                                                    @csrf
-                                                    <div class="modal-body text-start">
-                                                        <p class="small text-muted mb-3">Select the scholarship programs this evaluator has jurisdiction to review:</p>
-                                                        @foreach($scholarships as $prog)
-                                                            <div class="form-check mb-2">
-                                                                <input class="form-check-input" type="checkbox" name="scholarship_ids[]" value="{{ $prog->id }}" id="prog-{{ $staff->id }}-{{ $prog->id }}"
-                                                                    {{ $staff->scholarships->contains($prog->id) ? 'checked' : '' }}>
-                                                                <label class="form-check-label small fw-semibold" for="prog-{{ $staff->id }}-{{ $prog->id }}">
-                                                                    {{ $prog->name }}
-                                                                </label>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                    <div class="modal-footer border-0">
-                                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn text-white fw-bold" style="background: var(--clsu-green);">Save Assignments</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                 @else
                                     <span class="text-muted small fw-semibold">Protected</span>
                                 @endif
@@ -547,6 +514,45 @@
         @endif
     </div>
 </div>
+
+{{-- Staff Scholarship Assignment Modals (Rendered outside table to prevent backdrop lock) --}}
+@if($tab === 'staff')
+    @foreach($staffList as $staff)
+        @if(!$staff->isMaster() && $staff->id !== auth()->id())
+            <div class="modal fade" id="assignModal-{{ $staff->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                        <div class="modal-header border-0 bg-light">
+                            <h6 class="modal-title fw-bold text-dark">
+                                Assign Programs: {{ $staff->name }}
+                            </h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form action="{{ route('superadmin.staff.assign', $staff->id) }}" method="POST">
+                            @csrf
+                            <div class="modal-body text-start">
+                                <p class="small text-muted mb-3">Select the scholarship programs this evaluator has jurisdiction to review:</p>
+                                @foreach($scholarships as $prog)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="scholarship_ids[]" value="{{ $prog->id }}" id="prog-{{ $staff->id }}-{{ $prog->id }}"
+                                            {{ $staff->scholarships->contains($prog->id) ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-semibold" for="prog-{{ $staff->id }}-{{ $prog->id }}">
+                                            {{ $prog->name }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="modal-footer border-0">
+                                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn text-white fw-bold rounded-pill px-4" style="background: var(--clsu-green);">Save Assignments</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endforeach
+@endif
 
 {{-- Invite Staff Modal --}}
 <div class="modal fade" id="inviteStaffModal" tabindex="-1" aria-labelledby="inviteStaffModalLabel" aria-hidden="true">

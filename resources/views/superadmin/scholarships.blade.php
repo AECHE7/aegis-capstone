@@ -26,6 +26,7 @@
                     <th scope="col">Description</th>
                     <th class="text-center" scope="col">Max GWA</th>
                     <th class="text-center" scope="col">Max Renewals</th>
+                    <th scope="col">Assigned Evaluators</th>
                     <th class="text-center" scope="col">Status</th>
                     <th class="pe-4 text-end" scope="col">Action</th>
                 </tr>
@@ -54,6 +55,17 @@
                         <span style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
                             <i class="fa-solid fa-rotate me-1" style="font-size:0.6rem;"></i> {{ $scholarship->max_renewals ?? 4 }}
                         </span>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-1">
+                            @forelse($scholarship->staff as $evaluator)
+                                <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 0.7rem;">
+                                    <i class="fa-solid fa-user-check text-success me-1"></i> {{ $evaluator->name }}
+                                </span>
+                            @empty
+                                <span class="text-muted small italic" style="font-size: 0.72rem;">Unassigned (All Staff)</span>
+                            @endforelse
+                        </div>
                     </td>
 
                     <td class="text-center">
@@ -153,6 +165,23 @@
                                           style="resize:none;"></textarea>
                             </div>
 
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-muted">Assigned OSA Evaluators</label>
+                                <div class="border rounded-3 p-3 bg-white" style="max-height: 130px; overflow-y: auto;">
+                                    @forelse($staffList as $staff)
+                                        <div class="form-check mb-1.5">
+                                            <input class="form-check-input" type="checkbox" name="staff_ids[]" value="{{ $staff->id }}" id="create-staff-{{ $staff->id }}">
+                                            <label class="form-check-label small fw-semibold" for="create-staff-{{ $staff->id }}">
+                                                {{ $staff->name }} <span class="text-muted fw-normal">({{ $staff->email }})</span>
+                                            </label>
+                                        </div>
+                                    @empty
+                                        <span class="text-muted small">No active staff evaluators available.</span>
+                                    @endforelse
+                                </div>
+                                <small class="text-muted" style="font-size: 0.72rem;">Only assigned evaluators will see and review applications for this scholarship.</small>
+                            </div>
+
                             <hr class="my-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-list-check text-success me-2"></i> Custom Form Fields</h6>
@@ -233,6 +262,23 @@
                                 <textarea name="description" id="editProgramDesc" class="form-control" rows="2" required
                                           placeholder="Brief overview of grant requirements and benefits..."
                                           style="resize:none;"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-muted">Assigned OSA Evaluators</label>
+                                <div class="border rounded-3 p-3 bg-white" id="editStaffContainer" style="max-height: 130px; overflow-y: auto;">
+                                    @forelse($staffList as $staff)
+                                        <div class="form-check mb-1.5">
+                                            <input class="form-check-input edit-staff-checkbox" type="checkbox" name="staff_ids[]" value="{{ $staff->id }}" id="edit-staff-{{ $staff->id }}">
+                                            <label class="form-check-label small fw-semibold" for="edit-staff-{{ $staff->id }}">
+                                                {{ $staff->name }} <span class="text-muted fw-normal">({{ $staff->email }})</span>
+                                            </label>
+                                        </div>
+                                    @empty
+                                        <span class="text-muted small">No active staff evaluators available.</span>
+                                    @endforelse
+                                </div>
+                                <small class="text-muted" style="font-size: 0.72rem;">Only assigned evaluators will see and review applications for this scholarship.</small>
                             </div>
 
                             <hr class="my-4">
@@ -853,6 +899,12 @@
                             addEditFieldRow(field.field_label, field.field_type, field.is_required, optionsStr);
                         });
                     }
+
+                    // Reset and populate assigned staff checkboxes
+                    const assignedStaffIds = (s.staff || []).map(staff => staff.id);
+                    document.querySelectorAll('.edit-staff-checkbox').forEach(cb => {
+                        cb.checked = assignedStaffIds.includes(parseInt(cb.value));
+                    });
 
                     // Open bootstrap modal
                     const modal = new bootstrap.Modal(editModalEl);

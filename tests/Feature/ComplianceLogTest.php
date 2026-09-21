@@ -181,7 +181,7 @@ class ComplianceLogTest extends TestCase
 
         // Create application profile to satisfy middleware/controller requirements
         $this->student->profile()->create([
-            'clsu_id_number' => '2023-1111',
+            'clsu_id_number' => '23-1111',
             'contact_number' => '09171234567',
             'emergency_contact_number' => '09998887777',
             'college' => 'CVSM',

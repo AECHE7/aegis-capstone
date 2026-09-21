@@ -34,6 +34,8 @@ class StoreScholarshipRequest extends FormRequest
             'fields.*.type' => 'required|in:text,number,textarea,select,file,date,email',
             'fields.*.required' => 'nullable',
             'fields.*.options' => 'nullable|string',
+            'staff_ids' => 'nullable|array',
+            'staff_ids.*' => 'exists:users,id',
         ];
     }
 }

@@ -542,3 +542,44 @@ When newly registered students clicked the verification button ("Verify Email Ad
    - Verified `render.yaml` deployment configuration on branch `staging`.
    - Confirmed `start.sh` automatically executes `php artisan migrate --force` on startup, cleanly running the purge migration in the production environment.
 
+---
+
+## 16. System Modernization, International Standards Compliance, and Operational Stabilization Plan
+
+### Overview & Objectives
+This phase addressed critical operational and user-experience issues identified during UAT and aligned the entire application with international standards (**ISO/IEC 25010 Software Quality**, **WCAG 2.2 Level AA Accessibility**, and **ISO 9241-210 Human-Centred Design**):
+
+1. **Student ID Strict Format Enforcement (`00-0000`)**:
+   - Enforced regex `^\d{2}-\d{4}$` (e.g. `23-1234`) across `ApplicationController.php`, `AuthController.php`, `register.blade.php`, `change_password.blade.php`, and `apply.blade.php`.
+   - Updated and passed all PHPUnit test assertions rejecting 4-digit prefixes and accepting valid 2-digit formats.
+2. **Standardized ISO/IEC 25010 System Evaluation Instrument**:
+   - Upgraded UAT evaluation table via database migration `2026_09_21_120000_add_iso_dimensions_to_uat_feedbacks_table.php` to capture all 6 primary ISO/IEC 25010 quality metrics: Functional Suitability, Performance Efficiency, Usability, Reliability, Security & Data Privacy, and Compatibility.
+   - Enhanced modal UI (`#uatFeedbackModal`) in `resources/views/layouts/app.blade.php` to a modern, accessible `modal-lg` rating instrument with qualitative indicators.
+3. **Notification Engine Repair & Continuity**:
+   - Created `ApplicationSubmissionConfirmationNotification` dispatched immediately upon student application submission.
+   - Updated `AuthController@getNotifications` to return the latest 15 notifications with boolean `is_read` status, ensuring notifications remain accessible after read.
+   - Replaced invalid nested `<div>` structure inside `<ul>` with valid semantic list items, unread green dot indicators, and instant mark-as-read click routing.
+4. **Scholarship Tab Redirection & Auto-Selection**:
+   - Clicking "Apply" on `/scholarships` (`?program=...`) automatically selects the corresponding grant on `/student/apply`, loads custom fields, scrolls into view, and advances stepper.
+5. **Redundancy Elimination & Visual Polish**:
+   - Removed redundant floating `.uat-fab` button; added clean topbar "Feedback" and "Data Guide" pill triggers.
+   - Streamlined repetitive filter, search, and sort controls.
+6. **Sidebar Navigation Collision Fix**:
+   - Repositioned `.sidebar-toggle` CSS to `top: 0.95rem` and refined box shadows, eliminating overlap with the topbar title and sidebar branding at 100% and 125% OS zoom scales.
+7. **Complete Removal of Student Purge Feature**:
+   - Safely deleted student purge card and form from `superadmin/settings.blade.php`, deleted `purgeStudents()` controller method and route from `web.php`.
+   - Updated `StudentPurgeAndDemoTest` to assert that purge UI controls are completely absent from the settings interface.
+8. **Role-Based Demo Walkthrough & Redesigned Component**:
+   - Upgraded `system-demo-modal.blade.php` with role-specific guidance worksheets, cards, and Shepherd.js step-by-step interactive tours.
+   - Refined module 06 to focus on System Governance & Security.
+9. **Staff Scholarship Assignment Management**:
+   - Resolved backdrop lockup by moving `#assignModal-{{ $staff->id }}` outside table `<td>` cells.
+   - Added evaluator assignment selection directly into Scholarship Creation and Editing modals in `superadmin/scholarships.blade.php` and synced via `SuperAdminController`.
+10. **Role-Scoped Dashboard Statistics**:
+    - In `AdminController.php`, scoped all application queue counts and average fraud score strictly to the evaluator's assigned scholarships, and dynamically scoped when filtering by a specific scholarship.
+11. **Stakeholder Data Management & Governance Guide**:
+    - Created component `resources/views/components/data-management-guide-modal.blade.php` delivering a 4-pillar data management manual (Legal Framework, Student Applicant Rights, Evaluator Protocols, and Director Governance).
+12. **24/7 Keep-Alive Architecture & Zero Boot Delay**:
+    - Created `.github/workflows/keep-alive.yml` with automated 10-minute cron pings to `/api/health-check`, `/ai/wake`, and `/scheduler/run`.
+    - Registered `Route::get('/api/health-check', ...)` matching `render.yaml` specification.
+

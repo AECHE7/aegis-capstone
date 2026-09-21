@@ -15,9 +15,11 @@ class UatFeedback extends Model
         'user_id',
         'role',
         'functional_suitability',
+        'performance_efficiency',
         'usability',
         'reliability',
         'security',
+        'compatibility',
         'comments'
     ];
 

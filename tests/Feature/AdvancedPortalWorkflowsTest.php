@@ -266,9 +266,12 @@ class AdvancedPortalWorkflowsTest extends TestCase
             'remarks' => 'Valid grades.',
         ]);
         
-        // Student should have 1 unread notification
-        $this->assertEquals(1, $this->student->unreadNotifications()->count());
-        $studentNotif = $this->student->unreadNotifications()->first();
+        // Student should have 2 unread notifications: Application Submission Confirmation + Application Status Update
+        $this->assertEquals(2, $this->student->unreadNotifications()->count());
+        $studentNotif = $this->student->unreadNotifications()
+            ->get()
+            ->first(fn($n) => ($n->data['title'] ?? '') === 'Application Status Update');
+        $this->assertNotNull($studentNotif);
         $this->assertEquals('Application Status Update', $studentNotif->data['title']);
         $this->assertEquals('Approved', $studentNotif->data['status']);
     }

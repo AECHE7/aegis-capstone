@@ -23,7 +23,7 @@ class ScholarshipRenewalTest extends TestCase
 
         \App\Models\StudentProfile::create([
             'user_id' => $student->id,
-            'clsu_id_number' => '2023-1111',
+            'clsu_id_number' => '23-1111',
             'college' => 'College of Science',
             'course' => 'BS Information Technology',
             'year_level' => '2nd Year',
@@ -76,7 +76,7 @@ class ScholarshipRenewalTest extends TestCase
 
         \App\Models\StudentProfile::create([
             'user_id' => $student->id,
-            'clsu_id_number' => '2023-2222',
+            'clsu_id_number' => '23-2222',
             'college' => 'College of Science',
             'course' => 'BS Information Technology',
             'year_level' => '2nd Year',

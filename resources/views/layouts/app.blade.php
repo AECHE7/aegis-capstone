@@ -572,7 +572,7 @@
         /* Toggle button */
         .sidebar-toggle {
             position: fixed;
-            top: 1rem;
+            top: 0.95rem;
             left: calc(var(--sidebar-width) - 16px);
             width: 32px;
             height: 32px;
@@ -584,12 +584,17 @@
             justify-content: center;
             cursor: pointer;
             z-index: 1035;
-            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s, border-color 0.25s;
-            box-shadow: var(--shadow-sm);
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s, border-color 0.25s, box-shadow 0.25s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
             color: var(--text-main);
         }
 
-        .sidebar-toggle:hover { background: var(--clsu-green); color: white; border-color: var(--clsu-green); }
+        .sidebar-toggle:hover { 
+            background: var(--clsu-green-cta, #00754A); 
+            color: white; 
+            border-color: var(--clsu-green-cta, #00754A); 
+            box-shadow: 0 4px 12px rgba(0, 117, 74, 0.3);
+        }
         .sidebar-toggle.collapsed { left: calc(var(--sidebar-collapsed) - 16px); }
 
         /* Main content with sidebar offset */
@@ -855,32 +860,7 @@
 
         .sidebar.collapsed .sidebar-link:hover::after { opacity: 1; }
 
-        /* ══════════════════════════════════════════
-           UAT FLOATING BUTTON
-        ══════════════════════════════════════════ */
-        .uat-fab {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--clsu-gold), #e09500);
-            border: none;
-            cursor: pointer;
-            z-index: 1040;
-            box-shadow: 0 4px 20px rgba(242, 169, 0, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            color: #1a1a00;
-        }
 
-        .uat-fab:hover {
-            transform: scale(1.12) rotate(-5deg);
-            box-shadow: 0 8px 28px rgba(242, 169, 0, 0.55);
-        }
 
         /* ══════════════════════════════════════════
            PAGE ANIMATIONS
@@ -1356,6 +1336,14 @@
                     <span class="small fw-semibold" style="font-size: 0.76rem;">Demo Guide</span>
                 </button>
 
+                <!-- Stakeholder Data Management Guide Trigger Button in Topbar -->
+                <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1 text-muted d-none d-md-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" 
+                        data-bs-toggle="modal" data-bs-target="#dataManagementGuideModal"
+                        title="Institutional Data Management & Privacy Guide (R.A. 10173 & ISO/IEC 25010)">
+                    <i class="fa-solid fa-shield-halved text-info"></i>
+                    <span class="small fw-semibold" style="font-size: 0.76rem;">Data Guide</span>
+                </button>
+
                 <!-- UAT System Evaluation Feedback Trigger Button in Topbar -->
                 <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1 text-muted d-none d-lg-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" 
                         data-bs-toggle="modal" data-bs-target="#uatFeedbackModal"
@@ -1382,17 +1370,17 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" 
                         aria-labelledby="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
-                        style="width: 300px; max-width: calc(100vw - 32px); border-radius: 16px; font-size: 0.85rem; max-height: 400px; overflow-y: auto;">
+                        style="width: 320px; max-width: calc(100vw - 32px); border-radius: 16px; font-size: 0.85rem; max-height: 420px; overflow-y: auto;">
                         <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
                             <span class="fw-bold">Notifications</span>
                             <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small text-success fw-semibold" onclick="clearAllNotifications(event)">Mark all as read</button>
                         </li>
-                        <div id="@if(auth()->user()->role === 'student') notifListStudent @else notifListAdmin @endif">
+                        <ul class="list-unstyled mb-0" id="@if(auth()->user()->role === 'student') notifListStudent @else notifListAdmin @endif">
                             <li class="px-3 py-4 text-center text-muted small">
                                 <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
                                 No new notifications
                             </li>
-                        </div>
+                        </ul>
                     </ul>
                 </div>
 
@@ -1453,58 +1441,63 @@
 
     @endif
 
-    {{-- ═══════════════════════════════════════════
-         UAT FEEDBACK BUTTON & MODAL (ALL ROLES)
-    ═══════════════════════════════════════════ --}}
-    <button class="uat-fab d-none d-md-flex" data-bs-toggle="modal" data-bs-target="#uatFeedbackModal" title="Submit UAT Evaluation" aria-label="Submit system evaluation feedback">
-        <i class="fa-solid fa-star fs-5" aria-hidden="true"></i>
-    </button>
-
-    <!-- UAT Feedback Modal -->
+    <!-- UAT Feedback Modal (ISO/IEC 25010 6-Dimension Evaluation) -->
     <div class="modal fade" id="uatFeedbackModal" tabindex="-1" aria-labelledby="uatFeedbackModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
-                <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #0f1f12, #0F5934); padding: 1.5rem 1.5rem 1rem;">
+                <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #0f1f12, #0F5934); padding: 1.5rem 1.75rem 1.25rem;">
                     <div>
                         <h5 class="modal-title fw-bold text-white mb-0" id="uatFeedbackModalLabel">
                             <i class="fa-solid fa-star text-warning me-2"></i> System Evaluation (ISO/IEC 25010)
                         </h5>
-                        <small class="text-white-50">Rate from 1 (Strongly Disagree) to 5 (Strongly Agree)</small>
+                        <small class="text-white-50">Rate each institutional software quality metric from 1 (Strongly Disagree) to 5 (Strongly Agree)</small>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('uat.store') }}" method="POST">
                     @csrf
                     <div class="modal-body p-4">
-                        @foreach([
-                            ['name' => 'functional_suitability', 'label' => 'Functional Suitability', 'desc' => 'The system correctly processes and records scholarship applications without omitting information.'],
-                            ['name' => 'usability', 'label' => 'Usability', 'desc' => 'The navigation from the application queue to review pages is clean and straightforward.'],
-                            ['name' => 'reliability', 'label' => 'Reliability', 'desc' => 'The system triggers background AI scans and dispatches automated status emails promptly.'],
-                            ['name' => 'security', 'label' => 'Security', 'desc' => 'Student private profile records are protected and access control is strictly enforced.'],
-                        ] as $q)
-                        <div class="mb-4">
-                            <div class="form-label fw-semibold text-dark mb-1 small">{{ $q['label'] }}</div>
-                            <p class="text-muted mb-2" style="font-size: 0.78rem; line-height: 1.4;">{{ $q['desc'] }}</p>
-                            <div class="d-flex gap-2">
-                                @for($i = 1; $i <= 5; $i++)
-                                <label class="d-flex flex-column align-items-center gap-1 cursor-pointer" style="cursor:pointer;">
-                                    <input type="radio" name="{{ $q['name'] }}" value="{{ $i }}" 
-                                           class="d-none" {{ $i === 5 ? 'checked' : '' }}
-                                           onchange="highlightStars(this, '{{ $q['name'] }}', {{ $i }})">
-                                    <span class="uat-star" data-group="{{ $q['name'] }}" data-val="{{ $i }}"
-                                          style="font-size:1.4rem;color:#e2e8f0;transition:color 0.15s;cursor:pointer;"
-                                          onclick="this.previousElementSibling.click()">★</span>
-                                    <span style="font-size:0.7rem;color:#94a3b8;">{{ $i }}</span>
-                                </label>
-                                @endfor
+                        <div class="row g-4">
+                            @foreach([
+                                ['name' => 'functional_suitability', 'label' => '1. Functional Suitability', 'desc' => 'The system accurately processes eligibility scoring, document uploads, and application submissions without data loss.'],
+                                ['name' => 'performance_efficiency', 'label' => '2. Performance Efficiency', 'desc' => 'Page load speeds, queue queries, and status updates render responsively without persistent bottlenecks.'],
+                                ['name' => 'compatibility', 'label' => '3. Compatibility', 'desc' => 'The portal operates seamlessly across standard mobile viewports, modern desktop browsers, and network variations.'],
+                                ['name' => 'usability', 'label' => '4. Usability', 'desc' => 'The navigation flow from scholarship selection to multi-step submission is intuitive and straightforward.'],
+                                ['name' => 'reliability', 'label' => '5. Reliability', 'desc' => 'Automated background fraud scans, security verification, and institutional audit trails operate dependably.'],
+                                ['name' => 'security', 'label' => '6. Security & Confidentiality', 'desc' => 'Student PII is encrypted at rest (AES-256-GCM), role boundaries are maintained, and audit logs track all access.'],
+                            ] as $q)
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3 bg-light border h-100 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="form-label fw-semibold text-dark mb-1 small">{{ $q['label'] }}</div>
+                                        <p class="text-muted mb-3" style="font-size: 0.76rem; line-height: 1.35;">{{ $q['desc'] }}</p>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                        <span class="text-muted small" style="font-size: 0.7rem;">Poor (1)</span>
+                                        <div class="d-flex gap-2">
+                                            @for($i = 1; $i <= 5; $i++)
+                                            <label class="d-flex flex-column align-items-center gap-0 cursor-pointer mb-0" style="cursor:pointer;" title="Score: {{ $i }}">
+                                                <input type="radio" name="{{ $q['name'] }}" value="{{ $i }}" 
+                                                       class="d-none" {{ $i === 5 ? 'checked' : '' }}
+                                                       onchange="highlightStars(this, '{{ $q['name'] }}', {{ $i }})">
+                                                <span class="uat-star" data-group="{{ $q['name'] }}" data-val="{{ $i }}"
+                                                      style="font-size:1.35rem;color:#F2A900;transition:color 0.15s;cursor:pointer;line-height:1;"
+                                                      onclick="this.previousElementSibling.click()">★</span>
+                                                <span style="font-size:0.65rem;color:#94a3b8;font-weight:600;">{{ $i }}</span>
+                                            </label>
+                                            @endfor
+                                        </div>
+                                        <span class="text-success small fw-semibold" style="font-size: 0.7rem;">Excellent (5)</span>
+                                    </div>
+                                </div>
                             </div>
+                            @endforeach
                         </div>
-                        @endforeach
 
-                        <div class="mb-0">
-                            <label class="form-label fw-semibold text-dark small" for="commentsTextarea">General Comments & Suggestions</label>
+                        <div class="mt-4">
+                            <label class="form-label fw-semibold text-dark small" for="commentsTextarea">Institutional Comments & Improvement Suggestions</label>
                             <textarea class="form-control" name="comments" id="commentsTextarea" rows="3" 
-                                      placeholder="Enter suggestions for further system improvements..." 
+                                      placeholder="Provide qualitative feedback regarding UI/UX ergonomics, system speed, or scholarship workflow..." 
                                       style="font-size:0.875rem;resize:none;"></textarea>
                         </div>
                     </div>
@@ -1512,7 +1505,7 @@
                         <button type="button" class="btn btn-light fw-semibold rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn fw-bold rounded-pill px-5" 
                                 style="background: linear-gradient(135deg, var(--clsu-gold), #e09500); color: #1a1a00;">
-                            <i class="fa-solid fa-paper-plane me-1"></i> Submit
+                            <i class="fa-solid fa-paper-plane me-1"></i> Submit Evaluation
                         </button>
                     </div>
                 </form>
@@ -1802,15 +1795,22 @@
         
         notifications.forEach(n => {
             const li = document.createElement('li');
-            li.className = 'px-3 py-2 border-bottom notification-item';
+            const isUnread = !n.is_read;
+            li.className = 'px-3 py-2 border-bottom notification-item transition-all';
             li.style.cursor = 'pointer';
+            if (isUnread) {
+                li.style.backgroundColor = 'rgba(12, 78, 45, 0.05)';
+            }
             li.innerHTML = `
                 <div class="d-flex flex-column gap-1 text-start">
                     <div class="d-flex justify-content-between align-items-center">
-                        <strong style="font-size: 0.8rem; color: var(--clsu-green);">${n.title}</strong>
-                        <span class="text-muted" style="font-size: 0.65rem;">${n.created_at}</span>
+                        <div class="d-flex align-items-center gap-1.5 overflow-hidden">
+                            ${isUnread ? '<span class="d-inline-block rounded-circle bg-success flex-shrink-0" style="width: 7px; height: 7px;"></span>' : ''}
+                            <strong class="text-truncate" style="font-size: 0.8rem; color: ${isUnread ? 'var(--clsu-green)' : 'var(--text-main)'};">${n.title}</strong>
+                        </div>
+                        <span class="text-muted flex-shrink-0 ms-1" style="font-size: 0.65rem;">${n.created_at}</span>
                     </div>
-                    <div class="text-muted small" style="line-height: 1.3;">${n.message}</div>
+                    <div class="text-muted small" style="line-height: 1.35; font-size: 0.76rem;">${n.message}</div>
                 </div>
             `;
             li.addEventListener('click', (e) => {
@@ -2135,6 +2135,7 @@
 
 @include('layouts.mobile-nav')
 
+<x-data-management-guide-modal />
 <x-system-demo-modal />
 
 @stack('scripts')

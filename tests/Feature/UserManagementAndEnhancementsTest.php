@@ -57,7 +57,7 @@ class UserManagementAndEnhancementsTest extends TestCase
 
         StudentProfile::create([
             'user_id' => $this->student->id,
-            'clsu_id_number' => '2023-9999',
+            'clsu_id_number' => '23-9999',
             'college' => 'College of Science',
             'course' => 'BS Computer Science',
             'year_level' => '3rd Year',
@@ -81,7 +81,7 @@ class UserManagementAndEnhancementsTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Student Scholar');
-        $response->assertSee('2023-9999');
+        $response->assertSee('23-9999');
         $response->assertSee('BS Computer Science');
     }
 

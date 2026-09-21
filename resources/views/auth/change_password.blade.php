@@ -110,8 +110,9 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-id-card"></i></span>
                                     <input type="text" name="clsu_id_number" id="clsu_id_number" 
-                                           class="form-control border-start-0 py-2" 
-                                           placeholder="e.g. 2023-4567"
+                                           class="form-control border-start-0 py-2 font-monospace" 
+                                           placeholder="e.g. 23-1234" pattern="\d{2}-\d{4}" maxlength="7"
+                                           title="Format: 00-0000 (e.g. 23-1234)"
                                            value="{{ old('clsu_id_number', $user->profile->clsu_id_number ?? '') }}" required style="border-radius: 0 10px 10px 0;">
                                 </div>
                             </div>

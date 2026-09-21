@@ -47,7 +47,7 @@ class ClientEnhancementTest extends TestCase
     {
         $profile = StudentProfile::create([
             'user_id' => $this->student->id,
-            'clsu_id_number' => '2023-4567',
+            'clsu_id_number' => '23-4567',
             'college' => 'College of Science',
             'course' => 'BS Information Technology',
             'year_level' => '3rd Year',
@@ -55,13 +55,13 @@ class ClientEnhancementTest extends TestCase
         ]);
 
         // 1. Assert that Eloquent decrypts it automatically upon access
-        $this->assertEquals('2023-4567', $profile->clsu_id_number);
+        $this->assertEquals('23-4567', $profile->clsu_id_number);
         $this->assertEquals('09123456789', $profile->contact_number);
 
         // 2. Assert that it is stored as encrypted ciphertext in the database
         $rawRow = DB::table('student_profiles')->where('id', $profile->id)->first();
         
-        $this->assertNotEquals('2023-4567', $rawRow->clsu_id_number);
+        $this->assertNotEquals('23-4567', $rawRow->clsu_id_number);
         $this->assertNotEquals('09123456789', $rawRow->contact_number);
     }
 

@@ -89,29 +89,18 @@ class StudentPurgeAndDemoTest extends TestCase
     }
 
     #[Test]
-    public function superadmin_settings_displays_demo_hub_and_purge_button()
+    public function superadmin_settings_displays_demo_hub_and_purge_feature_is_safely_removed()
     {
         $response = $this->actingAs($this->superadmin)->get(route('superadmin.settings'));
 
         $response->assertStatus(200);
         $response->assertSee('Interactive Training & Director Walkthrough', false);
         $response->assertSee('Launch Director Guide', false);
-        $response->assertSee('Testing & Database Maintenance', false);
-        $response->assertSee('Purge All Student User Accounts', false);
+        // Assert purge feature is completely removed from UI for security
+        $response->assertDontSee('Testing & Database Maintenance', false);
+        $response->assertDontSee('Purge All Student User Accounts', false);
+        $response->assertDontSee('confirmPurgeStudents', false);
         $response->assertSee('openSystemTourModal', false);
-    }
-
-    #[Test]
-    public function superadmin_can_purge_students_via_settings_action()
-    {
-        User::factory()->count(2)->create(['role' => 'student']);
-
-        $response = $this->actingAs($this->superadmin)
-            ->post(route('superadmin.settings.purge-students'));
-
-        $response->assertRedirect();
-        $response->assertSessionHas('success');
-        $this->assertEquals(0, User::where('role', 'student')->count());
     }
 
     #[Test]

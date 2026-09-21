@@ -13,8 +13,9 @@ class SuperAdminController extends Controller
     // 1. Load the Manager Page
     public function index()
     {
-        $scholarships = Scholarship::latest()->get();
-        return view('superadmin.scholarships', compact('scholarships'));
+        $scholarships = Scholarship::with('staff')->latest()->get();
+        $staffList = \App\Models\User::where('role', 'admin')->where('is_active', true)->orderBy('name', 'asc')->get();
+        return view('superadmin.scholarships', compact('scholarships', 'staffList'));
     }
 
     // 2. Save a New Scholarship
@@ -30,6 +31,10 @@ class SuperAdminController extends Controller
             'max_renewals' => $request->max_renewals ?? 4,
             'status' => 'Active'
         ]);
+
+        if ($request->has('staff_ids')) {
+            $scholarship->staff()->sync($request->staff_ids);
+        }
 
         \App\Services\AuditLoggerService::logAdminAction(
             auth()->id(),
@@ -76,7 +81,7 @@ class SuperAdminController extends Controller
     // Retrieve Scholarship Details for Edit Modal
     public function show($id)
     {
-        $scholarship = Scholarship::with('fields')->findOrFail($id);
+        $scholarship = Scholarship::with(['fields', 'staff'])->findOrFail($id);
         return response()->json([
             'success' => true,
             'scholarship' => $scholarship
@@ -96,6 +101,10 @@ class SuperAdminController extends Controller
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
         ]);
+
+        if ($request->has('staff_ids')) {
+            $scholarship->staff()->sync($request->staff_ids);
+        }
 
         \App\Services\AuditLoggerService::logAdminAction(
             auth()->id(),
@@ -141,7 +150,7 @@ class SuperAdminController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Scholarship Program and its custom fields successfully updated!',
-                'scholarship' => $scholarship->load('fields')
+                'scholarship' => $scholarship->load(['fields', 'staff'])
             ]);
         }
 
@@ -1216,21 +1225,7 @@ class SuperAdminController extends Controller
         return back()->with('success', 'All trusted devices system-wide have been successfully revoked.');
     }
 
-    public function purgeStudents(Request $request)
-    {
-        $count = \App\Services\StudentPurgeService::purgeAllStudents();
 
-        \App\Services\AuditLoggerService::logAdminAction(
-            auth()->id(),
-            'purge_students',
-            'System',
-            null,
-            "Purged {$count} student users and their associated records for fresh testing.",
-            $request->ip()
-        );
-
-        return back()->with('success', "Successfully purged {$count} student user accounts and all related applications. The portal is ready for fresh testing!");
-    }
 
     public function showBroadcast()
     {

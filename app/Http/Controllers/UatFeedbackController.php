@@ -12,9 +12,11 @@ class UatFeedbackController extends Controller
     {
         $request->validate([
             'functional_suitability' => 'required|integer|min:1|max:5',
+            'performance_efficiency' => 'nullable|integer|min:1|max:5',
             'usability' => 'required|integer|min:1|max:5',
             'reliability' => 'required|integer|min:1|max:5',
             'security' => 'required|integer|min:1|max:5',
+            'compatibility' => 'nullable|integer|min:1|max:5',
             'comments' => 'nullable|string'
         ]);
 
@@ -22,9 +24,11 @@ class UatFeedbackController extends Controller
             'user_id' => Auth::id(),
             'role' => Auth::user()->role ?? 'unknown',
             'functional_suitability' => $request->functional_suitability,
+            'performance_efficiency' => $request->input('performance_efficiency', 5),
             'usability' => $request->usability,
             'reliability' => $request->reliability,
             'security' => $request->security,
+            'compatibility' => $request->input('compatibility', 5),
             'comments' => $request->comments
         ]);
 

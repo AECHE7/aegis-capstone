@@ -63,7 +63,10 @@ class ApplicationController extends Controller
         $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
             return \App\Models\Scholarship::where('status', 'Active')->get();
         });
-        return view('student.apply', compact('scholarships', 'prevApp'));
+
+        $selectedProgramId = request('program') ?? request('scholarship_id');
+
+        return view('student.apply', compact('scholarships', 'prevApp', 'selectedProgramId'));
     }
 
     // 2. Save the Submitted Data
@@ -217,8 +220,14 @@ class ApplicationController extends Controller
         // Auto-assign application to staff member
         $assignedStaff = \App\Services\ApplicationAssignmentService::assign($application);
 
-        // Dispatch database notifications to assigned staff
+        // Dispatch database notifications to applicant and assigned staff
         try {
+            // 1. Notify applicant of successful submission
+            if ($application->user) {
+                $application->user->notify(new \App\Notifications\ApplicationSubmissionConfirmationNotification($application));
+            }
+
+            // 2. Notify assigned staff evaluator
             if ($assignedStaff) {
                 $assignedStaff->notify(new \App\Notifications\NewApplicationNotification($application));
             } else {
@@ -229,7 +238,7 @@ class ApplicationController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to notify staff on new application: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Failed to dispatch application notifications: ' . $e->getMessage());
         }
 
         $successMsg = $isAfterHours
@@ -278,7 +287,7 @@ class ApplicationController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'clsu_id_number' => ['required', 'string', 'max:50', 'regex:/^\d{4}-\d{4}$/'],
+            'clsu_id_number' => ['required', 'string', 'max:50', 'regex:/^\d{2}-\d{4}$/'],
             'college' => 'required|string|max:255',
             'course' => 'required|string|max:255',
             'year_level' => 'required|string|max:50',
@@ -286,7 +295,7 @@ class ApplicationController extends Controller
             'guardian_name' => 'required|string|max:255',
             'emergency_contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
         ], [
-            'clsu_id_number.regex' => 'The CLSU ID number format must be YYYY-XXXX (e.g. 2023-4567).',
+            'clsu_id_number.regex' => 'The CLSU ID number format must be 00-0000 (e.g. 23-1234).',
             'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
             'emergency_contact_number.regex' => 'The emergency contact number must be a valid Philippine mobile number (e.g. 09123456789).',
         ]);

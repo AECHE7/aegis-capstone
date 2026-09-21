@@ -32,6 +32,7 @@ Route::get('/welcome', function () {
 
 Route::get('/scholarships', [\App\Http\Controllers\ScholarshipController::class, 'catalog'])->name('scholarships.catalog');
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
+Route::get('/api/health-check', [\App\Http\Controllers\HealthController::class, 'check'])->name('api.health-check');
 Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
     $expectedKey = config('services.scheduler.key', 'aegis_cron_secret');
     // hash_equals prevents timing-based attacks on the secret key (MED-06)
@@ -298,7 +299,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/settings', [SuperAdminController::class, 'settings'])->name('superadmin.settings');
         Route::post('/settings', [SuperAdminController::class, 'updateSettings'])->name('superadmin.settings.update');
         Route::post('/settings/security-reset', [SuperAdminController::class, 'revokeAllDevices'])->name('superadmin.settings.security-reset');
-        Route::post('/settings/purge-students', [SuperAdminController::class, 'purgeStudents'])->name('superadmin.settings.purge-students');
         Route::get('/settings/ai-status', [SuperAdminController::class, 'aiStatus'])->name('superadmin.settings.ai-status');
         Route::post('/settings/wake-ai', [SuperAdminController::class, 'wakeAi'])->name('superadmin.settings.wake-ai');
 

@@ -642,6 +642,20 @@
     form.addEventListener('submit', () => localStorage.removeItem(FORM_KEY));
     document.addEventListener('DOMContentLoaded', () => {
         restoreDraft();
+
+        // Auto-select scholarship from query parameter or passed selectedProgramId
+        const urlParams = new URLSearchParams(window.location.search);
+        const preselectedId = '{{ $selectedProgramId ?? '' }}' || urlParams.get('program') || urlParams.get('scholarship_id');
+        if (preselectedId) {
+            const targetCard = document.querySelector(`.scholarship-card-select[data-id="${preselectedId}"]`);
+            if (targetCard) {
+                selectScholarship(targetCard);
+                setTimeout(() => {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 150);
+            }
+        }
+
         // Silent pre-warming ping for AI microservice while student completes application
         try { fetch('{{ route('ai.wake') }}').catch(() => {}); } catch (e) {}
     });

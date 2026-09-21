@@ -430,13 +430,13 @@
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-warning-subtle text-warning-emphasis fw-bold rounded-pill px-2.5 py-1">MODULE 06</span>
-                                        <h6 class="fw-bold mb-0 text-dark">System Governance & Utilities</h6>
+                                        <h6 class="fw-bold mb-0 text-dark">System Governance & Security</h6>
                                     </div>
-                                    <p class="text-muted small mb-2">Calibrate AI fraud detection thresholds, configure multi-factor enforcement, and execute testing purge utilities.</p>
+                                    <p class="text-muted small mb-2">Calibrate AI fraud detection thresholds, configure multi-factor enforcement, and review immutable audit records.</p>
                                     <ul class="text-muted small ps-3 mb-0" style="line-height: 1.6;">
                                         <li>Adjust ResNet-50 AI fraud threshold (0-100%)</li>
                                         <li>MFA system-wide enforcement toggle</li>
-                                        <li>One-click test students database purge</li>
+                                        <li>Global device revocation & security resets</li>
                                     </ul>
                                 </div>
                             </div>

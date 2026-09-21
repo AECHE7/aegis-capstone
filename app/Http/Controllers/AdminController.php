@@ -133,6 +133,16 @@ class AdminController extends Controller
             $cancelledCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
         }
 
+        // If a specific scholarship is filtered, scope the top metric counters to that scholarship
+        if ($request->filled('scholarship_id')) {
+            $pendingCountQuery->where('scholarship_id', $request->scholarship_id);
+            $underReviewCountQuery->where('scholarship_id', $request->scholarship_id);
+            $approvedCountQuery->where('scholarship_id', $request->scholarship_id);
+            $rejectedCountQuery->where('scholarship_id', $request->scholarship_id);
+            $archivedCountQuery->where('scholarship_id', $request->scholarship_id);
+            $cancelledCountQuery->where('scholarship_id', $request->scholarship_id);
+        }
+
         $pendingCount = $pendingCountQuery->count();
         $underReviewCount = $underReviewCountQuery->count();
         $approvedCount = $approvedCountQuery->count();
@@ -140,7 +150,17 @@ class AdminController extends Controller
         $archivedCount = $archivedCountQuery->count();
         $cancelledCount = $cancelledCountQuery->count();
         
-        $avgFraudScore = \App\Models\AIResult::avg('fraud_probability') ?? 0;
+        // Scope avgFraudScore strictly to assigned / filtered scholarships
+        $avgFraudQuery = \App\Models\AIResult::whereHas('document.application', function ($q) use ($request) {
+            if (auth()->user()->role === 'admin') {
+                $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+                $q->whereIn('scholarship_id', $assignedScholarshipIds);
+            }
+            if ($request->filled('scholarship_id')) {
+                $q->where('scholarship_id', $request->scholarship_id);
+            }
+        });
+        $avgFraudScore = $avgFraudQuery->avg('fraud_probability') ?? 0;
         $avgFraudScore = round($avgFraudScore, 1); // Round to 1 decimal place
 
         // Fetch all scholarships, academic terms, and years for filters

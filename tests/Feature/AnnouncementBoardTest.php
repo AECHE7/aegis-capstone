@@ -39,7 +39,7 @@ class AnnouncementBoardTest extends TestCase
 
         \App\Models\StudentProfile::create([
             'user_id' => $this->student->id,
-            'clsu_id_number' => '2023-1234',
+            'clsu_id_number' => '23-1234',
             'college' => 'College of Science',
             'course' => 'BS Information Technology',
             'year_level' => '2nd Year',

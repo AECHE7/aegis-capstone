@@ -43,7 +43,7 @@ class UserProfileTest extends TestCase
     {
         $response = $this->actingAs($this->student)->post('/student/profile', [
             'name' => 'Updated Name',
-            'clsu_id_number' => '2023-1111',
+            'clsu_id_number' => '23-1111',
             'college' => 'College of Science',
             'course' => 'BS Information Technology',
             'year_level' => '3rd Year',
@@ -64,7 +64,7 @@ class UserProfileTest extends TestCase
         // Check student profile fields are saved
         $profile = StudentProfile::where('user_id', $this->student->id)->first();
         $this->assertNotNull($profile);
-        $this->assertEquals('2023-1111', $profile->clsu_id_number);
+        $this->assertEquals('23-1111', $profile->clsu_id_number);
         $this->assertEquals('College of Science', $profile->college);
         $this->assertEquals('BS Information Technology', $profile->course);
         $this->assertEquals('3rd Year', $profile->year_level);
@@ -75,10 +75,10 @@ class UserProfileTest extends TestCase
 
     public function test_profile_validation_rejects_invalid_inputs(): void
     {
-        // 1. Invalid CLSU ID format
+        // 1. Invalid CLSU ID format (missing hyphen)
         $response = $this->actingAs($this->student)->post('/student/profile', [
             'name' => 'Updated Name',
-            'clsu_id_number' => '20231111', // missing hyphen
+            'clsu_id_number' => '231111', // missing hyphen
             'college' => 'College of Science',
             'course' => 'BS Information Technology',
             'year_level' => '3rd Year',
@@ -86,13 +86,25 @@ class UserProfileTest extends TestCase
             'guardian_name' => 'Maria Santos',
             'emergency_contact_number' => '09998887777',
         ]);
-
         $response->assertSessionHasErrors(['clsu_id_number']);
+
+        // 1b. Invalid CLSU ID format (4-digit year prefix is rejected, 00-0000 required)
+        $response4Digit = $this->actingAs($this->student)->post('/student/profile', [
+            'name' => 'Updated Name',
+            'clsu_id_number' => '2023-1111', // 4-digit year prefix
+            'college' => 'College of Science',
+            'course' => 'BS Information Technology',
+            'year_level' => '3rd Year',
+            'contact_number' => '09123456789',
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09998887777',
+        ]);
+        $response4Digit->assertSessionHasErrors(['clsu_id_number']);
 
         // 2. Invalid Contact Number format
         $response = $this->actingAs($this->student)->post('/student/profile', [
             'name' => 'Updated Name',
-            'clsu_id_number' => '2023-1111',
+            'clsu_id_number' => '23-1111',
             'college' => 'College of Science',
             'course' => 'BS Information Technology',
             'year_level' => '3rd Year',
@@ -108,7 +120,7 @@ class UserProfileTest extends TestCase
     {
         $this->actingAs($this->student)->post('/student/profile', [
             'name' => 'Encrypted Student',
-            'clsu_id_number' => '2023-9999',
+            'clsu_id_number' => '23-9999',
             'college' => 'College of Science',
             'course' => 'BS IT',
             'year_level' => '4th Year',
@@ -125,14 +137,14 @@ class UserProfileTest extends TestCase
         $this->assertNotNull($rawProfile);
         
         // Raw values in database must NOT be plaintext
-        $this->assertNotEquals('2023-9999', $rawProfile->clsu_id_number);
+        $this->assertNotEquals('23-9999', $rawProfile->clsu_id_number);
         $this->assertNotEquals('09998887777', $rawProfile->contact_number);
         $this->assertNotEquals('Encrypted Guardian', $rawProfile->guardian_name);
         $this->assertNotEquals('09887776666', $rawProfile->emergency_contact_number);
 
         // Eager loading decrypted values works fine
         $profileModel = StudentProfile::where('user_id', $this->student->id)->first();
-        $this->assertEquals('2023-9999', $profileModel->clsu_id_number);
+        $this->assertEquals('23-9999', $profileModel->clsu_id_number);
         $this->assertEquals('09998887777', $profileModel->contact_number);
         $this->assertEquals('Encrypted Guardian', $profileModel->guardian_name);
         $this->assertEquals('09887776666', $profileModel->emergency_contact_number);
@@ -207,7 +219,7 @@ class UserProfileTest extends TestCase
     {
         $response = $this->actingAs($this->student)->post('/profile/update', [
             'name' => 'Noriel Gadiano',
-            'clsu_id_number' => '2023-2546',
+            'clsu_id_number' => '23-2546',
             'college' => 'College of Engineering',
             'course' => 'BS Information Technology',
             'year_level' => '4th Year',
@@ -221,7 +233,7 @@ class UserProfileTest extends TestCase
 
         $profile = StudentProfile::where('user_id', $this->student->id)->first();
         $this->assertNotNull($profile);
-        $this->assertEquals('2023-2546', $profile->clsu_id_number);
+        $this->assertEquals('23-2546', $profile->clsu_id_number);
         $this->assertEquals('Renato Gadiano', $profile->guardian_name);
         $this->assertEquals('09071067137', $profile->emergency_contact_number);
         $this->assertTrue($this->student->fresh()->isProfileComplete());

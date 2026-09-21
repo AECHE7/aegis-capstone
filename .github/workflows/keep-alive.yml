@@ -1,0 +1,31 @@
+name: A.E.G.I.S. Keep-Alive & Container Warmup
+
+on:
+  schedule:
+    # Run every 10 minutes to prevent Render free-tier container spin-down (spins down after 15m)
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping-keepalive:
+    name: Ping Services & Run Scheduler
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Portal Health Check
+        run: |
+          PORTAL_URL="${{ secrets.RENDER_APP_URL || 'https://aegis-capstone.onrender.com' }}"
+          echo "Pinging Portal Health: $PORTAL_URL/api/health-check"
+          curl -s -f -m 30 "$PORTAL_URL/api/health-check" || echo "Portal warming up..."
+
+      - name: Ping AI Microservice Warmup
+        run: |
+          PORTAL_URL="${{ secrets.RENDER_APP_URL || 'https://aegis-capstone.onrender.com' }}"
+          echo "Triggering AI Microservice warmup: $PORTAL_URL/ai/wake"
+          curl -s -m 45 "$PORTAL_URL/ai/wake" || echo "AI warming up..."
+
+      - name: Trigger Automated Scholarship Scheduler
+        run: |
+          PORTAL_URL="${{ secrets.RENDER_APP_URL || 'https://aegis-capstone.onrender.com' }}"
+          SCHEDULER_KEY="${{ secrets.SCHEDULER_KEY || 'aegis_cron_secret' }}"
+          echo "Executing scheduled tasks..."
+          curl -s -m 30 "$PORTAL_URL/scheduler/run?key=$SCHEDULER_KEY" || echo "Scheduler triggered."

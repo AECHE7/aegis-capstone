@@ -398,7 +398,7 @@ class AuthController extends Controller
         if ($user->role === 'student') {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'clsu_id_number' => ['required', 'string', 'max:50', 'regex:/^\d{4}-\d{4}$/'],
+                'clsu_id_number' => ['required', 'string', 'max:50', 'regex:/^\d{2}-\d{4}$/'],
                 'college' => 'required|string|max:255',
                 'course' => 'required|string|max:255',
                 'year_level' => 'required|string|max:50',
@@ -406,7 +406,7 @@ class AuthController extends Controller
                 'guardian_name' => 'required|string|max:255',
                 'emergency_contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
             ], [
-                'clsu_id_number.regex' => 'The CLSU ID number format must be YYYY-XXXX (e.g. 2023-4567).',
+                'clsu_id_number.regex' => 'The CLSU ID number format must be 00-0000 (e.g. 23-1234).',
                 'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
                 'emergency_contact_number.regex' => 'The emergency contact number must be a valid Philippine mobile number (e.g. 09123456789).',
             ]);
@@ -477,19 +477,29 @@ class AuthController extends Controller
     // 4. Get notifications
     public function getNotifications()
     {
-        $notifications = auth()->user()->unreadNotifications()->take(10)->get()->map(function($n) {
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['notifications' => [], 'count' => 0, 'unread_count' => 0]);
+        }
+
+        $unreadCount = $user->unreadNotifications()->count();
+
+        // Retrieve latest 15 notifications (both unread and recent read)
+        $notifications = $user->notifications()->take(15)->get()->map(function($n) {
             return [
                 'id' => $n->id,
                 'title' => $n->data['title'] ?? 'System Notification',
                 'message' => $n->data['message'] ?? '',
                 'url' => $n->data['url'] ?? null,
-                'created_at' => $n->created_at->diffForHumans(),
+                'is_read' => $n->read_at !== null,
+                'created_at' => $n->created_at ? $n->created_at->diffForHumans() : 'Recently',
             ];
         });
 
         return response()->json([
             'notifications' => $notifications,
-            'count' => auth()->user()->unreadNotifications()->count()
+            'count' => $unreadCount,
+            'unread_count' => $unreadCount,
         ]);
     }
 
