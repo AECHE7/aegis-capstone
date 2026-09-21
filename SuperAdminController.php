@@ -493,18 +493,6 @@ class SuperAdminController extends Controller
         ));
     }
 
-    // 5b. Programmatic Dashboard Mock Seeder
-    public function seedMockData()
-    {
-        \Illuminate\Support\Facades\Artisan::call('db:seed', [
-            '--class' => 'DashboardMockSeeder',
-            '--force' => true
-        ]);
-
-        return redirect()->route('superadmin.analytics')
-            ->with('success', 'Database successfully seeded with 40 mock student profiles and compliance audit logs!');
-    }
-
     // 6. List all staff (Admin role)
     public function listStaff()
     {

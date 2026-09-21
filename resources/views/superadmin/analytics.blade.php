@@ -57,14 +57,9 @@
 <div class="card p-4 border-0 shadow-sm mb-4" style="border-radius: 16px;">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h6 class="fw-bold text-dark mb-0"><i class="fa-solid fa-filter text-success me-2"></i> Scoped Analytics Filtering</h6>
-        @if(app()->isLocal() || app()->environment('staging'))
-        <form action="{{ route('superadmin.analytics.seed-mock') }}" method="POST" onsubmit="return confirm('Are you sure you want to seed the database with 40 mock student profiles and audit logs? This will clean up existing student records first.');">
-            @csrf
-            <button type="submit" class="btn btn-sm btn-outline-success fw-semibold px-3" style="border-radius: 50px; border-color: #16a34a; color: #16a34a;">
-                <i class="fa-solid fa-database me-1"></i> Seed Mock Data
-            </button>
-        </form>
-        @endif
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill fw-medium" style="font-size: 0.75rem;">
+            <i class="fa-solid fa-circle-check me-1"></i> Live System Records
+        </span>
     </div>
     <form action="{{ route('superadmin.analytics') }}" method="GET" class="row g-3 align-items-end">
         <div class="col-md-5">

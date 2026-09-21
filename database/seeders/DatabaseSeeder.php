@@ -52,10 +52,32 @@ class DatabaseSeeder extends Seeder
         \App\Models\Setting::firstOrCreate(['key' => 'app_logo'], ['value' => null]);
         \App\Models\Setting::firstOrCreate(['key' => 'master_email'], ['value' => 'gadianoriel07@gmail.com']);
 
-        // 2. Only invoke UatSeeder (which wipes/resets student data) if no students are registered yet
-        $hasStudents = \App\Models\User::where('role', 'student')->exists();
-        if (!$hasStudents) {
-            $this->call(UatSeeder::class);
-        }
+        // 2. Ensure Official Institutional Scholarships exist
+        \App\Models\Scholarship::firstOrCreate(
+            ['name' => 'DOST-SEI Merit Scholarship'],
+            ['min_gwa_required' => 1.50, 'status' => 'Active', 'max_renewals' => 4]
+        );
+        \App\Models\Scholarship::firstOrCreate(
+            ['name' => 'University Scholar (Institutional)'],
+            ['min_gwa_required' => 1.45, 'status' => 'Active', 'max_renewals' => 4]
+        );
+        \App\Models\Scholarship::firstOrCreate(
+            ['name' => 'College Scholar (Institutional)'],
+            ['min_gwa_required' => 1.75, 'status' => 'Active', 'max_renewals' => 4]
+        );
+        \App\Models\Scholarship::firstOrCreate(
+            ['name' => 'CHED Tulong Dunong Program'],
+            ['min_gwa_required' => 2.50, 'status' => 'Active', 'max_renewals' => 4]
+        );
+
+        // 3. Ensure Academic Terms exist
+        \App\Models\AcademicTerm::firstOrCreate(
+            ['semester' => '1st Semester', 'academic_year' => '2025-2026'],
+            ['is_active' => false]
+        );
+        \App\Models\AcademicTerm::firstOrCreate(
+            ['semester' => '2nd Semester', 'academic_year' => '2025-2026'],
+            ['is_active' => true]
+        );
     }
 }
