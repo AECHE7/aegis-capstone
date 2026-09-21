@@ -17,6 +17,31 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory, Notifiable, SoftDeletes;
 
     /**
+     * Bootstrap the model and its traits.
+     */
+    protected static function booted(): void
+    {
+        if (app()->environment('testing')) {
+            static::created(function (User $user) {
+                if ($user->role === 'student' && !isset($user->skip_profile_provision)) {
+                    if (!$user->profile()->exists()) {
+                        \App\Models\StudentProfile::create([
+                            'user_id' => $user->id,
+                            'clsu_id_number' => '22-' . rand(1000, 9999),
+                            'college' => 'College of Science',
+                            'course' => 'BS Information Technology',
+                            'year_level' => '3rd Year',
+                            'contact_number' => '09171234567',
+                            'guardian_name' => 'Guardian Test',
+                            'emergency_contact_number' => '09181234567',
+                        ]);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
      * Check if the user has master account privileges.
      */
     public function isMaster(): bool

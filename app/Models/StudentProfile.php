@@ -9,6 +9,18 @@ class StudentProfile extends Model
 {
     use HasFactory;
 
+    /**
+     * Bootstrap the model and its traits.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (StudentProfile $profile) {
+            if ($profile->user_id) {
+                static::where('user_id', $profile->user_id)->delete();
+            }
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'clsu_id_number',

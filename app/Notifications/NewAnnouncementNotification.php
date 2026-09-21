@@ -37,10 +37,15 @@ class NewAnnouncementNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $targetUrl = ($notifiable->role === 'student')
+            ? route('student.announcements')
+            : route('admin.announcements.index');
+
         return [
+            'announcement_id' => $this->announcement->id,
             'title' => 'Official Announcement',
             'message' => $this->announcement->title,
-            'url' => route('student.announcements'),
+            'url' => $targetUrl,
             'type' => 'announcement'
         ];
     }

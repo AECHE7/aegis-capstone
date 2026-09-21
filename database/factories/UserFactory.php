@@ -42,4 +42,14 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * Indicate that the student model should have an incomplete profile.
+     */
+    public function incompleteProfile(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->profile()?->delete();
+        });
+    }
 }

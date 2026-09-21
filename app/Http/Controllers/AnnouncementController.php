@@ -57,11 +57,15 @@ class AnnouncementController extends Controller
             'scheduled_delete_at' => $request->validated('scheduled_delete_at'),
         ]);
 
-        // Dispatch notifications to all student portal users if published immediately
+        // Dispatch notifications to all active portal users (students, staff, director) if published immediately
         $shouldNotify = empty($request->validated('scheduled_publish_at')) || \Carbon\Carbon::parse($request->validated('scheduled_publish_at'))->isPast();
         if ($shouldNotify) {
-            $students = User::where('role', 'student')->get();
-            Notification::send($students, new NewAnnouncementNotification($announcement));
+            try {
+                $recipients = User::where('is_active', true)->get();
+                Notification::send($recipients, new NewAnnouncementNotification($announcement));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to dispatch announcement notifications: ' . $e->getMessage());
+            }
         }
 
         return response()->json([

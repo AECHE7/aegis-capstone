@@ -1261,9 +1261,47 @@ class SuperAdminController extends Controller
             'target' => 'required|string',
         ]);
 
-        \App\Jobs\BroadcastAnnouncementEmailJob::dispatch($request->title, $request->body, $request->target);
+        try {
+            $recipients = collect();
 
-        return back()->with('success', 'Email broadcast has been queued for delivery.');
+            if ($request->target === 'all_users') {
+                $recipients = \App\Models\User::where('is_active', true)->get();
+            } elseif ($request->target === 'all_students') {
+                $recipients = \App\Models\User::where('role', 'student')->where('is_active', true)->get();
+            } elseif ($request->target === 'approved_scholars') {
+                $userIds = \App\Models\Application::where('status', 'Approved')->pluck('user_id')->unique();
+                $recipients = \App\Models\User::whereIn('id', $userIds)->where('is_active', true)->get();
+            } elseif (is_numeric($request->target)) {
+                $userIds = \App\Models\Application::where('scholarship_id', (int) $request->target)->pluck('user_id')->unique();
+                $recipients = \App\Models\User::whereIn('id', $userIds)->where('is_active', true)->get();
+            }
+
+            // 1. Immediately create in-app database notifications for every recipient
+            if ($recipients->isNotEmpty()) {
+                \Illuminate\Support\Facades\Notification::send(
+                    $recipients,
+                    new \App\Notifications\BroadcastNotification($request->title, $request->body)
+                );
+            }
+
+            // 2. Queue email broadcast job for SMTP delivery
+            \App\Jobs\BroadcastAnnouncementEmailJob::dispatch($request->title, $request->body, $request->target);
+
+            // 3. Log administrative audit trail
+            \App\Services\AuditLoggerService::logAdminAction(
+                auth()->id(),
+                'broadcast_sent',
+                'system',
+                null,
+                "Sent broadcast '{$request->title}' to {$recipients->count()} recipients ({$request->target})",
+                $request->ip()
+            );
+
+            return back()->with('success', "Broadcast successfully sent! {$recipients->count()} users have received in-app notifications and email delivery has been queued.");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Broadcast error: ' . $e->getMessage());
+            return back()->with('error', 'Failed to dispatch broadcast: ' . $e->getMessage());
+        }
     }
 
     /**

@@ -88,4 +88,24 @@ return Application::configure(basePath: dirname(__DIR__))
                 'email' => 'Your verification session expired. Please sign in again.'
             ]);
         });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The requested resource or endpoint was not found.'
+                ], 404);
+            }
+            return response()->view('errors.404', [], 404);
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException $e, $request) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You do not have permission to access this module.'
+                ], 403);
+            }
+            return response()->view('errors.403', [], 403);
+        });
     })->create();

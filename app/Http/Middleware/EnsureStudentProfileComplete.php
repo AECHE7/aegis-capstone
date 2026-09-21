@@ -35,6 +35,10 @@ class EnsureStudentProfileComplete
                 'verification.verify',
                 'verification.send',
                 'verification.status',
+                'notifications.index',
+                'notifications.read',
+                'notifications.clear',
+                'tour.reset',
             ];
 
             $currentRoute = $request->route() ? $request->route()->getName() : null;

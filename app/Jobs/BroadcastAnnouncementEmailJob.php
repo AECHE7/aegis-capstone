@@ -38,14 +38,16 @@ class BroadcastAnnouncementEmailJob implements ShouldQueue
     {
         $recipients = collect();
 
-        if ($this->target === 'all_students') {
-            $recipients = User::where('role', 'student')->get();
+        if ($this->target === 'all_users') {
+            $recipients = User::where('is_active', true)->get();
+        } elseif ($this->target === 'all_students') {
+            $recipients = User::where('role', 'student')->where('is_active', true)->get();
         } elseif ($this->target === 'approved_scholars') {
             $userIds = Application::where('status', 'Approved')->pluck('user_id')->unique();
-            $recipients = User::whereIn('id', $userIds)->get();
+            $recipients = User::whereIn('id', $userIds)->where('is_active', true)->get();
         } elseif (is_numeric($this->target)) {
             $userIds = Application::where('scholarship_id', $this->target)->pluck('user_id')->unique();
-            $recipients = User::whereIn('id', $userIds)->get();
+            $recipients = User::whereIn('id', $userIds)->where('is_active', true)->get();
         }
 
         foreach ($recipients as $recipient) {

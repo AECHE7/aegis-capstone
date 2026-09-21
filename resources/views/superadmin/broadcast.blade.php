@@ -32,6 +32,7 @@
                         <label for="targetSelect" class="form-label fw-semibold text-dark small">Target Audience</label>
                         <select name="target" id="targetSelect" class="form-select rounded-3" required>
                             <option value="" disabled selected>Select target group...</option>
+                            <option value="all_users">All Users (Students, Staff & Administrators)</option>
                             <option value="all_students">All Students (Applicants & Scholars)</option>
                             <option value="approved_scholars">Approved Scholars (Active only)</option>
                             <optgroup label="Scholarship Programs">
