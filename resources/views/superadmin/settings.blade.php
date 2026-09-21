@@ -271,26 +271,24 @@
             </div>
 
             <!-- Interactive Training & Role Guided Demos -->
-            <div class="card mb-4 border-0 shadow-sm" style="border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #072F1B, #0C4E2D); color: white;">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; min-width: 50px;">
-                                <i class="fa-solid fa-graduation-cap fs-3 text-warning"></i>
-                            </div>
-                            <div>
-                                <h5 class="fw-bold mb-1 text-white">Interactive Training & Director Walkthrough</h5>
-                                <p class="text-white-50 small mb-0">Learn and review end-to-end executive governance workflows, scholarship setup, and audit logs.</p>
-                            </div>
+            <div class="card mb-4 border-0 shadow-xs rounded-3 overflow-hidden" style="background: var(--card-bg, #ffffff); border: 1px solid var(--border-color, #e2e8f0) !important;">
+                <div class="card-body py-2.5 px-3 d-flex align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-center gap-2.5 overflow-hidden">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; background: rgba(242, 169, 0, 0.15);">
+                            <i class="fa-solid fa-graduation-cap text-warning" style="font-size: 0.95rem;"></i>
                         </div>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <button type="button" class="btn btn-warning btn-sm text-dark fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="openSystemTourModal('superadmin')">
-                                <i class="fa-solid fa-crown me-1"></i> Launch Director Guide
-                            </button>
+                        <div class="overflow-hidden">
+                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.85rem;">Interactive Training & Director Walkthrough</h6>
+                            <p class="text-muted small mb-0 d-none d-md-block" style="font-size: 0.74rem;">Learn and review end-to-end executive governance workflows and audit logs.</p>
                         </div>
                     </div>
+                    <button type="button" class="btn btn-warning btn-sm text-dark fw-bold px-3 py-1.5 rounded-pill shadow-xs flex-shrink-0 d-inline-flex align-items-center gap-1.5" 
+                            style="font-size: 0.78rem;" onclick="openSystemTourModal('superadmin')">
+                        <i class="fa-solid fa-crown me-1" style="font-size: 0.7rem;"></i> Launch Director Guide
+                    </button>
                 </div>
             </div>
+
 
             <!-- Database Testing & Student Purge Utilities -->
             <div class="card mb-4 border-0 shadow-sm" style="border-radius: 16px; overflow: hidden; border-left: 4px solid #ef4444 !important;">

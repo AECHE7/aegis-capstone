@@ -1333,8 +1333,8 @@
         <!-- Top bar -->
         <div class="topbar">
             <div class="d-flex align-items-center overflow-hidden me-2" style="min-width: 0;">
-                <!-- Mobile Hamburger Toggle -->
-                <button class="btn btn-link topbar-icon-btn p-0 me-2 me-sm-3 d-lg-none flex-shrink-0" id="mobileSidebarToggle"
+                <!-- Mobile Hamburger Toggle (Disabled on mobile view as dedicated mobile bottom navbar provides complete navigation) -->
+                <button class="btn btn-link topbar-icon-btn p-0 me-2 me-sm-3 d-none flex-shrink-0" id="mobileSidebarToggle"
                         aria-label="Toggle Navigation"
                         aria-controls="mainSidebar"
                         aria-expanded="false"
