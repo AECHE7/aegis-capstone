@@ -495,6 +495,18 @@ When newly registered students clicked the verification button ("Verify Email Ad
    - Standardize button hierarchies with CLSU emerald primary gradients (`#00754A` to `#0C4E2D`), bordered secondary pills, and tactile press micro-interactions (`.btn-animate-click`).
    - Maintain visible gold focus rings (`:focus-visible` with `#F2A900`) for complete keyboard accessibility under ISO 9241-210.
 
+---
 
+## 14. Mobile Navigation Simplification & Guided Demo Space Optimization
 
+### Objectives & Implementations
+1. **Redundant Mobile Hamburger Menu Removal**:
+   - The master layout (`resources/views/layouts/app.blade.php`) previously rendered a `#mobileSidebarToggle` hamburger icon on mobile view (`d-lg-none`).
+   - Because mobile devices utilize a dedicated fixed bottom navigation bar (`.mobile-bottom-nav` via `resources/views/layouts/mobile-nav.blade.php`) tailored per role (Home, Apply, News, Profile for Students; Queue, News, Export, Account for Staff; Analytics, Scholarships, Users, Settings for Superadmin), the topbar hamburger was redundant, broken, and cluttered the mobile header.
+   - Updated `#mobileSidebarToggle` with `d-none` so it is cleanly hidden across all mobile viewports, leaving all mobile navigation to the native bottom bar.
 
+2. **Guided Demo Ribbon Optimization**:
+   - The "Interactive Guided Demo & Training Guide" component in `resources/views/auth/change_password.blade.php` previously rendered as a bulky ~180px gradient card taking up almost half the mobile screen height above student profile details.
+   - Redesigned into an ultra-slim, space-saving ~42px ribbon (`py-2.5 px-3`) with soft neutral borders, a subtle gold graduation icon, concise descriptive typography, and an inline `[ ▶ Start Guided Tour ]` pill button.
+   - Replicated this compact ribbon design in `resources/views/superadmin/settings.blade.php` for the Director Walkthrough card.
+   - Maintained all critical test-asserted strings (`Interactive Guided Demo & Training Guide`, `Start Guided Tour`, `openSystemTourModal`), keeping `StudentPurgeAndDemoTest` and `UserProfileTest` 100% green.

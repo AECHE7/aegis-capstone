@@ -11,100 +11,89 @@
             
             <!-- Modal Header -->
             <div class="modal-header border-0 text-white p-3 p-md-4" style="background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 50%, #00754A 100%);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px; min-width: 46px;">
-                        @if($isStudent)
-                            <i class="fa-solid fa-graduation-cap fs-4 text-warning"></i>
-                        @elseif($isAdmin)
-                            <i class="fa-solid fa-user-shield fs-4 text-warning"></i>
-                        @else
-                            <i class="fa-solid fa-crown fs-4 text-warning"></i>
-                        @endif
+                <div class="d-flex align-items-center gap-2.5 gap-md-3">
+                    <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; min-width: 42px;">
+                        <i class="fa-solid fa-graduation-cap text-warning fs-5"></i>
                     </div>
                     <div>
-                        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                            <h5 class="modal-title fw-bold mb-0 text-white" id="systemDemoModalLabel">
-                                @if($isStudent)
-                                    A.E.G.I.S. Student Walkthrough & System Guide
-                                @elseif($isAdmin)
-                                    A.E.G.I.S. Staff Evaluator Operational Guide
-                                @else
-                                    A.E.G.I.S. Director & Super Admin Walkthrough
-                                @endif
+                        <div class="d-flex align-items-center gap-2 mb-0.5 flex-wrap">
+                            <h5 class="modal-title fw-bold mb-0 text-white" id="systemDemoModalLabel" style="font-size: 1.05rem;">
+                                A.E.G.I.S. Interactive System Demo & Guided Walkthrough
                             </h5>
-                            <span class="badge bg-warning text-dark fw-bold px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
-                                @if($isStudent)
-                                    Student Onboarding
-                                @elseif($isAdmin)
-                                    Evaluator Guide
-                                @else
-                                    Governance Guide
-                                @endif
+                            <span class="badge bg-warning text-dark fw-bold px-2 py-0.5 rounded-pill" style="font-size: 0.68rem;">
+                                Interactive Training
                             </span>
                         </div>
-                        <p class="mb-0 text-white-50 small d-none d-sm-block">
-                            @if($isStudent)
-                                Learn step-by-step how to submit applications, track requirements, and verify your scholarship grant.
-                            @elseif($isAdmin)
-                                Learn step-by-step how to triage queues, inspect AI forensic heatmaps, and issue official determinations.
-                            @else
-                                Learn end-to-end features and governance workflows for OSA Directors and Super Administrators.
-                            @endif
+                        <p class="mb-0 text-white-50 small d-none d-sm-block" style="font-size: 0.78rem;">
+                            Learn and demonstrate end-to-end features and operational workflows across all portal roles.
                         </p>
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- Role Scope Indicator Bar (Strict Single-Role View) -->
-            <div class="bg-light px-3 px-md-4 py-2.5 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    @if($isStudent)
-                        <span class="badge bg-success-subtle text-success px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.78rem;">
-                            <i class="fa-solid fa-user-graduate me-1"></i> Student Applicant Guide
-                        </span>
-                        <span class="text-muted small d-none d-sm-inline">6 Step-by-Step Milestones</span>
-                    @elseif($isAdmin)
-                        <span class="badge bg-primary-subtle text-primary px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.78rem;">
-                            <i class="fa-solid fa-user-shield me-1"></i> OSA Staff Evaluator Guide
-                        </span>
-                        <span class="text-muted small d-none d-sm-inline">6 Operational Review Steps</span>
-                    @else
-                        <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.78rem;">
-                            <i class="fa-solid fa-crown me-1"></i> OSA Director / Super Admin Guide
-                        </span>
-                        <span class="text-muted small d-none d-sm-inline">6 Executive Governance Modules</span>
-                    @endif
-                </div>
-                <span class="badge bg-white text-secondary border small px-2.5 py-1 rounded-pill shadow-xs">
-                    <i class="fa-solid fa-shield-halved text-success me-1"></i> Role-Scoped View
-                </span>
+            <!-- Role Selector Nav Tabs (Instant client-side switching with zero refresh) -->
+            <div class="bg-light px-3 px-md-4 py-2 border-bottom">
+                <ul class="nav nav-pills gap-1.5 gap-md-2 d-flex flex-nowrap overflow-x-auto pb-1 mb-0" id="demoRoleTabs" role="tablist" style="scrollbar-width: none; -webkit-overflow-scrolling: touch;">
+                    <li class="nav-item flex-shrink-0" role="presentation">
+                        <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isStudent ? 'active' : '' }}" 
+                                id="student-demo-tab" data-bs-toggle="pill" data-bs-target="#student-demo-pane" type="button" role="tab"
+                                aria-controls="student-demo-pane" aria-selected="{{ $isStudent ? 'true' : 'false' }}">
+                            <i class="fa-solid fa-user-graduate"></i>
+                            <span>Student Applicant</span>
+                            @if($isStudent)
+                                <span class="badge bg-light text-success ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
+                            @endif
+                        </button>
+                    </li>
+                    <li class="nav-item flex-shrink-0" role="presentation">
+                        <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isAdmin ? 'active' : '' }}" 
+                                id="admin-demo-tab" data-bs-toggle="pill" data-bs-target="#admin-demo-pane" type="button" role="tab"
+                                aria-controls="admin-demo-pane" aria-selected="{{ $isAdmin ? 'true' : 'false' }}">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span>OSA Staff Evaluator</span>
+                            @if($isAdmin)
+                                <span class="badge bg-light text-primary ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
+                            @endif
+                        </button>
+                    </li>
+                    <li class="nav-item flex-shrink-0" role="presentation">
+                        <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isSuperAdmin ? 'active' : '' }}" 
+                                id="director-demo-tab" data-bs-toggle="pill" data-bs-target="#director-demo-pane" type="button" role="tab"
+                                aria-controls="director-demo-pane" aria-selected="{{ $isSuperAdmin ? 'true' : 'false' }}">
+                            <i class="fa-solid fa-crown text-warning"></i>
+                            <span>OSA Director / Super Admin</span>
+                            @if($isSuperAdmin)
+                                <span class="badge bg-light text-warning-emphasis ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
+                            @endif
+                        </button>
+                    </li>
+                </ul>
             </div>
 
             <!-- Modal Body with Tabs Content -->
             <div class="modal-body p-3 p-md-4 bg-light bg-opacity-50">
                 <div class="tab-content" id="demoRoleTabsContent">
 
-                    @if($isStudent)
                     <!-- ========================================================= -->
                     <!-- TAB 1: STUDENT APPLICANT WORKFLOW                         -->
                     <!-- ========================================================= -->
-                    <div class="tab-pane fade show active" id="student-demo-pane" role="tabpanel">
+                    <div class="tab-pane fade {{ $isStudent ? 'show active' : '' }}" id="student-demo-pane" role="tabpanel" aria-labelledby="student-demo-tab">
                         
                         <!-- Role Banner -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #0C4E2D, #166534); color: white;">
-                            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="card border-0 shadow-sm rounded-4 mb-3 mb-md-4" style="background: linear-gradient(135deg, #0C4E2D, #166534); color: white;">
+                            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-2.5">
                                 <div>
-                                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">STUDENT PORTAL LIFE-CYCLE</span>
-                                    <h5 class="fw-bold mb-1 text-white">Paperless Application, Integrity Check & Award Tracking</h5>
-                                    <p class="text-white-50 small mb-0">From registering with your verified @clsu.edu.ph institutional email to receiving your official stipend clearance report.</p>
+                                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-0.5 mb-1.5 fw-semibold" style="font-size: 0.72rem;">STUDENT PORTAL LIFE-CYCLE</span>
+                                    <h5 class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Paperless Application, Integrity Check & Award Tracking</h5>
+                                    <p class="text-white-50 small mb-0" style="font-size: 0.78rem;">From registering with your verified @clsu.edu.ph institutional email to receiving your official stipend clearance report.</p>
                                 </div>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-warning text-dark fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="startLiveElementTour('student')">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1.5 rounded-pill shadow-xs" onclick="startLiveElementTour('student')">
                                         <i class="fa-solid fa-play me-1"></i> Launch Live Screen Tour
                                     </button>
                                     @if(auth()->check() && auth()->user()->role === 'student')
-                                        <a href="{{ route('student.dashboard') }}" class="btn btn-outline-light fw-semibold px-3 py-2 rounded-pill">
+                                        <a href="{{ route('student.dashboard') }}" class="btn btn-sm btn-outline-light fw-semibold px-3 py-1.5 rounded-pill">
                                             <i class="fa-solid fa-house me-1"></i> Go to Dashboard
                                         </a>
                                     @endif
@@ -113,9 +102,9 @@
                         </div>
 
                         <!-- 6-Stage Detailed Grid -->
-                        <div class="row g-3">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-2.5 g-md-3">
                             <!-- Stage 1 -->
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-success-subtle text-success fw-bold rounded-pill px-2.5 py-1">STAGE 01</span>
@@ -131,7 +120,7 @@
                             </div>
 
                             <!-- Stage 2 -->
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-success-subtle text-success fw-bold rounded-pill px-2.5 py-1">STAGE 02</span>
@@ -147,7 +136,7 @@
                             </div>
 
                             <!-- Stage 3 -->
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-success-subtle text-success fw-bold rounded-pill px-2.5 py-1">STAGE 03</span>
@@ -163,7 +152,7 @@
                             </div>
 
                             <!-- Stage 4 -->
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-success-subtle text-success fw-bold rounded-pill px-2.5 py-1">STAGE 04</span>
@@ -179,7 +168,7 @@
                             </div>
 
                             <!-- Stage 5 -->
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-success-subtle text-success fw-bold rounded-pill px-2.5 py-1">STAGE 05</span>
@@ -195,7 +184,7 @@
                             </div>
 
                             <!-- Stage 6 -->
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-success-subtle text-success fw-bold rounded-pill px-2.5 py-1">STAGE 06</span>
@@ -212,28 +201,26 @@
                         </div>
 
                     </div>
-                    @endif
 
-                    @if($isAdmin)
                     <!-- ========================================================= -->
                     <!-- TAB 2: OSA STAFF EVALUATOR WORKFLOW                       -->
                     <!-- ========================================================= -->
-                    <div class="tab-pane fade show active" id="admin-demo-pane" role="tabpanel">
+                    <div class="tab-pane fade {{ $isAdmin ? 'show active' : '' }}" id="admin-demo-pane" role="tabpanel" aria-labelledby="admin-demo-tab">
                         
                         <!-- Role Banner -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #1e3a8a, #0369a1); color: white;">
-                            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="card border-0 shadow-sm rounded-4 mb-3 mb-md-4" style="background: linear-gradient(135deg, #1e3a8a, #0369a1); color: white;">
+                            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-2.5">
                                 <div>
-                                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">OSA STAFF EVALUATOR WORKFLOW</span>
-                                    <h5 class="fw-bold mb-1 text-white">Application Triage, Forensic Heatmaps & Rapid Determination</h5>
-                                    <p class="text-white-50 small mb-0">Evaluate student applications with AI-assisted document fraud analysis, 1-click preset remarks, and automated audits.</p>
+                                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-0.5 mb-1.5 fw-semibold" style="font-size: 0.72rem;">OSA STAFF EVALUATOR WORKFLOW</span>
+                                    <h5 class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Application Triage, Forensic Heatmaps & Rapid Determination</h5>
+                                    <p class="text-white-50 small mb-0" style="font-size: 0.78rem;">Evaluate student applications with AI-assisted document fraud analysis, 1-click preset remarks, and automated audits.</p>
                                 </div>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-warning text-dark fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="startLiveElementTour('admin')">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1.5 rounded-pill shadow-xs" onclick="startLiveElementTour('admin')">
                                         <i class="fa-solid fa-play me-1"></i> Launch Live Screen Tour
                                     </button>
                                     @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin'))
-                                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light fw-semibold px-3 py-2 rounded-pill">
+                                        <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-outline-light fw-semibold px-3 py-1.5 rounded-pill">
                                             <i class="fa-solid fa-list-check me-1"></i> Go to Review Queue
                                         </a>
                                     @endif
@@ -242,8 +229,8 @@
                         </div>
 
                         <!-- 6-Stage Detailed Grid -->
-                        <div class="row g-3">
-                            <div class="col-md-4">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-2.5 g-md-3">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-2.5 py-1">STEP 01</span>
@@ -258,7 +245,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-2.5 py-1">STEP 02</span>
@@ -273,7 +260,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-2.5 py-1">STEP 03</span>
@@ -288,7 +275,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-2.5 py-1">STEP 04</span>
@@ -303,7 +290,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-2.5 py-1">STEP 05</span>
@@ -318,7 +305,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-2.5 py-1">STEP 06</span>
@@ -335,28 +322,26 @@
                         </div>
 
                     </div>
-                    @endif
 
-                    @if($isSuperAdmin)
                     <!-- ========================================================= -->
                     <!-- TAB 3: DIRECTOR & SUPER ADMIN WORKFLOW                    -->
                     <!-- ========================================================= -->
-                    <div class="tab-pane fade show active" id="director-demo-pane" role="tabpanel">
+                    <div class="tab-pane fade {{ $isSuperAdmin ? 'show active' : '' }}" id="director-demo-pane" role="tabpanel" aria-labelledby="director-demo-tab">
                         
                         <!-- Role Banner -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #78350f, #b45309); color: white;">
-                            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="card border-0 shadow-sm rounded-4 mb-3 mb-md-4" style="background: linear-gradient(135deg, #78350f, #b45309); color: white;">
+                            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-2.5">
                                 <div>
-                                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-2 fw-semibold">DIRECTOR & SUPERADMIN WORKFLOW</span>
-                                    <h5 class="fw-bold mb-1 text-white">Executive Analytics, User Control & Program Governance</h5>
-                                    <p class="text-white-50 small mb-0">Oversee university scholarship budgets, audit statutory compliance, manage staff permissions, and calibrate AI models.</p>
+                                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-0.5 mb-1.5 fw-semibold" style="font-size: 0.72rem;">DIRECTOR & SUPERADMIN WORKFLOW</span>
+                                    <h5 class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Executive Analytics, User Control & Program Governance</h5>
+                                    <p class="text-white-50 small mb-0" style="font-size: 0.78rem;">Oversee university scholarship budgets, audit statutory compliance, manage staff permissions, and calibrate AI models.</p>
                                 </div>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-warning text-dark fw-bold px-3 py-2 rounded-pill shadow-sm" onclick="startLiveElementTour('superadmin')">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1.5 rounded-pill shadow-xs" onclick="startLiveElementTour('superadmin')">
                                         <i class="fa-solid fa-play me-1"></i> Launch Live Screen Tour
                                     </button>
                                     @if(auth()->check() && auth()->user()->role === 'superadmin')
-                                        <a href="{{ route('superadmin.analytics') }}" class="btn btn-outline-light fw-semibold px-3 py-2 rounded-pill">
+                                        <a href="{{ route('superadmin.analytics') }}" class="btn btn-sm btn-outline-light fw-semibold px-3 py-1.5 rounded-pill">
                                             <i class="fa-solid fa-chart-line me-1"></i> Open Analytics
                                         </a>
                                     @endif
@@ -365,8 +350,8 @@
                         </div>
 
                         <!-- 6-Stage Detailed Grid -->
-                        <div class="row g-3">
-                            <div class="col-md-4">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-2.5 g-md-3">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-warning-subtle text-warning-emphasis fw-bold rounded-pill px-2.5 py-1">MODULE 01</span>
@@ -381,7 +366,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-warning-subtle text-warning-emphasis fw-bold rounded-pill px-2.5 py-1">MODULE 02</span>
@@ -396,7 +381,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-warning-subtle text-warning-emphasis fw-bold rounded-pill px-2.5 py-1">MODULE 03</span>
@@ -411,7 +396,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-warning-subtle text-warning-emphasis fw-bold rounded-pill px-2.5 py-1">MODULE 04</span>
@@ -426,7 +411,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-warning-subtle text-warning-emphasis fw-bold rounded-pill px-2.5 py-1">MODULE 05</span>
@@ -441,7 +426,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col">
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="badge bg-warning-subtle text-warning-emphasis fw-bold rounded-pill px-2.5 py-1">MODULE 06</span>
@@ -458,7 +443,6 @@
                         </div>
 
                     </div>
-                    @endif
 
                 </div>
             </div>
@@ -470,10 +454,10 @@
                     <span>Official CLSU OSA Training & Demonstration Suite &bull; R.A. 10173 Compliant</span>
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-light border px-4 py-2 rounded-pill fw-semibold" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-sm btn-light border px-3.5 py-1.5 rounded-pill fw-semibold" data-bs-dismiss="modal">
                         Close Guide
                     </button>
-                    <button type="button" class="btn btn-success px-4 py-2 rounded-pill fw-bold text-white shadow-sm" style="background: var(--clsu-green, #0C4E2D);" onclick="startCurrentRoleTour()">
+                    <button type="button" class="btn btn-sm btn-success px-3.5 py-1.5 rounded-pill fw-bold text-white shadow-xs" style="background: var(--clsu-green, #0C4E2D);" onclick="startCurrentRoleTour()">
                         <i class="fa-solid fa-compass me-1"></i> Start Interactive Tour
                     </button>
                 </div>
@@ -484,18 +468,41 @@
 </div>
 
 <style>
+    #demoRoleTabs .nav-link {
+        color: #475569;
+        background: #e2e8f0;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        font-size: 0.82rem;
+    }
+    #demoRoleTabs .nav-link.active {
+        background: var(--clsu-green, #0C4E2D) !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(12, 78, 45, 0.25);
+    }
+    #demoRoleTabs::-webkit-scrollbar {
+        display: none;
+    }
     @media (max-width: 575.98px) {
         #systemDemoModal .modal-dialog {
-            margin: 0.5rem;
+            margin: 0.35rem;
+            max-width: calc(100vw - 0.7rem);
         }
         #systemDemoModal .modal-header {
-            padding: 1rem !important;
-        }
-        #systemDemoModal .modal-body {
             padding: 0.85rem !important;
         }
+        #systemDemoModal .modal-body {
+            padding: 0.75rem !important;
+        }
         #systemDemoModal .card-body {
-            padding: 1rem !important;
+            padding: 0.85rem !important;
+        }
+        .shepherd-element {
+            max-width: calc(100vw - 1.5rem) !important;
+            margin: 0.5rem auto !important;
+        }
+        .shepherd-content {
+            padding: 0.75rem !important;
         }
     }
 </style>
@@ -504,6 +511,19 @@
     window.openSystemTourModal = function(role) {
         const modalEl = document.getElementById('systemDemoModal');
         if (!modalEl) return;
+
+        if (role) {
+            let tabId = 'student-demo-tab';
+            if (role === 'admin') tabId = 'admin-demo-tab';
+            else if (role === 'superadmin') tabId = 'director-demo-tab';
+
+            const tabBtn = document.getElementById(tabId);
+            if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                const tab = bootstrap.Tab.getOrCreateInstance(tabBtn);
+                tab.show();
+            }
+        }
+
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
     };
@@ -515,7 +535,14 @@
             if (modal) modal.hide();
         }
 
-        const role = '{{ $userRole }}';
+        // Determine role based on currently active tab pane
+        const activePane = document.querySelector('#demoRoleTabsContent .tab-pane.active');
+        let role = 'student';
+        if (activePane) {
+            if (activePane.id.includes('admin')) role = 'admin';
+            else if (activePane.id.includes('director')) role = 'superadmin';
+            else role = 'student';
+        }
 
         setTimeout(() => {
             startLiveElementTour(role);
@@ -529,7 +556,7 @@
             if (modal) modal.hide();
         }
 
-        const activeRole = '{{ $userRole }}';
+        const activeRole = role || '{{ $userRole }}';
 
         // Ensure Shepherd is loaded
         if (typeof Shepherd === 'undefined') {
@@ -548,18 +575,37 @@
     };
 
     function runShepherdTour(role) {
+        const isMobile = window.innerWidth < 768;
+
         const tour = new Shepherd.Tour({
             useModalOverlay: true,
             defaultStepOptions: {
-                classes: 'shadow-lg rounded-4 border-0 p-3 bg-white',
+                classes: 'shadow-lg rounded-4 border-0 p-3 bg-white shepherd-theme-aegis',
                 scrollTo: { behavior: 'smooth', block: 'center' },
                 cancelIcon: { enabled: true }
             }
         });
 
-        // Step 1: Sidebar Navigation
+        // Step 1: Navigation Menu (Mobile Bottom Bar vs Desktop Sidebar)
+        const bottomNav = document.querySelector('.mobile-bottom-nav');
         const sidebarEl = document.getElementById('mainSidebar') || document.querySelector('.sidebar') || document.querySelector('nav');
-        if (sidebarEl) {
+        
+        if (isMobile && bottomNav && bottomNav.offsetParent !== null) {
+            tour.addStep({
+                id: 'tour-mobile-nav',
+                title: '📱 Mobile Bottom Navigation',
+                text: role === 'student'
+                    ? 'Seamlessly switch between Home, Apply, News, and your Profile using this bottom navigation bar.'
+                    : (role === 'admin'
+                        ? 'Quickly navigate your Review Queue, Announcements, Exports, and Account settings from this mobile bar.'
+                        : 'Access Executive Analytics, Scholarships, User Governance, and System Settings directly.'),
+                attachTo: { element: bottomNav, on: 'top' },
+                buttons: [
+                    { text: 'Skip', action: tour.complete, classes: 'btn btn-sm btn-light' },
+                    { text: 'Next Step →', action: tour.next, classes: 'btn btn-sm btn-success' }
+                ]
+            });
+        } else if (sidebarEl && sidebarEl.offsetParent !== null) {
             tour.addStep({
                 id: 'tour-sidebar',
                 title: '📌 Portal Navigation Menu',
@@ -587,7 +633,7 @@
                     : (role === 'admin'
                         ? 'Inspect student documents, examine AI tamper heatmaps, verify GWA discrepancies, and record evaluation remarks.'
                         : 'Monitor university-wide KPIs, track student demographics, and calibrate fraud tolerance thresholds.'),
-                attachTo: { element: mainContentEl, on: 'top' },
+                attachTo: { element: mainContentEl, on: isMobile ? 'bottom' : 'top' },
                 buttons: [
                     { text: '← Back', action: tour.back, classes: 'btn btn-sm btn-light' },
                     { text: 'Next Step →', action: tour.next, classes: 'btn btn-sm btn-success' }
@@ -596,12 +642,12 @@
         }
 
         // Step 3: Top Navigation Controls
-        const topNavEl = document.querySelector('.navbar') || document.querySelector('header');
+        const topNavEl = document.querySelector('.topbar') || document.querySelector('.navbar') || document.querySelector('header');
         if (topNavEl) {
             tour.addStep({
                 id: 'tour-header',
-                title: '🔔 Notifications & Security Profile',
-                text: 'View real-time status notifications, switch light/dark themes, and manage your trusted 2FA devices and security settings.',
+                title: '🔔 Live Clock & Notifications',
+                text: 'View official Philippine Standard Time (PST), real-time status notifications, switch light/dark themes, and manage your trusted 2FA devices.',
                 attachTo: { element: topNavEl, on: 'bottom' },
                 buttons: [
                     { text: '← Back', action: tour.back, classes: 'btn btn-sm btn-light' },

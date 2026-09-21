@@ -128,44 +128,39 @@ class StudentPurgeAndDemoTest extends TestCase
     }
 
     #[Test]
-    public function system_demo_modal_strictly_isolates_guides_by_user_role()
+    public function system_demo_modal_renders_interactive_role_worksheets_and_tabs()
     {
-        // 1. Student must only see student guide; staff & director guides must be completely absent from DOM
+        // 1. Student view renders modal with all three role tabs, student tab active
         $student = User::factory()->create(['role' => 'student']);
         $studentResp = $this->actingAs($student)->get(route('profile.security'));
         $studentResp->assertStatus(200);
         $studentResp->assertSee('id="systemDemoModal"', false);
-        $studentResp->assertSee('Student Applicant Guide', false);
+        $studentResp->assertSee('id="student-demo-tab"', false);
+        $studentResp->assertSee('id="admin-demo-tab"', false);
+        $studentResp->assertSee('id="director-demo-tab"', false);
+        $studentResp->assertSee('Student Applicant', false);
+        $studentResp->assertSee('OSA Staff Evaluator', false);
+        $studentResp->assertSee('OSA Director / Super Admin', false);
         $studentResp->assertSee('STAGE 01', false);
         $studentResp->assertSee('Institutional Registration', false);
-        $studentResp->assertDontSee('OSA Staff Evaluator Guide', false);
-        $studentResp->assertDontSee('Live Review Queue', false);
-        $studentResp->assertDontSee('Forensic Dual-Pane Inspection', false);
-        $studentResp->assertDontSee('OSA Director / Super Admin Guide', false);
-        $studentResp->assertDontSee('Executive Analytics', false);
 
-        // 2. Admin must only see staff evaluator guide; student & director guides must be absent
+        // 2. Admin view renders modal with tabs and evaluator steps
         $adminResp = $this->actingAs($this->admin)->get(route('admin.dashboard'));
         $adminResp->assertStatus(200);
         $adminResp->assertSee('id="systemDemoModal"', false);
-        $adminResp->assertSee('OSA Staff Evaluator Guide', false);
+        $adminResp->assertSee('id="student-demo-tab"', false);
+        $adminResp->assertSee('id="admin-demo-tab"', false);
+        $adminResp->assertSee('id="director-demo-tab"', false);
         $adminResp->assertSee('Live Review Queue', false);
-        $adminResp->assertDontSee('Student Applicant Guide', false);
-        $adminResp->assertDontSee('STAGE 01', false);
-        $adminResp->assertDontSee('Institutional Registration', false);
-        $adminResp->assertDontSee('OSA Director / Super Admin Guide', false);
-        $adminResp->assertDontSee('Executive Analytics', false);
 
-        // 3. Superadmin must only see director guide; student & admin guides must be absent
+        // 3. Superadmin view renders modal with tabs and director modules
         $superadminResp = $this->actingAs($this->superadmin)->get(route('superadmin.settings'));
         $superadminResp->assertStatus(200);
         $superadminResp->assertSee('id="systemDemoModal"', false);
-        $superadminResp->assertSee('OSA Director / Super Admin Guide', false);
+        $superadminResp->assertSee('id="student-demo-tab"', false);
+        $superadminResp->assertSee('id="admin-demo-tab"', false);
+        $superadminResp->assertSee('id="director-demo-tab"', false);
         $superadminResp->assertSee('Executive Analytics', false);
-        $superadminResp->assertDontSee('Student Applicant Guide', false);
-        $superadminResp->assertDontSee('STAGE 01', false);
-        $superadminResp->assertDontSee('OSA Staff Evaluator Guide', false);
-        $superadminResp->assertDontSee('Live Review Queue', false);
     }
 
     #[Test]
