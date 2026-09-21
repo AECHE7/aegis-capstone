@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Staff Management | A.E.G.I.S.')
 @section('page-title', 'Staff Management')
@@ -23,7 +23,7 @@
 
 <div class="card border-0" style="border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: white;">
     <div class="table-responsive">
-        <table class="table mb-0 align-middle">
+        <table class="table table-mobile-cards mb-0 align-middle">
             <thead class="table-light text-muted small uppercase fw-bold" style="background-color: #f8fafc;">
                 <tr>
                     <th class="ps-4 py-3" style="font-size: 0.8rem; letter-spacing: 0.5px;">Name & Assignments</th>

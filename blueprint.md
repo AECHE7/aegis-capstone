@@ -583,3 +583,51 @@ This phase addressed critical operational and user-experience issues identified 
     - Created `.github/workflows/keep-alive.yml` with automated 10-minute cron pings to `/api/health-check`, `/ai/wake`, and `/scheduler/run`.
     - Registered `Route::get('/api/health-check', ...)` matching `render.yaml` specification.
 
+---
+
+## 17. UX/UI Modernization, Role-Scoped Guides, Clean Top Navigation, and Mobile Optimization
+
+### Objectives & Implementations
+
+1. **Stakeholder Guide Modal Visibility & Role Scoping (`resources/views/components/data-management-guide-modal.blade.php`)**:
+   - Resolved contrast and readability issues where the title and description were invisible due to global `.modal-content` CSS overriding text colors. Explicitly styled the header with `#ffffff` and `rgba(255,255,255,0.75)` inline color rules.
+   - Enforced strict role scoping using server-side `@auth` and `@if(auth()->user()->role === ...)` conditions:
+     - **Student Applicants**: View only Section 1 (Statutory Compliance R.A. 10173) and Section 2 (Student Applicant Rights & Obligations).
+     - **OSA Evaluators (Staff)**: View only Section 1 and Section 2 (OSA Evaluator Handling & Confidentiality Protocols).
+     - **Directors (Super Admin)**: View only Section 1 and Section 2 (Director Governance & Audit Trails).
+   - Eliminated cross-role operational leakage, preserving institutional confidentiality and aligning with ISO/IEC 25010 security and usability criteria.
+
+2. **Top Navigation Cleanup & Settings Hub Consolidation (`resources/views/layouts/app.blade.php`, `resources/views/auth/change_password.blade.php`)**:
+   - Removed the "Demo Guide", "Data Guide", and "Feedback" buttons from the global top navbar to establish an uncluttered, modern header focused on primary identity and notifications.
+   - Centralized all three guidance and evaluation triggers into a dedicated **"Help, Guidance & Evaluation"** panel within Account Settings (`/settings`), accessible to all authenticated roles.
+   - Maintained all trigger IDs and attributes (`#openDemoBtn`, `data-bs-target="#dataManagementGuideModal"`, `data-bs-target="#uatFeedbackModal"`), preserving Shepherd.js tour integration and user evaluation flows.
+
+3. **Real-Time Notification Bell & Toast Optimization (`resources/views/layouts/app.blade.php`)**:
+   - Fixed the notification bell trigger by adding an explicit `onclick="fetchNotifications()"` handler, ensuring fresh real-time notification records populate the dropdown immediately upon opening rather than relying solely on background polling intervals.
+   - Configured soft popup notification toasts (`#realtimeToast`) to automatically dismiss after 3 seconds (`delay: 3000`), providing non-intrusive operational feedback that does not persist indefinitely across screens.
+
+4. **Cancel Application Button Placement & Safety (`resources/views/student/dashboard.blade.php`)**:
+   - Repositioned the "Cancel Application" trigger away from primary action areas to a secondary, well-placed position beneath the application details card with clear confirmation dialogs, preventing accidental cancellations while maintaining student autonomy.
+
+5. **Mobile-Responsive Table Transformation (`resources/views/layouts/app.blade.php` & Table Views)**:
+   - Introduced the `.table-mobile-cards` responsive CSS architecture:
+     - On screens `<= 767.98px`, standard HTML tables cleanly transform into card-style layouts with hidden headers and visible `data-label` attribute prefixes on every table cell.
+     - Fully applied across `resources/views/admin/dashboard.blade.php`, `resources/views/superadmin/scholarships.blade.php`, `resources/views/superadmin/staff.blade.php`, and `resources/views/superadmin/users.blade.php`.
+     - Eliminated horizontal scroll clipping and awkward mobile text wrapping across all administrative and management tables.
+
+6. **Complete Mobile Bottom Navigation (`resources/views/layouts/mobile-nav.blade.php`)**:
+   - Enhanced the fixed mobile bottom navigation drawer for student applicants to provide 5 primary touch targets: **Home**, **Apply**, **Scholarships**, **Announcements**, and **Profile**.
+   - Tuned active state indicators, touch targets (minimum 44x44px per WCAG 2.2 AA), and safe-area insets.
+
+7. **Mobile Dashboard KPI Cards & Compact Controls**:
+   - Tuned stat card padding and font sizes for mobile screens (`max-width: 767.98px`) in `app.blade.php`.
+   - Compacted search inputs and filter segmented buttons to prevent layout shifting on small viewports.
+
+8. **Automated Email Verification Redirection & Intent Recovery (`resources/views/auth/verify-email.blade.php`, `routes/web.php`)**:
+   - Implemented an automated background verification status checker in `verify-email.blade.php` that polls every 3 seconds; once the email verification link is clicked in Gmail or another tab, the waiting screen automatically detects the verified state and redirects immediately.
+   - Added role-aware destination routing upon email verification, redirecting students to `/student/dashboard`, staff to `/admin/dashboard`, and administrators to `/superadmin/dashboard`.
+
+9. **MFA Verification Contextual Guidance (`resources/views/auth/mfa_verify.blade.php`)**:
+   - Added friendly contextual guidance explaining why 2FA is required under the Data Privacy Act (R.A. 10173) and clear instructions on entering the 6-digit OTP received via email.
+
+

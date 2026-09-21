@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Program Manager | A.E.G.I.S.')
 @section('page-title', 'Scholarship Manager')
@@ -19,7 +19,7 @@
 
 <div class="card" style="border-radius: 20px; overflow: hidden;">
     <div class="table-responsive">
-        <table class="table mb-0">
+        <table class="table table-mobile-cards mb-0">
             <thead>
                 <tr>
                     <th class="ps-4" scope="col">Program Name</th>

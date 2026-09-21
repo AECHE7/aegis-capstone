@@ -1,4 +1,4 @@
-@auth
+﻿@auth
 <div class="mobile-bottom-nav d-md-none" role="navigation" aria-label="Mobile Bottom Navigation">
     @if(auth()->user()->role === 'student')
         <a href="{{ route('student.dashboard') }}" 
@@ -22,9 +22,15 @@
         </a>
 
         <a href="{{ route('student.profile') }}" 
-           class="mobile-nav-item {{ request()->routeIs('student.profile') || request()->routeIs('profile.security') ? 'active' : '' }}">
+           class="mobile-nav-item {{ request()->routeIs('student.profile') ? 'active' : '' }}">
             <i class="fa-solid fa-id-card"></i>
             <span>Profile</span>
+        </a>
+
+        <a href="{{ route('profile.security') }}" 
+           class="mobile-nav-item {{ request()->routeIs('profile.security') ? 'active' : '' }}">
+            <i class="fa-solid fa-gear"></i>
+            <span>Settings</span>
         </a>
     @elseif(auth()->user()->role === 'admin')
         <a href="{{ route('admin.dashboard') }}" 
@@ -40,7 +46,7 @@
         </a>
 
         <a href="{{ route('admin.export') }}" 
-           class="mobile-nav-item">
+           class="mobile-nav-item {{ request()->routeIs('admin.export') ? 'active' : '' }}">
             <i class="fa-solid fa-file-export"></i>
             <span>Export</span>
         </a>
@@ -140,6 +146,17 @@
     .nav-fab-wrapper i {
         font-size: 1.35rem;
         color: var(--clsu-gold, #D97706);
+    }
+
+    /* Support 5-item mobile nav bar (student role) */
+    .mobile-bottom-nav:has(.mobile-nav-item:nth-child(5)) {
+        justify-content: space-evenly;
+    }
+    .mobile-bottom-nav:has(.mobile-nav-item:nth-child(5)) .mobile-nav-item {
+        font-size: 0.63rem;
+    }
+    .mobile-bottom-nav:has(.mobile-nav-item:nth-child(5)) .mobile-nav-item i {
+        font-size: 1.05rem;
     }
 
     /* Body & page-content padding buffer so content is never hidden behind fixed bottom bar on mobile */

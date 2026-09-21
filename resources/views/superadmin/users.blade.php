@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'User Management | A.E.G.I.S. Director Portal')
 @section('page-title', 'User Management')
@@ -198,7 +198,7 @@
         @if($tab === 'students')
             {{-- Students Table --}}
             <div class="table-responsive">
-                <table class="table align-middle mb-0">
+                <table class="table table-mobile-cards align-middle mb-0">
                     <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                         <tr>
                             <th class="ps-4 py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Student Details</th>
@@ -381,7 +381,7 @@
         @else
             {{-- Staff Personnel Table --}}
             <div class="table-responsive">
-                <table class="table align-middle mb-0">
+                <table class="table table-mobile-cards align-middle mb-0">
                     <thead style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                         <tr>
                             <th class="ps-4 py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Staff Member</th>

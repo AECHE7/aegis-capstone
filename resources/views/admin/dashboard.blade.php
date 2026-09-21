@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'OSA Admin Dashboard | A.E.G.I.S.')
 @section('page-title', 'Application Queue')
@@ -281,7 +281,7 @@
 
 
         <div class="table-responsive">
-            <table class="table mb-0 align-middle">
+            <table class="table table-mobile-cards mb-0 align-middle">
                 <thead>
                     <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-main);">
                         <th class="ps-3" scope="col">Scholar</th>
@@ -295,8 +295,7 @@
                 <tbody>
                     @forelse($activeScholars as $scholar)
                         <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.85rem;">
-                            <td class="ps-3 py-3">
-                                <div class="d-flex align-items-center gap-2">
+                            <td class="ps-3 py-3" data-label="Scholar"><div class="d-flex align-items-center gap-2">
                                     <div class="student-avatar" style="width: 32px; height: 32px; font-size: 0.8rem; background-color: #f0fdf4; color: var(--clsu-green);">
                                         {{ strtoupper(substr($scholar->user->name ?? 'U', 0, 2)) }}
                                     </div>

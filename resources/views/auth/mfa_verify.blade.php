@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -128,6 +128,22 @@
         </div>
         <h1 class="mfa-title">Security Verification</h1>
         <p class="mfa-desc">Enter the 6-digit verification code sent to your registered email address to complete signing in.</p>
+
+        <!-- MFA Context: Why & When (NIST SP 800-63B Transparency) -->
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px 14px;margin-bottom:20px;text-align:left;">
+            <div style="font-size:12px;color:#15803d;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#15803d" stroke-width="1.5"/><path d="M10 9v5M10 7h.01" stroke="#15803d" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Why is this verification required?
+            </div>
+            <p style="font-size:11.5px;color:#166534;margin:0;line-height:1.55;">
+                A.E.G.I.S. requires this security step because you are signing in from a <strong>new device or location</strong>, or your previous trusted-device session has expired. This protects your scholarship records under <strong>NIST SP 800-63B</strong> multi-factor authentication standards.
+            </p>
+            <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
+                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;">ðŸ”’ New device login</span>
+                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;">â³ 30-day trusted device expiry</span>
+                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;">âœ… Check "Remember" to skip for 30 days</span>
+            </div>
+        </div>
 
         {{-- OTP expiry countdown (10 min = 600s, matches backend TTL) --}}
         <div id="otpExpiry" class="mb-3" style="font-size: 0.82rem; color: #64748b; background: #f8fafc; border-radius: 8px; padding: 8px 14px; display: inline-block;">

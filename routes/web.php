@@ -175,10 +175,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Auth\VerifyEmailController::class, '__invoke'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
     Route::post('/email/verification-notification', [\App\Http\Controllers\Auth\EmailVerificationNotificationController::class, 'store'])->middleware(['throttle:6,1'])->name('verification.send');
     Route::get('/email/verification-status', function () {
+        $user = auth()->user();
+        $verified = $user && $user->hasVerifiedEmail();
+        $redirectUrl = null;
+        if ($verified && $user) {
+            $redirectUrl = match($user->role) {
+                'admin'      => route('admin.dashboard'),
+                'superadmin' => route('superadmin.analytics'),
+                default      => route('student.dashboard'),
+            };
+        }
         return response()->json([
-            'verified' => auth()->user()->hasVerifiedEmail(),
+            'verified'     => $verified,
+            'redirect_url' => $redirectUrl,
         ]);
     })->name('verification.status');
+
 
     // STUDENT PORTAL (Requires Email Verification & Complete Profile)
     Route::middleware(['verified', 'student.profile.complete'])->group(function () {

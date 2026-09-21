@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -122,9 +122,16 @@
 
     <h3 class="fw-bold text-dark mb-3">Verify Your Email</h3>
     
-    <p class="text-muted small mb-4" style="line-height: 1.6;">
-        Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just sent to your inbox? If you didn't receive the email, click the button below to request another.
+    <p class="text-muted small mb-3" style="line-height: 1.6;">
+        Thanks for signing up with A.E.G.I.S.! Please verify your email by clicking the link we sent to your inbox.
     </p>
+    <div class="alert border-0 mb-4 text-start d-flex align-items-start gap-2" style="background:#f0fdf4;color:#15803d;border-radius:12px;font-size:0.8rem;">
+        <i class="fa-solid fa-circle-info mt-1 flex-shrink-0"></i>
+        <div>
+            <strong>Already clicked the link in your email?</strong><br>
+            This page will automatically detect it and redirect you to your dashboard within seconds â€” no need to refresh.
+        </div>
+    </div>
 
     @if (session('status') == 'verification-link-sent')
         <div class="alert alert-success border-0 bg-success bg-opacity-10 text-success rounded-3 small py-2 mb-4">
@@ -151,17 +158,39 @@
 </div>
 
 <script>
-    // Poll the verification status every 2 seconds
-    setInterval(function() {
-        fetch("{{ route('verification.status') }}")
-            .then(response => response.json())
-            .then(data => {
+    // â”€â”€ Email Verification Status Poller â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Polls every 1.5s. Once the user clicks the email link and
+    // the server marks the email as verified, this tab automatically
+    // detects it and redirects to the correct role dashboard.
+    var _aegisVerifyPollActive = true;
+    var _aegisVerifyDots = 0;
+
+    function pollVerification() {
+        if (!_aegisVerifyPollActive) return;
+        fetch("{{ route('verification.status') }}", { credentials: 'same-origin' })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
                 if (data.verified) {
-                    window.location.href = "{{ route('student.dashboard') }}";
+                    _aegisVerifyPollActive = false;
+                    // Show redirect indicator
+                    var card = document.querySelector('.verify-card');
+                    var existing = document.getElementById('aegisVerifyRedirecting');
+                    if (!existing && card) {
+                        var div = document.createElement('div');
+                        div.id = 'aegisVerifyRedirecting';
+                        div.className = 'alert border-0 mt-3';
+                        div.style.cssText = 'background:#dcfce7;color:#14532d;border-radius:12px;font-size:0.85rem;';
+                        div.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Email verified! Redirecting to your dashboard...';
+                        card.appendChild(div);
+                    }
+                    // Redirect to role-based dashboard
+                    var redirectUrl = data.redirect_url || "{{ route('student.dashboard') }}";
+                    setTimeout(function() { window.location.href = redirectUrl; }, 900);
                 }
             })
-            .catch(error => console.error('Error checking verification status:', error));
-    }, 2000);
+            .catch(function() { /* silently ignore */ });
+    }
+    setInterval(pollVerification, 1500);
 </script>
 
 </body>

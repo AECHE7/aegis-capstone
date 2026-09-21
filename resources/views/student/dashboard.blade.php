@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'My Application | A.E.G.I.S.')
 
@@ -485,15 +485,17 @@
                             <div class="text-end monospace-data" style="opacity:0.85;font-size:0.8rem;">
                                 <div>APP-{{ $application->id }}</div>
                                 <div>{{ $application->created_at->format('M d, Y') }}</div>
-                                @if(in_array($application->status, ['Pending', 'Under Review', 'Returned']))
-                                    <div class="mt-2">
-                                        <button type="button" class="btn btn-sm btn-danger fw-bold cancel-app-btn px-2 py-1" data-id="{{ $application->id }}" style="font-size:0.7rem; border-radius:6px; background:#b91c1c; border:none; color:white;">
-                                            <i class="fa-solid fa-ban me-1"></i> Cancel Application
-                                        </button>
-                                    </div>
-                                @endif
                             </div>
                         </div>
+                        @if(in_array($application->status, ['Pending', 'Under Review', 'Returned']))
+                        <div class="mt-2 pt-2 border-top">
+                            <button type="button" class="btn btn-sm fw-bold cancel-app-btn w-100 d-flex align-items-center justify-content-center gap-2" 
+                                    data-id="{{ $application->id }}" 
+                                    style="font-size:0.8rem; border-radius:10px; background:#fef2f2; color:#b91c1c; border:1.5px solid #fecaca; min-height:38px;">
+                                <i class="fa-solid fa-ban"></i> Cancel Application
+                            </button>
+                        </div>
+                        @endif
 
                         @if($application->status === 'Returned')
                             <div class="card border-0 shadow-sm mb-4 p-4 mt-3" style="border-radius: 16px; border-left: 5px solid #d97706 !important; background-color: #fffbeb;">

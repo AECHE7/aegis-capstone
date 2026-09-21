@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('title', 'Account Settings | A.E.G.I.S.')
 @section('page-title', 'Account Settings')
@@ -392,6 +392,42 @@
                         @endforeach
                     </div>
                 @endif
+            </div>
+        </div>
+
+        <!-- Tools & Resources Card -->
+        <div class="card border-0 shadow-sm mt-4" style="border-radius: 16px; overflow: hidden; border: 1px solid var(--border-color, #e2e8f0) !important;">
+            <div class="card-header bg-transparent py-3 border-bottom border-light">
+                <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-toolbox me-2 text-primary"></i> Tools &amp; Resources</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted small mb-3" style="font-size: 0.82rem;">Access system guides, evaluation tools, and your interactive portal walkthrough from here.</p>
+                <div class="row g-3">
+                    <div class="col-sm-4">
+                        <button type="button" class="btn w-100 d-flex flex-column align-items-center gap-2 py-3 px-2 border rounded-3 fw-semibold"
+                                onclick="openSystemTourModal('{{ auth()->user()->role }}')"
+                                style="font-size: 0.82rem; background: #f0fdf4; color: #15803d; border-color: #bbf7d0 !important; min-height: 80px;">
+                            <i class="fa-solid fa-graduation-cap fs-4" style="color: #16a34a;"></i>
+                            <span>Demo Guide</span>
+                        </button>
+                    </div>
+                    <div class="col-sm-4">
+                        <button type="button" class="btn w-100 d-flex flex-column align-items-center gap-2 py-3 px-2 border rounded-3 fw-semibold"
+                                data-bs-toggle="modal" data-bs-target="#dataManagementGuideModal"
+                                style="font-size: 0.82rem; background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe !important; min-height: 80px;">
+                            <i class="fa-solid fa-shield-halved fs-4" style="color: #2563eb;"></i>
+                            <span>Data Privacy Guide</span>
+                        </button>
+                    </div>
+                    <div class="col-sm-4">
+                        <button type="button" class="btn w-100 d-flex flex-column align-items-center gap-2 py-3 px-2 border rounded-3 fw-semibold"
+                                data-bs-toggle="modal" data-bs-target="#uatFeedbackModal"
+                                style="font-size: 0.82rem; background: #fffbeb; color: #92400e; border-color: #fde68a !important; min-height: 80px;">
+                            <i class="fa-solid fa-star fs-4" style="color: #d97706;"></i>
+                            <span>System Evaluation</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 

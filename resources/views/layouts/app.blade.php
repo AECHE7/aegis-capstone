@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -1272,6 +1272,119 @@
                 width: 100% !important;
             }
         }
+
+        /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+           MOBILE STAT CARDS â€” COMPACT SINGLE COLUMN
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+        @media (max-width: 767.98px) {
+            .stat-card {
+                padding: 0.9rem 1rem !important;
+            }
+            .stat-icon {
+                width: 38px !important;
+                height: 38px !important;
+                font-size: 1rem !important;
+                border-radius: 10px !important;
+            }
+            .stat-card .display-6,
+            .stat-card h2,
+            .stat-card .fs-2 {
+                font-size: clamp(1.25rem, 5vw, 1.6rem) !important;
+            }
+            /* Force single-column layout for stat card rows on mobile */
+            .stats-grid > [class*='col-'],
+            .row.row-cols-2 > .col,
+            .row.row-cols-md-4 > .col {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+            }
+        }
+
+        /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+           MOBILE FILTER/SORT BAR â€” COMPACT SCROLLABLE
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+        @media (max-width: 767.98px) {
+            .unified-control-bar {
+                padding: 5px 8px !important;
+                gap: 5px !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                scrollbar-width: none !important;
+            }
+            .unified-control-bar::-webkit-scrollbar { display: none; }
+            .filter-status-pill {
+                font-size: 0.72rem !important;
+                padding: 3px 9px !important;
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+            }
+            .unified-control-bar .form-control,
+            .unified-control-bar .form-select {
+                font-size: 0.78rem !important;
+                padding: 0.3rem 0.6rem !important;
+                min-width: 100px !important;
+                max-width: 130px !important;
+            }
+            .unified-control-bar .btn {
+                padding: 0.3rem 0.75rem !important;
+                font-size: 0.78rem !important;
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+            }
+        }
+
+        /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+           MOBILE RESPONSIVE TABLES â€” CARD-STYLE ROWS
+           Each <td data-label="..."> becomes a labelled
+           row item on small screens (< 640px).
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+        @media (max-width: 639.98px) {
+            .table-mobile-cards {
+                border: none !important;
+            }
+            .table-mobile-cards thead {
+                display: none !important;
+            }
+            .table-mobile-cards tbody tr {
+                display: block !important;
+                border: 1px solid var(--border-color, #edebe9) !important;
+                border-radius: var(--radius-md, 12px) !important;
+                margin-bottom: 0.85rem !important;
+                padding: 0.5rem 0 !important;
+                background: var(--card-bg, #fff) !important;
+                box-shadow: var(--shadow-card) !important;
+            }
+            .table-mobile-cards tbody td {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                padding: 0.45rem 0.85rem !important;
+                border: none !important;
+                border-bottom: 1px solid var(--border-color, #f0f0f0) !important;
+                font-size: 0.82rem !important;
+                gap: 8px !important;
+            }
+            .table-mobile-cards tbody td:last-child {
+                border-bottom: none !important;
+            }
+            .table-mobile-cards tbody td::before {
+                content: attr(data-label) !important;
+                font-weight: 700 !important;
+                font-size: 0.7rem !important;
+                letter-spacing: 0.5px !important;
+                text-transform: uppercase !important;
+                color: var(--text-title, #0C4E2D) !important;
+                flex-shrink: 0 !important;
+                min-width: 90px !important;
+            }
+            .table-mobile-cards tbody td[data-label=""] {
+                justify-content: flex-end !important;
+            }
+            .table-mobile-cards tbody td[data-label=""]::before {
+                display: none !important;
+            }
+        }
     </style>
     
     @stack('styles')
@@ -1327,32 +1440,8 @@
                     <span id="pstLiveClock" class="fw-semibold font-monospace" style="color: var(--text-title, #1e293b);">--:--:--</span>
                     <span class="badge bg-secondary-subtle text-secondary rounded-pill px-1.5 py-0.5" style="font-size:0.62rem; font-weight: 700;">PHT</span>
                 </div>
-
-                <!-- Interactive Demo Guide Trigger Button in Topbar -->
-                <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1 text-muted d-none d-sm-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" 
-                        onclick="openSystemTourModal('{{ auth()->user()->role ?? 'student' }}')" 
-                        title="Interactive System Demo & Role Walkthrough">
-                    <i class="fa-solid fa-graduation-cap text-success"></i>
-                    <span class="small fw-semibold" style="font-size: 0.76rem;">Demo Guide</span>
-                </button>
-
-                <!-- Stakeholder Data Management Guide Trigger Button in Topbar -->
-                <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1 text-muted d-none d-md-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" 
-                        data-bs-toggle="modal" data-bs-target="#dataManagementGuideModal"
-                        title="Institutional Data Management & Privacy Guide (R.A. 10173 & ISO/IEC 25010)">
-                    <i class="fa-solid fa-shield-halved text-info"></i>
-                    <span class="small fw-semibold" style="font-size: 0.76rem;">Data Guide</span>
-                </button>
-
-                <!-- UAT System Evaluation Feedback Trigger Button in Topbar -->
-                <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 px-sm-3 py-1 text-muted d-none d-lg-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" 
-                        data-bs-toggle="modal" data-bs-target="#uatFeedbackModal"
-                        title="Submit ISO/IEC 25010 System Evaluation Feedback">
-                    <i class="fa-solid fa-star text-warning" aria-hidden="true"></i>
-                    <span class="small fw-semibold" style="font-size: 0.76rem;">Feedback</span>
-                </button>
-
-                <!-- Notification Bell Dropdown -->
+                {{-- Demo Guide, Data Privacy Guide, and System Evaluation Feedback are now in Account Settings --}}
+<!-- Notification Bell Dropdown -->
                 <div class="dropdown me-0 me-sm-1">
                     {{-- WCAG 4.1.2: Name/Role/Value — accessible name on icon-only button --}}
                     <button class="btn btn-link position-relative p-1 topbar-icon-btn" type="button" 
@@ -1360,6 +1449,7 @@
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             aria-label="View notifications"
+                            onclick="fetchNotifications()"
                             style="box-shadow: none;">
                         <i class="fa-regular fa-bell fs-5"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" 
@@ -1412,9 +1502,10 @@
         {{-- W3C Semantic Landmark: <main> (WCAG 1.3.1 Info and Relationships, Level A) --}}
         <main id="main-content" class="page-content" role="main" tabindex="-1">
             {{-- Toast Container for Slide-in Notifications (WCAG 4.1.3 Status Messages) --}}
-            <div class="toast-container-custom">
+            {{-- Toasts auto-dismiss after 3 seconds (see JS in app.blade.php DOMContentLoaded) --}}
+            <div class="toast-container-custom" id="toastContainerCustom">
                 @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show border-0 toast-custom mb-0" role="status" aria-live="polite" aria-atomic="true"
+                    <div class="alert alert-success alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="status" aria-live="polite" aria-atomic="true"
                          style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important;">
                         <div class="d-flex align-items-center">
                             <i class="fa-solid fa-circle-check me-2 fs-5" aria-hidden="true"></i>
@@ -1424,13 +1515,23 @@
                     </div>
                 @endif
                 @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show border-0 toast-custom mb-0" role="alert" aria-live="assertive" aria-atomic="true"
+                    <div class="alert alert-danger alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="alert" aria-live="assertive" aria-atomic="true"
                          style="background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444 !important;">
                         <div class="d-flex align-items-center">
                             <i class="fa-solid fa-circle-exclamation me-2 fs-5" aria-hidden="true"></i>
                             <div>{{ session('error') }}</div>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss error message"></button>
+                    </div>
+                @endif
+                @if(session('info'))
+                    <div class="alert alert-info alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="status" aria-live="polite" aria-atomic="true"
+                         style="background: #e0f2fe; color: #0c4a6e; border-left: 4px solid #0ea5e9 !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-circle-info me-2 fs-5" aria-hidden="true"></i>
+                            <div>{{ session('info') }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss info message"></button>
                     </div>
                 @endif
             </div>
@@ -1908,6 +2009,28 @@
 
         // Use standard AJAX polling instead of EventSource/SSE to prevent PHP worker exhaustion and session locking
         setInterval(fetchNotifications, 20000);
+
+        // â”€â”€ Auto-dismiss flash toast notifications after 3 seconds (UX polish) â”€â”€
+        document.querySelectorAll('.auto-dismiss-toast').forEach(function(toast) {
+            var progress = null;
+            // Add a shrinking progress bar at the bottom of the toast
+            var bar = document.createElement('div');
+            bar.style.cssText = 'position:absolute;bottom:0;left:0;height:3px;width:100%;border-radius:0 0 12px 12px;background:rgba(0,0,0,0.15);transition:width 3s linear;';
+            toast.style.position = 'relative';
+            toast.style.overflow = 'hidden';
+            toast.appendChild(bar);
+            // Start shrinking after a short delay (allow paint)
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() { bar.style.width = '0%'; });
+            });
+            // Remove after 3s with fade
+            setTimeout(function() {
+                toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(110%)';
+                setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 420);
+            }, 3000);
+        });
 
         // SweetAlert2 Logout Confirmation
         const logoutLink = document.getElementById('logoutLink');
