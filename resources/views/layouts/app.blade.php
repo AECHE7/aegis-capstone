@@ -664,16 +664,9 @@
                 display: inline-block !important;
             }
 
-            /* WCAG 2.2: Enlarge mobile hamburger toggle touch target to 44px */
+            /* Mobile navigation is served via the dedicated fixed bottom navigation drawer */
             #mobileSidebarToggle {
-                width: 44px !important;
-                height: 44px !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                border-radius: 50% !important;
-                background-color: var(--clsu-green-muted) !important;
-                color: var(--clsu-green) !important;
+                display: none !important;
             }
             
             .sidebar-toggle {
