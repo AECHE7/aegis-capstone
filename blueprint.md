@@ -740,6 +740,13 @@ Elevates the **A.E.G.I.S. Interactive System Demo & Guided Walkthrough** (`resou
    - Verify all tests pass cleanly.
    - Push to `origin staging` for automated Render deployment.
 
+7. **Role-Based Demo Visibility Enforcement (`resources/views/components/system-demo-modal.blade.php`)**:
+   - Strictly restrict demo content by authenticated role.
+   - For students (`$isStudent`): Completely suppress Staff Evaluator and Director/SuperAdmin tabs, banners, workflows, and simulators. Students receive a focused, dedicated 6-stage applicant guide and live tour with zero access to administrative workflows.
+   - For staff (`$isAdmin`): Exclude Director/SuperAdmin tab to maintain operational privilege boundaries.
+   - For superadmin (`$isSuperAdmin`): Retain full 3-role oversight and demonstration capabilities.
+
+
 
 
 

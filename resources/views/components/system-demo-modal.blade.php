@@ -25,7 +25,11 @@
                             </span>
                         </div>
                         <p class="mb-0 text-white-50 small d-none d-sm-block" style="font-size: 0.78rem;">
-                            Click any stage card below for deep-dive technical specs, or launch the interactive simulator to experience all portal roles.
+                            @if($isStudent)
+                                Explore the 6-stage student application life-cycle, AI grade verification, and official award clearance process.
+                            @else
+                                Click any stage card below for deep-dive technical specs, or launch the interactive simulator to experience all portal roles.
+                            @endif
                         </p>
                     </div>
                 </div>
@@ -33,48 +37,70 @@
             </div>
 
             <!-- Role Selector Nav Tabs -->
-            <div class="bg-light px-3 px-md-4 py-2.5 border-bottom">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <ul class="nav nav-pills gap-1.5 gap-md-2 d-flex flex-nowrap overflow-x-auto pb-1 mb-0" id="demoRoleTabs" role="tablist" style="scrollbar-width: none; -webkit-overflow-scrolling: touch;">
-                        <li class="nav-item flex-shrink-0" role="presentation">
-                            <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isStudent ? 'active' : '' }}" 
-                                    id="student-demo-tab" data-bs-toggle="pill" data-bs-target="#student-demo-pane" type="button" role="tab"
-                                    aria-controls="student-demo-pane" aria-selected="{{ $isStudent ? 'true' : 'false' }}" data-role="student">
-                                <i class="fa-solid fa-user-graduate"></i>
-                                <span>Student Applicant</span>
-                                @if($isStudent)
-                                    <span class="badge bg-light text-success ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
-                                @endif
-                            </button>
-                        </li>
-                        <li class="nav-item flex-shrink-0" role="presentation">
-                            <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isAdmin ? 'active' : '' }}" 
-                                    id="admin-demo-tab" data-bs-toggle="pill" data-bs-target="#admin-demo-pane" type="button" role="tab"
-                                    aria-controls="admin-demo-pane" aria-selected="{{ $isAdmin ? 'true' : 'false' }}" data-role="admin">
-                                <i class="fa-solid fa-user-shield"></i>
-                                <span>OSA Staff Evaluator</span>
-                                @if($isAdmin)
-                                    <span class="badge bg-light text-primary ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
-                                @endif
-                            </button>
-                        </li>
-                        <li class="nav-item flex-shrink-0" role="presentation">
-                            <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isSuperAdmin ? 'active' : '' }}" 
-                                    id="director-demo-tab" data-bs-toggle="pill" data-bs-target="#director-demo-pane" type="button" role="tab"
-                                    aria-controls="director-demo-pane" aria-selected="{{ $isSuperAdmin ? 'true' : 'false' }}" data-role="superadmin">
-                                <i class="fa-solid fa-crown text-warning"></i>
-                                <span>OSA Director / Super Admin</span>
-                                @if($isSuperAdmin)
-                                    <span class="badge bg-light text-warning-emphasis ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
-                                @endif
-                            </button>
-                        </li>
-                    </ul>
-                    <span class="badge bg-light-subtle text-muted border rounded-pill px-2.5 py-1 small d-none d-lg-inline-flex align-items-center gap-1">
-                        <i class="fa-solid fa-hand-pointer text-success"></i> Click any card to inspect technical specs
+            @if($isStudent)
+                {{-- Student Role: Dedicated applicant guide header without staff/director tabs --}}
+                <div class="bg-light px-3 px-md-4 py-2.5 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge rounded-pill px-3 py-1.5 fw-semibold d-flex align-items-center gap-1.5 shadow-2xs" style="background: var(--clsu-green, #0C4E2D); color: white; font-size: 0.8rem;">
+                            <i class="fa-solid fa-user-graduate"></i> Student Applicant Guide
+                        </span>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1" style="font-size: 0.68rem;">
+                            YOUR ACTIVE PORTAL
+                        </span>
+                    </div>
+                    <span class="badge bg-light-subtle text-muted border rounded-pill px-2.5 py-1 small d-none d-sm-inline-flex align-items-center gap-1">
+                        <i class="fa-solid fa-hand-pointer text-success"></i> Click any stage to inspect technical specs
                     </span>
                 </div>
-            </div>
+            @else
+                <!-- Role Selector Nav Tabs for Staff / Admin -->
+                <div class="bg-light px-3 px-md-4 py-2.5 border-bottom">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <ul class="nav nav-pills gap-1.5 gap-md-2 d-flex flex-nowrap overflow-x-auto pb-1 mb-0" id="demoRoleTabs" role="tablist" style="scrollbar-width: none; -webkit-overflow-scrolling: touch;">
+                            <li class="nav-item flex-shrink-0" role="presentation">
+                                <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isStudent ? 'active' : '' }}" 
+                                        id="student-demo-tab" data-bs-toggle="pill" data-bs-target="#student-demo-pane" type="button" role="tab"
+                                        aria-controls="student-demo-pane" aria-selected="{{ $isStudent ? 'true' : 'false' }}" data-role="student">
+                                    <i class="fa-solid fa-user-graduate"></i>
+                                    <span>Student Applicant</span>
+                                    @if($isStudent)
+                                        <span class="badge bg-light text-success ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
+                                    @endif
+                                </button>
+                            </li>
+                            @if($isAdmin || $isSuperAdmin)
+                                <li class="nav-item flex-shrink-0" role="presentation">
+                                    <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isAdmin ? 'active' : '' }}" 
+                                            id="admin-demo-tab" data-bs-toggle="pill" data-bs-target="#admin-demo-pane" type="button" role="tab"
+                                            aria-controls="admin-demo-pane" aria-selected="{{ $isAdmin ? 'true' : 'false' }}" data-role="admin">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                        <span>OSA Staff Evaluator</span>
+                                        @if($isAdmin)
+                                            <span class="badge bg-light text-primary ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
+                                        @endif
+                                    </button>
+                                </li>
+                            @endif
+                            @if($isSuperAdmin)
+                                <li class="nav-item flex-shrink-0" role="presentation">
+                                    <button class="nav-link px-3 py-1.5 rounded-pill fw-semibold d-flex align-items-center gap-1.5 {{ $isSuperAdmin ? 'active' : '' }}" 
+                                            id="director-demo-tab" data-bs-toggle="pill" data-bs-target="#director-demo-pane" type="button" role="tab"
+                                            aria-controls="director-demo-pane" aria-selected="{{ $isSuperAdmin ? 'true' : 'false' }}" data-role="superadmin">
+                                        <i class="fa-solid fa-crown text-warning"></i>
+                                        <span>OSA Director / Super Admin</span>
+                                        @if($isSuperAdmin)
+                                            <span class="badge bg-light text-warning-emphasis ms-1 d-none d-sm-inline" style="font-size: 0.62rem;">YOUR ROLE</span>
+                                        @endif
+                                    </button>
+                                </li>
+                            @endif
+                        </ul>
+                        <span class="badge bg-light-subtle text-muted border rounded-pill px-2.5 py-1 small d-none d-lg-inline-flex align-items-center gap-1">
+                            <i class="fa-solid fa-hand-pointer text-success"></i> Click any card to inspect technical specs
+                        </span>
+                    </div>
+                </div>
+            @endif
 
             <!-- Modal Body with Tabs Content -->
             <div class="modal-body p-3 p-md-4 bg-light bg-opacity-50">
@@ -224,6 +250,7 @@
 
                     </div>
 
+                    @if($isAdmin || $isSuperAdmin)
                     <!-- ========================================================= -->
                     <!-- TAB 2: OSA STAFF EVALUATOR WORKFLOW                       -->
                     <!-- ========================================================= -->
@@ -358,7 +385,9 @@
                         </div>
 
                     </div>
+                    @endif
 
+                    @if($isSuperAdmin)
                     <!-- ========================================================= -->
                     <!-- TAB 3: DIRECTOR & SUPER ADMIN WORKFLOW                    -->
                     <!-- ========================================================= -->
@@ -493,6 +522,7 @@
                         </div>
 
                     </div>
+                    @endif
 
                 </div>
             </div>
@@ -1298,6 +1328,9 @@
 
     // ── STAGE DEEP DIVE MODAL HANDLER ──
     window.openStageDetailModal = function(role, stageNum) {
+        const isStudent = {{ $isStudent ? 'true' : 'false' }};
+        if (isStudent && role !== 'student') return; // Security boundary: students cannot inspect staff/director specs
+
         const specs = STAGE_SPECS[role];
         if (!specs || !specs.stages) return;
 
@@ -1349,6 +1382,9 @@
 
     // ── ROLE SIMULATOR HANDLER (CROSS-ROLE SHOWCASE) ──
     window.openRoleSimulator = function(role) {
+        const isStudent = {{ $isStudent ? 'true' : 'false' }};
+        if (isStudent && role !== 'student') return; // Security boundary: students cannot launch staff/director simulator
+
         currentSimRole = role || 'admin';
         currentSimIndex = 0;
 
@@ -1425,6 +1461,9 @@
 
     // ── SYSTEM TOUR MODAL LAUNCHER ──
     window.openSystemTourModal = function(role) {
+        const isStudent = {{ $isStudent ? 'true' : 'false' }};
+        if (isStudent && role && role !== 'student') role = 'student'; // Force student role for students
+
         const modalEl = document.getElementById('systemDemoModal');
         if (!modalEl) return;
 
