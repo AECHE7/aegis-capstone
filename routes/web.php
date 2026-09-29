@@ -78,13 +78,15 @@ Route::get('/ai/wake', function () {
             'url' => $aiUrl,
             'data' => $res->json(),
             'message' => $res->successful() ? 'AI microservice is active and responsive.' : 'AI returned HTTP ' . $res->status()
-        ], $res->status());
+        ], 200);
     } catch (\Throwable $e) {
         return response()->json([
             'success' => false,
             'url' => $aiUrl,
+            'status' => 504,
+            'warming_up' => true,
             'message' => 'AI wake-up probe timed out or container is initializing: ' . $e->getMessage()
-        ], 504);
+        ], 200);
     }
 })->name('ai.wake');
 

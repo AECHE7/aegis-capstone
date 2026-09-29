@@ -223,10 +223,10 @@
 
             {{-- Step 1: Program Selector --}}
             <div class="mb-4">
-                <label class="form-label fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5" style="font-size: 0.9rem;">
+                <div class="form-label fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5" style="font-size: 0.9rem;">
                     <span class="badge rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">1</span>
                     {{ __('portal.select_scholarship_program') }}
-                </label>
+                </div>
                 
                 <div class="scholarship-grid" id="scholarshipGrid">
                     @foreach($scholarships as $scholarship)
@@ -254,10 +254,10 @@
 
             {{-- Step 2: Dynamic Custom Fields & Documents --}}
             <div id="dynamicFieldsContainer" class="mb-4" style="display: none;">
-                <label class="form-label fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5" style="font-size: 0.9rem;">
+                <div class="form-label fw-bold text-dark mb-2.5 d-flex align-items-center gap-1.5" style="font-size: 0.9rem;">
                     <span class="badge rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
                     {{ __('portal.configure_parameters') }}
-                </label>
+                </div>
                 <div class="p-3.5 bg-light-subtle border rounded-3 row g-3 mx-0" id="dynamicFieldsBody">
                     <!-- Dynamic inputs appended via JS -->
                 </div>
