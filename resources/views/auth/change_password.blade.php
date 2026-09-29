@@ -8,44 +8,45 @@
 <div class="row g-4">
     <!-- ── ACCOUNT OVERVIEW & HERO BANNER ── -->
     <div class="col-12">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative" 
-             style="background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%); color: white;">
-            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="card card-dark-hero account-hero-card border-0 shadow-sm rounded-4 overflow-hidden position-relative" 
+             style="background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important; color: #ffffff !important;">
+            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3"
+                 style="background: transparent !important; color: #ffffff !important;">
                 <div class="d-flex align-items-center gap-3">
                     <!-- Profile Avatar Circle with Initials -->
-                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-xs flex-shrink-0" 
-                         style="width: 54px; height: 54px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.45); font-size: 1.3rem; letter-spacing: 0.5px;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-xs flex-shrink-0" 
+                         style="width: 54px; height: 54px; background: rgba(255, 255, 255, 0.22) !important; border: 2px solid rgba(255, 255, 255, 0.55) !important; font-size: 1.3rem; letter-spacing: 0.5px; color: #ffffff !important;">
                         {{ strtoupper(substr($user->name, 0, 1)) }}{{ strtoupper(substr(strstr($user->name, ' ') ?: ' ', 1, 1)) }}
                     </div>
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                            <h4 class="fw-bold mb-0 text-white" style="font-size: 1.2rem;">{{ $user->name }}</h4>
+                            <h4 class="fw-bold mb-0 text-white" style="font-size: 1.2rem; color: #ffffff !important;">{{ $user->name }}</h4>
                             @if($user->role === 'student' && $user->isProfileComplete())
                                 <span class="badge rounded-pill px-2.5 py-0.5 fw-semibold d-inline-flex align-items-center gap-1" 
-                                      style="background: rgba(16, 185, 129, 0.25); color: #a7f3d0; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 0.7rem;">
+                                      style="background: rgba(16, 185, 129, 0.35) !important; color: #d1fae5 !important; border: 1px solid rgba(52, 211, 153, 0.55) !important; font-size: 0.72rem;">
                                     <i class="fa-solid fa-circle-check"></i> Verified Profile
                                 </span>
                             @elseif($user->role === 'student')
                                 <span class="badge rounded-pill px-2.5 py-0.5 fw-bold d-inline-flex align-items-center gap-1" 
-                                      style="background: #f59e0b; color: #111827; border: 1px solid #d97706; font-size: 0.7rem;">
+                                      style="background: #f59e0b !important; color: #111827 !important; border: 1px solid #d97706 !important; font-size: 0.72rem;">
                                     <i class="fa-solid fa-triangle-exclamation"></i> Incomplete Profile
                                 </span>
                             @else
                                 <span class="badge rounded-pill px-2.5 py-0.5 fw-semibold" 
-                                      style="background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.35); font-size: 0.7rem;">
+                                      style="background: rgba(255, 255, 255, 0.22) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.45) !important; font-size: 0.72rem;">
                                     <i class="fa-solid fa-user-shield me-1"></i> {{ strtoupper($user->role) }}
                                 </span>
                             @endif
                         </div>
-                        <div class="d-flex align-items-center gap-2 gap-md-3 text-white text-opacity-75 small flex-wrap" style="font-size: 0.8rem;">
-                            <span><i class="fa-solid fa-envelope me-1 opacity-75"></i>{{ $user->email }}</span>
+                        <div class="d-flex align-items-center gap-2 gap-md-3 small flex-wrap" style="font-size: 0.82rem; color: rgba(255,255,255,0.92) !important;">
+                            <span style="color: rgba(255,255,255,0.92) !important;"><i class="fa-solid fa-envelope me-1 text-warning"></i>{{ $user->email }}</span>
                             @if($user->role === 'student' && !empty($user->profile->clsu_id_number))
-                                <span class="d-none d-sm-inline">&bull;</span>
-                                <span><i class="fa-solid fa-id-card me-1 opacity-75"></i>ID: <strong class="text-white">{{ $user->profile->clsu_id_number }}</strong></span>
+                                <span class="d-none d-sm-inline opacity-50 text-white">&bull;</span>
+                                <span style="color: rgba(255,255,255,0.92) !important;"><i class="fa-solid fa-id-card me-1 text-warning"></i>ID: <strong style="color: #ffffff !important;">{{ $user->profile->clsu_id_number }}</strong></span>
                             @endif
                             @if($user->role === 'student' && !empty($user->profile->college))
-                                <span class="d-none d-sm-inline">&bull;</span>
-                                <span><i class="fa-solid fa-building-columns me-1 opacity-75"></i>{{ $user->profile->college }} ({{ $user->profile->year_level ?? 'Student' }})</span>
+                                <span class="d-none d-sm-inline opacity-50 text-white">&bull;</span>
+                                <span style="color: rgba(255,255,255,0.92) !important;"><i class="fa-solid fa-building-columns me-1 text-warning"></i>{{ $user->profile->college }} ({{ $user->profile->year_level ?? 'Student' }})</span>
                             @endif
                         </div>
                     </div>
@@ -53,13 +54,13 @@
 
                 <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
                     @if($user->role === 'student' && $user->isProfileComplete())
-                        <a href="{{ route('student.apply') }}" class="btn btn-sm px-3.5 py-2 rounded-pill fw-bold text-dark shadow-xs" 
-                           style="background: #f59e0b; border: 1px solid #d97706; font-size: 0.82rem;">
+                        <a href="{{ route('student.apply') }}" class="btn btn-sm px-3.5 py-2 rounded-pill fw-bold shadow-sm" 
+                           style="background: #f59e0b !important; color: #111827 !important; border: 1px solid #d97706 !important; font-size: 0.82rem;">
                             <i class="fa-solid fa-paper-plane me-1.5"></i> Apply for Scholarship
                         </a>
                     @endif
-                    <button type="button" class="btn btn-sm px-3.5 py-2 rounded-pill fw-semibold text-white shadow-xs" 
-                            style="background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.5); backdrop-filter: blur(4px); font-size: 0.82rem;"
+                    <button type="button" class="btn btn-sm px-3.5 py-2 rounded-pill fw-semibold shadow-sm" 
+                            style="background: rgba(255, 255, 255, 0.22) !important; border: 1.5px solid rgba(255, 255, 255, 0.55) !important; backdrop-filter: blur(4px); font-size: 0.82rem; color: #ffffff !important;"
                             title="Interactive Guided Demo & Training Guide"
                             onclick="openSystemTourModal('{{ auth()->user()->role }}')">
                         <i class="fa-solid fa-graduation-cap me-1.5 text-warning"></i> Start Guided Tour

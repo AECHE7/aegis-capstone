@@ -341,7 +341,14 @@
             border-radius: var(--radius-md) !important;
             box-shadow: var(--shadow-card) !important;
             transition: var(--transition) !important;
-            background: var(--card-bg) !important;
+            background: var(--card-bg);
+        }
+
+        .card.card-dark-hero,
+        .card.card-gradient-hero,
+        .account-hero-card {
+            background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important;
+            color: #ffffff !important;
         }
 
         .card-hover:hover {

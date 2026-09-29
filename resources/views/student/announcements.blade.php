@@ -8,7 +8,7 @@
 <div class="container-fluid px-0" style="max-width: 960px; margin: 0 auto; padding: 0.5rem 0 calc(90px + env(safe-area-inset-bottom, 16px));">
 
     {{-- Header Banner --}}
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%); color: white; overflow: hidden;">
+    <div class="card card-dark-hero border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%) !important; color: white !important; overflow: hidden;">
         <div class="p-3 p-md-4.5 position-relative">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>

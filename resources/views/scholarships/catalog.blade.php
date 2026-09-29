@@ -49,7 +49,7 @@
 @endif
 
 {{-- Header Banner & Search Filter --}}
-<div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%); color: white; overflow: hidden; position: relative;">
+<div class="card card-dark-hero border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%) !important; color: white !important; overflow: hidden; position: relative;">
     <div class="p-4 position-relative" style="z-index: 2;">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-2">
             <div>
