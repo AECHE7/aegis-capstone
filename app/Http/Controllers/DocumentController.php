@@ -71,15 +71,15 @@ class DocumentController extends Controller
                     'jpg', 'jpeg' => 'image/jpeg',
                     default => 'application/octet-stream'
                 };
-                return response($binary, 200, [
+                return response($binary, 200, array_merge([
                     'Content-Type'        => $mime,
                     'Content-Disposition' => 'inline; filename="' . ($document->original_name ?? 'document.' . $ext) . '"'
-                ]);
+                ], $this->sensitiveCacheHeaders()));
             }
             return $this->localFileMissingResponse('This local file was wiped from server memory during redeployment. Please re-upload or contact support.');
         }
 
-        return response()->file(Storage::disk('local')->path($path));
+        return response()->file(Storage::disk('local')->path($path), $this->sensitiveCacheHeaders());
     }
 
     /**
@@ -237,7 +237,7 @@ class DocumentController extends Controller
             return $this->localFileMissingResponse('This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings.');
         }
 
-        return response()->file(Storage::disk('local')->path($path));
+        return response()->file(Storage::disk('local')->path($path), $this->sensitiveCacheHeaders());
     }
 
     /**
@@ -249,10 +249,10 @@ class DocumentController extends Controller
             $response = Http::timeout(15)->get($url);
             if ($response->successful()) {
                 $mime = $response->header('Content-Type') ?: 'application/octet-stream';
-                return response($response->body(), 200, [
+                return response($response->body(), 200, array_merge([
                     'Content-Type'        => $mime,
                     'Content-Disposition' => 'inline; filename="' . basename($url) . '"',
-                ]);
+                ], $this->sensitiveCacheHeaders()));
             }
         } catch (\Exception $e) {
             Log::error("DocumentController: Failed to stream remote document [{$url}]: " . $e->getMessage());
@@ -277,5 +277,17 @@ class DocumentController extends Controller
     private function localFileMissingResponse(string $message)
     {
         return response()->view('errors.document_missing', compact('message'), 404);
+    }
+
+    /**
+     * Privacy & security cache control headers for sensitive student documents.
+     */
+    private function sensitiveCacheHeaders(): array
+    {
+        return [
+            'Cache-Control' => 'private, no-cache, no-store, must-revalidate',
+            'Pragma'        => 'no-cache',
+            'Expires'       => '0',
+        ];
     }
 }

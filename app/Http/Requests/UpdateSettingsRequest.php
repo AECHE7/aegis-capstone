@@ -28,7 +28,7 @@ class UpdateSettingsRequest extends FormRequest
             'university_name' => 'required|string|max:255',
             'ai_fraud_threshold' => 'required|numeric|min:0|max:100',
             'gwa_discrepancy_tolerance' => 'required|numeric|min:0|max:5',
-            'app_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'app_logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'mfa_enforcement' => 'required|in:all,students,none',
             'auto_approval_enabled' => 'nullable|string|in:0,1',
             'auto_approval_min_confidence' => 'required|numeric|min:0|max:100',

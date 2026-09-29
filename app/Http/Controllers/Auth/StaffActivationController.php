@@ -73,8 +73,9 @@ class StaffActivationController extends Controller
         // Delete invitation token
         $invitation->delete();
 
-        // Log the user in
+        // Log the user in with session regeneration to prevent fixation
         Auth::login($user);
+        $request->session()->regenerate();
 
         // Redirect to admin dashboard
         return redirect()->route('admin.dashboard')->with('success', 'Your account has been activated successfully!');

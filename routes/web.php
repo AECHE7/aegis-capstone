@@ -15,7 +15,7 @@ use App\Http\Controllers\HealthController;
 // ==========================================
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/login', [AuthController::class, 'showLogin']); 
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login.submit');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login')->name('login.submit');
 Route::get('/login/mfa', [AuthController::class, 'showMfa'])->name('login.mfa');
 Route::post('/login/mfa', [AuthController::class, 'verifyMfa'])->middleware('throttle:5,1')->name('login.mfa.verify');
 Route::post('/login/mfa/resend', [AuthController::class, 'resendMfa'])->middleware('throttle:3,1')->name('login.mfa.resend');
@@ -134,18 +134,18 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
     Route::post('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])->middleware('throttle:5,1');
     Route::get('/activate-account', [\App\Http\Controllers\Auth\StaffActivationController::class, 'showActivationForm'])->name('activate.form');
-    Route::post('/activate-account', [\App\Http\Controllers\Auth\StaffActivationController::class, 'activate'])->name('activate.submit');
+    Route::post('/activate-account', [\App\Http\Controllers\Auth\StaffActivationController::class, 'activate'])->middleware('throttle:5,1')->name('activate.submit');
     Route::get('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store'])->middleware('throttle:3,1')->name('password.email');
 });
 
 // Reset password routes available to both guest and authenticated users
 Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\NewPasswordController::class, 'create'])->name('password.reset');
-Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->name('password.store');
+Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController::class, 'store'])->middleware('throttle:5,1')->name('password.store');
 
 // Master Account Transfer Accept Route (Available to guest users to handle initial click redirects)
-Route::get('/master/accept-transfer/{token}', [\App\Http\Controllers\MasterController::class, 'acceptTransfer'])->name('master.accept-transfer');
-Route::post('/master/accept-transfer/{token}', [\App\Http\Controllers\MasterController::class, 'acceptTransfer']);
+Route::get('/master/accept-transfer/{token}', [\App\Http\Controllers\MasterController::class, 'acceptTransfer'])->middleware('throttle:5,1')->name('master.accept-transfer');
+Route::post('/master/accept-transfer/{token}', [\App\Http\Controllers\MasterController::class, 'acceptTransfer'])->middleware('throttle:5,1');
 
 
 
@@ -160,7 +160,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Security & Password Change
     Route::get('/profile/security', [AuthController::class, 'showSecurity'])->name('profile.security');
-    Route::post('/profile/security', [AuthController::class, 'updatePassword'])->name('profile.security.update');
+    Route::post('/profile/security', [AuthController::class, 'updatePassword'])->middleware('throttle:5,1')->name('profile.security.update');
     Route::delete('/profile/security/devices/{id}', [AuthController::class, 'revokeDevice'])->name('profile.security.devices.revoke');
     Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
     Route::post('/tour/reset', [ApplicationController::class, 'resetTour'])->name('tour.reset');

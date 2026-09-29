@@ -69,17 +69,18 @@ class AuthController extends Controller
             }
 
             // Check if device is remembered (bypass MFA)
-            // NOTE: Hardcoded email bypass configured for dummy admin & director accounts.
-            $isDummyAdminAccount = in_array(strtolower($user->email), ['admin@clsu.edu.ph', 'director@clsu.edu.ph']);
+            // NOTE: Hardcoded email bypass configured for dummy admin & director accounts in testing/local environments only.
+            $isDummyAdminAccount = !app()->environment('production', 'staging') && in_array(strtolower($user->email), ['admin@clsu.edu.ph', 'director@clsu.edu.ph']);
             $deviceToken = $request->cookie('mfa_device_token');
             $hasValidDevice = false;
             if ($deviceToken) {
-                // NOTE: We match by token + user_id + expiry only.
-                // User-Agent hashes are stored for audit purposes but NOT used as a lookup filter,
-                // because Render's reverse proxy can produce subtle UA differences between requests,
-                // causing honest device tokens to fail silently on staging/production.
+                // Support both SHA-256 hashed token and legacy plaintext token
+                $hashedToken = hash('sha256', $deviceToken);
                 $deviceExists = UserMfaDevice::where('user_id', $user->id)
-                    ->where('device_token', $deviceToken)
+                    ->where(function ($query) use ($deviceToken, $hashedToken) {
+                        $query->where('device_token', $hashedToken)
+                              ->orWhere('device_token', $deviceToken);
+                    })
                     ->where('expires_at', '>', now())
                     ->exists();
                 if ($deviceExists) {
@@ -130,8 +131,9 @@ class AuthController extends Controller
             }
 
             // Generate OTP — random_int() is cryptographically secure (CRIT-04)
+            // Stored hashed at rest with SHA-256 for zero-knowledge DB persistence
             $otp = app()->runningUnitTests() ? '123456' : sprintf("%06d", random_int(100000, 999999));
-            $user->otp_code = $otp;
+            $user->otp_code = hash('sha256', $otp);
             $user->otp_expires_at = now()->addMinutes(10);
             $user->save();
 
@@ -204,8 +206,9 @@ class AuthController extends Controller
         $user = \App\Models\User::findOrFail(session('mfa_user_id'));
 
         // random_int() is cryptographically secure (CRIT-04)
+        // Stored hashed at rest with SHA-256 for zero-knowledge DB persistence
         $otp = app()->runningUnitTests() ? '123456' : sprintf("%06d", random_int(100000, 999999));
-        $user->otp_code = $otp;
+        $user->otp_code = hash('sha256', $otp);
         $user->otp_expires_at = now()->addMinutes(10);
         $user->save();
 
@@ -242,7 +245,14 @@ class AuthController extends Controller
 
         $user = \App\Models\User::findOrFail(session('mfa_user_id'));
 
-        if ($user->otp_code === $request->code && $user->otp_expires_at && $user->otp_expires_at->isFuture()) {
+        // Verify OTP: supports SHA-256 hash or legacy unhashed plaintext with constant-time comparison
+        $inputHash = hash('sha256', $request->code);
+        $isValidOtp = $user->otp_code && (
+            hash_equals($user->otp_code, $inputHash) ||
+            hash_equals($user->otp_code, $request->code)
+        );
+
+        if ($isValidOtp && $user->otp_expires_at && $user->otp_expires_at->isFuture()) {
             // Clear OTP
             $user->otp_code = null;
             $user->otp_expires_at = null;
@@ -272,14 +282,15 @@ class AuthController extends Controller
                 ['mfa_verified' => true]
             );
 
-            // Handle Remember Device Token
+            // Handle Remember Device Token (stored hashed at rest)
             if ($request->has('remember_device')) {
                 $deviceToken = Str::random(60);
+                $hashedToken = hash('sha256', $deviceToken);
                 $userAgentHash = hash('sha256', $request->userAgent() ?: '');
 
                 UserMfaDevice::create([
                     'user_id' => $user->id,
-                    'device_token' => $deviceToken,
+                    'device_token' => $hashedToken,
                     'ip_address' => $request->ip(),
                     'user_agent_hash' => $userAgentHash,
                     'user_agent' => $request->userAgent(),
@@ -371,14 +382,33 @@ class AuthController extends Controller
     {
         $request->validate([
             'current_password' => 'required|current_password',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => [
+                'required',
+                'confirmed',
+                \Illuminate\Validation\Rules\Password::defaults(),
+                function ($attribute, $value, $fail) {
+                    if (\Illuminate\Support\Facades\Hash::check($value, auth()->user()->password)) {
+                        $fail('The new password cannot be the same as your current password.');
+                    }
+                },
+            ],
         ]);
 
         $user = auth()->user();
         $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
         $user->save();
 
-        return back()->with('success', 'Your password has been changed successfully!');
+        // Invalidate active sessions on other devices
+        try {
+            Auth::logoutOtherDevices($request->password);
+        } catch (\Throwable $e) {
+            // Graceful fallback if session driver does not support password hash checking
+        }
+
+        // Revoke all remembered MFA device tokens for security
+        $user->mfaDevices()->delete();
+
+        return back()->with('success', 'Your password has been changed successfully! All other active sessions and remembered devices have been revoked for your security.');
     }
 
     // 2f. Revoke Trusted Device

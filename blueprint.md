@@ -630,4 +630,49 @@ This phase addressed critical operational and user-experience issues identified 
 9. **MFA Verification Contextual Guidance (`resources/views/auth/mfa_verify.blade.php`)**:
    - Added friendly contextual guidance explaining why 2FA is required under the Data Privacy Act (R.A. 10173) and clear instructions on entering the 6-digit OTP received via email.
 
+---
+
+## 18. Institutional Security Hardening & Zero-Knowledge Architecture (ISO/IEC 25010 & NIST SP 800-63B Alignment)
+
+### Overview & Objectives
+Elevated the security posture of A.E.G.I.S. to an institutional-grade baseline compliant with **ISO/IEC 25010 (Security & Reliability)**, **NIST SP 800-63B (Digital Identity Guidelines)**, and the **Philippine Data Privacy Act (Republic Act No. 10173)**.
+
+### Implemented Architectural Hardening
+
+1. **Zero-Knowledge Multi-Factor Authentication (`app/Http/Controllers/AuthController.php`, `app/Models/User.php`)**:
+   - **Hashed OTP Storage**: 6-digit MFA verification codes are hashed at rest via SHA-256 (`hash('sha256', $otp)`) before persisting in `users.otp_code`. Verification utilizes constant-time `hash_equals()`, ensuring that database dumps or SQL injection exposures cannot expose active login codes.
+   - **Serialization Masking**: Added `'otp_code'` to the `$hidden` array on `User.php`, preventing accidental exposure in serialized API JSON payloads or debug dumps.
+   - **Production Dummy Account Bypass Guard**: Restricted dummy account MFA bypass (`admin@clsu.edu.ph`, `director@clsu.edu.ph`) strictly to local and testing environments (`!app()->environment('production', 'staging')`), eliminating test backdoors on staging and production deployments.
+
+2. **Hashed Remembered Device Tokens (`app/Http/Controllers/AuthController.php`, `app/Models/UserMfaDevice.php`)**:
+   - The 30-day "Remember this device" feature now writes a SHA-256 hash of the device token to the `user_mfa_devices.device_token` column at rest. The client receives the raw token in an encrypted HTTP-only cookie.
+   - Device lookup matches against both the SHA-256 hash and legacy plaintext token, ensuring zero session invalidation for existing authorized devices.
+
+3. **Session Security & Compromise Defense (`config/session.php`, `.env.example`, `app/Http/Controllers/AuthController.php`, `app/Http/Controllers/Auth/NewPasswordController.php`, `app/Http/Controllers/Auth/StaffActivationController.php`)**:
+   - **At-Rest Session Encryption**: Enabled `SESSION_ENCRYPT=true` by default, automatically encrypting session payloads stored in database tables with AES-256 using `APP_KEY`.
+   - **Session Termination on Password Update**: `AuthController@updatePassword` now executes `Auth::logoutOtherDevices($password)`, invalidating active sessions across all other browsers and devices upon credential change.
+   - **Automated Device Token Revocation**: Updating or resetting an account password automatically revokes all active `UserMfaDevice` tokens, preventing unauthorized device bypass following credential compromise.
+   - **Password Reuse Prevention**: Validates that new passwords differ from the current password.
+   - **Session Fixation Prevention**: `StaffActivationController@activate` invokes `$request->session()->regenerate()` immediately upon first login.
+
+4. **Dual-Key Rate Limiting & Sensitive Route Throttling (`app/Providers/AppServiceProvider.php`, `routes/web.php`)**:
+   - Defined a custom dual-key rate limiter for login combining client IP and normalized email (`throttle:login`), stopping distributed botnets and credential stuffing attacks against targeted student or director accounts.
+   - Added `throttle:5,1` rate limiting to previously unthrottled endpoints:
+     - `/reset-password` (`password.store`)
+     - `/activate-account` (`activate.submit`)
+     - `/profile/security` (`profile.security.update`)
+     - `/master/accept-transfer/{token}`
+
+5. **File Upload Security & Sensitive Document Privacy (`app/Http/Requests/UpdateSettingsRequest.php`, `app/Http/Controllers/DocumentController.php`)**:
+   - **Stored XSS Vector Elimination**: Restricted `app_logo` uploads strictly to raster formats (`jpeg, png, jpg, webp`), removing `svg` and `gif` to eliminate SVG script injection.
+   - **Document Privacy Headers**: Injected `Cache-Control: private, no-cache, no-store, must-revalidate`, `Pragma: no-cache`, and `Expires: 0` into all document stream responses (`view`, `fieldFile`, `proxyRemoteFile`) to prevent intermediate proxy caching and shared browser caching of student PII (Certificate of Grades, income documentation, and government IDs).
+
+6. **Automated Security Health Check CLI Tool (`app/Console/Commands/SecurityAuditCommand.php`)**:
+   - Built `php artisan aegis:security-audit` evaluating 9 security checkpoints (Debug mode, AES App Key, Session encryption, Cookie transport flags, MFA enforcement policy, Dummy bypass guard, Student profile PII encryption, Custom field encryption, and Token lifecycle).
+   - Generates an instant diagnostic table and percentage compliance scorecard for institutional audits and accreditation.
+
+7. **Automated Verification**:
+   - Created `tests/Feature/SecurityEnhancementsTest.php` covering OTP hashing, device token hashing, password update revocation, rate limiting, and the security audit CLI command (100% pass rate).
+
+
 

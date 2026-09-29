@@ -37,5 +37,13 @@ class AppServiceProvider extends ServiceProvider
                 ? $rule->mixedCase()->letters()->numbers()->symbols()->uncompromised()
                 : $rule;
         });
+
+        \Illuminate\Support\Facades\RateLimiter::for('login', function (\Illuminate\Http\Request $request) {
+            $email = (string) $request->email;
+            return [
+                \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by($request->ip()),
+                \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by(strtolower($email) . '|' . $request->ip()),
+            ];
+        });
     }
 }
