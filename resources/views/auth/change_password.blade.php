@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Account Settings | A.E.G.I.S.')
 @section('page-title', 'Account Settings')
@@ -88,6 +88,7 @@
                                 <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-user"></i></span>
                                 <input type="text" name="name" id="profile_name" 
                                        class="form-control border-start-0 py-2" 
+                                       autocomplete="name"
                                        value="{{ old('name', $user->name) }}" required style="border-radius: 0 10px 10px 0;">
                             </div>
                         </div>
@@ -99,6 +100,7 @@
                                 <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-envelope"></i></span>
                                 <input type="email" id="profile_email" 
                                        class="form-control border-start-0 py-2 bg-light text-muted" 
+                                       autocomplete="email"
                                        value="{{ $user->email }}" readonly disabled style="border-radius: 0 10px 10px 0;">
                             </div>
                         </div>
@@ -111,6 +113,7 @@
                                     <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-id-card"></i></span>
                                     <input type="text" name="clsu_id_number" id="clsu_id_number" 
                                            class="form-control border-start-0 py-2 font-monospace" 
+                                           autocomplete="off"
                                            placeholder="e.g. 23-1234" pattern="\d{2}-\d{4}" maxlength="7"
                                            title="Format: 00-0000 (e.g. 23-1234)"
                                            value="{{ old('clsu_id_number', $user->profile->clsu_id_number ?? '') }}" required style="border-radius: 0 10px 10px 0;">
@@ -124,6 +127,7 @@
                                     <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-phone"></i></span>
                                     <input type="text" name="contact_number" id="contact_number" 
                                            class="form-control border-start-0 py-2" 
+                                           autocomplete="tel"
                                            placeholder="e.g. 09123456789"
                                            value="{{ old('contact_number', $user->profile->contact_number ?? '') }}" required style="border-radius: 0 10px 10px 0;">
                                 </div>
@@ -173,6 +177,7 @@
                                     <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-graduation-cap"></i></span>
                                     <input type="text" name="course" id="course" 
                                            class="form-control border-start-0 py-2" 
+                                           autocomplete="off"
                                            placeholder="e.g. BS Information Technology"
                                            value="{{ old('course', $user->profile->course ?? '') }}" required style="border-radius: 0 10px 10px 0;">
                                 </div>
@@ -185,6 +190,7 @@
                                     <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-user-shield"></i></span>
                                     <input type="text" name="guardian_name" id="guardian_name" 
                                            class="form-control border-start-0 py-2" 
+                                           autocomplete="name"
                                            placeholder="e.g. Maria Santos"
                                            value="{{ old('guardian_name', $user->profile->guardian_name ?? '') }}" required style="border-radius: 0 10px 10px 0;">
                                 </div>
@@ -196,6 +202,7 @@
                                     <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-phone"></i></span>
                                     <input type="text" name="emergency_contact_number" id="emergency_contact_number" 
                                            class="form-control border-start-0 py-2" 
+                                           autocomplete="tel"
                                            placeholder="e.g. 09123456789"
                                            value="{{ old('emergency_contact_number', $user->profile->emergency_contact_number ?? '') }}" required style="border-radius: 0 10px 10px 0;">
                                 </div>
@@ -310,18 +317,18 @@
                     @csrf
                     <div class="mb-3">
                         <label for="current_password" class="form-label fw-semibold text-dark small">Current Password</label>
-                        <input type="password" name="current_password" id="current_password" class="form-control" style="border-radius: 10px;" required>
+                        <input type="password" name="current_password" id="current_password" class="form-control" autocomplete="current-password" style="border-radius: 10px;" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="password" class="form-label fw-semibold text-dark small">New Password</label>
-                        <input type="password" name="password" id="password" class="form-control" style="border-radius: 10px;" required>
+                        <input type="password" name="password" id="password" class="form-control" autocomplete="new-password" style="border-radius: 10px;" required>
                         <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Must be at least 8 characters long.</small>
                     </div>
 
                     <div class="mb-4">
                         <label for="password_confirmation" class="form-label fw-semibold text-dark small">Confirm New Password</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" style="border-radius: 10px;" required>
+                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" autocomplete="new-password" style="border-radius: 10px;" required>
                     </div>
 
                     <button type="submit" class="btn btn-primary text-white w-100 py-2 fw-semibold shadow-sm">
