@@ -1604,4 +1604,18 @@
 
         tour.start();
     }
+
+    // Resolve WAI-ARIA aria-hidden descendant focus retention warning on modal close
+    document.addEventListener('DOMContentLoaded', () => {
+        ['systemDemoModal', 'stageDetailModal', 'roleSimulatorModal'].forEach(id => {
+            const m = document.getElementById(id);
+            if (m) {
+                m.addEventListener('hide.bs.modal', () => {
+                    if (m.contains(document.activeElement)) {
+                        document.activeElement.blur();
+                    }
+                });
+            }
+        });
+    });
 </script>
