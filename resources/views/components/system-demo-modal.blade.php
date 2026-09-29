@@ -20,7 +20,7 @@
                             <h5 class="modal-title fw-bold mb-0 text-white" id="systemDemoModalLabel" style="font-size: 1.05rem;">
                                 A.E.G.I.S. Interactive System Demo & Guided Walkthrough
                             </h5>
-                            <span class="badge bg-warning text-dark fw-bold px-2 py-0.5 rounded-pill" style="font-size: 0.68rem;">
+                            <span class="badge fw-bold px-2.5 py-1 rounded-pill" style="background-color: #f59e0b !important; color: #111827 !important; font-size: 0.68rem; border: 1px solid #d97706; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
                                 Interactive Training Suite
                             </span>
                         </div>
@@ -86,30 +86,30 @@
                     <div class="tab-pane fade {{ $isStudent ? 'show active' : '' }}" id="student-demo-pane" role="tabpanel" aria-labelledby="student-demo-tab">
                         
                         <!-- Role Banner -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-3 mb-md-4" style="background: linear-gradient(135deg, #0C4E2D, #166534); color: white;">
-                            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-2.5">
+                        <div class="demo-role-banner demo-role-banner-student rounded-4 p-3 p-md-4 mb-3 mb-md-4 shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2.5">
                                 <div>
                                     <div class="d-flex align-items-center gap-2 mb-1.5 flex-wrap">
-                                        <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-0.5 fw-semibold" style="font-size: 0.72rem;">STUDENT PORTAL LIFE-CYCLE</span>
+                                        <span class="badge rounded-pill px-2.5 py-1 fw-semibold" style="background: rgba(255,255,255,0.2) !important; color: #ffffff !important; font-size: 0.72rem; border: 1px solid rgba(255,255,255,0.3);">STUDENT PORTAL LIFE-CYCLE</span>
                                         @if($isStudent)
-                                            <span class="badge bg-warning text-dark fw-bold px-2 py-0.5 rounded-pill" style="font-size: 0.65rem;">Active Account Role</span>
+                                            <span class="badge badge-active-role px-2.5 py-1 rounded-pill">Active Account Role</span>
                                         @else
-                                            <span class="badge bg-white bg-opacity-25 text-white fw-semibold px-2 py-0.5 rounded-pill" style="font-size: 0.65rem;">Demonstration View</span>
+                                            <span class="badge badge-preview-role px-2.5 py-1 rounded-pill">Demonstration View</span>
                                         @endif
                                     </div>
                                     <h5 class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Paperless Application, Integrity Check & Award Tracking</h5>
-                                    <p class="text-white-50 small mb-0" style="font-size: 0.78rem;">From registering with your verified @clsu.edu.ph institutional email to receiving your official stipend clearance report.</p>
+                                    <p class="small mb-0" style="color: rgba(255, 255, 255, 0.9) !important; font-size: 0.8rem;">From registering with your verified @clsu.edu.ph institutional email to receiving your official stipend clearance report.</p>
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
                                     @if(auth()->check() && auth()->user()->role === 'student')
-                                        <a href="{{ route('student.dashboard') }}" class="btn btn-sm btn-outline-light fw-semibold px-3 py-1.5 rounded-pill">
+                                        <a href="{{ route('student.dashboard') }}" class="btn btn-sm btn-banner-dash fw-semibold px-3 py-1.5 rounded-pill">
                                             <i class="fa-solid fa-house me-1"></i> Go to Dashboard
                                         </a>
-                                        <a href="{{ route('student.apply') }}" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1.5 rounded-pill shadow-xs">
+                                        <a href="{{ route('student.apply') }}" class="btn btn-sm btn-banner-action px-3 py-1.5 rounded-pill">
                                             <i class="fa-solid fa-paper-plane me-1"></i> Apply for Scholarship
                                         </a>
                                     @else
-                                        <button type="button" class="btn btn-sm btn-outline-light fw-semibold px-3 py-1.5 rounded-pill" onclick="openRoleSimulator('student')">
+                                        <button type="button" class="btn btn-sm btn-banner-dash fw-semibold px-3 py-1.5 rounded-pill" onclick="openRoleSimulator('student')">
                                             <i class="fa-solid fa-play me-1"></i> Preview Student Simulation
                                         </button>
                                     @endif
@@ -230,27 +230,27 @@
                     <div class="tab-pane fade {{ $isAdmin ? 'show active' : '' }}" id="admin-demo-pane" role="tabpanel" aria-labelledby="admin-demo-tab">
                         
                         <!-- Role Banner -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-3 mb-md-4" style="background: linear-gradient(135deg, #1e3a8a, #0369a1); color: white;">
-                            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-2.5">
+                        <div class="demo-role-banner demo-role-banner-admin rounded-4 p-3 p-md-4 mb-3 mb-md-4 shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2.5">
                                 <div>
                                     <div class="d-flex align-items-center gap-2 mb-1.5 flex-wrap">
-                                        <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-0.5 fw-semibold" style="font-size: 0.72rem;">OSA STAFF EVALUATOR WORKFLOW</span>
+                                        <span class="badge rounded-pill px-2.5 py-1 fw-semibold" style="background: rgba(255,255,255,0.2) !important; color: #ffffff !important; font-size: 0.72rem; border: 1px solid rgba(255,255,255,0.3);">OSA STAFF EVALUATOR WORKFLOW</span>
                                         @if($isAdmin)
-                                            <span class="badge bg-warning text-dark fw-bold px-2 py-0.5 rounded-pill" style="font-size: 0.65rem;">Active Account Role</span>
+                                            <span class="badge badge-active-role px-2.5 py-1 rounded-pill">Active Account Role</span>
                                         @else
-                                            <span class="badge bg-white bg-opacity-25 text-white fw-semibold px-2 py-0.5 rounded-pill" style="font-size: 0.65rem;">Demonstration View</span>
+                                            <span class="badge badge-preview-role px-2.5 py-1 rounded-pill">Demonstration View</span>
                                         @endif
                                     </div>
                                     <h5 class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Application Triage, Forensic Heatmaps & Rapid Determination</h5>
-                                    <p class="text-white-50 small mb-0" style="font-size: 0.78rem;">Evaluate student applications with AI-assisted document fraud analysis, 1-click preset remarks, and automated audits.</p>
+                                    <p class="small mb-0" style="color: rgba(255, 255, 255, 0.9) !important; font-size: 0.8rem;">Evaluate student applications with AI-assisted document fraud analysis, 1-click preset remarks, and automated audits.</p>
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
                                     @if(auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin'))
-                                        <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-outline-light fw-semibold px-3 py-1.5 rounded-pill">
+                                        <a href="{{ route('admin.dashboard') }}" class="btn btn-sm btn-banner-dash fw-semibold px-3 py-1.5 rounded-pill">
                                             <i class="fa-solid fa-list-check me-1"></i> Go to Review Queue
                                         </a>
                                     @else
-                                        <button type="button" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1.5 rounded-pill shadow-xs" onclick="openRoleSimulator('admin')">
+                                        <button type="button" class="btn btn-sm btn-banner-action px-3 py-1.5 rounded-pill" onclick="openRoleSimulator('admin')">
                                             <i class="fa-solid fa-play me-1"></i> Launch Staff Simulator
                                         </button>
                                     @endif
@@ -365,27 +365,27 @@
                     <div class="tab-pane fade {{ $isSuperAdmin ? 'show active' : '' }}" id="director-demo-pane" role="tabpanel" aria-labelledby="director-demo-tab">
                         
                         <!-- Role Banner -->
-                        <div class="card border-0 shadow-sm rounded-4 mb-3 mb-md-4" style="background: linear-gradient(135deg, #78350f, #b45309); color: white;">
-                            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-2.5">
+                        <div class="demo-role-banner demo-role-banner-director rounded-4 p-3 p-md-4 mb-3 mb-md-4 shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2.5">
                                 <div>
                                     <div class="d-flex align-items-center gap-2 mb-1.5 flex-wrap">
-                                        <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-0.5 fw-semibold" style="font-size: 0.72rem;">DIRECTOR & SUPERADMIN WORKFLOW</span>
+                                        <span class="badge rounded-pill px-2.5 py-1 fw-semibold" style="background: rgba(255,255,255,0.2) !important; color: #ffffff !important; font-size: 0.72rem; border: 1px solid rgba(255,255,255,0.3);">DIRECTOR & SUPERADMIN WORKFLOW</span>
                                         @if($isSuperAdmin)
-                                            <span class="badge bg-warning text-dark fw-bold px-2 py-0.5 rounded-pill" style="font-size: 0.65rem;">Active Account Role</span>
+                                            <span class="badge badge-active-role px-2.5 py-1 rounded-pill">Active Account Role</span>
                                         @else
-                                            <span class="badge bg-white bg-opacity-25 text-white fw-semibold px-2 py-0.5 rounded-pill" style="font-size: 0.65rem;">Demonstration View</span>
+                                            <span class="badge badge-preview-role px-2.5 py-1 rounded-pill">Demonstration View</span>
                                         @endif
                                     </div>
                                     <h5 class="fw-bold mb-1 text-white" style="font-size: 1.05rem;">Executive Analytics, User Control & Program Governance</h5>
-                                    <p class="text-white-50 small mb-0" style="font-size: 0.78rem;">Oversee university scholarship budgets, audit statutory compliance, manage staff permissions, and calibrate AI models.</p>
+                                    <p class="small mb-0" style="color: rgba(255, 255, 255, 0.9) !important; font-size: 0.8rem;">Oversee university scholarship budgets, audit statutory compliance, manage staff permissions, and calibrate AI models.</p>
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
                                     @if(auth()->check() && auth()->user()->role === 'superadmin')
-                                        <a href="{{ route('superadmin.analytics') }}" class="btn btn-sm btn-outline-light fw-semibold px-3 py-1.5 rounded-pill">
+                                        <a href="{{ route('superadmin.analytics') }}" class="btn btn-sm btn-banner-dash fw-semibold px-3 py-1.5 rounded-pill">
                                             <i class="fa-solid fa-chart-line me-1"></i> Open Analytics
                                         </a>
                                     @else
-                                        <button type="button" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1.5 rounded-pill shadow-xs" onclick="openRoleSimulator('superadmin')">
+                                        <button type="button" class="btn btn-sm btn-banner-action px-3 py-1.5 rounded-pill" onclick="openRoleSimulator('superadmin')">
                                             <i class="fa-solid fa-play me-1"></i> Launch Director Simulator
                                         </button>
                                     @endif
@@ -597,7 +597,7 @@
                     <div>
                         <div class="d-flex align-items-center gap-2">
                             <h5 class="modal-title fw-bold mb-0 text-white" id="simulatorRoleTitle" style="font-size: 1.05rem;">Role Simulator</h5>
-                            <span class="badge bg-warning text-dark fw-bold px-2 py-0.5 rounded-pill" style="font-size: 0.65rem;">Interactive Walkthrough</span>
+                            <span class="badge fw-bold px-2 py-0.5 rounded-pill" style="background-color: #f59e0b !important; color: #111827 !important; font-size: 0.65rem; border: 1px solid #d97706; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">Interactive Walkthrough</span>
                         </div>
                         <p class="mb-0 text-white-50 small" id="simulatorRoleSubtitle" style="font-size: 0.76rem;"></p>
                     </div>
@@ -678,6 +678,81 @@
     }
     .stage-interactive-card.card-director:hover {
         border-color: #f59e0b !important;
+    }
+
+    /* ── DEDICATED DEMO ROLE BANNER STYLING (OVERRIDES GLOBAL .CARD BACKGROUND) ── */
+    .demo-role-banner {
+        border-radius: 18px !important;
+        position: relative !important;
+        overflow: hidden !important;
+        box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.18) !important;
+        border: none !important;
+    }
+    .demo-role-banner-student {
+        background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 50%, #166534 100%) !important;
+        color: #ffffff !important;
+    }
+    .demo-role-banner-admin {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%) !important;
+        color: #ffffff !important;
+    }
+    .demo-role-banner-director {
+        background: linear-gradient(135deg, #451a03 0%, #78350f 50%, #b45309 100%) !important;
+        color: #ffffff !important;
+    }
+    .demo-role-banner h5 {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+    .demo-role-banner p {
+        color: rgba(255, 255, 255, 0.92) !important;
+    }
+    .demo-role-banner .badge-active-role {
+        background-color: #f59e0b !important;
+        color: #111827 !important;
+        font-weight: 800 !important;
+        font-size: 0.65rem !important;
+        border: 1px solid #d97706 !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+    }
+    .demo-role-banner .badge-preview-role {
+        background-color: rgba(255, 255, 255, 0.22) !important;
+        color: #ffffff !important;
+        font-size: 0.65rem !important;
+        border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    }
+    .demo-role-banner .btn-banner-dash {
+        background-color: rgba(255, 255, 255, 0.18) !important;
+        color: #ffffff !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.6) !important;
+        backdrop-filter: blur(4px) !important;
+        transition: all 0.2s ease !important;
+    }
+    .demo-role-banner .btn-banner-dash:hover {
+        background-color: #ffffff !important;
+        color: #0C4E2D !important;
+        border-color: #ffffff !important;
+    }
+    .demo-role-banner .btn-banner-action {
+        background-color: #f59e0b !important;
+        color: #111827 !important;
+        font-weight: 800 !important;
+        border: 1px solid #d97706 !important;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35) !important;
+    }
+    .demo-role-banner .btn-banner-action:hover {
+        background-color: #d97706 !important;
+        color: #ffffff !important;
+    }
+
+    .stage-interactive-card h6 {
+        color: #0f172a !important;
+    }
+    .stage-interactive-card p {
+        color: #334155 !important;
+    }
+    .stage-interactive-card ul {
+        color: #475569 !important;
     }
 
     @media (max-width: 575.98px) {
