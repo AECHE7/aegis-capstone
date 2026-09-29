@@ -7,11 +7,11 @@
 @push('styles')
 <style>
     /* Dark stat cards */
-    .dark-stat { background: linear-gradient(145deg, #07331c, #1e3932); border-radius: 16px; padding: 1.25rem 1.5rem; color: white; border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; transition: all 0.25s; }
+    .dark-stat { background: linear-gradient(145deg, #07331c, #1e3932) !important; border-radius: 16px; padding: 1.25rem 1.5rem; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; transition: all 0.25s; }
     .dark-stat:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(7, 51, 28, 0.2); }
     .dark-stat::before { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.03); }
-    .dark-stat-num { font-family: 'Poppins', sans-serif; font-size: clamp(1.5rem, 4vw + 0.5rem, 2.25rem); font-weight: 800; line-height: 1; }
-    .dark-stat-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+    .dark-stat-num { font-family: 'Poppins', sans-serif; font-size: clamp(1.5rem, 4vw + 0.5rem, 2.25rem); font-weight: 800; line-height: 1; color: #ffffff !important; }
+    .dark-stat-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.75) !important; margin-bottom: 4px; }
 
     @media (max-width: 480px) {
         .dark-stat { padding: 0.85rem 1rem !important; }
@@ -35,10 +35,10 @@
     .eval-avatar { width: 34px; height: 34px; border-radius: 9px; background: var(--clsu-green-muted); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; color: var(--clsu-green); flex-shrink: 0; border: 1px solid var(--border-color); }
 
     /* Audit Export Card */
-    .export-card { background: linear-gradient(145deg, #07331c, #1e3932); border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.07); color: white; }
-    .export-card h6 { font-size: 0.65rem; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.6); font-weight: 700; margin-bottom: 0.75rem; }
-    .export-card h5 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .export-card p { font-size: 0.75rem; color: rgba(255,255,255,0.65); margin-bottom: 1.25rem; }
+    .export-card { background: linear-gradient(145deg, #07331c, #1e3932) !important; border-radius: 16px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.07); color: #ffffff !important; }
+    .export-card h6 { font-size: 0.65rem; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.7) !important; font-weight: 700; margin-bottom: 0.75rem; }
+    .export-card h5 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; color: #ffffff !important; }
+    .export-card p { font-size: 0.75rem; color: rgba(255,255,255,0.75) !important; margin-bottom: 1.25rem; }
     .export-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
     .export-btn-csv  { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.25); }
     .export-btn-csv:hover  { background: rgba(34,197,94,0.28); color: #86efac; }

@@ -779,3 +779,30 @@ Enable seamless evaluation and testing across Staff Evaluator, Director / SuperA
 
 6. **Database Seeding Safeguards (`database/seeders/DatabaseSeeder.php`, `database/seeders/UatSeeder.php`)**:
    - Added explicit seeding for `staff@clsu.edu.ph`, `superadmin@clsu.edu.ph`, and `student@clsu.edu.ph` alongside `admin@clsu.edu.ph` and `director@clsu.edu.ph` with `email_verified_at` stamped and pre-populated student profiles.
+
+---
+
+## 22. Platform-Wide Contrast Resilience & Universal Dark Hero Card Color Enforcement
+
+### Overview & Root Cause
+- **Issue**: Across several student and administrative pages (e.g. Account Settings `/student/profile`, Official Announcements `/student/announcements`, Scholarship Catalog `/scholarships`, and Onboarding Dashboard `/student/dashboard`), top hero cards rendered with a pure white background (`#ffffff`), causing headings and labels that had `color: #ffffff` or `text-white` to become completely invisible until selected/highlighted by the user's cursor.
+- **Root Cause**: In `resources/views/layouts/app.blade.php`, the global `.card` definition previously had `background: var(--card-bg) !important;`. The `!important` flag forced the browser CSS cascade to override all inline `background: linear-gradient(...)` declarations on cards, converting dark forest-green banners to pure white cards while retaining their white typography.
+
+### Remediation & Architectural Guarantees
+1. **Global CSS Card Cascade Resolution (`resources/views/layouts/app.blade.php`)**:
+   - Removed `!important` from `.card { background: var(--card-bg); }` to allow inline styles, utilities, and dark hero modifiers to take normal cascade precedence.
+   - Introduced comprehensive multi-selector high-contrast rules protecting all current and future dark cards:
+     - Target classes: `.card-dark-hero`, `.card.card-dark-hero`, `.card.card-gradient-hero`, `.account-hero-card`, `.scholar-banner`.
+     - Attribute selectors: `.card[style*="linear-gradient"]`, `.card[style*="#07331c"]`, `.card[style*="#072F1B"]`, `.card[style*="#0C4E2D"]`, `.card[style*="#00754A"]`.
+     - Guaranteed styles: `background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important; color: #ffffff !important;`.
+   - Guaranteed child text styles:
+     - Heading tags (`h1-h6`): `#ffffff !important;` (bypassing any `--text-title` overrides).
+     - Paragraph tags (`p`): `rgba(255, 255, 255, 0.9) !important;`.
+     - Subtitle/secondary labels (`.text-white-50`): `rgba(255, 255, 255, 0.75) !important;`.
+
+2. **Systemic View Hardening Across All Modules**:
+   - **Account Settings (`resources/views/auth/change_password.blade.php`)**: Unified hero banner equipped with `.card-dark-hero .account-hero-card`, inline forest green gradient, and explicit white typography.
+   - **Official Announcements (`resources/views/student/announcements.blade.php`)**: Header banner updated with `.card-dark-hero`, explicit `color: #ffffff !important;` on heading, and `rgba(255, 255, 255, 0.85)` on subtitle.
+   - **Scholarship Catalog (`resources/views/scholarships/catalog.blade.php`)**: Hero search banner updated with `.card-dark-hero`, high-contrast heading, and high-opacity term badge.
+   - **Student Dashboard (`resources/views/student/dashboard.blade.php`)**: `.scholar-banner` and new-student onboarding card updated with `.card-dark-hero`, guaranteed dark gradient, and white headings.
+   - **Director Analytics (`resources/views/superadmin/analytics.blade.php`)**: `.dark-stat` and `.export-card` classes hardened with `!important` dark gradient backgrounds and white typography.

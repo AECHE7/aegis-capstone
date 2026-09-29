@@ -344,11 +344,53 @@
             background: var(--card-bg);
         }
 
+        /* ── Hero & Dark Accent Cards — Universal High-Contrast Rules ── */
+        .card-dark-hero,
         .card.card-dark-hero,
         .card.card-gradient-hero,
-        .account-hero-card {
+        .card-gradient-hero,
+        .account-hero-card,
+        .scholar-banner,
+        .card[style*="linear-gradient"],
+        .card[style*="#07331c"],
+        .card[style*="#072F1B"],
+        .card[style*="#0C4E2D"],
+        .card[style*="#00754A"] {
             background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important;
             color: #ffffff !important;
+        }
+
+        .card-dark-hero h1, .card-dark-hero h2, .card-dark-hero h3, .card-dark-hero h4, .card-dark-hero h5, .card-dark-hero h6,
+        .card.card-dark-hero h1, .card.card-dark-hero h2, .card.card-dark-hero h3, .card.card-dark-hero h4, .card.card-dark-hero h5, .card.card-dark-hero h6,
+        .card.card-gradient-hero h1, .card.card-gradient-hero h2, .card.card-gradient-hero h3, .card.card-gradient-hero h4, .card.card-gradient-hero h5, .card.card-gradient-hero h6,
+        .account-hero-card h1, .account-hero-card h2, .account-hero-card h3, .account-hero-card h4, .account-hero-card h5, .account-hero-card h6,
+        .scholar-banner h1, .scholar-banner h2, .scholar-banner h3, .scholar-banner h4, .scholar-banner h5, .scholar-banner h6,
+        .card[style*="linear-gradient"] h1, .card[style*="linear-gradient"] h2, .card[style*="linear-gradient"] h3, .card[style*="linear-gradient"] h4, .card[style*="linear-gradient"] h5, .card[style*="linear-gradient"] h6,
+        .card[style*="#07331c"] h1, .card[style*="#07331c"] h2, .card[style*="#07331c"] h3, .card[style*="#07331c"] h4, .card[style*="#07331c"] h5, .card[style*="#07331c"] h6,
+        .card[style*="#072F1B"] h1, .card[style*="#072F1B"] h2, .card[style*="#072F1B"] h3, .card[style*="#072F1B"] h4, .card[style*="#072F1B"] h5, .card[style*="#072F1B"] h6 {
+            color: #ffffff !important;
+        }
+
+        .card-dark-hero p,
+        .card.card-dark-hero p,
+        .card.card-gradient-hero p,
+        .account-hero-card p,
+        .scholar-banner p,
+        .card[style*="linear-gradient"] p,
+        .card[style*="#07331c"] p,
+        .card[style*="#072F1B"] p {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .card-dark-hero .text-white-50,
+        .card.card-dark-hero .text-white-50,
+        .card.card-gradient-hero .text-white-50,
+        .account-hero-card .text-white-50,
+        .scholar-banner .text-white-50,
+        .card[style*="linear-gradient"] .text-white-50,
+        .card[style*="#07331c"] .text-white-50,
+        .card[style*="#072F1B"] .text-white-50 {
+            color: rgba(255, 255, 255, 0.75) !important;
         }
 
         .card-hover:hover {

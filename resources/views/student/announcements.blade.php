@@ -8,22 +8,22 @@
 <div class="container-fluid px-0" style="max-width: 960px; margin: 0 auto; padding: 0.5rem 0 calc(90px + env(safe-area-inset-bottom, 16px));">
 
     {{-- Header Banner --}}
-    <div class="card card-dark-hero border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%) !important; color: white !important; overflow: hidden;">
+    <div class="card card-dark-hero border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important; color: #ffffff !important; overflow: hidden;">
         <div class="p-3 p-md-4.5 position-relative">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     <span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold mb-2" style="font-size: 0.72rem;">
                         <i class="fa-solid fa-bullhorn me-1"></i> Public Notice Board
                     </span>
-                    <h3 class="fw-bold text-white mb-1" style="font-family: 'Poppins', sans-serif;">
+                    <h3 class="fw-bold mb-1" style="font-family: 'Poppins', sans-serif; color: #ffffff !important;">
                         CLSU OSA Bulletins & Memoranda
                     </h3>
-                    <p class="text-white-50 mb-0 small">
+                    <p class="mb-0 small" style="color: rgba(255, 255, 255, 0.85) !important;">
                         Stay informed regarding active scholarship calls, document submission cutoffs, and university announcements.
                     </p>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill border border-white border-opacity-10 fw-semibold" style="font-size: 0.8rem;">
+                    <span class="badge px-3 py-2 rounded-pill fw-semibold" style="font-size: 0.8rem; background: rgba(255, 255, 255, 0.18) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.3) !important;">
                         <i class="fa-solid fa-bell text-warning me-1"></i> {{ $announcements->total() }} Published Notices
                     </span>
                 </div>

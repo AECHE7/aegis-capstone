@@ -49,23 +49,23 @@
 @endif
 
 {{-- Header Banner & Search Filter --}}
-<div class="card card-dark-hero border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%) !important; color: white !important; overflow: hidden; position: relative;">
+<div class="card card-dark-hero border-0 shadow-sm mb-4" style="border-radius: 20px; background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important; color: #ffffff !important; overflow: hidden; position: relative;">
     <div class="p-4 position-relative" style="z-index: 2;">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-2">
             <div>
                 <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold mb-2" style="font-size: 0.72rem;">
                     <i class="fa-solid fa-graduation-cap me-1"></i> CLSU Office of Student Affairs
                 </span>
-                <h3 class="fw-bold text-white mb-1" style="font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">
+                <h3 class="fw-bold mb-1" style="font-family: 'Poppins', sans-serif; letter-spacing: -0.5px; color: #ffffff !important;">
                     Available Scholarship Programs
                 </h3>
-                <p class="text-white-50 mb-0 small" style="max-width: 600px; font-size: 0.85rem;">
+                <p class="mb-0 small" style="max-width: 600px; font-size: 0.85rem; color: rgba(255, 255, 255, 0.85) !important;">
                     Review complete requirements, maximum GWA thresholds, renewal limits, and program guidelines for the active academic term.
                 </p>
             </div>
             @if(isset($activeTerm) && $activeTerm)
-                <div class="text-md-end bg-white bg-opacity-10 px-3 py-2 rounded-4 border border-white border-opacity-10">
-                    <span class="text-white-50 d-block small" style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px;">Active Academic Term</span>
+                <div class="text-md-end px-3 py-2 rounded-4" style="background: rgba(255, 255, 255, 0.15) !important; border: 1px solid rgba(255, 255, 255, 0.25) !important;">
+                    <span class="d-block small" style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255, 255, 255, 0.8) !important;">Active Academic Term</span>
                     <strong class="text-warning small">{{ $activeTerm->semester }} Semester, A.Y. {{ $activeTerm->academic_year }}</strong>
                 </div>
             @endif

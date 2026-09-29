@@ -211,10 +211,10 @@
 
     /* Scholar Mode Styling */
     .scholar-banner {
-        background: linear-gradient(135deg, #07331c 0%, #0C4E2D 100%);
+        background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important;
         border-radius: 16px;
         padding: 2.25rem;
-        color: white;
+        color: #ffffff !important;
         margin-bottom: 1.5rem;
         position: relative;
         overflow: hidden;
@@ -748,20 +748,20 @@
     @else
 
     {{-- GUIDED ONBOARDING BANNER FOR NEW STUDENTS --}}
-    <div class="card p-0 overflow-hidden mb-4" style="border: none; border-radius: 20px; box-shadow: var(--shadow-card);">
-        <div style="background: linear-gradient(135deg, var(--clsu-green-dark), #1a5c38); padding: 2.5rem 2rem; color: white; position: relative; overflow: hidden;">
+    <div class="card card-dark-hero p-0 overflow-hidden mb-4" style="border: none; border-radius: 20px; box-shadow: var(--shadow-card); background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important; color: #ffffff !important;">
+        <div style="background: transparent; padding: 2.5rem 2rem; color: #ffffff !important; position: relative; overflow: hidden;">
             <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);background-size:24px 24px;pointer-events:none;"></div>
             <div class="d-flex align-items-center gap-4 position-relative">
-                <div style="font-size: 3.5rem; opacity: 0.85;" class="d-none d-sm-block"><i class="fa-solid fa-graduation-cap"></i></div>
+                <div style="font-size: 3.5rem; opacity: 0.85;" class="d-none d-sm-block text-white"><i class="fa-solid fa-graduation-cap"></i></div>
                 <div>
-                    <div class="fw-bold mb-1" style="font-size: 1.35rem; font-family: 'Poppins', sans-serif;">
+                    <div class="fw-bold mb-1 text-white" style="font-size: 1.35rem; font-family: 'Poppins', sans-serif; color: #ffffff !important;">
                         Welcome to A.E.G.I.S., {{ auth()->user()->name }} 👋
                     </div>
-                    <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem; max-width: 520px;" class="mb-3">
+                    <p style="color: rgba(255,255,255,0.85) !important; font-size: 0.9rem; max-width: 520px;" class="mb-3">
                         Your official CLSU scholarship portal is active. View available programs and start your application today!
                     </p>
                     <a href="{{ route('student.apply') }}" class="btn fw-bold px-4 py-2.5 rounded-pill"
-                       style="background: white; color: var(--clsu-green); font-size: 0.9rem; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
+                       style="background: white !important; color: var(--clsu-green) !important; font-size: 0.9rem; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
                         <i class="fa-solid fa-paper-plane me-1.5"></i> Apply for Scholarship Now
                     </a>
                 </div>
