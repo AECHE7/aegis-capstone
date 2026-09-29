@@ -25,6 +25,16 @@ class DatabaseSeeder extends Seeder
         );
 
         \App\Models\User::firstOrCreate(
+            ['email' => 'staff@clsu.edu.ph'],
+            [
+                'name' => 'OSA Staff',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'email_verified_at' => now()
+            ]
+        );
+
+        \App\Models\User::firstOrCreate(
             ['email' => 'director@clsu.edu.ph'],
             [
                 'name' => 'OSA Director',
@@ -33,6 +43,40 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now()
             ]
         );
+
+        \App\Models\User::firstOrCreate(
+            ['email' => 'superadmin@clsu.edu.ph'],
+            [
+                'name' => 'CLSU Super Admin',
+                'password' => Hash::make('password'),
+                'role' => 'superadmin',
+                'email_verified_at' => now()
+            ]
+        );
+
+        $demoStudent = \App\Models\User::firstOrCreate(
+            ['email' => 'student@clsu.edu.ph'],
+            [
+                'name' => 'Juan Dela Cruz',
+                'password' => Hash::make('password'),
+                'role' => 'student',
+                'email_verified_at' => now(),
+                'dpa_consent_at' => now()
+            ]
+        );
+
+        if (!$demoStudent->profile()->exists()) {
+            \App\Models\StudentProfile::create([
+                'user_id' => $demoStudent->id,
+                'clsu_id_number' => '22-1234',
+                'college' => 'College of Science',
+                'course' => 'BS Information Technology',
+                'year_level' => '3rd Year',
+                'contact_number' => '09171234567',
+                'guardian_name' => 'Maria Dela Cruz',
+                'emergency_contact_number' => '09181234567',
+            ]);
+        }
 
         \App\Models\User::firstOrCreate(
             ['email' => 'gadianoriel07@gmail.com'],

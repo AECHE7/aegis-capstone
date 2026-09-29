@@ -178,12 +178,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/email/verification-notification', [\App\Http\Controllers\Auth\EmailVerificationNotificationController::class, 'store'])->middleware(['throttle:6,1'])->name('verification.send');
     Route::get('/email/verification-status', function () {
         $user = auth()->user();
+        if ($user && \App\Http\Controllers\AuthController::isDummyAccount($user->email) && !$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
         $verified = $user && $user->hasVerifiedEmail();
         $redirectUrl = null;
         if ($verified && $user) {
             $redirectUrl = match($user->role) {
                 'admin'      => route('admin.dashboard'),
-                'superadmin' => route('superadmin.analytics'),
+                'superadmin' => route('superadmin.scholarships'),
                 default      => route('student.dashboard'),
             };
         }

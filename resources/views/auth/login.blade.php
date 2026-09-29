@@ -683,12 +683,12 @@
                     <i class="fa-solid fa-arrow-right-to-bracket" id="btnArrow"></i>
                 </button>
 
-                @if(app()->environment('local', 'testing') && ($demoStudent || $demoAdmin || $demoSuperAdmin))
+                @if($demoStudent || $demoAdmin || $demoSuperAdmin)
                 <div class="or-divider">QUICK DEMO ACCESS</div>
-                <div class="row g-2 mb-3">
+                <div class="row g-2 mb-2">
                     @if($demoStudent)
                     <div class="col-4">
-                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoStudent->email }}')">
+                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoStudent->email }}')" title="Sign in as Student ({{ $demoStudent->email }})">
                             <i class="fa-solid fa-user-graduate text-success fs-5"></i>
                             <span class="small fw-semibold" style="font-size:0.72rem;">Student</span>
                         </button>
@@ -696,20 +696,23 @@
                     @endif
                     @if($demoAdmin)
                     <div class="col-4">
-                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoAdmin->email }}')">
+                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoAdmin->email }}')" title="Sign in as OSA Staff ({{ $demoAdmin->email }})">
                             <i class="fa-solid fa-user-shield text-info fs-5"></i>
-                            <span class="small fw-semibold" style="font-size:0.72rem;">OSA Admin</span>
+                            <span class="small fw-semibold" style="font-size:0.72rem;">Staff (OSA)</span>
                         </button>
                     </div>
                     @endif
                     @if($demoSuperAdmin)
                     <div class="col-4">
-                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoSuperAdmin->email }}')">
+                        <button type="button" class="quick-chip w-100" onclick="fillDemo('{{ $demoSuperAdmin->email }}')" title="Sign in as Director / SuperAdmin ({{ $demoSuperAdmin->email }})">
                             <i class="fa-solid fa-crown text-warning fs-5"></i>
                             <span class="small fw-semibold" style="font-size:0.72rem;">Director</span>
                         </button>
                     </div>
                     @endif
+                </div>
+                <div class="text-center text-muted mb-3" style="font-size: 0.72rem;">
+                    <i class="fa-solid fa-shield-check text-success me-1"></i> Dummy demo accounts automatically bypass MFA &amp; email verification
                 </div>
                 @endif
 

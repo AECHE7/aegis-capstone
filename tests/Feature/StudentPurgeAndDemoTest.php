@@ -124,12 +124,9 @@ class StudentPurgeAndDemoTest extends TestCase
         $studentResp = $this->actingAs($student)->get(route('profile.security'));
         $studentResp->assertStatus(200);
         $studentResp->assertSee('id="systemDemoModal"', false);
-        $studentResp->assertSee('id="student-demo-tab"', false);
-        $studentResp->assertSee('id="admin-demo-tab"', false);
-        $studentResp->assertSee('id="director-demo-tab"', false);
-        $studentResp->assertSee('Student Applicant', false);
-        $studentResp->assertSee('OSA Staff Evaluator', false);
-        $studentResp->assertSee('OSA Director / Super Admin', false);
+        $studentResp->assertSee('Student Applicant Guide', false);
+        $studentResp->assertDontSee('id="admin-demo-tab"', false);
+        $studentResp->assertDontSee('id="director-demo-tab"', false);
         $studentResp->assertSee('STAGE 01', false);
         $studentResp->assertSee('Institutional Registration', false);
 
@@ -139,7 +136,7 @@ class StudentPurgeAndDemoTest extends TestCase
         $adminResp->assertSee('id="systemDemoModal"', false);
         $adminResp->assertSee('id="student-demo-tab"', false);
         $adminResp->assertSee('id="admin-demo-tab"', false);
-        $adminResp->assertSee('id="director-demo-tab"', false);
+        $adminResp->assertDontSee('id="director-demo-tab"', false);
         $adminResp->assertSee('Live Review Queue', false);
 
         // 3. Superadmin view renders modal with tabs and director modules

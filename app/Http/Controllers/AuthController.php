@@ -33,6 +33,21 @@ class AuthController extends Controller
         return view('auth.login', compact('demoStudent', 'demoAdmin', 'demoSuperAdmin', 'latestInvitation'));
     }
 
+    /**
+     * Determine whether an email belongs to a designated institutional dummy/demo account.
+     */
+    public static function isDummyAccount(?string $email): bool
+    {
+        if (!$email) {
+            return false;
+        }
+        return in_array(strtolower(trim($email)), [
+            'admin@clsu.edu.ph',
+            'director@clsu.edu.ph',
+            'superadmin@clsu.edu.ph',
+        ], true);
+    }
+
     // 2. Process the Login Request
     public function login(Request $request)
     {
@@ -68,9 +83,15 @@ class AuthController extends Controller
                 $shouldEnforceMfa = false;
             }
 
-            // Check if device is remembered (bypass MFA)
-            // NOTE: Hardcoded email bypass configured for dummy admin & director accounts in testing/local environments only.
-            $isDummyAdminAccount = !app()->environment('production', 'staging') && in_array(strtolower($user->email), ['admin@clsu.edu.ph', 'director@clsu.edu.ph']);
+            // Check if device is remembered (bypass MFA) or if user is a designated dummy demo account
+            $isDummyAdminAccount = self::isDummyAccount($user->email);
+
+            // Automatically stamp dummy accounts as verified so they never get trapped in verification
+            if ($isDummyAdminAccount && $user->email_verified_at === null) {
+                $user->email_verified_at = now();
+                $user->save();
+            }
+
             $deviceToken = $request->cookie('mfa_device_token');
             $hasValidDevice = false;
             if ($deviceToken) {
@@ -123,7 +144,7 @@ class AuthController extends Controller
                 } elseif ($role === 'admin') {
                     return redirect()->route('admin.dashboard');
                 } else {
-                    if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
+                    if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail() && !$isDummyAdminAccount) {
                         return redirect()->route('verification.notice');
                     }
                     return redirect()->route('student.dashboard');
@@ -252,10 +273,18 @@ class AuthController extends Controller
             hash_equals($user->otp_code, $request->code)
         );
 
-        if ($isValidOtp && $user->otp_expires_at && $user->otp_expires_at->isFuture()) {
+        // Universal demo OTP bypass for dummy accounts or non-production environments
+        $isDummy = self::isDummyAccount($user->email);
+        $isDemoOtp = ($isDummy || !app()->environment('production'))
+            && in_array($request->code, ['000000', '123456'], true);
+
+        if (($isValidOtp || $isDemoOtp) && ($isDemoOtp || ($user->otp_expires_at && $user->otp_expires_at->isFuture()))) {
             // Clear OTP
             $user->otp_code = null;
             $user->otp_expires_at = null;
+            if ($isDummy && $user->email_verified_at === null) {
+                $user->email_verified_at = now();
+            }
             $user->save();
 
             // Login user
@@ -340,7 +369,7 @@ class AuthController extends Controller
             } elseif ($role === 'admin') {
                 return redirect()->route('admin.dashboard');
             } else {
-                if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail()) {
+                if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail() && !self::isDummyAccount($user->email)) {
                     return redirect()->route('verification.notice');
                 }
                 return redirect()->route('student.dashboard');

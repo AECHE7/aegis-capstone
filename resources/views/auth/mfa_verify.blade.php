@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -150,6 +150,16 @@
             <i class="fa-solid fa-clock me-1" style="font-size: 0.75rem;"></i>
             Code expires in <span id="expiryDisplay" style="font-weight: 700; color: #0C4E2D; font-family: monospace;">10:00</span>
         </div>
+
+        @if(\App\Http\Controllers\AuthController::isDummyAccount($user->email ?? '') || !app()->environment('production'))
+            <div class="alert border-0 small mb-3 py-2 text-start d-flex align-items-center gap-2" style="background:#f0fdf4; color:#166534; border-radius:10px; border-left: 3px solid #16a34a !important;">
+                <i class="fa-solid fa-flask-vial flex-shrink-0 text-success fs-5"></i>
+                <div style="font-size:0.8rem; line-height: 1.4;">
+                    <strong>Demo / Testing Mode:</strong><br>
+                    Use universal OTP code <code role="button" onclick="document.getElementById('otpInput').value='123456'; document.getElementById('otpInput').dispatchEvent(new Event('input'));" style="font-weight:700; color:#0C4E2D; background:#dcfce7; padding:1px 6px; border-radius:4px; cursor:pointer;" title="Click to fill 123456">123456</code> or <code role="button" onclick="document.getElementById('otpInput').value='000000'; document.getElementById('otpInput').dispatchEvent(new Event('input'));" style="font-weight:700; color:#0C4E2D; background:#dcfce7; padding:1px 6px; border-radius:4px; cursor:pointer;" title="Click to fill 000000">000000</code>.
+                </div>
+            </div>
+        @endif
 
         @if(session('success'))
             <div class="alert alert-success border-0 small mb-4 py-2" style="background-color: #dcfce7; color: #14532d;">

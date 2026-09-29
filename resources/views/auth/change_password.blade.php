@@ -60,8 +60,9 @@
                     @endif
                     <button type="button" class="btn btn-sm px-3.5 py-2 rounded-pill fw-semibold text-white shadow-xs" 
                             style="background: rgba(255, 255, 255, 0.18); border: 1.5px solid rgba(255, 255, 255, 0.5); backdrop-filter: blur(4px); font-size: 0.82rem;"
+                            title="Interactive Guided Demo & Training Guide"
                             onclick="openSystemTourModal('{{ auth()->user()->role }}')">
-                        <i class="fa-solid fa-graduation-cap me-1.5 text-warning"></i> Guided Tour
+                        <i class="fa-solid fa-graduation-cap me-1.5 text-warning"></i> Start Guided Tour
                     </button>
                 </div>
             </div>

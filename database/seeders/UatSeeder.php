@@ -38,9 +38,29 @@ class UatSeeder extends Seeder
         );
 
         User::firstOrCreate(
+            ['email' => 'staff@clsu.edu.ph'],
+            [
+                'name' => 'OSA Staff',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'email_verified_at' => now()
+            ]
+        );
+
+        User::firstOrCreate(
             ['email' => 'director@clsu.edu.ph'],
             [
                 'name' => 'OSA Director',
+                'password' => Hash::make('password'),
+                'role' => 'superadmin',
+                'email_verified_at' => now()
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'superadmin@clsu.edu.ph'],
+            [
+                'name' => 'CLSU Super Admin',
                 'password' => Hash::make('password'),
                 'role' => 'superadmin',
                 'email_verified_at' => now()

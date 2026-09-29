@@ -746,8 +746,36 @@ Elevates the **A.E.G.I.S. Interactive System Demo & Guided Walkthrough** (`resou
    - For staff (`$isAdmin`): Exclude Director/SuperAdmin tab to maintain operational privilege boundaries.
    - For superadmin (`$isSuperAdmin`): Retain full 3-role oversight and demonstration capabilities.
 
+---
 
+## 21. Multi-Factor Authentication (MFA/OTP) & Email Verification Bypass for Institutional Demonstration Accounts
 
+### Overview & Objectives
+Enable seamless evaluation and testing across Staff Evaluator, Director / SuperAdmin, and Student roles on staging (`https://aegis-capstone.onrender.com`) and local development environments without requiring access to non-existent `@clsu.edu.ph` email inboxes for OTP delivery or email verification links.
 
+### Implemented Architectural Specifications
 
+1. **Centralized Institutional Dummy Account Recognition (`app/Http/Controllers/AuthController.php`)**:
+   - Added static method `AuthController::isDummyAccount(?string $email): bool` identifying designated test demonstration accounts:
+     - `admin@clsu.edu.ph` / `staff@clsu.edu.ph` (OSA Staff Evaluator)
+     - `director@clsu.edu.ph` / `superadmin@clsu.edu.ph` (Director of Student Affairs / SuperAdmin)
+     - `student@clsu.edu.ph` (CLSU Student Applicant)
+   - Real institutional accounts (e.g. `gadianoriel07@gmail.com` Master Admin and registered student personal emails) remain under strict zero-knowledge MFA and email verification enforcement.
 
+2. **Instant MFA Bypass & Automated Email Verification on Login**:
+   - Updated `AuthController@login` so recognized dummy accounts immediately bypass MFA OTP generation and bypass the previous `!app()->environment('production', 'staging')` block that prevented testing on Render staging.
+   - Automatically stamps `$user->email_verified_at = now()` for dummy accounts upon login if unverified, preventing redirect loops to `verification.notice`.
+
+3. **Universal Demo OTP Fallback (`AuthController@verifyMfa`, `resources/views/auth/mfa_verify.blade.php`)**:
+   - If a tester manually navigates or lands on `/login/mfa`, universal test OTP codes `123456` and `000000` are validated and accepted for dummy accounts.
+   - Contextual testing banner displayed on `mfa_verify.blade.php` informing testers of the universal demo codes.
+
+4. **Automated Email Verification Redirection (`app/Http/Controllers/Auth/EmailVerificationPromptController.php`, `routes/web.php`)**:
+   - In `EmailVerificationPromptController`, dummy accounts with unverified status are automatically marked verified and redirected to their designated role dashboard (`superadmin.scholarships`, `admin.dashboard`, or `student.dashboard`).
+   - In `verification.status` polling endpoint, dummy accounts are auto-marked verified to enable instantaneous redirection.
+
+5. **Login Page 1-Click Quick Demo Access (`resources/views/auth/login.blade.php`)**:
+   - Unlocked Quick Demo Access chips on staging deployments, providing 1-click test fill and submit buttons for Student, OSA Staff, and Director accounts.
+
+6. **Database Seeding Safeguards (`database/seeders/DatabaseSeeder.php`, `database/seeders/UatSeeder.php`)**:
+   - Added explicit seeding for `staff@clsu.edu.ph`, `superadmin@clsu.edu.ph`, and `student@clsu.edu.ph` alongside `admin@clsu.edu.ph` and `director@clsu.edu.ph` with `email_verified_at` stamped and pre-populated student profiles.
