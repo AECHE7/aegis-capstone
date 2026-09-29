@@ -806,3 +806,39 @@ Enable seamless evaluation and testing across Staff Evaluator, Director / SuperA
    - **Scholarship Catalog (`resources/views/scholarships/catalog.blade.php`)**: Hero search banner updated with `.card-dark-hero`, high-contrast heading, and high-opacity term badge.
    - **Student Dashboard (`resources/views/student/dashboard.blade.php`)**: `.scholar-banner` and new-student onboarding card updated with `.card-dark-hero`, guaranteed dark gradient, and white headings.
    - **Director Analytics (`resources/views/superadmin/analytics.blade.php`)**: `.dark-stat` and `.export-card` classes hardened with `!important` dark gradient backgrounds and white typography.
+
+---
+
+## 23. Capstone Evaluation & Client Testing Materials Preparation
+
+### Context & Strategic Realignment
+- **Adviser Guidance (Messenger Consultation)**:
+  - QA submission to CLSU MISO is omitted as A.E.G.I.S. operates as an independent, institutional capstone module tailored for the Office of Student Affairs (OSA).
+  - Adopted 3 testing approaches:
+    1. **Client / End-User System Acceptance Testing (UAT)** (CLSU OSA Administrators & Student Applicants).
+    2. **ISO/IEC 25010:2023 Product Quality Evaluation** (IT Experts, Faculty Evaluators & End-Users across 8 characteristics: Functional Suitability, Performance Efficiency, Compatibility, Interaction Capability, Reliability, Security, Flexibility, Safety).
+    3. **Research Participant Qualitative Usability Interviews & Feedback** (governed by the Research Participant Interview Consent Form under R.A. 10173 Data Privacy Act).
+  - All materials tailored for A.E.G.I.S., Central Luzon State University (CLSU), College of Engineering, and Department of Information Technology, purging generic course codes (e.g. COMSCI 3100).
+
+### Document Customization & Implementation
+1. **Research Participant Interview Consent Form (`docs/Research_Participant_Interview_Consent_Form.docx`)**:
+   - **Institutional Heading**: Central Luzon State University, College of Engineering, Department of Information Technology, Science City of Muñoz, Nueva Ecija.
+   - **Study Identification**: Title: `A.E.G.I.S.: Automated Evaluation and Grade Integrity System with Document Forensics for Central Luzon State University - Office of Student Affairs`.
+   - **Researchers**: `Joshua Razon, Noriel Gadiano, John Andrei Carillo II (BSIT 4-1)`.
+   - **Institutional Contacts**: `noriel.gadiano@clsu2.edu.ph | joshua.razon@clsu2.edu.ph | johnandrei.carillo@clsu2.edu.ph`.
+   - **Compliance**: Full alignment with Republic Act No. 10173 (Data Privacy Act of 2012).
+
+2. **Client Testing & ISO/IEC 25010:2023 End-User Evaluation Form (`docs/Client_Testing_and_ISO25010_End_User_Evaluation.docx`)**:
+   - **Client Information**: Central Luzon State University — Office of Student Affairs (CLSU OSA); System Build: `A.E.G.I.S. v1.0.0 (Cloud Staging Deployment: https://aegis-capstone.onrender.com)`.
+   - **Pre-Populated Core Test Scenarios (10 Modules)**:
+     1. Student Registration & Academic Profile Setup.
+     2. Scholarship Catalog Discovery & Eligibility Filtering.
+     3. Paperless Application & Encrypted Document Upload (AES-256).
+     4. Automated OCR Grade Parsing & GWA Computation (Tesseract OCR).
+     5. AI Document Forensics & Tamper Detection (ELA + ResNet-50 Dual-CNN).
+     6. Staff Application Review & Triage Queue (Interactive Zoom Canvas & Overlays).
+     7. Scholarship Award Determination & Status Notification.
+     8. Official Scholarship Form PDF Generation & QR Verification.
+     9. Role-Based Access Control & 2FA Device Management.
+     10. Executive KPI Analytics & Tamper-Evident Audit Trail Export.
+   - **ISO/IEC 25010:2023 Quality Evaluation**: Pre-filled with project title, CLSU OSA organization, evaluation date, and respondent role selectors.
