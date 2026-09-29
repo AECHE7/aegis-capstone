@@ -213,6 +213,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Announcements feed for students
         Route::get('/student/announcements', [\App\Http\Controllers\AnnouncementController::class, 'studentFeed'])->name('student.announcements');
+
+        // Direct Download of Official Approved Application Form (PDF)
+        Route::get('/application/{id}/download-form', [ApplicationController::class, 'downloadApprovedForm'])->name('student.application.download-form');
     });
 
     // OSA ADMIN DASHBOARD
@@ -230,6 +233,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-csv', [\App\Http\Controllers\ReportController::class, 'exportCsv'])->name('admin.export');
         Route::get('/export-pdf', [\App\Http\Controllers\ReportController::class, 'exportPdf'])->name('admin.exportPdf');
         Route::get('/review/{id}/forensic-pdf/{docId?}', [\App\Http\Controllers\ReportController::class, 'exportForensicReport'])->name('admin.forensicPdf');
+        Route::get('/review/{id}/download-form', [AdminController::class, 'downloadApprovedForm'])->name('admin.application.download-form');
         
         // Restore soft-deleted application (Admin Action)
         Route::post('/review/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.restore');

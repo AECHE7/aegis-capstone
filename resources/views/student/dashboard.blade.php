@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'My Application | A.E.G.I.S.')
 
@@ -304,10 +304,15 @@
                             You are currently an active scholar for <strong>{{ $application->program_name }}</strong>. Keep up your excellent academic performance!
                         </p>
                     </div>
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0 d-flex flex-column align-items-md-end gap-2">
                         <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-semibold" style="font-size: 0.8rem;">
                             <i class="fa-solid fa-graduation-cap me-1"></i> Active Scholar
                         </span>
+                        <a href="{{ route('student.application.download-form', $application->id) }}" 
+                           class="btn btn-sm btn-light fw-bold text-dark rounded-pill px-3 py-1.5 shadow-sm" 
+                           target="_blank">
+                            <i class="fa-solid fa-file-pdf text-danger me-1"></i> Print / Download Form
+                        </a>
                     </div>
                 </div>
             </div>
@@ -398,6 +403,12 @@
                             <i class="fa-solid fa-lock me-1"></i> Renewal Locked
                         </button>
                     @endif
+
+                    <a href="{{ route('student.application.download-form', $application->id) }}" 
+                       class="btn btn-outline-success px-4 py-2.5 fw-bold rounded-pill"
+                       target="_blank">
+                        <i class="fa-solid fa-file-pdf text-danger me-1"></i> Download Official Form (PDF)
+                    </a>
 
                     <button type="button" class="btn btn-outline-danger px-4 py-2.5 fw-bold rounded-pill" onclick="triggerForfeit({{ $application->id }})">
                         <i class="fa-solid fa-circle-xmark me-1"></i> Forfeit Scholarship / Back Out

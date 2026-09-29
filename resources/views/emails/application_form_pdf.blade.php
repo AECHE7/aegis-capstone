@@ -5,11 +5,11 @@
     <title>CLSU | {{ $application->program_name ?? 'Scholarship Grant' }} Application & Evaluation Form</title>
     <style>
         @page {
-            margin: 15px 20px;
+            margin: 14px 20px;
         }
         body {
             font-family: Arial, sans-serif;
-            font-size: 9px;
+            font-size: 8.5px;
             color: #0f172a;
             line-height: 1.25;
             margin: 0;
@@ -18,36 +18,38 @@
         .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         .title-table {
             width: 100%;
             border-collapse: collapse;
-            border: 1px solid #0f5934;
+            border: 1.5px solid #0f5934;
             margin-bottom: 5px;
+            background-color: #ffffff;
         }
         .grid-table {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #0f5934;
             margin-bottom: 5px;
+            background-color: #ffffff;
         }
         .grid-table td, .grid-table th {
             border: 1px solid #0f5934;
             padding: 3px 5px;
             vertical-align: top;
         }
-        .section-title {
+        .section-header {
             background-color: #0f5934;
             color: #ffffff;
             font-size: 8px;
             font-weight: bold;
             text-transform: uppercase;
-            padding: 3px 6px;
+            padding: 2.5px 6px;
             letter-spacing: 0.5px;
         }
         .label-text {
-            font-size: 7px;
+            font-size: 6.8px;
             color: #475569;
             font-weight: bold;
             display: block;
@@ -55,7 +57,7 @@
             margin-bottom: 1px;
         }
         .value-text {
-            font-size: 9px;
+            font-size: 8.5px;
             font-weight: bold;
             color: #0f172a;
             display: block;
@@ -66,7 +68,7 @@
             height: 8px;
             border: 1px solid #475569;
             text-align: center;
-            line-height: 6px;
+            line-height: 7px;
             font-size: 7px;
             font-family: Arial, sans-serif;
             font-weight: bold;
@@ -79,56 +81,76 @@
             color: #ffffff;
             border-color: #0f5934;
         }
-        .requirements-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .requirements-list li {
-            margin-bottom: 3px;
-        }
         .attestation-box {
-            font-size: 8px;
-            line-height: 1.3;
+            font-size: 7.5px;
+            line-height: 1.25;
             text-align: justify;
             border: 1px solid #cbd5e1;
-            padding: 5px;
+            padding: 4px 6px;
             background-color: #f8fafc;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .signature-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 6px;
+            margin-bottom: 4px;
         }
         .signature-line {
-            border-bottom: 1px solid #475569;
-            width: 80%;
-            margin: 0 auto 3px;
+            border-bottom: 1px solid #334155;
+            width: 85%;
+            margin: 0 auto 2px;
             font-weight: bold;
-            font-size: 9px;
+            font-size: 8.5px;
             text-align: center;
+            color: #0f172a;
         }
         .signature-title {
-            font-size: 7.5px;
+            font-size: 7px;
             color: #475569;
             font-weight: bold;
             text-align: center;
             text-transform: uppercase;
         }
         .aegis-badge-card {
-            border: 1px solid #f2a900;
-            background-color: #fefbeb;
-            padding: 5px;
+            border: 1px solid #d97706;
+            background-color: #fffbeb;
+            padding: 4px 6px;
             border-radius: 4px;
-            margin-top: 8px;
+            margin-top: 6px;
+        }
+        .custom-fields-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.5px;
+        }
+        .custom-fields-table td {
+            padding: 2px 4px;
+            border-bottom: 1px dashed #cbd5e1;
         }
     </style>
 </head>
 <body>
 
     @php
-        // Helper to query custom application fields (fuzzy matching label)
+        // 1. Zero-Failure Base64 Logo Encoding
+        $clsuSealPath = public_path('images/clsu-seal.png');
+        if (!file_exists($clsuSealPath)) {
+            $clsuSealPath = public_path('logo.png');
+        }
+        $clsuLogoBase64 = file_exists($clsuSealPath) 
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($clsuSealPath)) 
+            : null;
+
+        $customOsaLogo = \App\Models\Setting::get('osa_logo');
+        $osaSealPath = ($customOsaLogo && file_exists(storage_path('app/public/' . $customOsaLogo)))
+            ? storage_path('app/public/' . $customOsaLogo)
+            : public_path('images/osa-seal.png');
+        $osaLogoBase64 = file_exists($osaSealPath)
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($osaSealPath))
+            : null;
+
+        // 2. Helper to query custom application fields (fuzzy matching)
         $getField = function($label) use ($application) {
             if (!$application->customFields) {
                 return null;
@@ -143,7 +165,7 @@
             return $field ? trim($field->field_value) : null;
         };
 
-        // Name splitter logic
+        // 3. Name splitter logic
         $name = $application->user->name ?? '';
         $lastName = '';
         $firstName = '';
@@ -173,23 +195,42 @@
                 $firstName = $name;
             }
         }
+
+        // 4. Dynamic Term, Program, and Renewal detection
+        $programName = $application->program_name ?? $application->scholarship?->name ?? 'Official Scholarship Grant';
+        $isRenewal = (bool)($application->is_renewal || str_contains(strtolower($getField('type') ?? ''), 'renewal'));
+        $isNew = !$isRenewal;
+        $termLabel = $application->academicTerm 
+            ? ($application->academicTerm->semester . ', A.Y. ' . $application->academicTerm->academic_year)
+            : ($application->created_at ? $application->created_at->format('F Y') : 'Active Academic Term');
+        $controlNo = 'APP-' . str_pad((string)$application->id, 5, '0', STR_PAD_LEFT);
+        $directorName = \App\Models\User::where('role', 'superadmin')->first()?->name ?? 'Director, Office of Student Affairs';
+        $evaluatorName = $application->evaluator->name ?? 'OSA Scholarship Evaluator';
     @endphp
 
-    <!-- Institutional Header -->
+    <!-- Institutional Header with Authentic CLSU & OSA Logos -->
     <table class="header-table">
         <tr>
-            <td style="width: 15%; text-align: left; vertical-align: middle;">
-                <div style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #0f5934; text-align: center; line-height: 43px; color: #0f5934; font-weight: bold; font-size: 13px; margin: 0 auto;">CLSU</div>
+            <td style="width: 15%; text-align: center; vertical-align: middle;">
+                @if($clsuLogoBase64)
+                    <img src="{{ $clsuLogoBase64 }}" style="width: 50px; height: 50px; object-fit: contain;" alt="CLSU Seal">
+                @else
+                    <div style="width: 46px; height: 46px; border-radius: 50%; border: 2px solid #0f5934; text-align: center; line-height: 44px; color: #0f5934; font-weight: bold; font-size: 12px; margin: 0 auto;">CLSU</div>
+                @endif
             </td>
             <td style="width: 70%; text-align: center; vertical-align: middle;">
-                <div style="font-size: 9px; font-weight: normal; margin-bottom: 1px;">Republic of the Philippines</div>
+                <div style="font-size: 8px; font-weight: normal; color: #334155; margin-bottom: 1px;">Republic of the Philippines</div>
                 <div style="font-size: 12px; font-weight: bold; color: #0f5934; letter-spacing: 0.5px; margin-bottom: 1px;">CENTRAL LUZON STATE UNIVERSITY</div>
-                <div style="font-size: 8px; color: #475569; margin-bottom: 2px;">Science City of Muñoz, Nueva Ecija</div>
-                <div style="font-size: 9px; font-weight: bold; text-transform: uppercase; margin-bottom: 1px;">OFFICE OF STUDENT AFFAIRS</div>
-                <div style="font-size: 8px; font-weight: normal; color: #475569;">Career Development and Employment Services Unit</div>
+                <div style="font-size: 7.5px; color: #475569; margin-bottom: 2px;">Science City of Muñoz, Nueva Ecija, Philippines</div>
+                <div style="font-size: 9.5px; font-weight: bold; color: #0f5934; text-transform: uppercase; margin-bottom: 1px;">OFFICE OF STUDENT AFFAIRS</div>
+                <div style="font-size: 7.5px; font-weight: normal; color: #475569;">Student Welfare and Scholarship Services Division</div>
             </td>
-            <td style="width: 15%; text-align: right; vertical-align: middle;">
-                <div style="width: 45px; height: 45px; border-radius: 50%; border: 2px dashed #f2a900; text-align: center; line-height: 43px; color: #f2a900; font-weight: bold; font-size: 13px; margin: 0 auto;">OSA</div>
+            <td style="width: 15%; text-align: center; vertical-align: middle;">
+                @if($osaLogoBase64)
+                    <img src="{{ $osaLogoBase64 }}" style="width: 50px; height: 50px; object-fit: contain;" alt="OSA Seal">
+                @else
+                    <div style="width: 46px; height: 46px; border-radius: 50%; border: 2px dashed #f2a900; text-align: center; line-height: 44px; color: #f2a900; font-weight: bold; font-size: 12px; margin: 0 auto;">OSA</div>
+                @endif
             </td>
         </tr>
     </table>
@@ -197,36 +238,40 @@
     <!-- Title, Type & 2x2 Picture Block -->
     <table class="title-table">
         <tr>
-            <td style="width: 78%; padding: 8px; vertical-align: middle; border-right: 1px solid #0f5934;">
-                <div style="font-size: 12px; font-weight: bold; color: #0f5934; text-transform: uppercase; margin-bottom: 6px;">
-                    {{ strtoupper($application->program_name ?? 'OFFICIAL SCHOLARSHIP GRANT') }} APPLICATION & EVALUATION FORM
+            <td style="width: 78%; padding: 6px 8px; vertical-align: middle; border-right: 1.5px solid #0f5934;">
+                <div style="font-size: 11px; font-weight: bold; color: #0f5934; text-transform: uppercase; margin-bottom: 3px; line-height: 1.25;">
+                    {{ strtoupper($programName) }} APPLICATION & EVALUATION FORM
                 </div>
-                <div style="margin-top: 6px;">
-                    @php
-                        $appType = strtolower($getField('application type') ?? $getField('type') ?? '');
-                        $isRenewal = str_contains($appType, 'renewal');
-                        $isNew = !$isRenewal;
-                    @endphp
+                <div style="font-size: 7.5px; color: #475569; margin-bottom: 4px;">
+                    <strong>Academic Term:</strong> {{ $termLabel }}
+                    &nbsp;&bull;&nbsp;
+                    <strong>Control No:</strong> {{ $controlNo }}
+                    &nbsp;&bull;&nbsp;
+                    <strong>Official Status:</strong> <span style="color: #15803d; font-weight: bold;">{{ strtoupper($application->status) }}</span>
+                </div>
+                <div style="margin-top: 3px;">
                     <span class="checkbox-box @if($isNew) checkbox-checked @endif">@if($isNew) X @endif</span>
-                    <span style="font-size: 9px; font-weight: bold; margin-right: 20px; vertical-align: middle;">NEW</span>
+                    <span style="font-size: 8px; font-weight: bold; margin-right: 16px; vertical-align: middle;">NEW APPLICANT</span>
                     
                     <span class="checkbox-box @if($isRenewal) checkbox-checked @endif">@if($isRenewal) X @endif</span>
-                    <span style="font-size: 9px; font-weight: bold; vertical-align: middle;">RENEWAL</span>
+                    <span style="font-size: 8px; font-weight: bold; vertical-align: middle;">RENEWAL APPLICANT</span>
                 </div>
             </td>
-            <td style="width: 22%; text-align: center; vertical-align: middle; padding: 4px; height: 80px;">
-                <div style="width: 70px; height: 70px; border: 1px dashed #64748b; margin: 0 auto; background-color: #f8fafc; text-align: center;">
-                    <div style="font-size: 7px; color: #64748b; padding-top: 25px; font-weight: bold; line-height: 1.2;">
-                        PICTURE 2X2<br>Paste here
+            <td style="width: 22%; text-align: center; vertical-align: middle; padding: 4px; height: 75px;">
+                <div style="width: 65px; height: 65px; border: 1px dashed #64748b; margin: 0 auto; background-color: #f8fafc; text-align: center;">
+                    <div style="font-size: 6.5px; color: #64748b; padding-top: 22px; font-weight: bold; line-height: 1.2;">
+                        2X2 PHOTO<br>Passport / ID
                     </div>
                 </div>
             </td>
         </tr>
     </table>
 
-    <!-- Personal Information Grid -->
+    <!-- Section 1: Personal & Academic Profile -->
     <table class="grid-table">
-        <!-- Names Row -->
+        <tr>
+            <th colspan="3" class="section-header" style="text-align: left;">I. Personal & Academic Information</th>
+        </tr>
         <tr>
             <td style="width: 33.3%;">
                 <span class="label-text">SURNAME</span>
@@ -241,13 +286,32 @@
                 <span class="value-text">{{ $middleName ?: '____________________' }}</span>
             </td>
         </tr>
-        <!-- Sex, Civil Status & Age -->
+        <tr>
+            <td>
+                <span class="label-text">CLSU STUDENT ID</span>
+                <span class="value-text" style="color: #0f5934;">
+                    {{ $application->user->profile?->clsu_id_number ?? $getField('clsu id number') ?? $getField('student id') ?? '________' }}
+                </span>
+            </td>
+            <td>
+                <span class="label-text">COLLEGE</span>
+                <span class="value-text">
+                    {{ $application->user->profile?->college ?? $getField('college') ?? '________' }}
+                </span>
+            </td>
+            <td>
+                <span class="label-text">COURSE & YEAR LEVEL</span>
+                <span class="value-text">
+                    {{ trim(($application->user->profile?->course ?? $getField('course') ?? '') . ' - ' . ($application->user->profile?->year_level ?? $getField('year level') ?? '')) ?: '________' }}
+                </span>
+            </td>
+        </tr>
         <tr>
             <td>
                 <span class="label-text">SEX</span>
                 <div style="margin-top: 1px;">
                     @php
-                        $sex = strtolower($getField('sex') ?? $getField('gender') ?? '');
+                        $sex = strtolower($application->user->profile?->gender ?? $getField('sex') ?? $getField('gender') ?? '');
                         $isMale = str_contains($sex, 'male') && !str_contains($sex, 'female');
                         $isFemale = str_contains($sex, 'female');
                     @endphp
@@ -261,7 +325,7 @@
                 <span class="label-text">CIVIL STATUS</span>
                 <div style="margin-top: 1px;">
                     @php
-                        $civil = strtolower($getField('civil status') ?? $getField('status') ?? '');
+                        $civil = strtolower($application->user->profile?->civil_status ?? $getField('civil status') ?? $getField('status') ?? '');
                         $isMarried = str_contains($civil, 'married');
                         $isSingle = !$isMarried;
                     @endphp
@@ -272,28 +336,12 @@
                 </div>
             </td>
             <td>
-                <span class="label-text">AGE</span>
-                <span class="value-text">{{ $getField('age') ?? '________' }}</span>
-            </td>
-        </tr>
-        <!-- Course & Year, DOB, POB -->
-        <tr>
-            <td>
-                <span class="label-text">COURSE & YEAR</span>
-                <span class="value-text">
-                    {{ ($application->user->profile?->course . ' - ' . $application->user->profile?->year_level) ?: ($getField('course & year') ?? '________') }}
+                <span class="label-text">GENERAL WEIGHTED AVERAGE (GWA)</span>
+                <span class="value-text" style="color: #0f5934;">
+                    {{ $application->gwa !== null ? number_format((float)$application->gwa, 2) . ' (Verified by OSA)' : 'Pending Evaluation' }}
                 </span>
             </td>
-            <td>
-                <span class="label-text">DATE OF BIRTH (mm/dd/yyyy)</span>
-                <span class="value-text">{{ $getField('date of birth') ?? $getField('dob') ?? '________' }}</span>
-            </td>
-            <td>
-                <span class="label-text">PLACE OF BIRTH</span>
-                <span class="value-text">{{ $getField('place of birth') ?? '________' }}</span>
-            </td>
         </tr>
-        <!-- Contact & Home Address -->
         <tr>
             <td>
                 <span class="label-text">CONTACT NO.</span>
@@ -302,31 +350,33 @@
                 </span>
             </td>
             <td colspan="2">
-                <span class="label-text">HOME ADDRESS</span>
-                <span class="value-text">{{ $getField('home address') ?? $getField('address') ?? '________' }}</span>
+                <span class="label-text">EMAIL ADDRESS</span>
+                <span class="value-text">{{ $application->user->email ?? '________' }}</span>
             </td>
         </tr>
-        <!-- Local Address -->
         <tr>
             <td colspan="3">
-                <span class="label-text">ADDRESS WHILE STUDYING IN CLSU</span>
+                <span class="label-text">PERMANENT HOME ADDRESS</span>
                 <span class="value-text">
-                    {{ $getField('address while studying in clsu') ?? $getField('clsu address') ?? $getField('local address') ?? '________' }}
+                    {{ $getField('home address') ?? $getField('permanent address') ?? $getField('address') ?? '____________________________________________________________' }}
                 </span>
             </td>
         </tr>
     </table>
 
-    <!-- Family Background Grid -->
+    <!-- Section 2: Family & Guardian Information -->
     <table class="grid-table">
         <tr>
+            <th colspan="2" class="section-header" style="text-align: left;">II. Family Background & Emergency Contact</th>
+        </tr>
+        <tr>
             <td style="width: 50%;">
-                <span class="label-text">NAME OF FATHER</span>
-                <span class="value-text">{{ $getField('name of father') ?? $getField('father name') ?? '________' }}</span>
+                <span class="label-text">NAME OF FATHER / GUARDIAN</span>
+                <span class="value-text">{{ $application->user->profile?->guardian_name ?? $getField('name of father') ?? $getField('father name') ?? $getField('guardian') ?? '________' }}</span>
             </td>
             <td style="width: 50%;">
-                <span class="label-text">OCCUPATION</span>
-                <span class="value-text">{{ $getField('father occupation') ?? $getField('occupation of father') ?? '________' }}</span>
+                <span class="label-text">FATHER OCCUPATION / MONTHLY INCOME</span>
+                <span class="value-text">{{ $getField('father occupation') ?? $getField('occupation of father') ?? $getField('family income') ?? '________' }}</span>
             </td>
         </tr>
         <tr>
@@ -335,231 +385,154 @@
                 <span class="value-text">{{ $getField('name of mother') ?? $getField('mother name') ?? '________' }}</span>
             </td>
             <td>
-                <span class="label-text">OCCUPATION</span>
-                <span class="value-text">{{ $getField('mother occupation') ?? $getField('occupation of mother') ?? '________' }}</span>
+                <span class="label-text">EMERGENCY CONTACT NUMBER</span>
+                <span class="value-text">{{ $application->user->profile?->emergency_contact_number ?? $getField('emergency contact') ?? $getField('mother contact') ?? '________' }}</span>
             </td>
         </tr>
     </table>
 
-    <!-- Educational Background Table -->
-    <table class="grid-table" style="text-align: left;">
-        <thead>
-            <tr style="background-color: #0f5934; color: #ffffff;">
-                <th style="width: 25%; font-size: 7.5px; font-weight: bold; padding: 2px 5px;">EDUCATION</th>
-                <th style="width: 50%; font-size: 7.5px; font-weight: bold; padding: 2px 5px;">NAME OF SCHOOL</th>
-                <th style="width: 25%; font-size: 7.5px; font-weight: bold; padding: 2px 5px;">INCLUSIVE DATES OF ATTENDANCE</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style="font-weight: bold; background-color: #f8fafc; font-size: 8px; padding: 3px 5px;">Elementary</td>
-                <td>{{ $getField('elementary school') ?? $getField('elementary') ?? '________' }}</td>
-                <td>{{ $getField('elementary dates') ?? $getField('elementary inclusive dates') ?? '________' }}</td>
-            </tr>
-            <tr>
-                <td style="font-weight: bold; background-color: #f8fafc; font-size: 8px; padding: 3px 5px;">Secondary</td>
-                <td>{{ $getField('secondary school') ?? $getField('secondary') ?? '________' }}</td>
-                <td>{{ $getField('secondary dates') ?? $getField('secondary inclusive dates') ?? '________' }}</td>
-            </tr>
-            <tr>
-                <td style="font-weight: bold; background-color: #f8fafc; font-size: 8px; padding: 3px 5px;">College</td>
-                <td>{{ $getField('college school') ?? $application->user->profile?->college ?? '________' }}</td>
-                <td>{{ $getField('college dates') ?? $getField('college inclusive dates') ?? '________' }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Documentary Requirements Checklist -->
+    <!-- Section 3: Documentary Requirements Checklist (Dynamic) -->
     <table class="grid-table" style="font-size: 7.5px;">
         <thead>
-            <tr style="background-color: #0f5934; color: #ffffff;">
-                <th style="font-size: 7.5px; font-weight: bold; padding: 2px 5px; text-align: left;">
-                    DOCUMENTARY REQUIREMENTS (Original and other documents, when applicable, should be presented for validation)
+            <tr>
+                <th class="section-header" style="text-align: left;">
+                    III. Documentary Requirements & Verification Checklist
                 </th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td style="padding: 5px; line-height: 1.3;">
+                <td style="padding: 4px 6px; line-height: 1.3;">
                     @php
-                        // 1. Duly accomplished form: Checked since they successfully completed the system application.
+                        // Verification states
                         $hasForm = true;
-                        
-                        // 2a. Form 6: Checked if they uploaded the COG attachment.
-                        $hasForm6 = $application->document ? true : false;
-                        
-                        // 2b. CLSU-CAT: Checked if they are a 1st year student.
-                        $yr = strtolower($application->user->profile?->year_level ?? '');
-                        $hasCat = (str_contains($yr, '1st') || str_contains($yr, 'first')) ? true : false;
-                        
-                        // 2c. Photocopy of CLSU ID: Checked if CLSU ID is populated in the profile.
+                        $hasCog = (bool)$application->document;
                         $hasId = !empty($application->user->profile?->clsu_id_number);
-                        
-                        // 3. ITR/Indigency: Checked if they submitted it.
-                        $hasItr = ($getField('itr') || $getField('income tax return') || $getField('indigency') || $getField('certificate of indigency') || $getField('exempted') || $getField('bir')) ? true : false;
+                        $hasItr = (bool)($getField('itr') || $getField('income') || $getField('indigency') || $getField('tax'));
                     @endphp
+                    
                     <div style="margin-bottom: 2px;">
                         <span class="checkbox-box @if($hasForm) checkbox-checked @endif">@if($hasForm) X @endif</span>
-                        <span style="font-weight: bold; vertical-align: middle;">1. Duly accomplished SPES Application Form;</span>
+                        <span style="font-weight: bold; vertical-align: middle;">1. Duly accomplished {{ $programName }} Application & Evaluation Record (A.E.G.I.S. Verified)</span>
                     </div>
-                    
+
                     <div style="margin-bottom: 2px;">
-                        <span class="checkbox-box @if($hasForm6 || $hasCat || $hasId) checkbox-checked @endif">@if($hasForm6 || $hasCat || $hasId) X @endif</span>
-                        <span style="font-weight: bold; vertical-align: middle;">2. Copy of the following:</span>
-                        <div style="margin-left: 15px; margin-top: 1px;">
-                            <span class="checkbox-box @if($hasForm6) checkbox-checked @endif">@if($hasForm6) X @endif</span>
-                            <span style="vertical-align: middle;">a. Form 6 (previous semester for Summer SPES and current semester for Regular Sem SPES)</span>
-                            <br>
-                            <span class="checkbox-box @if($hasCat) checkbox-checked @endif">@if($hasCat) X @endif</span>
-                            <span style="vertical-align: middle;">b. CLSU-CAT result (for Incoming First Year Students)</span>
-                            <br>
-                            <span class="checkbox-box @if($hasId) checkbox-checked @endif">@if($hasId) X @endif</span>
-                            <span style="vertical-align: middle;">c. Photocopy of CLSU ID</span>
-                        </div>
+                        <span class="checkbox-box @if($hasCog) checkbox-checked @endif">@if($hasCog) X @endif</span>
+                        <span style="font-weight: bold; vertical-align: middle;">2. Certificate of Grades (COG / Form 6 / Transcript of Records)</span>
+                        @if($application->gwa)
+                            <span style="color: #0f5934; font-weight: bold; margin-left: 6px;">[Certified GWA: {{ number_format((float)$application->gwa, 2) }}]</span>
+                        @endif
                     </div>
-                    
-                    <div>
+
+                    <div style="margin-bottom: 2px;">
+                        <span class="checkbox-box @if($hasId) checkbox-checked @endif">@if($hasId) X @endif</span>
+                        <span style="font-weight: bold; vertical-align: middle;">3. Photocopy of Valid CLSU Student Identification Card</span>
+                        @if($application->user->profile?->clsu_id_number)
+                            <span style="color: #475569; margin-left: 6px;">(ID No: {{ $application->user->profile->clsu_id_number }})</span>
+                        @endif
+                    </div>
+
+                    <div style="margin-bottom: 2px;">
                         <span class="checkbox-box @if($hasItr) checkbox-checked @endif">@if($hasItr) X @endif</span>
-                        <span style="font-weight: bold; vertical-align: middle;">3. Copy of the latest Income Tax Return (ITR) of parents or certification issued by BIR that the parents are exempted from payment of tax or Certification of Indigency issued by the Barangay where the SPES applicant resides.</span>
+                        <span style="font-weight: bold; vertical-align: middle;">4. Certificate of Indigency / Parents' Latest Income Tax Return (ITR) / BIR Tax Exemption</span>
                     </div>
+
+                    @if($application->documents && $application->documents->count() > 1)
+                        @foreach($application->documents as $doc)
+                            @if($doc->document_type !== 'COG')
+                                <div style="margin-bottom: 2px;">
+                                    <span class="checkbox-box checkbox-checked">X</span>
+                                    <span style="font-weight: bold; vertical-align: middle;">5. Program Attachment: {{ $doc->document_type }}</span>
+                                    <span style="color: #475569; margin-left: 4px;">({{ $doc->original_name }})</span>
+                                </div>
+                            @endif
+                        @endforeach
+                    @endif
                 </td>
             </tr>
         </tbody>
     </table>
 
-    <!-- Skills & SPES Availment Grid -->
+    <!-- Section 4: Dynamic Program Credentials & Custom Answers -->
+    @if($application->customFields && $application->customFields->count() > 0)
     <table class="grid-table">
         <tr>
-            <td style="width: 50%; padding: 5px; vertical-align: top;">
-                <div style="font-weight: bold; font-size: 8px; color: #0f5934; border-bottom: 1px solid #cbd5e1; padding-bottom: 1px; margin-bottom: 4px; text-transform: uppercase;">
-                    Special Skills
-                </div>
-                <div style="font-size: 9px; font-weight: bold; min-height: 40px; padding-top: 2px;">
-                    {{ $getField('special skills') ?? $getField('skills') ?? '__________________________________' }}
-                </div>
-            </td>
-            <td style="width: 50%; padding: 5px; vertical-align: top;">
-                <div style="font-weight: bold; font-size: 8px; color: #0f5934; border-bottom: 1px solid #cbd5e1; padding-bottom: 1px; margin-bottom: 4px; text-transform: uppercase;">
-                    History of SPES Availment (if applicable)
-                </div>
-                <table style="width: 100%; border-collapse: collapse; font-size: 7.5px;">
-                    <thead>
-                        <tr style="border-bottom: 1px solid #cbd5e1; font-weight: bold; text-align: left;">
-                            <th style="width: 45%; padding-bottom: 1px;">Availment</th>
-                            <th style="width: 20%; padding-bottom: 1px;">Year</th>
-                            <th style="width: 35%; padding-bottom: 1px;">Office Assignment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php
-                            $avail1 = $getField('1st availment year') || $getField('1st availment office');
-                            $avail2 = $getField('2nd availment year') || $getField('2nd availment office');
-                            $avail3 = $getField('3rd availment year') || $getField('3rd availment office');
-                            $avail4 = $getField('4th availment year') || $getField('4th availment office');
-                        @endphp
+            <th colspan="2" class="section-header" style="text-align: left;">IV. Program-Specific Details & Applicant Disclosures</th>
+        </tr>
+        <tr>
+            <td colspan="2" style="padding: 3px 5px;">
+                <table class="custom-fields-table">
+                    @php
+                        $validFields = $application->customFields->filter(function($f) {
+                            return !str_starts_with($f->field_value, 'uploads/');
+                        });
+                        $fieldChunks = $validFields->chunk(2);
+                    @endphp
+                    @forelse($fieldChunks as $chunk)
                         <tr>
-                            <td style="padding: 1px 0;">
-                                <span class="checkbox-box @if($avail1) checkbox-checked @endif">@if($avail1) X @endif</span>
-                                <span style="vertical-align: middle;">1st Availment</span>
-                            </td>
-                            <td style="padding: 1px 0; border-bottom: 1px dashed #cbd5e1;">{{ $getField('1st availment year') ?? '' }}</td>
-                            <td style="padding: 1px 0; border-bottom: 1px dashed #cbd5e1;">{{ $getField('1st availment office') ?? '' }}</td>
+                            @foreach($chunk as $f)
+                                <td style="width: 50%;">
+                                    <span style="color: #475569; font-weight: bold; text-transform: uppercase;">{{ $f->field_name }}:</span>
+                                    <span style="color: #0f172a; font-weight: bold; margin-left: 4px;">{{ $f->field_value }}</span>
+                                </td>
+                            @endforeach
+                            @if($chunk->count() === 1)
+                                <td style="width: 50%;"></td>
+                            @endif
                         </tr>
+                    @empty
                         <tr>
-                            <td style="padding: 1px 0;">
-                                <span class="checkbox-box @if($avail2) checkbox-checked @endif">@if($avail2) X @endif</span>
-                                <span style="vertical-align: middle;">2nd Availment</span>
-                            </td>
-                            <td style="padding: 1px 0; border-bottom: 1px dashed #cbd5e1;">{{ $getField('2nd availment year') ?? '' }}</td>
-                            <td style="padding: 1px 0; border-bottom: 1px dashed #cbd5e1;">{{ $getField('2nd availment office') ?? '' }}</td>
+                            <td style="color: #64748b; font-style: italic;">No additional program questions recorded.</td>
                         </tr>
-                        <tr>
-                            <td style="padding: 1px 0;">
-                                <span class="checkbox-box @if($avail3) checkbox-checked @endif">@if($avail3) X @endif</span>
-                                <span style="vertical-align: middle;">3rd Availment</span>
-                            </td>
-                            <td style="padding: 1px 0; border-bottom: 1px dashed #cbd5e1;">{{ $getField('3rd availment year') ?? '' }}</td>
-                            <td style="padding: 1px 0; border-bottom: 1px dashed #cbd5e1;">{{ $getField('3rd availment office') ?? '' }}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 1px 0;">
-                                <span class="checkbox-box @if($avail4) checkbox-checked @endif">@if($avail4) X @endif</span>
-                                <span style="vertical-align: middle;">4th Availment</span>
-                            </td>
-                            <td style="padding: 1px 0; border-bottom: 1px dashed #cbd5e1;">{{ $getField('4th availment year') ?? '' }}</td>
-                            <td style="padding: 1px 0; border-bottom: 1px dashed #cbd5e1;">{{ $getField('4th availment office') ?? '' }}</td>
-                        </tr>
-                    </tbody>
+                    @endforelse
                 </table>
             </td>
         </tr>
     </table>
+    @endif
 
     <!-- Legal Attestation Box -->
     <div class="attestation-box">
-        I hereby attest that the information above are true and correct to the best of my knowledge, including the attached documents /requirements which I also attest as to their veracity. I agree that any false statement would cause the automatic disqualification /cancellation of the service/ contract/ grant and I shall refund amount received and/or pay damages to CLSU or comply with other sanctions in accordance with law. Any material change in my financial status may affect my eligibility to continue the program.
+        <strong>OATH OF VERACITY & COMPLIANCE:</strong> I hereby certify on my honor that all entries, statements, and supporting documents attached to this application are true, correct, and authentic. I understand that any false declaration or fraudulent modification discovered in this submission shall warrant automatic disqualification, forfeiture of scholarship benefits, restitution of funds received, and administrative sanctions under the Central Luzon State University Student Handbook and the Philippine Data Privacy Act (R.A. 10173).
     </div>
 
-    <!-- Signature Fields -->
+    <!-- Official Signatures -->
     <table class="signature-table">
         <tr>
             <td style="width: 45%; text-align: center; vertical-align: top;">
                 <div class="signature-line">{{ $application->user->name ?? 'Student Applicant' }}</div>
-                <div class="signature-title">Signature of Applicant</div>
+                <div class="signature-title">Signature of Student Grantee</div>
             </td>
             <td style="width: 10%;"></td>
             <td style="width: 45%; text-align: center; vertical-align: top;">
-                <div class="signature-line">{{ $application->evaluator->name ?? 'OSA Director / Officer' }}</div>
-                <div class="signature-title">Signature of OSA Officer</div>
+                <div class="signature-line">{{ $evaluatorName }}</div>
+                <div class="signature-title">Verified by OSA Evaluator / Staff</div>
             </td>
+        </tr>
+        <tr>
+            <td colspan="3" style="height: 10px;"></td>
+        </tr>
+        <tr>
+            <td style="width: 25%;"></td>
+            <td style="width: 50%; text-align: center; vertical-align: top;">
+                <div class="signature-line">{{ $directorName }}</div>
+                <div class="signature-title">Approved by: Director, Office of Student Affairs</div>
+            </td>
+            <td style="width: 25%;"></td>
         </tr>
     </table>
 
-    <!-- Form Footer Code -->
-    <div style="width: 100%; text-align: left; font-size: 6.5px; color: #64748b; margin-top: 5px; font-weight: bold; border-top: 1px solid #e2e8f0; padding-top: 3px;">
-        ACA.OSA.CDE.F.007 (Revision No. 0; October 25, 2018)
-    </div>
-
-    <!-- Student Custom Responses and File Uploads Section -->
-    @if(($application->customFields && $application->customFields->count() > 0) || $application->documents->count() > 1)
-    <div style="margin-top: 10px; border: 1px solid #0f5934; border-radius: 4px; padding: 5px; background-color: #f8fafc; page-break-inside: avoid;">
-        <div style="font-weight: bold; color: #0f5934; font-size: 8px; text-transform: uppercase; margin-bottom: 3px; border-bottom: 1px solid #0f5934; padding-bottom: 1px;">
-            📝 Student Application Responses & Custom Credentials
-        </div>
-        <table style="width: 100%; border-collapse: collapse; font-size: 7.5px;">
-            @if($application->customFields && $application->customFields->count() > 0)
-                @foreach($application->customFields as $field)
-                    @if(!str_starts_with($field->field_value, 'uploads/'))
-                        <tr style="border-bottom: 1px dashed #cbd5e1;">
-                            <td style="width: 40%; font-weight: bold; padding: 2px 0; color: #475569; text-transform: uppercase;">{{ $field->field_name }}:</td>
-                            <td style="width: 60%; padding: 2px 0; color: #0f172a; font-weight: bold;">{{ $field->field_value }}</td>
-                        </tr>
-                    @endif
-                @endforeach
-            @endif
-            @foreach($application->documents as $doc)
-                @if($doc->document_type !== 'COG')
-                    <tr style="border-bottom: 1px dashed #cbd5e1;">
-                        <td style="width: 40%; font-weight: bold; padding: 2px 0; color: #475569; text-transform: uppercase;">Uploaded {{ $doc->document_type }}:</td>
-                        <td style="width: 60%; padding: 2px 0; color: #0f172a; font-weight: bold;">{{ $doc->original_name }} (Verified by A.E.G.I.S.)</td>
-                    </tr>
-                @endif
-            @endforeach
-        </table>
-    </div>
-    @endif
-
-    <!-- A.E.G.I.S. Digital Forensics Audit Trail Section (Thesis Alignment Badge) -->
+    <!-- A.E.G.I.S. Digital Forensics Clearance Badge -->
     <div class="aegis-badge-card">
-        <div style="font-weight: bold; color: #b45309; font-size: 8px; text-transform: uppercase; margin-bottom: 2px;">
-            🛡 A.E.G.I.S. Grade Integrity System Clearance Report
+        <div style="font-weight: bold; color: #b45309; font-size: 7.5px; text-transform: uppercase; margin-bottom: 2px;">
+            🛡 A.E.G.I.S. Institutional Security & AI Verification Clearance
         </div>
-        <table style="width: 100%; border-collapse: collapse; font-size: 7.5px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 7px;">
             <tr>
-                <td style="width: 25%; font-weight: bold; padding: 1px 0; color: #475569;">Verification ID:</td>
-                <td style="width: 25%; font-weight: bold; padding: 1px 0; color: #0f172a;">AEGIS-{{ strtoupper(substr(md5($application->id), 0, 8)) }}</td>
-                <td style="width: 25%; font-weight: bold; padding: 1px 0; color: #475569;">AI Classifier Result:</td>
-                <td style="width: 25%; font-weight: bold; padding: 1px 0;">
+                <td style="width: 25%; font-weight: bold; color: #475569;">Verification Hash:</td>
+                <td style="width: 25%; font-weight: bold; color: #0f172a;">AEGIS-{{ strtoupper(substr(md5($application->id . $application->created_at), 0, 10)) }}</td>
+                <td style="width: 25%; font-weight: bold; color: #475569;">Document Forensic Status:</td>
+                <td style="width: 25%; font-weight: bold;">
                     @php
                         $aiResult = $application->document?->aiResult;
                         $class = $aiResult ? strtolower($aiResult->classification) : 'authentic';
@@ -568,23 +541,22 @@
                     @if($class === 'authentic')
                         <span style="color: #16a34a;">AUTHENTIC (CLEARED)</span>
                     @else
-                        <span style="color: #dc2626;">TAMPERED (FLAGGED)</span>
+                        <span style="color: #dc2626;">FLAGGED (REVIEWED)</span>
                     @endif
                 </td>
             </tr>
             <tr>
-                <td style="font-weight: bold; padding: 1px 0; color: #475569;">GWA Integrity Check:</td>
-                <td style="font-weight: bold; padding: 1px 0; color: #0f5934;">{{ $application->gwa !== null ? 'GWA ' . number_format($application->gwa, 2) . ' (Valid)' : 'N/A' }}</td>
-                <td style="font-weight: bold; padding: 1px 0; color: #475569;">Tampering Risk Score:</td>
-                <td style="font-weight: bold; padding: 1px 0; color: #0f172a;">{{ number_format($fraudScore, 2) }}% Probability</td>
-            </tr>
-            <tr>
-                <td style="font-weight: bold; padding: 1px 0; color: #475569;">Remarks / Audit Logs:</td>
-                <td colspan="3" style="color: #64748b; font-style: italic; padding: 1px 0;">
-                    {{ $application->remarks ?: ($application->gwa !== null ? 'Grade document metadata cleared. No unauthorized edits detected. Applicant meets GWA criteria.' : 'Document requirements verified.') }}
-                </td>
+                <td style="font-weight: bold; color: #475569;">GWA Integrity:</td>
+                <td style="font-weight: bold; color: #0f5934;">{{ $application->gwa !== null ? 'GWA ' . number_format((float)$application->gwa, 2) . ' (Passed)' : 'Pending' }}</td>
+                <td style="font-weight: bold; color: #475569;">Date of Clearance:</td>
+                <td style="font-weight: bold; color: #0f172a;">{{ $application->updated_at ? $application->updated_at->format('F d, Y') : date('F d, Y') }}</td>
             </tr>
         </table>
+    </div>
+
+    <!-- Form Revision Code -->
+    <div style="width: 100%; text-align: left; font-size: 6px; color: #94a3b8; margin-top: 4px; font-weight: bold;">
+        CLSU-OSA-AEGIS-FORM-001 (Rev. 2 • ISO/IEC 25010 & R.A. 10173 Compliant)
     </div>
 
 </body>

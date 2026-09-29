@@ -801,4 +801,27 @@ class AdminController extends Controller
             'message' => 'Staff notes updated successfully.'
         ]);
     }
+
+    /**
+     * Download or print the official scholarship application and evaluation form PDF.
+     */
+    public function downloadApprovedForm($id)
+    {
+        $application = Application::withTrashed()
+            ->with([
+                'user.profile', 
+                'scholarship', 
+                'academicTerm', 
+                'customFields', 
+                'document.aiResult', 
+                'documents', 
+                'evaluator'
+            ])
+            ->findOrFail($id);
+
+        $this->validateAdminAccess($application);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.application_form_pdf', ['application' => $application]);
+        return $pdf->download("APP-{$application->id}_Official_Evaluation_Form.pdf");
+    }
 }

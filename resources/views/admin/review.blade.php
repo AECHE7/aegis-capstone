@@ -175,6 +175,11 @@
                 <i class="fa-solid fa-clock me-1"></i> After-Hours Queue
             </span>
         @endif
+        {{-- Official Evaluation Form PDF --}}
+        <a href="{{ route('admin.application.download-form', $application->id) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold shadow-sm" target="_blank" title="Download or print official application & evaluation form">
+            <i class="fa-solid fa-file-pdf text-danger me-1"></i> Form PDF
+        </a>
+
         {{-- Test COG Fixtures Dropdown --}}
         <div class="dropdown d-inline-block">
             <button class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size:0.75rem;">

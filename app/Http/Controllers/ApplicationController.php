@@ -603,4 +603,29 @@ class ApplicationController extends Controller
 
         return back()->with('error', 'Please upload a valid document.');
     }
+
+    /**
+     * Download the official approved scholarship application form PDF.
+     */
+    public function downloadApprovedForm($id)
+    {
+        $application = Application::with([
+            'user.profile', 
+            'scholarship', 
+            'academicTerm', 
+            'customFields', 
+            'document.aiResult', 
+            'documents', 
+            'evaluator'
+        ])
+        ->where('user_id', auth()->id())
+        ->findOrFail($id);
+
+        if ($application->status !== 'Approved') {
+            return redirect()->route('student.dashboard')->with('error', 'Only approved applications have an official evaluation form available for download.');
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.application_form_pdf', ['application' => $application]);
+        return $pdf->download("APP-{$application->id}_Approved_Form.pdf");
+    }
 }
