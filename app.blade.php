@@ -1012,11 +1012,22 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* --- WCAG 1.4.10 Reflow: Badge label text wrap override --- */
+        /* --- Badges & Micro-Chips: Keep atomic status tokens on a single line without clipping --- */
         .badge, .status-badge, .fraud-chip {
+            white-space: nowrap !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            vertical-align: middle !important;
+            flex-shrink: 0 !important;
+            line-height: 1.25 !important;
+        }
+        .badge.text-wrap, .status-badge.text-wrap {
             white-space: normal !important;
-            word-break: break-word;
-            text-align: left;
+            word-break: break-word !important;
+        }
+        .table th, .table td {
+            vertical-align: middle;
         }
 
         /* ── Phase 5: Awwwards-Caliber Button Ripple Effect ──────────────────────

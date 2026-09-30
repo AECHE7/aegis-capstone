@@ -44,36 +44,36 @@
                 <table class="table mb-0 align-middle">
                     <thead class="text-muted small fw-bold" style="background: var(--clsu-bg);">
                         <tr>
-                            <th class="ps-4 py-3">Ref ID</th>
+                            <th class="ps-4 py-3 text-nowrap">Ref ID</th>
                             <th class="py-3">Applicant Name</th>
                             <th class="py-3">Scholarship Program</th>
-                            <th class="py-3">Status</th>
-                            <th class="py-3">Deleted Date</th>
-                            <th class="pe-4 py-3 text-end">Actions</th>
+                            <th class="py-3 text-nowrap">Status</th>
+                            <th class="py-3 text-nowrap">Deleted Date</th>
+                            <th class="pe-4 py-3 text-end text-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($applications as $app)
                             <tr style="border-bottom: 1px solid var(--border-color);">
-                                <td class="ps-4 fw-bold text-dark monospace-data">APP-{{ $app->id }}</td>
+                                <td class="ps-4 fw-bold text-dark monospace-data text-nowrap">APP-{{ $app->id }}</td>
                                 <td class="fw-semibold text-dark">{{ $app->user->name ?? 'Unknown Student' }}</td>
                                 <td class="text-muted">{{ $app->program_name }}</td>
-                                <td>
-                                    <span class="badge bg-secondary text-white">{{ $app->status }}</span>
+                                <td class="text-nowrap">
+                                    <span class="badge bg-secondary text-white text-nowrap">{{ $app->status }}</span>
                                 </td>
-                                <td class="text-muted small monospace-data">{{ $app->deleted_at->format('M d, Y · h:i A') }}</td>
-                                <td class="pe-4 text-end">
-                                    <div class="d-flex justify-content-end gap-2">
+                                <td class="text-muted small monospace-data text-nowrap">{{ $app->deleted_at->format('M d, Y · h:i A') }}</td>
+                                <td class="pe-4 text-end text-nowrap">
+                                    <div class="d-flex justify-content-end gap-2 flex-nowrap">
                                         <form action="{{ route('superadmin.applications.restore', $app->id) }}" method="POST" class="d-inline restore-form">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-success text-white fw-bold px-3" style="border-radius: 8px;">
+                                            <button type="submit" class="btn btn-sm btn-success text-white fw-bold px-3 text-nowrap" style="border-radius: 8px;">
                                                 <i class="fa-solid fa-trash-arrow-up"></i> Restore
                                             </button>
                                         </form>
                                         <form action="{{ route('superadmin.applications.force-delete', $app->id) }}" method="POST" class="d-inline force-delete-form" data-type="application">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-3" style="border-radius: 8px;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-3 text-nowrap" style="border-radius: 8px;">
                                                 <i class="fa-solid fa-circle-xmark"></i> Permanent Delete
                                             </button>
                                         </form>
@@ -101,34 +101,34 @@
                 <table class="table mb-0 align-middle">
                     <thead class="text-muted small fw-bold" style="background: var(--clsu-bg);">
                         <tr>
-                            <th class="ps-4 py-3">Program Name</th>
-                            <th class="py-3">Min GWA</th>
-                            <th class="py-3 text-center">Status When Closed</th>
-                            <th class="py-3">Deleted Date</th>
-                            <th class="pe-4 py-3 text-end">Actions</th>
+                            <th class="ps-4 py-3 text-nowrap">Program Name</th>
+                            <th class="py-3 text-nowrap">Min GWA</th>
+                            <th class="py-3 text-center text-nowrap">Status When Closed</th>
+                            <th class="py-3 text-nowrap">Deleted Date</th>
+                            <th class="pe-4 py-3 text-end text-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($scholarships as $scholarship)
                             <tr style="border-bottom: 1px solid var(--border-color);">
                                 <td class="ps-4 fw-semibold text-dark">{{ $scholarship->name }}</td>
-                                <td class="monospace-data">≤ {{ $scholarship->min_gwa_required }}</td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary text-white">{{ $scholarship->status }}</span>
+                                <td class="monospace-data text-nowrap">≤ {{ $scholarship->min_gwa_required }}</td>
+                                <td class="text-center text-nowrap">
+                                    <span class="badge bg-secondary text-white text-nowrap">{{ $scholarship->status }}</span>
                                 </td>
-                                <td class="text-muted small monospace-data">{{ $scholarship->deleted_at->format('M d, Y · h:i A') }}</td>
-                                <td class="pe-4 text-end">
-                                    <div class="d-flex justify-content-end gap-2">
+                                <td class="text-muted small monospace-data text-nowrap">{{ $scholarship->deleted_at->format('M d, Y · h:i A') }}</td>
+                                <td class="pe-4 text-end text-nowrap">
+                                    <div class="d-flex justify-content-end gap-2 flex-nowrap">
                                         <form action="{{ route('superadmin.scholarships.restore', $scholarship->id) }}" method="POST" class="d-inline restore-form">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-success text-white fw-bold px-3" style="border-radius: 8px;">
+                                            <button type="submit" class="btn btn-sm btn-success text-white fw-bold px-3 text-nowrap" style="border-radius: 8px;">
                                                 <i class="fa-solid fa-trash-arrow-up"></i> Restore
                                             </button>
                                         </form>
                                         <form action="{{ route('superadmin.scholarships.force-delete', $scholarship->id) }}" method="POST" class="d-inline force-delete-form" data-type="scholarship">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-3" style="border-radius: 8px;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-3 text-nowrap" style="border-radius: 8px;">
                                                 <i class="fa-solid fa-circle-xmark"></i> Permanent Delete
                                             </button>
                                         </form>
@@ -139,7 +139,7 @@
                             <tr>
                                 <td colspan="5" class="text-center py-5 text-muted">
                                     <i class="fa-solid fa-folder-open fa-2x mb-2 text-muted" style="opacity: 0.5;"></i>
-                                    <div>No deleted scholarships in system trash.</div>
+                                    <div>No deleted scholarship programs in system trash.</div>
                                 </td>
                             </tr>
                         @endforelse
@@ -156,30 +156,30 @@
                 <table class="table mb-0 align-middle">
                     <thead class="text-muted small fw-bold" style="background: var(--clsu-bg);">
                         <tr>
-                            <th class="ps-4 py-3">Staff Name</th>
-                            <th class="py-3">Email</th>
-                            <th class="py-3">Deleted Date</th>
-                            <th class="pe-4 py-3 text-end">Actions</th>
+                            <th class="ps-4 py-3 text-nowrap">Staff Name</th>
+                            <th class="py-3 text-nowrap">Email</th>
+                            <th class="py-3 text-nowrap">Deleted Date</th>
+                            <th class="pe-4 py-3 text-end text-nowrap">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($staffMembers as $staff)
                             <tr style="border-bottom: 1px solid var(--border-color);">
                                 <td class="ps-4 fw-semibold text-dark">{{ $staff->name }}</td>
-                                <td class="text-muted monospace-data">{{ $staff->email }}</td>
-                                <td class="text-muted small monospace-data">{{ $staff->deleted_at->format('M d, Y · h:i A') }}</td>
-                                <td class="pe-4 text-end">
-                                    <div class="d-flex justify-content-end gap-2">
+                                <td class="text-muted monospace-data text-nowrap">{{ $staff->email }}</td>
+                                <td class="text-muted small monospace-data text-nowrap">{{ $staff->deleted_at->format('M d, Y · h:i A') }}</td>
+                                <td class="pe-4 text-end text-nowrap">
+                                    <div class="d-flex justify-content-end gap-2 flex-nowrap">
                                         <form action="{{ route('superadmin.staff.restore', $staff->id) }}" method="POST" class="d-inline restore-form">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-success text-white fw-bold px-3" style="border-radius: 8px;">
+                                            <button type="submit" class="btn btn-sm btn-success text-white fw-bold px-3 text-nowrap" style="border-radius: 8px;">
                                                 <i class="fa-solid fa-trash-arrow-up"></i> Restore
                                             </button>
                                         </form>
                                         <form action="{{ route('superadmin.staff.force-delete', $staff->id) }}" method="POST" class="d-inline force-delete-form" data-type="staff account">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-3" style="border-radius: 8px;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-3 text-nowrap" style="border-radius: 8px;">
                                                 <i class="fa-solid fa-circle-xmark"></i> Permanent Delete
                                             </button>
                                         </form>

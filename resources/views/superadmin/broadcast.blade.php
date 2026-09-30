@@ -79,7 +79,7 @@
                             <tr class="bg-light">
                                 <th class="ps-4" style="font-size: 0.8rem; text-transform: uppercase;">Recipient</th>
                                 <th style="font-size: 0.8rem; text-transform: uppercase;">Subject</th>
-                                <th style="font-size: 0.8rem; text-transform: uppercase;">Sent At</th>
+                                <th class="text-nowrap" style="font-size: 0.8rem; text-transform: uppercase;">Sent At</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -91,7 +91,7 @@
                                     <td>
                                         <span class="text-dark small fw-semibold">{{ str_replace('[A.E.G.I.S. Broadcast] ', '', $b->subject) }}</span>
                                     </td>
-                                    <td>
+                                    <td class="text-nowrap">
                                         <span class="text-muted small">{{ $b->created_at->format('M d, Y h:i A') }}</span>
                                     </td>
                                 </tr>

@@ -238,8 +238,8 @@
                         <tr>
                             <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Applicant</th>
                             <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Program</th>
-                            <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Decision</th>
-                            <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;text-align:right;">Evaluator</th>
+                            <th scope="col" class="text-nowrap" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Decision</th>
+                            <th scope="col" class="text-nowrap" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;text-align:right;">Evaluator</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -252,15 +252,15 @@
                                 </div>
                             </td>
                             <td style="padding:0.65rem 0.75rem;font-size:0.8rem;color:#64748b;">{{ Str::limit($eval->program_name, 22) }}</td>
-                            <td style="padding:0.65rem 0.75rem;">
+                            <td class="text-nowrap" style="padding:0.65rem 0.75rem;">
                                 @if($eval->status === 'Approved')
-                                    <span class="status-badge approved"><i class="fa-solid fa-check" style="font-size:0.6rem;"></i> Approved</span>
+                                    <span class="status-badge approved text-nowrap"><i class="fa-solid fa-check" style="font-size:0.6rem;"></i> Approved</span>
                                 @else
-                                    <span class="status-badge rejected"><i class="fa-solid fa-times" style="font-size:0.6rem;"></i> Rejected</span>
+                                    <span class="status-badge rejected text-nowrap"><i class="fa-solid fa-times" style="font-size:0.6rem;"></i> Rejected</span>
                                 @endif
                             </td>
-                            <td style="padding:0.65rem 0.75rem;text-align:right;">
-                                <span style="background:#f1f5f9;color:#64748b;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:600;">
+                            <td class="text-nowrap" style="padding:0.65rem 0.75rem;text-align:right;">
+                                <span class="text-nowrap" style="background:#f1f5f9;color:#64748b;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:600;">
                                     <i class="fa-solid fa-user-shield me-1" style="font-size:0.6rem;"></i>Admin #{{ $eval->evaluated_by }}
                                 </span>
                             </td>
@@ -465,13 +465,13 @@
                     <thead>
                         <tr>
                             <th class="ps-4" scope="col">Scholarship Program</th>
-                            <th class="text-center" scope="col">Limit/Max</th>
-                            <th class="text-center" scope="col">Applicants</th>
-                            <th class="text-center" scope="col">Approved</th>
-                            <th class="text-center" scope="col">Rejected</th>
-                            <th class="text-center" scope="col">Pending / Review</th>
-                            <th class="text-center" scope="col">Avg GWA Approved</th>
-                            <th class="pe-4 text-end" scope="col">Avg AI Fraud Score</th>
+                            <th class="text-center text-nowrap" scope="col">Limit/Max</th>
+                            <th class="text-center text-nowrap" scope="col">Applicants</th>
+                            <th class="text-center text-nowrap" scope="col">Approved</th>
+                            <th class="text-center text-nowrap" scope="col">Rejected</th>
+                            <th class="text-center text-nowrap" scope="col">Pending / Review</th>
+                            <th class="text-center text-nowrap" scope="col">Avg GWA Approved</th>
+                            <th class="pe-4 text-end text-nowrap" scope="col">Avg AI Fraud Score</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -481,28 +481,28 @@
                                 <div class="fw-semibold text-dark">{{ $sb['name'] }}</div>
                                 <div class="text-muted" style="font-size:0.75rem;">
                                     @if($sb['status'] === 'Active')
-                                        <span class="text-success"><i class="fa-solid fa-circle-dot fs-9"></i> Open</span>
+                                        <span class="text-success text-nowrap"><i class="fa-solid fa-circle-dot fs-9"></i> Open</span>
                                     @else
-                                        <span class="text-danger"><i class="fa-solid fa-circle-dot fs-9"></i> Closed</span>
+                                        <span class="text-danger text-nowrap"><i class="fa-solid fa-circle-dot fs-9"></i> Closed</span>
                                     @endif
                                 </div>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 <div class="small">Max GWA: <strong>{{ $sb['min_gwa'] ?: 'None' }}</strong></div>
                                 <div class="text-muted small">Max Renewals: <strong>{{ $sb['max_renew'] }}</strong></div>
                             </td>
-                            <td class="text-center fw-semibold monospace-data">{{ $sb['total_apps'] }}</td>
-                            <td class="text-center text-success fw-bold monospace-data">{{ $sb['approved_count'] }}</td>
-                            <td class="text-center text-danger fw-bold monospace-data">{{ $sb['rejected_count'] }}</td>
-                            <td class="text-center text-warning fw-semibold monospace-data">{{ $sb['pending_count'] }}</td>
-                            <td class="text-center monospace-data">
+                            <td class="text-center fw-semibold monospace-data text-nowrap">{{ $sb['total_apps'] }}</td>
+                            <td class="text-center text-success fw-bold monospace-data text-nowrap">{{ $sb['approved_count'] }}</td>
+                            <td class="text-center text-danger fw-bold monospace-data text-nowrap">{{ $sb['rejected_count'] }}</td>
+                            <td class="text-center text-warning fw-semibold monospace-data text-nowrap">{{ $sb['pending_count'] }}</td>
+                            <td class="text-center monospace-data text-nowrap">
                                 @if($sb['avg_gwa_approved'] > 0)
                                     <span class="badge rounded-pill bg-light text-dark px-2.5 py-1 border border-color">{{ $sb['avg_gwa_approved'] }}</span>
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif
                             </td>
-                            <td class="pe-4 text-end">
+                            <td class="pe-4 text-end text-nowrap">
                                 @if($sb['total_apps'] > 0)
                                     <span class="fraud-chip monospace-data {{ $sb['avg_fraud'] >= 70 ? 'fraud-high' : ($sb['avg_fraud'] >= 40 ? 'fraud-mod' : 'fraud-low') }}">
                                         {{ $sb['avg_fraud'] }}%
@@ -531,19 +531,19 @@
                 <table class="table mb-0 align-middle" style="font-size:0.875rem;">
                     <thead>
                         <tr>
-                            <th class="ps-2" scope="col">#</th>
+                            <th class="ps-2 text-nowrap" scope="col">#</th>
                             <th scope="col">Program</th>
-                            <th class="text-center" scope="col">Approved Scholars</th>
-                            <th class="text-center" scope="col">Avg GWA</th>
+                            <th class="text-center text-nowrap" scope="col">Approved Scholars</th>
+                            <th class="text-center text-nowrap" scope="col">Avg GWA</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($topPrograms as $i => $prog)
                         <tr>
-                            <td class="ps-2 fw-bold text-muted small">{{ $i + 1 }}</td>
+                            <td class="ps-2 fw-bold text-muted small text-nowrap">{{ $i + 1 }}</td>
                             <td class="fw-semibold">{{ $prog->program_name }}</td>
-                            <td class="text-center">{{ $prog->total_apps }}</td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">{{ $prog->total_apps }}</td>
+                            <td class="text-center text-nowrap">
                                 <span class="badge rounded-pill bg-light text-dark px-2.5 py-1 border border-color monospace-data fw-bold">
                                     {{ number_format($prog->avg_gwa, 2) }}
                                 </span>
@@ -586,18 +586,18 @@
                 <table class="table mb-0 align-middle" style="font-size:0.875rem;">
                     <thead>
                         <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-main);">
-                            <th class="ps-4" scope="col">Scholar Name</th>
+                            <th class="ps-4 text-nowrap" scope="col">Scholar Name</th>
                             <th scope="col">Scholarship Program</th>
-                            <th scope="col">Active Term</th>
-                            <th class="text-center" scope="col">Min GWA Required</th>
-                            <th class="text-center" scope="col">Current Student GWA</th>
-                            <th class="pe-4 text-center" scope="col">Status</th>
+                            <th scope="col" class="text-nowrap">Active Term</th>
+                            <th class="text-center text-nowrap" scope="col">Min GWA Required</th>
+                            <th class="text-center text-nowrap" scope="col">Current Student GWA</th>
+                            <th class="pe-4 text-center text-nowrap" scope="col">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($activeScholars as $scholar)
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td class="ps-4 py-3">
+                            <td class="ps-4 py-3 text-nowrap">
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="eval-avatar" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #15803d; width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">
                                         {{ strtoupper(substr($scholar->user->name ?? 'U', 0, 1)) }}
@@ -611,7 +611,7 @@
                             <td>
                                 <span class="fw-medium text-dark">{{ $scholar->scholarship->name ?? $scholar->program_name }}</span>
                             </td>
-                            <td>
+                            <td class="text-nowrap">
                                 <span class="text-muted small">
                                     @if($scholar->academicTerm)
                                         {{ $scholar->academicTerm->semester }} Sem, AY {{ $scholar->academicTerm->academic_year }}
@@ -620,16 +620,16 @@
                                     @endif
                                 </span>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 <span class="monospace-data text-muted">{{ $scholar->scholarship->min_gwa_required ?? 'N/A' }}</span>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 <span class="badge rounded-pill px-2.5 py-1 fw-bold monospace-data" 
                                       style="background: #f0fdf4; color: var(--clsu-green); border: 1px solid #bcf0da; font-size: 0.78rem;">
                                     {{ $scholar->gwa !== null ? number_format($scholar->gwa, 2) : 'N/A' }}
                                 </span>
                             </td>
-                            <td class="pe-4 text-center">
+                            <td class="pe-4 text-center text-nowrap">
                                 @php
                                     $isGwaValid = !$scholar->scholarship || !$scholar->scholarship->min_gwa_required || ($scholar->gwa <= $scholar->scholarship->min_gwa_required);
                                 @endphp

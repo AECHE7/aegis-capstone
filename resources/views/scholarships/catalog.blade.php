@@ -133,7 +133,7 @@
                     </div>
                     @if($scholarship->min_gwa_required)
                         <div class="text-end flex-shrink-0">
-                            <span class="badge bg-warning-subtle text-dark border border-warning border-opacity-50 px-2.5 py-1.5 rounded-pill fw-bold" style="font-size: 0.75rem;">
+                            <span class="badge bg-warning-subtle text-dark border border-warning border-opacity-50 px-2.5 py-1.5 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem; white-space: nowrap !important;">
                                 Max GWA: {{ number_format($scholarship->min_gwa_required, 2) }}
                             </span>
                         </div>

@@ -45,11 +45,11 @@
                 <th scope="col">Ref ID</th>
                 <th scope="col">Applicant</th>
                 <th class="d-none d-md-table-cell" scope="col">Program / Grant</th>
-                <th class="text-center d-none d-lg-table-cell" scope="col">GWA</th>
-                <th class="text-center d-none d-sm-table-cell" scope="col">AI Risk</th>
-                <th class="text-center" scope="col">Status</th>
-                <th class="d-none d-xl-table-cell" scope="col">Submitted</th>
-                <th class="pe-4 text-end d-none d-md-table-cell" scope="col">Action</th>
+                <th class="text-center d-none d-lg-table-cell text-nowrap" scope="col">GWA</th>
+                <th class="text-center d-none d-sm-table-cell text-nowrap" scope="col">AI Risk</th>
+                <th class="text-center text-nowrap" scope="col">Status</th>
+                <th class="d-none d-xl-table-cell text-nowrap" scope="col">Submitted</th>
+                <th class="pe-4 text-end d-none d-md-table-cell text-nowrap" scope="col">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -84,10 +84,10 @@
                         @endif
                     </div>
                 </td>
-                <td class="text-center d-none d-lg-table-cell" data-label="GWA">
+                <td class="text-center d-none d-lg-table-cell text-nowrap" data-label="GWA">
                     <span class="badge rounded-pill px-2 py-1 fw-bold monospace-data" style="background:#f1f5f9;color:#475569;font-size:0.8rem;border:1px solid var(--border-color);">{{ $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A' }}</span>
                 </td>
-                <td class="text-center d-none d-sm-table-cell" data-label="AI Risk">
+                <td class="text-center d-none d-sm-table-cell text-nowrap" data-label="AI Risk">
                     @if($app->document && $app->document->aiResult && !in_array($app->document->aiResult->classification, ['scanning','failed']))
                         @php $score = $app->document->aiResult->fraud_probability; @endphp
                         <span class="fraud-chip monospace-data {{ $score >= 70 ? 'fraud-high' : ($score >= 40 ? 'fraud-mod' : 'fraud-low') }}">
@@ -100,7 +100,7 @@
                         <span class="fraud-chip fraud-none"><i class="fa-solid fa-minus" style="font-size:0.6rem;"></i> N/A</span>
                     @endif
                 </td>
-                <td class="text-center" data-label="Status">
+                <td class="text-center text-nowrap" data-label="Status">
                     @if($app->trashed())
                         @if($app->forfeit_reason)
                             <span class="status-badge bg-dark text-white" style="background-color: #475569 !important;"><i class="fa-solid fa-user-slash" style="font-size:0.65rem;"></i> Forfeited</span>
@@ -123,12 +123,12 @@
                         <span class="status-badge rejected"><i class="fa-solid fa-times" style="font-size:0.65rem;"></i> Rejected</span>
                     @endif
                 </td>
-                <td class="d-none d-xl-table-cell" data-label="Submitted">
+                <td class="d-none d-xl-table-cell text-nowrap" data-label="Submitted">
                     <div class="monospace-data" style="font-size:0.82rem;color:#64748b;">{{ $app->created_at->format('M d, Y') }}</div>
                     <div style="font-size:0.72rem;color:#94a3b8;">{{ $app->created_at->format('h:i A') }}</div>
                 </td>
-                <td class="pe-4 text-end d-none d-md-table-cell" data-label="Action" onclick="event.stopPropagation()">
-                    <div class="d-flex justify-content-end align-items-center gap-2">
+                <td class="pe-4 text-end d-none d-md-table-cell text-nowrap" data-label="Action" onclick="event.stopPropagation()">
+                    <div class="d-flex justify-content-end align-items-center gap-2 flex-nowrap">
                         @if($app->trashed())
                             <a href="{{ route('admin.review', $app->id) }}" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;">
                                 <i class="fa-solid fa-eye me-1"></i> View Details

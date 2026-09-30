@@ -736,17 +736,17 @@
                             <table class="table table-sm mb-0" style="font-size:0.75rem;">
                                 <thead>
                                     <tr>
-                                        <th>Term</th>
-                                        <th class="text-center">GWA</th>
-                                        <th class="text-end">Status</th>
+                                        <th class="text-nowrap">Term</th>
+                                        <th class="text-center text-nowrap">GWA</th>
+                                        <th class="text-end text-nowrap">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($history as $histApp)
                                     <tr>
-                                        <td class="text-muted">{{ $histApp->academicTerm?->semester ?? 'N/A' }}</td>
-                                        <td class="text-center monospace-data">{{ $histApp->gwa }}</td>
-                                        <td class="text-end"><span class="badge bg-light text-dark border">{{ $histApp->status }}</span></td>
+                                        <td class="text-muted text-nowrap">{{ $histApp->academicTerm?->semester ?? 'N/A' }}</td>
+                                        <td class="text-center monospace-data text-nowrap">{{ $histApp->gwa }}</td>
+                                        <td class="text-end text-nowrap"><span class="badge bg-light text-dark border text-nowrap">{{ $histApp->status }}</span></td>
                                     </tr>
                                     @endforeach
                                 </tbody>

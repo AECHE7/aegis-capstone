@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Staff Management | A.E.G.I.S.')
 @section('page-title', 'Staff Management')
@@ -27,11 +27,11 @@
             <thead class="table-light text-muted small uppercase fw-bold" style="background-color: #f8fafc;">
                 <tr>
                     <th class="ps-4 py-3" style="font-size: 0.8rem; letter-spacing: 0.5px;">Name & Assignments</th>
-                    <th class="py-3" style="font-size: 0.8rem; letter-spacing: 0.5px;">Email</th>
-                    <th class="py-3 text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">Role</th>
-                    <th class="py-3 text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">Status</th>
-                    <th class="py-3 text-center" style="font-size: 0.8rem; letter-spacing: 0.5px;">Invitation Sent</th>
-                    <th class="pe-4 py-3 text-end" style="font-size: 0.8rem; letter-spacing: 0.5px;">Actions</th>
+                    <th class="py-3 text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px;">Email</th>
+                    <th class="py-3 text-center text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px;">Role</th>
+                    <th class="py-3 text-center text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px;">Status</th>
+                    <th class="py-3 text-center text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px;">Invitation Sent</th>
+                    <th class="pe-4 py-3 text-end text-nowrap" style="font-size: 0.8rem; letter-spacing: 0.5px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,44 +64,44 @@
                             </div>
                         </div>
                     </td>
-                    <td class="py-3">
+                    <td class="py-3 text-nowrap">
                         <span class="text-muted small">{{ $staff->email }}</span>
                     </td>
-                    <td class="py-3 text-center">
-                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-1 fw-bold" style="font-size: 0.75rem;">
+                    <td class="py-3 text-center text-nowrap">
+                        <span class="badge rounded-pill bg-light text-secondary border px-3 py-1 fw-bold text-nowrap" style="font-size: 0.75rem;">
                             {{ ucfirst($staff->role) }}
                         </span>
                     </td>
-                    <td class="py-3 text-center">
+                    <td class="py-3 text-center text-nowrap">
                         @if(!$staff->is_active)
-                            <span class="status-badge rejected d-inline-flex align-items-center gap-1">
+                            <span class="status-badge rejected d-inline-flex align-items-center gap-1 text-nowrap">
                                 <i class="fa-solid fa-circle" style="font-size: 0.5rem; color: #ef4444;"></i> Revoked / Inactive
                             </span>
                         @elseif($staff->email_verified_at)
-                            <span class="status-badge approved d-inline-flex align-items-center gap-1">
+                            <span class="status-badge approved d-inline-flex align-items-center gap-1 text-nowrap">
                                 <i class="fa-solid fa-circle" style="font-size: 0.5rem; color: #10b981;"></i> Active
                             </span>
                         @else
                             @if($staff->invitation && $staff->invitation->expires_at->isPast())
-                                <span class="status-badge rejected d-inline-flex align-items-center gap-1">
+                                <span class="status-badge rejected d-inline-flex align-items-center gap-1 text-nowrap">
                                     <i class="fa-solid fa-circle" style="font-size: 0.5rem; color: #ef4444;"></i> Expired
                                 </span>
                             @else
-                                <span class="status-badge pending d-inline-flex align-items-center gap-1">
+                                <span class="status-badge pending d-inline-flex align-items-center gap-1 text-nowrap">
                                     <i class="fa-solid fa-circle" style="font-size: 0.5rem; color: #f59e0b;"></i> Invited / Pending
                                 </span>
                             @endif
                         @endif
                     </td>
-                    <td class="py-3 text-center text-muted small">
+                    <td class="py-3 text-center text-muted small text-nowrap">
                         @if($staff->invitation)
                             {{ $staff->invitation->created_at->diffForHumans() }}
                         @else
                             <span class="text-muted italic">—</span>
                         @endif
                     </td>
-                    <td class="pe-4 py-3 text-end">
-                        <div class="d-flex justify-content-end align-items-center gap-2">
+                    <td class="pe-4 py-3 text-end text-nowrap">
+                        <div class="d-flex justify-content-end align-items-center gap-2 flex-nowrap">
                             <!-- Assign button -->
                             <button class="btn btn-sm btn-light border" style="border-radius: 8px; padding: 5px 10px;" 
                                     data-bs-toggle="modal" data-bs-target="#editAssignmentsModal_{{ $staff->id }}" 

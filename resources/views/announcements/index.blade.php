@@ -28,8 +28,8 @@
                     <th class="ps-4">Title</th>
                     <th>Content Preview</th>
                     <th>Author</th>
-                    <th>Published At</th>
-                    <th class="pe-4 text-end">Action</th>
+                    <th class="text-nowrap">Published At</th>
+                    <th class="pe-4 text-end text-nowrap">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,7 +54,7 @@
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td class="text-nowrap">
                         <div>
                             <span class="text-muted small monospace-data">
                                 {{ $announcement->created_at->format('M d, Y h:i A') }}
@@ -63,11 +63,11 @@
                         @if($announcement->scheduled_publish_at)
                             <div class="mt-1">
                                 @if($announcement->scheduled_publish_at->isFuture())
-                                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">
+                                    <span class="badge bg-warning text-dark text-nowrap" style="font-size: 0.65rem;">
                                         <i class="fa-solid fa-clock me-1"></i> Publish: {{ $announcement->scheduled_publish_at->format('M d, Y h:i A') }}
                                     </span>
                                 @else
-                                    <span class="badge bg-success" style="font-size: 0.65rem;">
+                                    <span class="badge bg-success text-nowrap" style="font-size: 0.65rem;">
                                         <i class="fa-solid fa-circle-check me-1"></i> Published: {{ $announcement->scheduled_publish_at->format('M d, Y h:i A') }}
                                     </span>
                                 @endif
@@ -76,20 +76,20 @@
                         @if($announcement->scheduled_delete_at)
                             <div class="mt-1">
                                 @if($announcement->scheduled_delete_at->isPast())
-                                    <span class="badge bg-secondary" style="font-size: 0.65rem;">
+                                    <span class="badge bg-secondary text-nowrap" style="font-size: 0.65rem;">
                                         <i class="fa-solid fa-eye-slash me-1"></i> Expired: {{ $announcement->scheduled_delete_at->format('M d, Y h:i A') }}
                                     </span>
                                 @else
-                                    <span class="badge bg-danger" style="font-size: 0.65rem;">
+                                    <span class="badge bg-danger text-nowrap" style="font-size: 0.65rem;">
                                         <i class="fa-solid fa-hourglass-half me-1"></i> Expires: {{ $announcement->scheduled_delete_at->format('M d, Y h:i A') }}
                                     </span>
                                 @endif
                             </div>
                         @endif
                     </td>
-                    <td class="pe-4 text-end">
-                        <div class="d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3"
+                    <td class="pe-4 text-end text-nowrap">
+                        <div class="d-flex justify-content-end gap-2 flex-nowrap">
+                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3 text-nowrap"
                                     data-id="{{ $announcement->id }}"
                                     data-title="{{ $announcement->title }}"
                                     data-content="{{ $announcement->content }}"
@@ -98,7 +98,7 @@
                                     onclick="openEditModal(this)" style="font-size:0.78rem;">
                                 <i class="fa-solid fa-pen-to-square me-1"></i> Edit
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger fw-semibold rounded-pill px-3"
+                            <button type="button" class="btn btn-sm btn-outline-danger fw-semibold rounded-pill px-3 text-nowrap"
                                     onclick="deleteAnnouncement({{ $announcement->id }})" style="font-size:0.78rem;">
                                 <i class="fa-solid fa-trash-can me-1"></i> Delete
                             </button>

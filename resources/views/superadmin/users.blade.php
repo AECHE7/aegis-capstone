@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'User Management | A.E.G.I.S. Director Portal')
 @section('page-title', 'User Management')
@@ -205,8 +205,8 @@
                             <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">College & Program</th>
                             <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Active Application</th>
                             <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Security & DPA</th>
-                            <th class="py-3 text-center text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Status</th>
-                            <th class="pe-4 py-3 text-end text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Actions</th>
+                            <th class="py-3 text-center text-muted small fw-bold text-uppercase text-nowrap" style="letter-spacing: 0.5px;">Status</th>
+                            <th class="pe-4 py-3 text-end text-muted small fw-bold text-uppercase text-nowrap" style="letter-spacing: 0.5px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -309,7 +309,7 @@
                             </td>
 
                             {{-- Status Badge --}}
-                            <td class="py-3 text-center">
+                            <td class="py-3 text-center text-nowrap">
                                 @if($student->is_active)
                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">
                                         <i class="fa-solid fa-circle me-1" style="font-size: 0.45rem;"></i> Active
@@ -322,9 +322,9 @@
                             </td>
 
                             {{-- Actions --}}
-                            <td class="pe-4 py-3 text-end">
+                            <td class="pe-4 py-3 text-end text-nowrap">
                                 <div class="dropdown">
-                                    <button class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.78rem;">
+                                    <button class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold text-nowrap" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.78rem;">
                                         Manage <i class="fa-solid fa-ellipsis-vertical ms-1"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px; font-size: 0.82rem;">
@@ -386,10 +386,10 @@
                         <tr>
                             <th class="ps-4 py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Staff Member</th>
                             <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Institutional Email</th>
-                            <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Role & Permissions</th>
+                            <th class="py-3 text-muted small fw-bold text-uppercase text-nowrap" style="letter-spacing: 0.5px;">Role & Permissions</th>
                             <th class="py-3 text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Assigned Scholarships</th>
-                            <th class="py-3 text-center text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Status</th>
-                            <th class="pe-4 py-3 text-end text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Actions</th>
+                            <th class="py-3 text-center text-muted small fw-bold text-uppercase text-nowrap" style="letter-spacing: 0.5px;">Status</th>
+                            <th class="pe-4 py-3 text-end text-muted small fw-bold text-uppercase text-nowrap" style="letter-spacing: 0.5px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -415,7 +415,7 @@
                                 <span class="font-monospace small text-muted">{{ $staff->email }}</span>
                             </td>
 
-                            <td class="py-3">
+                            <td class="py-3 text-nowrap">
                                 @if($staff->role === 'superadmin')
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">
                                         <i class="fa-solid fa-user-shield me-1"></i> Director / SuperAdmin
@@ -445,7 +445,7 @@
                                 @endif
                             </td>
 
-                            <td class="py-3 text-center">
+                            <td class="py-3 text-center text-nowrap">
                                 @if(!$staff->is_active)
                                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">
                                         Deactivated
@@ -461,10 +461,10 @@
                                 @endif
                             </td>
 
-                            <td class="pe-4 py-3 text-end">
+                            <td class="pe-4 py-3 text-end text-nowrap">
                                 @if(!$staff->isMaster() && $staff->id !== auth()->id())
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.78rem;">
+                                        <button class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold text-nowrap" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.78rem;">
                                             Manage <i class="fa-solid fa-ellipsis-vertical ms-1"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px; font-size: 0.82rem;">

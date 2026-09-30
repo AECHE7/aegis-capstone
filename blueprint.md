@@ -908,4 +908,74 @@ All three documents strictly adhere to the two-part structure, styling, and ISO/
    - **Acceptance Determination**: Formal Institutional Acceptance Determination matrix and Quad-Signatory block (Director, Capstone Adviser, Student Researchers, IT Department Chair).
    - **Evaluation**: Full 26-item ISO/IEC 25010:2023 questionnaire across all 8 characteristics contextualized for executive administrators.
 
+---
+
+## 26. Pre-Production UI Distortion & Badge Reflow Remediation
+
+### Problem Statement & Root Cause Analysis
+- **Observed Behavior**: In multiple data tables (notably `/superadmin/scholarships` under the `MAX GWA` column, `/admin/dashboard`, and `/superadmin/trash`), atomic badge pills containing spaces (e.g. `★ ≤ 1.45`, `APP-105`, `Under Review`, `Max Renewals`) were wrapping across multiple lines inside fixed/pill border-radiuses. The numerical values were pushed down, clipping against the bottom border or overflowing the badge container.
+- **Root Cause**:
+  In `resources/views/layouts/app.blade.php` (and `app.blade.php`), a global rule added for WCAG 1.4.10 reflow:
+  ```css
+  .badge, .status-badge, .fraud-chip {
+      white-space: normal !important;
+      word-break: break-word;
+      text-align: left;
+  }
+  ```
+  inadvertently targeted all atomic micro-badges and status tokens, overriding Bootstrap 5's default `white-space: nowrap` and forcing reflow wherever column widths contracted slightly.
+
+### Architectural Fixes & Remediation
+1. **Global CSS Atomic Badge Rules (`resources/views/layouts/app.blade.php` & `app.blade.php`)**:
+   - Replaced forced wrapping with inline-flex token styling:
+     ```css
+     .badge, .status-badge, .fraud-chip {
+         white-space: nowrap !important;
+         display: inline-flex !important;
+         align-items: center !important;
+         justify-content: center !important;
+         vertical-align: middle !important;
+         flex-shrink: 0 !important;
+         line-height: 1.25 !important;
+     }
+     .badge.text-wrap, .status-badge.text-wrap {
+         white-space: normal !important;
+         word-break: break-word !important;
+     }
+     .table th, .table td {
+         vertical-align: middle;
+     }
+     ```
+   - Retained explicit opt-in `.badge.text-wrap` for lengthy narrative badges if ever needed, while protecting all status tokens, GWA pills, IDs, and chips.
+
+2. **View-Level Column & Cell Hardening**:
+   - **`resources/views/superadmin/scholarships.blade.php`**:
+     - Hardened `Max GWA`, `Max Renewals`, `Status`, and `Action` column headers with `text-nowrap`.
+     - Explicitly styled `min_gwa_required` pill with `white-space: nowrap !important;` and `d-inline-flex`.
+     - Wrapped action button clusters in `flex-nowrap`.
+   - **`resources/views/scholarships/catalog.blade.php`**:
+     - Protected `Max GWA` badge in scholarship catalog cards with `text-nowrap` and `white-space: nowrap !important;`.
+   - **`resources/views/superadmin/trash.blade.php`**:
+     - Hardened table headers, status badges, dates, and action button groups across all 3 tabs (Applications, Scholarships, Staff).
+     - Fixed duplicate `</td>` closing tag on line 187.
+   - **`resources/views/superadmin/users.blade.php`**:
+     - Added `text-nowrap` to status badges, role badges, and manage dropdown button containers for both Students and Staff tabs.
+   - **`resources/views/admin/partials/application_table.blade.php`**:
+     - Hardened `GWA`, `AI Risk`, `Status`, `Submitted`, and `Action` headers and data cells with `text-nowrap` and `flex-nowrap`.
+   - **`resources/views/superadmin/analytics.blade.php`**:
+     - Added `text-nowrap` across Scholarship Breakdown table, Top Programs by GWA table, System Scholars Monitoring Hub, and Recent Evaluator Decisions table.
+   - **`resources/views/admin/dashboard.blade.php`**:
+     - Added `text-nowrap` to Active Scholars Monitoring table headers and cells.
+   - **`resources/views/announcements/index.blade.php`**:
+     - Added `text-nowrap` to `Published At` and `Action` columns, ensuring action buttons never stack awkwardly.
+   - **`resources/views/student/dashboard.blade.php`**:
+     - Hardened Cancelled Applications history table with `text-nowrap` on Ref ID, GWA, Status, Cancelled Date, and action buttons.
+   - **`resources/views/superadmin/staff.blade.php`**:
+     - Hardened Staff management table with `text-nowrap` on Role, Status, Invitation Sent, and Action buttons.
+   - **`resources/views/superadmin/broadcast.blade.php`**:
+     - Added `text-nowrap` to `Sent At` column.
+   - **`resources/views/admin/review.blade.php`**:
+     - Hardened prior applications history table with `text-nowrap` on Term, GWA, and Status.
+
+
 

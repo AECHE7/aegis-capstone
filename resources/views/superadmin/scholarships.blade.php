@@ -24,11 +24,11 @@
                 <tr>
                     <th class="ps-4" scope="col">Program Name</th>
                     <th scope="col">Description</th>
-                    <th class="text-center" scope="col">Max GWA</th>
-                    <th class="text-center" scope="col">Max Renewals</th>
+                    <th class="text-center text-nowrap" scope="col">Max GWA</th>
+                    <th class="text-center text-nowrap" scope="col">Max Renewals</th>
                     <th scope="col">Assigned Evaluators</th>
-                    <th class="text-center" scope="col">Status</th>
-                    <th class="pe-4 text-end" scope="col">Action</th>
+                    <th class="text-center text-nowrap" scope="col">Status</th>
+                    <th class="pe-4 text-end text-nowrap" scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,19 +40,19 @@
                     <td>
                         <span class="text-muted small">{{ Str::limit($scholarship->description, 60) }}</span>
                     </td>
-                    <td class="text-center">
+                    <td class="text-center text-nowrap">
                         @if($scholarship->min_gwa_required)
-                            <span style="background:#fef9c3;color:#a16207;border:1px solid #fde047;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
+                            <span class="d-inline-flex align-items-center justify-content-center text-nowrap" style="background:#fef9c3;color:#a16207;border:1px solid #fde047;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;white-space:nowrap !important;flex-shrink:0;">
                                 <i class="fa-solid fa-star me-1" style="font-size:0.6rem;"></i> ≤ {{ $scholarship->min_gwa_required }}
                             </span>
                         @else
-                            <span style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
+                            <span class="d-inline-flex align-items-center justify-content-center text-nowrap" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;white-space:nowrap !important;flex-shrink:0;">
                                 None
                             </span>
                         @endif
                     </td>
-                    <td class="text-center">
-                        <span style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;">
+                    <td class="text-center text-nowrap">
+                        <span class="d-inline-flex align-items-center justify-content-center text-nowrap" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;white-space:nowrap !important;flex-shrink:0;">
                             <i class="fa-solid fa-rotate me-1" style="font-size:0.6rem;"></i> {{ $scholarship->max_renewals ?? 4 }}
                         </span>
                     </td>
@@ -68,36 +68,36 @@
                         </div>
                     </td>
 
-                    <td class="text-center">
+                    <td class="text-center text-nowrap">
                         @if($scholarship->status == 'Active')
-                            <span class="status-badge approved">
+                            <span class="status-badge approved text-nowrap d-inline-flex align-items-center gap-1" style="white-space:nowrap !important;">
                                 <i class="fa-solid fa-circle-dot" style="font-size:0.5rem;"></i> Open
                             </span>
                         @else
-                            <span class="status-badge rejected">
+                            <span class="status-badge rejected text-nowrap d-inline-flex align-items-center gap-1" style="white-space:nowrap !important;">
                                 <i class="fa-solid fa-circle-dot" style="font-size:0.5rem;"></i> Closed
                             </span>
                         @endif
                     </td>
-                    <td class="pe-4 text-end">
-                        <div class="d-flex justify-content-end align-items-center gap-2">
+                    <td class="pe-4 text-end text-nowrap">
+                        <div class="d-flex justify-content-end align-items-center gap-2 flex-nowrap">
                             <form action="{{ route('superadmin.scholarships.toggle', $scholarship->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @if($scholarship->status == 'Active')
-                                    <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
-                                            style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.78rem;">
+                                    <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3 text-nowrap"
+                                            style="background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;font-size:0.78rem;white-space:nowrap;">
                                         <i class="fa-solid fa-lock me-1"></i> Close
                                     </button>
                                 @else
-                                    <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3"
-                                            style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.78rem;">
+                                    <button type="submit" class="btn btn-sm fw-semibold rounded-pill px-3 text-nowrap"
+                                            style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.78rem;white-space:nowrap;">
                                         <i class="fa-solid fa-lock-open me-1"></i> Open
                                     </button>
                                 @endif
                             </form>
 
-                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3 edit-scholarship-btn" 
-                                    style="font-size:0.78rem;" 
+                            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3 edit-scholarship-btn text-nowrap" 
+                                    style="font-size:0.78rem;white-space:nowrap;" 
                                     data-id="{{ $scholarship->id }}"
                                     data-url="{{ route('superadmin.scholarships.show', $scholarship->id) }}">
                                 <i class="fa-solid fa-pen-to-square me-1"></i> Edit
@@ -106,7 +106,7 @@
                             <form action="{{ route('superadmin.scholarships.delete', $scholarship->id) }}" method="POST" class="d-inline delete-scholarship-form">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold rounded-pill px-3" style="font-size:0.78rem;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold rounded-pill px-3 text-nowrap" style="font-size:0.78rem;white-space:nowrap;">
                                     <i class="fa-solid fa-trash-can me-1"></i> Delete
                                 </button>
                             </form>

@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'OSA Admin Dashboard | A.E.G.I.S.')
 @section('page-title', 'Application Queue')
@@ -284,18 +284,18 @@
             <table class="table table-mobile-cards mb-0 align-middle">
                 <thead>
                     <tr style="border-bottom: 2px solid var(--border-color); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--text-main);">
-                        <th class="ps-3" scope="col">Scholar</th>
+                        <th class="ps-3 text-nowrap" scope="col">Scholar</th>
                         <th scope="col">Scholarship Program</th>
-                        <th scope="col">Active Term</th>
-                        <th class="text-center" scope="col">Min GWA</th>
-                        <th class="text-center" scope="col">Student GWA</th>
-                        <th class="text-center" scope="col">Status</th>
+                        <th scope="col" class="text-nowrap">Active Term</th>
+                        <th class="text-center text-nowrap" scope="col">Min GWA</th>
+                        <th class="text-center text-nowrap" scope="col">Student GWA</th>
+                        <th class="text-center text-nowrap" scope="col">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($activeScholars as $scholar)
                         <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.85rem;">
-                            <td class="ps-3 py-3" data-label="Scholar"><div class="d-flex align-items-center gap-2">
+                            <td class="ps-3 py-3 text-nowrap" data-label="Scholar"><div class="d-flex align-items-center gap-2">
                                     <div class="student-avatar" style="width: 32px; height: 32px; font-size: 0.8rem; background-color: #f0fdf4; color: var(--clsu-green);">
                                         {{ strtoupper(substr($scholar->user->name ?? 'U', 0, 2)) }}
                                     </div>
@@ -308,7 +308,7 @@
                             <td>
                                 <span class="fw-medium text-dark">{{ $scholar->scholarship->name ?? $scholar->program_name }}</span>
                             </td>
-                            <td>
+                            <td class="text-nowrap">
                                 <span class="text-muted small">
                                     @if($scholar->academicTerm)
                                         {{ $scholar->academicTerm->semester }} Sem, AY {{ $scholar->academicTerm->academic_year }}
@@ -317,17 +317,17 @@
                                     @endif
                                 </span>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 <span class="monospace-data text-muted">{{ $scholar->scholarship->min_gwa_required ?? 'N/A' }}</span>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 <span class="badge rounded-pill px-2.5 py-1 fw-bold monospace-data" 
                                       style="background: #f0fdf4; color: var(--clsu-green); border: 1px solid #bcf0da; font-size: 0.78rem;">
                                     {{ $scholar->gwa !== null ? number_format($scholar->gwa, 2) : 'N/A' }}
                                 </span>
                             </td>
 
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
                                 @php
                                     $isGwaValid = !$scholar->scholarship || !$scholar->scholarship->min_gwa_required || ($scholar->gwa <= $scholar->scholarship->min_gwa_required);
                                 @endphp

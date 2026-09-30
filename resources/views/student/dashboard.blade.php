@@ -795,26 +795,26 @@
                 <table class="table mb-0 align-middle">
                     <thead>
                         <tr class="text-muted small">
-                            <th scope="col">Ref ID</th>
+                            <th scope="col" class="text-nowrap">Ref ID</th>
                             <th scope="col">Scholarship Program</th>
-                            <th scope="col">GWA</th>
-                            <th scope="col">Status When Cancelled</th>
-                            <th scope="col">Cancelled Date</th>
-                            <th class="text-end" scope="col">Actions</th>
+                            <th scope="col" class="text-nowrap">GWA</th>
+                            <th scope="col" class="text-nowrap">Status When Cancelled</th>
+                            <th scope="col" class="text-nowrap">Cancelled Date</th>
+                            <th class="text-end text-nowrap" scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($cancelledApplications as $cApp)
                             <tr>
-                                <td class="fw-bold text-dark monospace-data" style="font-size:0.8rem;">APP-{{ $cApp->id }}</td>
+                                <td class="fw-bold text-dark monospace-data text-nowrap" style="font-size:0.8rem;">APP-{{ $cApp->id }}</td>
                                 <td class="fw-semibold text-dark" style="font-size:0.82rem;">{{ $cApp->program_name }}</td>
-                                <td><span class="badge bg-light text-dark monospace-data" style="border: 1px solid var(--border-color);">{{ $cApp->gwa }}</span></td>
-                                <td>
+                                <td class="text-nowrap"><span class="badge bg-light text-dark monospace-data" style="border: 1px solid var(--border-color);">{{ $cApp->gwa }}</span></td>
+                                <td class="text-nowrap">
                                     <span class="badge bg-secondary text-white">{{ $cApp->status }}</span>
                                 </td>
-                                <td class="text-muted small monospace-data" style="font-size:0.75rem;">{{ $cApp->deleted_at->format('M d, Y · h:i A') }}</td>
-                                <td class="text-end">
-                                    <div class="d-flex justify-content-end gap-2">
+                                <td class="text-muted small monospace-data text-nowrap" style="font-size:0.75rem;">{{ $cApp->deleted_at->format('M d, Y · h:i A') }}</td>
+                                <td class="text-end text-nowrap">
+                                    <div class="d-flex justify-content-end gap-2 flex-nowrap">
                                         @if(!$application || $application->status !== 'Pending')
                                             <button type="button" class="btn btn-sm btn-outline-success fw-bold restore-app-btn" data-id="{{ $cApp->id }}" style="font-size:0.75rem; border-radius:8px;">
                                                 <i class="fa-solid fa-trash-arrow-up me-1"></i> Restore
