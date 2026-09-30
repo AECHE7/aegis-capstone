@@ -31,7 +31,7 @@ class MasterTransferMail extends Mailable
             } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
                 $domain = request()->schemeAndHttpHost();
             } else {
-                $domain = 'https://aegis-capstone.onrender.com';
+                $domain = 'https://clsu.osa.scholarship';
             }
         }
         return rtrim($domain, '/');

@@ -26,7 +26,7 @@ class CustomVerifyEmailNotification extends VerifyEmail implements ShouldQueue
             } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
                 $domain = request()->schemeAndHttpHost();
             } else {
-                $domain = 'https://aegis-capstone.onrender.com';
+                $domain = 'https://clsu.osa.scholarship';
             }
         }
         return rtrim($domain, '/');

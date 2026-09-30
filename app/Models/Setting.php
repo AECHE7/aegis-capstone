@@ -59,7 +59,7 @@ class Setting extends Model
             return str_replace('http://', 'https://', $url);
         }
 
-        $domain = config('app.url', 'https://aegis-capstone.onrender.com');
+        $domain = config('app.url', 'https://clsu.osa.scholarship');
         if (!$domain || str_contains($domain, 'localhost')) {
             if (request()->hasHeader('X-Forwarded-Host')) {
                 $proto = request()->header('X-Forwarded-Proto', 'https');
@@ -68,7 +68,7 @@ class Setting extends Model
             } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
                 $domain = request()->schemeAndHttpHost();
             } else {
-                $domain = 'https://aegis-capstone.onrender.com';
+                $domain = 'https://clsu.osa.scholarship';
             }
         }
         return rtrim(str_replace('http://', 'https://', $domain), '/') . '/logo-email.png';

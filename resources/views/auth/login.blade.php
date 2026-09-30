@@ -686,6 +686,8 @@
                 @php
                     $isLiveEnvironment = app()->environment('production')
                         || str_contains(request()->getHost(), 'onrender.com')
+                        || str_contains(request()->getHost(), 'clsu.osa.scholarship')
+                        || str_contains(request()->getHost(), 'clsu-osa-scholarship')
                         || !in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1']);
                 @endphp
                 @if(!$isLiveEnvironment && ($demoStudent || $demoAdmin || $demoSuperAdmin))

@@ -127,7 +127,7 @@
             <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="CLSU Logo" style="height: 64px; object-fit: contain;">
         </div>
         <h1 class="mfa-title">Security Verification</h1>
-        <p class="mfa-desc">Enter the 6-digit verification code sent to your registered email address to complete signing in.</p>
+        <p class="mfa-desc">Enter the 6-digit verification code sent to <strong style="color: #0C4E2D;">{{ !empty($user->email) ? \Illuminate\Support\Str::mask($user->email, '*', 2, -4) : 'your registered email' }}</strong> to complete signing in.</p>
 
         <!-- MFA Context: Why & When (NIST SP 800-63B Transparency) -->
         <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px 14px;margin-bottom:20px;text-align:left;">
@@ -139,9 +139,9 @@
                 A.E.G.I.S. requires this security step because you are signing in from a <strong>new device or location</strong>, or your previous trusted-device session has expired. This protects your scholarship records under <strong>NIST SP 800-63B</strong> multi-factor authentication standards.
             </p>
             <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;">
-                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;">ðŸ”’ New device login</span>
-                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;">â³ 30-day trusted device expiry</span>
-                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;">âœ… Check "Remember" to skip for 30 days</span>
+                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;"><i class="fa-solid fa-shield-halved me-1"></i> New device login</span>
+                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;"><i class="fa-solid fa-clock-rotate-left me-1"></i> 30-day device expiry</span>
+                <span style="background:#dcfce7;color:#15803d;border-radius:20px;padding:2px 9px;font-size:10.5px;font-weight:600;"><i class="fa-solid fa-circle-check me-1"></i> Check "Remember" to skip for 30 days</span>
             </div>
         </div>
 

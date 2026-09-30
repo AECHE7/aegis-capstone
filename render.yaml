@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: aegis-capstone
+    name: clsu-osa-scholarship
     env: docker
     plan: free
     region: singapore
@@ -15,7 +15,7 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_URL
-        value: https://aegis-capstone.onrender.com
+        value: https://clsu.osa.scholarship
       - key: APP_DEBUG
         value: "false"
       - key: LOG_CHANNEL
@@ -28,6 +28,15 @@ services:
         value: file
       - key: FILESYSTEM_DISK
         value: public
+      # Mail Delivery Configuration (Brevo API HTTPS Port 443 - Bypass Render Free SMTP block)
+      - key: MAIL_MAILER
+        value: brevo_api
+      - key: BREVO_API_KEY
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        value: gadianoriel07@gmail.com
+      - key: MAIL_FROM_NAME
+        value: "AEGIS CLSU"
       # Cloudflare R2 Persistent Storage (Zero-Cost Cloud Storage)
       - key: CLOUDFLARE_R2_ACCESS_KEY_ID
         sync: false

@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default' => env('MAIL_MAILER', 'brevo_api'),
 
     /*
     |--------------------------------------------------------------------------
@@ -117,8 +117,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
+        'address' => env('MAIL_FROM_ADDRESS', 'gadianoriel07@gmail.com'),
+        'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'AEGIS CLSU')),
     ],
 
 ];

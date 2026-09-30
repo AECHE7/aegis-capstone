@@ -32,16 +32,23 @@ class BrevoTransport extends AbstractTransport
         $sender = null;
         if ($email->getFrom()) {
             $fromAddress = $email->getFrom()[0];
-            $sender = [
-                'email' => $fromAddress->getAddress(),
-                'name' => $fromAddress->getName() ?: null
-            ];
+            $senderEmail = $fromAddress->getAddress();
+            $senderName = $fromAddress->getName() ?: null;
         } else {
-            $sender = [
-                'email' => config('mail.from.address'),
-                'name' => config('mail.from.name')
-            ];
+            $senderEmail = config('mail.from.address', 'gadianoriel07@gmail.com');
+            $senderName = config('mail.from.name', 'AEGIS CLSU');
         }
+
+        // Brevo strictly validates verified senders — prevent invalid or placeholder addresses
+        if (empty($senderEmail) || str_contains($senderEmail, 'example.com')) {
+            $senderEmail = config('mail.from.address', 'gadianoriel07@gmail.com');
+            $senderName = config('mail.from.name', 'AEGIS CLSU');
+        }
+
+        $sender = [
+            'email' => $senderEmail,
+            'name' => $senderName
+        ];
 
         $payload = [
             'sender'      => $sender,
@@ -63,13 +70,20 @@ class BrevoTransport extends AbstractTransport
             $payload['attachment'] = $attachments;
         }
 
-        $response = Http::withHeaders([
-            'api-key'      => $this->key,
+        $apiKey = !empty($this->key) ? $this->key : config('mail.mailers.brevo_api.key', '');
+        if (empty($apiKey)) {
+            \Illuminate\Support\Facades\Log::error('Brevo API key is not configured. Set BREVO_API_KEY environment variable.');
+            throw new \Exception('Brevo API Error: API key not configured.');
+        }
+
+        $response = Http::timeout(15)->withHeaders([
+            'api-key'      => $apiKey,
             'Content-Type' => 'application/json',
             'Accept'       => 'application/json',
         ])->post('https://api.brevo.com/v3/smtp/email', $payload);
 
         if ($response->failed()) {
+            \Illuminate\Support\Facades\Log::error('Brevo API Error (' . $response->status() . '): ' . $response->body());
             throw new \Exception('Brevo API Error: ' . $response->body());
         }
     }
