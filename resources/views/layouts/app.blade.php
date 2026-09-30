@@ -1655,21 +1655,26 @@
                     <span class="badge bg-secondary-subtle text-secondary rounded-pill px-1.5 py-0.5" style="font-size:0.62rem; font-weight: 700;">PHT</span>
                 </div>
                 {{-- Demo Guide, Data Privacy Guide, and System Evaluation Feedback are now in Account Settings --}}
-<!-- Notification Bell Dropdown -->
+                <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-0 me-sm-1">
+                    @php
+                        $initialUnread = auth()->check() ? auth()->user()->unreadNotifications()->count() : 0;
+                    @endphp
                     {{-- WCAG 4.1.2: Accessible Topbar Notification Bell --}}
-                    <button class="btn btn-link position-relative p-1 topbar-icon-btn" type="button" 
+                    <button class="btn btn-link position-relative p-0 topbar-icon-btn d-flex align-items-center justify-content-center" type="button" 
                             id="notifBellBtn" 
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
-                            aria-label="View notifications"
+                            aria-label="View notifications ({{ $initialUnread }} unread)"
                             onclick="fetchNotifications()"
-                            style="box-shadow: none;">
-                        <i class="fa-regular fa-bell fs-5"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" 
+                            style="width: 38px; height: 38px; border-radius: 50%; background: rgba(0, 0, 0, 0.04); overflow: visible !important; box-shadow: none;">
+                        <i class="fa-regular fa-bell fs-5" style="color: var(--clsu-green, #0c4e2d);"></i>
+                        
+                        {{-- Prominent High-Contrast Red Notification Badge / Dot --}}
+                        <span class="position-absolute badge rounded-pill bg-danger border border-2 border-white {{ $initialUnread > 0 ? '' : 'd-none' }}" 
                               id="notifBadge" 
-                              style="font-size: 0.6rem; padding: 3px 6px;">
-                            0
+                              style="top: -2px; right: -4px; font-size: 0.62rem; min-width: 18px; height: 18px; padding: 0 4px; display: {{ $initialUnread > 0 ? 'inline-flex' : 'none' }}; align-items: center; justify-content: center; font-weight: 700; line-height: 1; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.5); z-index: 1050; pointer-events: none;">
+                            {{ $initialUnread > 99 ? '99+' : $initialUnread }}
                         </span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 text-start overflow-hidden" 
@@ -2365,11 +2370,23 @@
                 if (badge) {
                     if (count > 0) {
                         badge.classList.remove('d-none');
+                        badge.style.display = 'inline-flex';
                         badge.textContent = count > 99 ? '99+' : count;
                     } else {
                         badge.classList.add('d-none');
+                        badge.style.display = 'none';
                     }
                 }
+
+                // Synchronize sidebar unread badges
+                document.querySelectorAll('.sidebar-unread-badge').forEach(el => {
+                    if (count > 0) {
+                        el.style.display = 'inline-block';
+                        el.textContent = count > 99 ? '99+' : count;
+                    } else {
+                        el.style.display = 'none';
+                    }
+                });
 
                 if (dropdownBadge) {
                     dropdownBadge.textContent = `${count} unread`;

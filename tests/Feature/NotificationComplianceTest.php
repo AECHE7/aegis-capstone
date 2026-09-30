@@ -275,4 +275,41 @@ class NotificationComplianceTest extends TestCase
         $htmlResponse->assertOk();
         $htmlResponse->assertSee('Open & View', false);
     }
+
+    public function test_topbar_and_sidebar_notification_badge_renders_correctly_when_unread_notifications_exist(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin', 'is_active' => true]);
+
+        // Add 3 unread notifications
+        for ($i = 1; $i <= 3; $i++) {
+            $admin->notifications()->create([
+                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'type' => 'App\Notifications\NewApplicationNotification',
+                'data' => [
+                    'type' => 'new_application',
+                    'title' => "Application $i",
+                    'message' => "Message $i",
+                    'url' => "/admin/review/$i",
+                ],
+                'read_at' => null,
+                'created_at' => now(),
+            ]);
+        }
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+        $response->assertOk();
+
+        // 1. Topbar bell button must have overflow: visible
+        $response->assertSee('id="notifBellBtn"', false);
+        $response->assertSee('overflow: visible !important;', false);
+
+        // 2. Bell badge must display the unread count server-side without being hidden
+        $response->assertSee('id="notifBadge"', false);
+        $response->assertSee('3', false);
+        $response->assertDontSee('<span class="position-absolute badge rounded-pill bg-danger border border-2 border-white d-none" id="notifBadge"', false);
+
+        // 3. Sidebar unread badge must be rendered
+        $response->assertSee('sidebar-unread-badge', false);
+    }
 }
+

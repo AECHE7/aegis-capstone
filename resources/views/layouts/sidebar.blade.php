@@ -1,4 +1,7 @@
 <!-- Sidebar -->
+@php
+    $sidebarUnread = auth()->check() ? auth()->user()->unreadNotifications()->count() : 0;
+@endphp
 <aside class="sidebar" id="mainSidebar" role="complementary" aria-label="Application navigation sidebar">
     <!-- Brand -->
     <a href="#" class="sidebar-brand text-decoration-none">
@@ -80,6 +83,10 @@
                data-tooltip="Notifications">
                 <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Notifications</span>
+                <span class="badge bg-danger rounded-pill ms-auto px-1.5 py-0.5 sidebar-unread-badge {{ $sidebarUnread > 0 ? '' : 'd-none' }}" 
+                      style="font-size: 0.65rem; font-weight: 700; display: {{ $sidebarUnread > 0 ? 'inline-block' : 'none' }};">
+                    {{ $sidebarUnread > 99 ? '99+' : $sidebarUnread }}
+                </span>
             </a>
             <a href="{{ route('profile.security') }}"
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
@@ -157,6 +164,10 @@
                data-tooltip="Notifications">
                 <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Notifications</span>
+                <span class="badge bg-danger rounded-pill ms-auto px-1.5 py-0.5 sidebar-unread-badge {{ $sidebarUnread > 0 ? '' : 'd-none' }}" 
+                      style="font-size: 0.65rem; font-weight: 700; display: {{ $sidebarUnread > 0 ? 'inline-block' : 'none' }};">
+                    {{ $sidebarUnread > 99 ? '99+' : $sidebarUnread }}
+                </span>
             </a>
             <a href="{{ route('profile.security') }}"
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
@@ -231,6 +242,10 @@
                data-tooltip="Notifications">
                 <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Notifications</span>
+                <span class="badge bg-danger rounded-pill ms-auto px-1.5 py-0.5 sidebar-unread-badge {{ $sidebarUnread > 0 ? '' : 'd-none' }}" 
+                      style="font-size: 0.65rem; font-weight: 700; display: {{ $sidebarUnread > 0 ? 'inline-block' : 'none' }};">
+                    {{ $sidebarUnread > 99 ? '99+' : $sidebarUnread }}
+                </span>
             </a>
 
             <a href="{{ route('student.profile') }}"
