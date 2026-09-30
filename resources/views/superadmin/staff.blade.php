@@ -331,7 +331,7 @@
                 const data = await response.json();
 
                 if (response.status === 422) {
-                    Swal.fire({ icon: 'error', title: 'Validation Error', text: 'Please correct validation issues.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    AegisAlert.error({ title: 'Validation Error', text: 'Please correct the validation issues.' });
                     
                     if (data.errors) {
                         for (const [field, messages] of Object.entries(data.errors)) {
@@ -348,22 +348,18 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 } else if (data.success) {
-                    Swal.fire({
+                    AegisAlert.toast({
                         icon: 'success',
-                        title: 'Invitation Sent!',
-                        text: data.message,
-                        timer: 1500,
-                        showConfirmButton: false,
-                        customClass: { popup: 'rounded-4' }
+                        title: data.message || 'Invitation successfully sent!'
                     });
                     
                     const modalEl = document.getElementById('inviteStaffModal');
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
                     
-                    setTimeout(() => location.reload(), 1500);
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    AegisAlert.error({ title: 'Error', text: data.message });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }
@@ -398,26 +394,23 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        Swal.fire({
+                        AegisAlert.toast({
                             icon: 'success',
-                            title: 'Assignments Saved',
-                            text: data.message,
-                            timer: 1500,
-                            showConfirmButton: false,
-                            customClass: { popup: 'rounded-4' }
+                            title: data.message || 'Assignments Saved'
                         });
                         
                         const modal = bootstrap.Modal.getInstance(form.closest('.modal'));
                         if (modal) modal.hide();
                         
-                        setTimeout(() => location.reload(), 1500);
+                        setTimeout(() => location.reload(), 1200);
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                        AegisAlert.error({ title: 'Error', text: data.message });
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalHtml;
                     }
                 } catch (error) {
                     console.error('Save Assignments Error:', error);
+                    AegisAlert.error({ title: 'Error', text: 'An unexpected connection error occurred.' });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }
@@ -448,13 +441,9 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    Swal.fire({
+                    AegisAlert.toast({
                         icon: 'success',
-                        title: 'Access Updated',
-                        text: data.message,
-                        timer: 1500,
-                        showConfirmButton: false,
-                        customClass: { popup: 'rounded-4' }
+                        title: data.message || 'Access Updated'
                     });
 
                     // Update UI status badge and button inline
@@ -515,17 +504,13 @@
         const form = e.target.closest('.delete-staff-form');
         if (form) {
             e.preventDefault();
-            const result = await Swal.fire({
+            const confirmed = await AegisAlert.delete({
                 title: 'Delete Staff Account?',
                 text: "This will move the staff account to the System Trash. They won't be able to log in anymore.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#475569',
-                confirmButtonText: 'Yes, delete it!'
+                confirmText: 'Yes, Delete Account'
             });
 
-            if (result.isConfirmed) {
+            if (confirmed) {
                 const submitBtn = form.querySelector('button[type="submit"]');
                 const originalHtml = submitBtn.innerHTML;
                 submitBtn.disabled = true;
@@ -543,21 +528,19 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        Swal.fire({
+                        AegisAlert.toast({
                             icon: 'success',
-                            title: 'Deleted!',
-                            text: data.message,
-                            timer: 1500,
-                            showConfirmButton: false
+                            title: data.message || 'Staff account moved to trash.'
                         });
-                        setTimeout(() => window.location.reload(), 1500);
+                        setTimeout(() => window.location.reload(), 1200);
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        AegisAlert.error({ title: 'Error', text: data.message });
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalHtml;
                     }
                 } catch (error) {
                     console.error('Delete Staff Error:', error);
+                    AegisAlert.error({ title: 'Error', text: 'An unexpected connection error occurred.' });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }

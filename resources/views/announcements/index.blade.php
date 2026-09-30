@@ -299,17 +299,13 @@
 
             const data = await response.json();
             if (response.ok && data.success) {
-                Swal.fire({
+                AegisAlert.toast({
                     icon: 'success',
-                    title: 'Published!',
-                    text: data.message,
-                    timer: 1500,
-                    showConfirmButton: false
+                    title: data.message || 'Announcement Published!'
                 });
-                setTimeout(() => location.reload(), 1500);
+                setTimeout(() => location.reload(), 1200);
             } else {
-                Swal.fire({
-                    icon: 'error',
+                AegisAlert.error({
                     title: 'Failed',
                     text: data.message || 'An error occurred.'
                 });
@@ -318,8 +314,7 @@
             }
         } catch (error) {
             console.error(error);
-            Swal.fire({
-                icon: 'error',
+            AegisAlert.error({
                 title: 'Error',
                 text: 'An unexpected connection error occurred.'
             });
@@ -366,17 +361,13 @@
 
             const data = await response.json();
             if (response.ok && data.success) {
-                Swal.fire({
+                AegisAlert.toast({
                     icon: 'success',
-                    title: 'Saved!',
-                    text: data.message,
-                    timer: 1500,
-                    showConfirmButton: false
+                    title: data.message || 'Changes saved successfully!'
                 });
-                setTimeout(() => location.reload(), 1500);
+                setTimeout(() => location.reload(), 1200);
             } else {
-                Swal.fire({
-                    icon: 'error',
+                AegisAlert.error({
                     title: 'Failed',
                     text: data.message || 'An error occurred.'
                 });
@@ -385,8 +376,7 @@
             }
         } catch (error) {
             console.error(error);
-            Swal.fire({
-                icon: 'error',
+            AegisAlert.error({
                 title: 'Error',
                 text: 'An unexpected connection error occurred.'
             });
@@ -396,16 +386,12 @@
     }
 
     function deleteAnnouncement(id) {
-        Swal.fire({
+        AegisAlert.delete({
             title: 'Delete Announcement?',
             text: "This will remove the announcement from all dashboards permanently.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#475569',
-            confirmButtonText: 'Yes, delete it!'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
+            confirmText: 'Yes, Delete It'
+        }).then(async (confirmed) => {
+            if (confirmed) {
                 try {
                     const response = await fetch(`/admin/announcements/${id}`, {
                         method: 'DELETE',
@@ -418,32 +404,26 @@
 
                     const data = await response.json();
                     if (response.ok && data.success) {
-                        Swal.fire({
+                        AegisAlert.toast({
                             icon: 'success',
-                            title: 'Deleted!',
-                            text: data.message,
-                            timer: 1000,
-                            showConfirmButton: false
+                            title: data.message || 'Announcement deleted.'
                         });
                         
                         const row = document.getElementById(`announcement-row-${id}`);
                         if (row) {
                             row.remove();
-                            // If table is now empty, reload to show empty state
                             const rows = document.querySelectorAll('tbody tr');
                             if (rows.length === 0) location.reload();
                         }
                     } else {
-                        Swal.fire({
-                            icon: 'error',
+                        AegisAlert.error({
                             title: 'Error',
                             text: data.message || 'Deletion failed.'
                         });
                     }
                 } catch (error) {
                     console.error(error);
-                    Swal.fire({
-                        icon: 'error',
+                    AegisAlert.error({
                         title: 'Error',
                         text: 'An unexpected connection error occurred.'
                     });
@@ -486,16 +466,12 @@
         const ids = Array.from(checked).map(cb => parseInt(cb.value));
         if (ids.length === 0) return;
 
-        Swal.fire({
+        AegisAlert.delete({
             title: `Delete ${ids.length} Announcements?`,
             text: "This will remove the selected announcements permanently.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#475569',
-            confirmButtonText: `Yes, delete ${ids.length}!`
-        }).then(async (result) => {
-            if (result.isConfirmed) {
+            confirmText: `Yes, Delete ${ids.length}`
+        }).then(async (confirmed) => {
+            if (confirmed) {
                 try {
                     const response = await fetch("{{ route('admin.announcements.bulk-destroy') }}", {
                         method: 'POST',
@@ -510,25 +486,20 @@
 
                     const data = await response.json();
                     if (response.ok && data.success) {
-                        Swal.fire({
+                        AegisAlert.toast({
                             icon: 'success',
-                            title: 'Deleted!',
-                            text: data.message,
-                            timer: 1200,
-                            showConfirmButton: false
+                            title: data.message || 'Announcements deleted.'
                         });
                         setTimeout(() => location.reload(), 800);
                     } else {
-                        Swal.fire({
-                            icon: 'error',
+                        AegisAlert.error({
                             title: 'Error',
                             text: data.message || 'Bulk deletion failed.'
                         });
                     }
                 } catch (error) {
                     console.error(error);
-                    Swal.fire({
-                        icon: 'error',
+                    AegisAlert.error({
                         title: 'Error',
                         text: 'An unexpected connection error occurred.'
                     });

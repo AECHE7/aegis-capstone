@@ -212,6 +212,50 @@
         </a>
     </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    window.AegisAlert = {
+        base: function(options = {}) {
+            return Swal.mixin({
+                customClass: {
+                    popup: 'aegis-swal-popup',
+                    confirmButton: 'btn btn-primary px-4 py-2 fw-semibold rounded-3 me-2',
+                    cancelButton: 'btn btn-secondary px-4 py-2 fw-semibold rounded-3'
+                },
+                buttonsStyling: false,
+                ...options
+            });
+        },
+        error: function(options = {}) {
+            return this.base().fire({
+                icon: 'error',
+                title: options.title || 'Error',
+                text: options.text || '',
+                confirmButtonColor: '#DC2626',
+                customClass: {
+                    popup: 'aegis-swal-popup',
+                    confirmButton: 'btn btn-danger px-4 py-2 fw-semibold rounded-3'
+                }
+            });
+        },
+        toast: function(options = {}) {
+            return Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: options.timer || 4000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'aegis-swal-toast'
+                }
+            }).fire({
+                icon: options.icon || 'success',
+                title: options.title || ''
+            });
+        }
+    };
+</script>
+
 <script>
     // Force fresh page load if restored from browser back/forward cache (bfcache)
     window.addEventListener('pageshow', function(event) {
@@ -350,13 +394,14 @@
                         resendBtn.innerHTML = '<i class="fa-solid fa-rotate-right me-1"></i> Resend Code';
                     }
                 }, 1000);
+                AegisAlert.toast({ icon: 'success', title: 'New verification code sent!' });
             } else {
-                alert(data.message || 'Failed to resend. Please go back and log in again.');
+                AegisAlert.error({ title: 'Resend Failed', text: data.message || 'Failed to resend. Please go back and log in again.' });
                 resendBtn.disabled = false;
                 resendBtn.innerHTML = '<i class="fa-solid fa-rotate-right me-1"></i> Resend Code';
             }
         } catch (e) {
-            alert('Connection error. Please try again.');
+            AegisAlert.error({ title: 'Connection Error', text: 'Network communication error. Please try again.' });
             resendBtn.disabled = false;
             resendBtn.innerHTML = '<i class="fa-solid fa-rotate-right me-1"></i> Resend Code';
         }

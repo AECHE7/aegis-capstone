@@ -305,9 +305,18 @@
 
         <script>
             function confirmRevokeDevices() {
-                if (confirm('CAUTION: Are you sure you want to revoke all remembered trusted devices system-wide? Every user will be required to re-verify using MFA on their next login.')) {
-                    document.getElementById('revokeDevicesForm').submit();
-                }
+                AegisAlert.confirm({
+                    title: 'Revoke All Remembered Devices?',
+                    text: 'CAUTION: Are you sure you want to revoke all remembered trusted devices system-wide? Every user will be required to re-verify using MFA on their next login.',
+                    icon: 'warning',
+                    isDestructive: true,
+                    confirmText: 'Yes, Revoke All Devices',
+                    cancelText: 'Cancel'
+                }).then(confirmed => {
+                    if (confirmed) {
+                        document.getElementById('revokeDevicesForm').submit();
+                    }
+                });
             }
 
             async function checkAiHealth() {

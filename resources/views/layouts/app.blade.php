@@ -1248,6 +1248,136 @@
             vertical-align: middle;
         }
 
+        /* ══════════════════════════════════════════
+           A.E.G.I.S. UNIFIED SWEETALERT2 THEME
+        ══════════════════════════════════════════ */
+        .swal2-container {
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            background: rgba(7, 35, 20, 0.45) !important;
+            z-index: 99999 !important;
+        }
+
+        [data-theme="dark"] .swal2-container {
+            background: rgba(3, 7, 18, 0.72) !important;
+        }
+
+        .swal2-popup.aegis-swal-popup {
+            border-radius: 20px !important;
+            padding: 1.75rem 1.5rem !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(15, 89, 52, 0.08) !important;
+            border: 1px solid rgba(226, 232, 240, 0.8) !important;
+            background: #ffffff !important;
+            color: #1e293b !important;
+        }
+
+        [data-theme="dark"] .swal2-popup.aegis-swal-popup {
+            background: #111827 !important;
+            color: #f1f5f9 !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-title {
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+            letter-spacing: -0.02em !important;
+            padding: 0.5rem 0 0 !important;
+        }
+
+        [data-theme="dark"] .swal2-popup.aegis-swal-popup .swal2-title {
+            color: #f8fafc !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-html-container {
+            font-size: 0.92rem !important;
+            color: #475569 !important;
+            line-height: 1.55 !important;
+            margin: 0.65rem 0 0 !important;
+        }
+
+        [data-theme="dark"] .swal2-popup.aegis-swal-popup .swal2-html-container {
+            color: #94a3b8 !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-actions {
+            gap: 0.75rem !important;
+            margin-top: 1.5rem !important;
+            width: 100% !important;
+            justify-content: center !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-confirm {
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            padding: 0.65rem 1.4rem !important;
+            background-color: #0C4E2D !important;
+            border: none !important;
+            box-shadow: 0 4px 14px rgba(12, 78, 45, 0.25) !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-confirm:hover {
+            background-color: #083820 !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 18px rgba(12, 78, 45, 0.35) !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-confirm.aegis-btn-danger {
+            background-color: #dc2626 !important;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25) !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-confirm.aegis-btn-danger:hover {
+            background-color: #b91c1c !important;
+            box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35) !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-cancel {
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            padding: 0.65rem 1.4rem !important;
+            background-color: #64748b !important;
+            color: #ffffff !important;
+            border: none !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .swal2-popup.aegis-swal-popup .swal2-cancel:hover {
+            background-color: #475569 !important;
+            transform: translateY(-1px) !important;
+        }
+
+        /* Toast Customization */
+        .swal2-popup.aegis-swal-toast {
+            border-radius: 14px !important;
+            padding: 0.85rem 1.25rem !important;
+            box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            background: #ffffff !important;
+        }
+
+        [data-theme="dark"] .swal2-popup.aegis-swal-toast {
+            background: #111827 !important;
+            color: #f1f5f9 !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        .swal2-popup.aegis-swal-toast .swal2-title {
+            font-size: 0.88rem !important;
+            font-weight: 600 !important;
+            color: #0f172a !important;
+        }
+
+        [data-theme="dark"] .swal2-popup.aegis-swal-toast .swal2-title {
+            color: #f8fafc !important;
+        }
+
         /* ── Phase 5: Awwwards-Caliber Button Ripple Effect ──────────────────────
            Pure CSS ripple: a pseudo-element is triggered by JS adding
            .ripple-active class, then auto-removed. Wraps all .btn elements.
@@ -1574,6 +1704,13 @@
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss success message"></button>
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.AegisAlert) {
+                                AegisAlert.toast({ icon: 'success', title: @json(session('success')), timer: 4500 });
+                            }
+                        });
+                    </script>
                 @endif
                 @if(session('error'))
                     <div class="alert alert-danger alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="alert" aria-live="assertive" aria-atomic="true"
@@ -1584,6 +1721,30 @@
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss error message"></button>
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.AegisAlert) {
+                                AegisAlert.toast({ icon: 'error', title: @json(session('error')), timer: 5000 });
+                            }
+                        });
+                    </script>
+                @endif
+                @if(session('warning'))
+                    <div class="alert alert-warning alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="alert" aria-live="polite" aria-atomic="true"
+                         style="background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-triangle-exclamation me-2 fs-5" aria-hidden="true"></i>
+                            <div>{{ session('warning') }}</div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss warning message"></button>
+                    </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.AegisAlert) {
+                                AegisAlert.toast({ icon: 'warning', title: @json(session('warning')), timer: 5000 });
+                            }
+                        });
+                    </script>
                 @endif
                 @if(session('info'))
                     <div class="alert alert-info alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="status" aria-live="polite" aria-atomic="true"
@@ -1594,6 +1755,13 @@
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss info message"></button>
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            if (window.AegisAlert) {
+                                AegisAlert.toast({ icon: 'info', title: @json(session('info')), timer: 4500 });
+                            }
+                        });
+                    </script>
                 @endif
             </div>
 
@@ -1807,6 +1975,239 @@
 @endauth
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- SweetAlert2 & Unified A.E.G.I.S. Alert Engine --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // ══════════════════════════════════════════
+    // A.E.G.I.S. UNIFIED SWEETALERT2 API
+    // ══════════════════════════════════════════
+    window.AegisAlert = {
+        base: function(options = {}) {
+            return Swal.mixin({
+                customClass: {
+                    popup: 'aegis-swal-popup',
+                    confirmButton: options.isDestructive ? 'swal2-confirm aegis-btn-danger' : 'swal2-confirm',
+                    cancelButton: 'swal2-cancel'
+                },
+                buttonsStyling: true,
+                focusConfirm: false,
+                returnFocus: false,
+                ...options
+            });
+        },
+
+        confirm: function(options = {}) {
+            const title = options.title || 'Are you sure?';
+            const text = options.text || '';
+            const html = options.html || undefined;
+            const icon = options.icon || (options.isDestructive ? 'warning' : 'question');
+            const confirmButtonText = options.confirmText || (options.isDestructive ? 'Yes, Proceed' : 'Yes, Confirm');
+            const cancelButtonText = options.cancelText || 'Cancel';
+            const confirmButtonColor = options.confirmButtonColor || (options.isDestructive ? '#dc2626' : '#0C4E2D');
+            const cancelButtonColor = options.cancelButtonColor || '#64748b';
+
+            return this.base({
+                isDestructive: !!options.isDestructive
+            }).fire({
+                title: title,
+                text: text,
+                html: html,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonText: confirmButtonText,
+                cancelButtonText: cancelButtonText,
+                confirmButtonColor: confirmButtonColor,
+                cancelButtonColor: cancelButtonColor,
+                reverseButtons: true
+            }).then(result => !!result.isConfirmed);
+        },
+
+        delete: function(options = {}) {
+            return this.confirm({
+                title: options.title || 'Confirm Deletion',
+                text: options.text || 'This action cannot be undone. Are you sure you want to proceed?',
+                html: options.html,
+                icon: 'warning',
+                confirmText: options.confirmText || 'Yes, Delete',
+                cancelText: options.cancelText || 'Cancel',
+                isDestructive: true
+            });
+        },
+
+        success: function(options = {}) {
+            const title = typeof options === 'string' ? options : (options.title || 'Success!');
+            const text = typeof options === 'string' ? '' : (options.text || '');
+            const html = typeof options === 'object' ? options.html : undefined;
+            return this.base().fire({
+                icon: 'success',
+                title: title,
+                text: text,
+                html: html,
+                confirmButtonColor: '#0C4E2D',
+                confirmButtonText: options.confirmText || 'OK',
+                timer: options.timer
+            });
+        },
+
+        error: function(options = {}) {
+            const title = typeof options === 'string' ? options : (options.title || 'Error');
+            const text = typeof options === 'string' ? '' : (options.text || 'An unexpected error occurred.');
+            const html = typeof options === 'object' ? options.html : undefined;
+            return this.base().fire({
+                icon: 'error',
+                title: title,
+                text: text,
+                html: html,
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: options.confirmText || 'Dismiss'
+            });
+        },
+
+        warning: function(options = {}) {
+            const title = typeof options === 'string' ? options : (options.title || 'Warning');
+            const text = typeof options === 'string' ? '' : (options.text || '');
+            const html = typeof options === 'object' ? options.html : undefined;
+            return this.base().fire({
+                icon: 'warning',
+                title: title,
+                text: text,
+                html: html,
+                confirmButtonColor: '#D97706',
+                confirmButtonText: options.confirmText || 'OK'
+            });
+        },
+
+        info: function(options = {}) {
+            const title = typeof options === 'string' ? options : (options.title || 'Information');
+            const text = typeof options === 'string' ? '' : (options.text || '');
+            const html = typeof options === 'object' ? options.html : undefined;
+            return this.base().fire({
+                icon: 'info',
+                title: title,
+                text: text,
+                html: html,
+                confirmButtonColor: '#0C4E2D',
+                confirmButtonText: options.confirmText || 'OK'
+            });
+        },
+
+        toast: function(options = {}) {
+            const title = typeof options === 'string' ? options : (options.title || 'Notice');
+            const icon = typeof options === 'object' ? (options.icon || 'success') : 'success';
+            const timer = typeof options === 'object' ? (options.timer || 4000) : 4000;
+            
+            return Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: timer,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'aegis-swal-toast'
+                },
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            }).fire({
+                icon: icon,
+                title: title
+            });
+        },
+
+        loading: function(title = 'Processing...', text = 'Please wait a moment') {
+            return this.base().fire({
+                title: title,
+                text: text,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        },
+
+        close: function() {
+            Swal.close();
+        }
+    };
+
+    window.SwalAegis = window.AegisAlert;
+
+    // Declarative data-confirm handlers for buttons and forms
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (!form || !form.hasAttribute('data-confirm')) return;
+        
+        if (form.dataset.aegisConfirmed === 'true') {
+            delete form.dataset.aegisConfirmed;
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const title = form.getAttribute('data-confirm-title') || 'Confirm Action';
+        const text = form.getAttribute('data-confirm') || 'Are you sure you want to proceed?';
+        const isDestructive = form.getAttribute('data-confirm-destructive') === 'true';
+        const confirmText = form.getAttribute('data-confirm-btn') || (isDestructive ? 'Yes, Proceed' : 'Yes, Confirm');
+        const icon = form.getAttribute('data-confirm-icon') || (isDestructive ? 'warning' : 'question');
+
+        AegisAlert.confirm({
+            title: title,
+            text: text,
+            icon: icon,
+            isDestructive: isDestructive,
+            confirmText: confirmText
+        }).then(confirmed => {
+            if (confirmed) {
+                form.dataset.aegisConfirmed = 'true';
+                form.submit();
+            }
+        });
+    }, true);
+
+    document.addEventListener('click', function(e) {
+        const trigger = e.target.closest('[data-confirm]:not(form)');
+        if (!trigger) return;
+
+        if (trigger.dataset.aegisConfirmed === 'true') {
+            delete trigger.dataset.aegisConfirmed;
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const title = trigger.getAttribute('data-confirm-title') || 'Confirm Action';
+        const text = trigger.getAttribute('data-confirm') || 'Are you sure you want to proceed?';
+        const isDestructive = trigger.getAttribute('data-confirm-destructive') === 'true';
+        const confirmText = trigger.getAttribute('data-confirm-btn') || (isDestructive ? 'Yes, Proceed' : 'Yes, Confirm');
+        const icon = trigger.getAttribute('data-confirm-icon') || (isDestructive ? 'warning' : 'question');
+
+        AegisAlert.confirm({
+            title: title,
+            text: text,
+            icon: icon,
+            isDestructive: isDestructive,
+            confirmText: confirmText
+        }).then(confirmed => {
+            if (confirmed) {
+                trigger.dataset.aegisConfirmed = 'true';
+                if (trigger.tagName === 'A' && trigger.href) {
+                    window.location.href = trigger.href;
+                } else if (trigger.form) {
+                    trigger.form.dataset.aegisConfirmed = 'true';
+                    trigger.form.submit();
+                } else {
+                    trigger.click();
+                }
+            }
+        });
+    }, true);
+</script>
 
 <script>
     // ── Sidebar Toggle ──────────────────────────────────────
@@ -2098,17 +2499,14 @@
         if (logoutLink) {
             logoutLink.addEventListener('click', function(e) {
                 e.preventDefault();
-                Swal.fire({
+                AegisAlert.confirm({
                     title: 'Confirm Logout',
                     text: 'Are you sure you want to log out of your session?',
                     icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#0C4E2D',
-                    cancelButtonColor: '#475569',
-                    confirmButtonText: 'Yes, Logout',
-                    customClass: { popup: 'rounded-4' }
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                    confirmText: 'Yes, Logout',
+                    cancelText: 'Cancel'
+                }).then((confirmed) => {
+                    if (confirmed) {
                         document.getElementById('logoutForm').submit();
                     }
                 });
@@ -2212,9 +2610,6 @@
         }
     });
 </script>
-
-{{-- SweetAlert2: loaded before views scripts to avoid undefined ReferenceError --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 {{-- Mobile keyboard detection for sticky action bars --}}
 <script>

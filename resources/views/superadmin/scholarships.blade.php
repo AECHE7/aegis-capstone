@@ -555,7 +555,7 @@
 
                 if (response.status === 422) {
                     // Validation errors
-                    Swal.fire({ icon: 'error', title: 'Validation Failed', text: 'Please check the form inputs.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    AegisAlert.error({ title: 'Validation Failed', text: 'Please check the form inputs.' });
                     
                     if (data.errors) {
                         for (const [field, messages] of Object.entries(data.errors)) {
@@ -581,13 +581,9 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 } else if (data.success) {
-                    Swal.fire({
+                    AegisAlert.toast({
                         icon: 'success',
-                        title: 'Success!',
-                        text: data.message,
-                        timer: 1500,
-                        showConfirmButton: false,
-                        customClass: { popup: 'rounded-4' }
+                        title: data.message || 'Program successfully created!'
                     });
                     
                     // Close Modal and reload
@@ -595,9 +591,9 @@
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
                     
-                    setTimeout(() => location.reload(), 1500);
+                    setTimeout(() => location.reload(), 1200);
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    AegisAlert.error({ title: 'Error', text: data.message });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }
@@ -632,13 +628,9 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    Swal.fire({
+                    AegisAlert.toast({
                         icon: 'success',
-                        title: 'Status Updated',
-                        text: data.message,
-                        timer: 1500,
-                        showConfirmButton: false,
-                        customClass: { popup: 'rounded-4' }
+                        title: data.message || 'Status Updated'
                     });
 
                     // Update UI status badge and button inline
@@ -678,7 +670,7 @@
                         `;
                     }
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    AegisAlert.error({ title: 'Error', text: data.message });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }
@@ -892,17 +884,12 @@
             editFieldIndex = 0;
             renderEditLivePreview();
 
-            Swal.fire({
-                title: 'Loading Details...',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading(),
-                customClass: { popup: 'rounded-4' }
-            });
+            AegisAlert.loading('Loading Details...', 'Fetching program information...');
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                Swal.close();
+                AegisAlert.close();
 
                 if (data.success) {
                     const s = data.scholarship;
@@ -936,11 +923,11 @@
                     const modal = new bootstrap.Modal(editModalEl);
                     modal.show();
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Could not fetch program details.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                    AegisAlert.error({ title: 'Error', text: 'Could not fetch program details.' });
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                AegisAlert.error({ title: 'Error', text: 'An unexpected error occurred.' });
             }
         });
     });
@@ -969,7 +956,7 @@
             const data = await response.json();
 
             if (response.status === 422) {
-                Swal.fire({ icon: 'error', title: 'Validation Failed', text: 'Please check your inputs.', confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                AegisAlert.error({ title: 'Validation Failed', text: 'Please check your inputs.' });
                 if (data.errors) {
                     for (const [field, messages] of Object.entries(data.errors)) {
                         let input = this.querySelector(`[name="${field}"]`);
@@ -991,25 +978,22 @@
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalHtml;
             } else if (data.success) {
-                Swal.fire({
+                AegisAlert.toast({
                     icon: 'success',
-                    title: 'Updated Successfully!',
-                    text: data.message,
-                    timer: 1500,
-                    showConfirmButton: false,
-                    customClass: { popup: 'rounded-4' }
+                    title: data.message || 'Updated Successfully!'
                 });
                 
                 const modal = bootstrap.Modal.getInstance(document.getElementById('editProgramModal'));
                 if (modal) modal.hide();
-                setTimeout(() => location.reload(), 1500);
+                setTimeout(() => location.reload(), 1200);
             } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626', customClass: { popup: 'rounded-4' } });
+                AegisAlert.error({ title: 'Error', text: data.message });
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalHtml;
             }
         } catch (error) {
             console.error('Update Program Error:', error);
+            AegisAlert.error({ title: 'Error', text: 'An unexpected connection error occurred.' });
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalHtml;
         }
@@ -1020,17 +1004,13 @@
         const form = e.target.closest('.delete-scholarship-form');
         if (form) {
             e.preventDefault();
-            const result = await Swal.fire({
+            const confirmed = await AegisAlert.delete({
                 title: 'Delete Scholarship Program?',
                 text: "This will move the scholarship to the System Trash. Students won't be able to apply to it anymore.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#475569',
-                confirmButtonText: 'Yes, delete it!'
+                confirmText: 'Yes, Delete Program'
             });
 
-            if (result.isConfirmed) {
+            if (confirmed) {
                 const submitBtn = form.querySelector('button[type="submit"]');
                 const originalHtml = submitBtn.innerHTML;
                 submitBtn.disabled = true;
@@ -1048,21 +1028,19 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        Swal.fire({
+                        AegisAlert.toast({
                             icon: 'success',
-                            title: 'Deleted!',
-                            text: data.message,
-                            timer: 1500,
-                            showConfirmButton: false
+                            title: data.message || 'Scholarship program moved to trash.'
                         });
-                        setTimeout(() => window.location.reload(), 1500);
+                        setTimeout(() => window.location.reload(), 1200);
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        AegisAlert.error({ title: 'Error', text: data.message });
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalHtml;
                     }
                 } catch (error) {
                     console.error('Delete Scholarship Error:', error);
+                    AegisAlert.error({ title: 'Error', text: 'An unexpected connection error occurred.' });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }

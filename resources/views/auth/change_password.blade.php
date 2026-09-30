@@ -450,7 +450,10 @@
                                         </div>
                                     </div>
                                     <form action="{{ route('profile.security.devices.revoke', $device->id) }}" method="POST" 
-                                          onsubmit="return confirm('Are you sure you want to revoke trust for this device? You will need to complete MFA on your next login.');">
+                                          data-confirm="Are you sure you want to revoke trust for this device ({{ $device->human_readable }})? You will need to complete MFA on your next login."
+                                          data-confirm-title="Revoke Trusted Device"
+                                          data-confirm-destructive="true"
+                                          data-confirm-btn="Yes, Revoke Trust">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle p-1 border-0" 
@@ -532,26 +535,17 @@
 
 <script>
     function confirmSettingsLogout() {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'Confirm Logout',
-                text: 'Are you sure you want to sign out of your account?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: 'Yes, Sign Out',
-                cancelButtonText: 'Cancel'
-            }).then(function (result) {
-                if (result.isConfirmed) {
-                    document.getElementById('settingsLogoutForm').submit();
-                }
-            });
-        } else {
-            if (confirm('Are you sure you want to sign out of your account?')) {
+        AegisAlert.confirm({
+            title: 'Confirm Logout',
+            text: 'Are you sure you want to sign out of your account?',
+            icon: 'question',
+            confirmText: 'Yes, Sign Out',
+            cancelText: 'Cancel'
+        }).then(function (confirmed) {
+            if (confirmed) {
                 document.getElementById('settingsLogoutForm').submit();
             }
-        }
+        });
     }
 </script>
 @endsection

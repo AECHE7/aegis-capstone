@@ -229,21 +229,19 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    Swal.fire({
+                    AegisAlert.toast({
                         icon: 'success',
-                        title: 'Restored!',
-                        text: data.message,
-                        timer: 1500,
-                        showConfirmButton: false
+                        title: data.message || 'Record successfully restored!'
                     });
-                    setTimeout(() => window.location.reload(), 1500);
+                    setTimeout(() => window.location.reload(), 1200);
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    AegisAlert.error({ title: 'Restore Failed', text: data.message });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }
             } catch (error) {
                 console.error('Restore Error:', error);
+                AegisAlert.error({ title: 'Error', text: 'An unexpected connection error occurred.' });
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalHtml;
             }
@@ -257,17 +255,13 @@
             e.preventDefault();
             const type = form.dataset.type || 'record';
 
-            const result = await Swal.fire({
+            const confirmed = await AegisAlert.delete({
                 title: 'Permanent Deletion?',
                 text: `WARNING: Are you sure you want to permanently delete this ${type}? This action is irreversible and deletes all associated files and logs from database storage.`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#475569',
-                confirmButtonText: 'Yes, permanently delete it!'
+                confirmText: 'Yes, Permanently Delete'
             });
 
-            if (result.isConfirmed) {
+            if (confirmed) {
                 const submitBtn = form.querySelector('button[type="submit"]');
                 const originalHtml = submitBtn.innerHTML;
 
@@ -286,21 +280,19 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        Swal.fire({
+                        AegisAlert.toast({
                             icon: 'success',
-                            title: 'Permanently Deleted',
-                            text: data.message,
-                            timer: 1500,
-                            showConfirmButton: false
+                            title: data.message || 'Record permanently deleted.'
                         });
-                        setTimeout(() => window.location.reload(), 1500);
+                        setTimeout(() => window.location.reload(), 1200);
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        AegisAlert.error({ title: 'Deletion Failed', text: data.message });
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = originalHtml;
                     }
                 } catch (error) {
                     console.error('Force Delete Error:', error);
+                    AegisAlert.error({ title: 'Error', text: 'An unexpected connection error occurred.' });
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }

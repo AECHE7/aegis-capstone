@@ -353,11 +353,17 @@
     }
 
     function confirmSingleDelete(id, subject) {
-        if (confirm('Are you sure you want to delete this broadcast log for "' + subject + '"?')) {
-            const form = document.getElementById('singleDeleteForm');
-            form.action = '/superadmin/broadcast/' + id;
-            form.submit();
-        }
+        AegisAlert.delete({
+            title: 'Delete Broadcast Log?',
+            text: 'Are you sure you want to delete this broadcast log for "' + subject + '"?',
+            confirmText: 'Yes, Delete Log'
+        }).then(confirmed => {
+            if (confirmed) {
+                const form = document.getElementById('singleDeleteForm');
+                form.action = '/superadmin/broadcast/' + id;
+                form.submit();
+            }
+        });
     }
 
     function toggleSelectAll(master) {
@@ -393,9 +399,15 @@
         const count = document.querySelectorAll('.broadcast-checkbox:checked').length;
         if (count === 0) return;
 
-        if (confirm('Are you sure you want to delete ' + count + ' selected broadcast records?')) {
-            document.getElementById('bulkDeleteForm').submit();
-        }
+        AegisAlert.delete({
+            title: 'Delete Selected Logs?',
+            text: 'Are you sure you want to delete ' + count + ' selected broadcast records? This action cannot be undone.',
+            confirmText: 'Yes, Delete Selected'
+        }).then(confirmed => {
+            if (confirmed) {
+                document.getElementById('bulkDeleteForm').submit();
+            }
+        });
     }
 </script>
 @endpush

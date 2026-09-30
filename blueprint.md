@@ -1007,3 +1007,58 @@ All three documents strictly adhere to the two-part structure, styling, and ISO/
 
 3. **Automated Testing Suite**:
    - Expanded `tests/Feature/BroadcastNotificationTest.php` to test search filtering, single log deletion, bulk deletion, and clearing all broadcast logs. All 7 tests passing with 42 assertions.
+
+---
+
+## 28. Unified SweetAlert Reconfirmation & Alert Design System
+
+### Problem Statement & Requirements
+- Prior to this update, user feedback and confirmation dialogues across the portal were fragmented:
+  - Several mission-critical and destructive actions utilized browser-native `confirm()` dialogs (e.g. resetting MFA sessions for students/staff, revoking system-wide trusted devices, deleting broadcast logs, withdrawing or cancelling student applications, and logging out).
+  - Validation failures and async errors in certain flows relied on browser-native `alert()` (e.g. OTP resend failures, student application cancellations/restorations).
+  - Where `Swal.fire` was utilized, button colors, border radii, backdrop blurs, and typography were inconsistently applied across views (`#00754A`, `#0C4E2D`, `#dc2626`, ad-hoc custom classes).
+- The goal is to establish a unified, brand-cohesive SweetAlert2 design system across all views, eliminating all native `confirm()` and `alert()` calls, providing declarative confirmation bindings (`data-confirm`), and elevating system notifications into cohesive, high-end dialogs and toasts.
+
+### Architectural Enhancements & Implementation
+1. **Brand Aesthetics & Design Tokens**:
+   - **Backdrop**: Frosted emerald glass `rgba(7, 35, 20, 0.45)` with `backdrop-filter: blur(8px)`.
+   - **Dialog Surface**: Crisp card with `border-radius: 20px`, subtle 1px border `rgba(226, 232, 240, 0.8)`, and multi-tier ambient shadow.
+   - **Buttons**: Rounded-pill/rounded-3 action buttons with smooth scale hover micro-interactions:
+     - Primary Confirm: CLSU Green `#0C4E2D` (hover: `#093c22`)
+     - Destructive Action: Crimson Ember `#DC2626` (hover: `#b91c1c`)
+     - Warning: Amber Gold `#D97706` (hover: `#b45309`)
+     - Cancel / Dismiss: Slate Neutral `#64748B` (hover: `#475569`)
+   - **Typography**: Inter / Poppins with tightened letter-spacing (`-0.02em`) and relaxed body leading.
+
+2. **Core SweetAlert2 Helper Suite (`window.AegisAlert`)**:
+   - Built a comprehensive JavaScript API available globally on `window.AegisAlert` and `window.SwalAegis`:
+     - `AegisAlert.confirm({ title, text, html, icon, confirmText, cancelText, isDestructive, confirmButtonColor })`: Returns a Promise resolving to `true` if confirmed.
+     - `AegisAlert.delete({ title, text, html, confirmText })`: Pre-configured destructive helper with crimson button and warning icon.
+     - `AegisAlert.success({ title, text, html, timer })`
+     - `AegisAlert.error({ title, text, html })`
+     - `AegisAlert.warning({ title, text, html })`
+     - `AegisAlert.info({ title, text, html })`
+     - `AegisAlert.toast({ title, icon, timer })`: Floating top-end micro-toast with auto-progress bar.
+     - `AegisAlert.loading({ title, text })`: Branded loading state.
+     - `AegisAlert.close()`: Closes open dialogues programmatically.
+
+3. **Declarative Auto-Binding (`data-confirm`)**:
+   - Implemented global event delegation listening on all elements with `data-confirm`:
+     - Intercepts clicks or form submissions.
+     - Evaluates `data-confirm-title`, `data-confirm-btn`, `data-confirm-destructive`, and `data-confirm-icon`.
+     - Automatically renders the unified SweetAlert confirmation and executes the intended action only upon explicit confirmation.
+
+4. **Complete Replacement of Legacy Browser Dialogs**:
+   - **Superadmin User Management (`superadmin/users.blade.php`)**: Replaced native `confirm()` on student and staff MFA session resets; added confirmation protection to user deactivation/reactivation toggles.
+   - **System Settings (`superadmin/settings.blade.php`)**: Converted system-wide trusted device revocation to unified SweetAlert warning dialog.
+   - **Broadcast Center (`superadmin/broadcast.blade.php`)**: Converted single broadcast log deletion and batch deletions to `AegisAlert.delete`.
+   - **Student Dashboard (`student/dashboard.blade.php`)**: Converted application cancellation, application restoration, application withdrawal/permanent deletion, and forfeiture to `AegisAlert.confirm` and `AegisAlert.delete`, replacing all native `confirm()` and `alert()` calls.
+   - **Security & Device Management (`auth/change_password.blade.php`)**: Converted individual trusted device revocation and account logout to unified SweetAlert.
+   - **MFA Verification (`auth/mfa_verify.blade.php`)**: Added SweetAlert2 and converted OTP resend failure alerts from native `alert()` to `AegisAlert.error`.
+   - **Staff Review Suite (`admin/review.blade.php`)**: Standardized decision finalization (Approve / Reject), AI sync scan alerts, and notes indicators to the unified palette.
+   - **Student Application Flow (`student/apply.blade.php`)**: Standardized file upload error messages and integrated a pre-submission confirmation dialog.
+   - **Announcements Hub (`announcements/index.blade.php`)**: Harmonized single and bulk deletion confirmations.
+
+5. **Unified Session Toast Dispatcher**:
+   - Integrated session flash detection in `resources/views/layouts/app.blade.php`:
+     - When Laravel sets `session('success')`, `session('error')`, `session('warning')`, or `session('info')`, a branded `AegisAlert.toast()` displays automatically with progress bar and accessible ARIA alerts.

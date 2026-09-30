@@ -893,112 +893,141 @@
     document.querySelectorAll('.cancel-app-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
-            if (!confirm('Are you sure you want to cancel this application? This will withdraw it from the OSA review pipeline and allow you to submit a new one.')) return;
-            
             const id = this.dataset.id;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Cancelling...';
             
-            fetch(`/application/${id}/cancel`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.reload();
-                } else {
-                    alert(data.message || 'Error cancelling application.');
+            AegisAlert.confirm({
+                title: 'Cancel Application?',
+                text: 'Are you sure you want to cancel this application? This will withdraw it from the OSA review pipeline and allow you to submit a new one.',
+                icon: 'warning',
+                isDestructive: true,
+                confirmText: 'Yes, Cancel Application',
+                cancelText: 'Keep Application'
+            }).then(confirmed => {
+                if (!confirmed) return;
+                
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Cancelling...';
+                
+                fetch(`/application/${id}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        AegisAlert.toast({ icon: 'success', title: data.message || 'Application cancelled successfully.' });
+                        setTimeout(() => window.location.reload(), 800);
+                    } else {
+                        AegisAlert.error({ title: 'Action Failed', text: data.message || 'Error cancelling application.' });
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Cancel Application';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    AegisAlert.error({ title: 'Connection Error', text: 'An unexpected error occurred while communicating with the server.' });
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Cancel Application';
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('An error occurred.');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-ban me-1"></i> Cancel Application';
+                });
             });
         });
     });
 
     document.querySelectorAll('.restore-app-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            if (!confirm('Are you sure you want to restore this application?')) return;
-            
             const id = this.dataset.id;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Restoring...';
             
-            fetch(`/application/${id}/restore`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.reload();
-                } else {
-                    alert(data.message);
+            AegisAlert.confirm({
+                title: 'Restore Application?',
+                text: 'Are you sure you want to restore this application back to the active review queue?',
+                icon: 'question',
+                confirmText: 'Yes, Restore',
+                cancelText: 'Cancel'
+            }).then(confirmed => {
+                if (!confirmed) return;
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Restoring...';
+                
+                fetch(`/application/${id}/restore`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        AegisAlert.toast({ icon: 'success', title: data.message || 'Application restored successfully.' });
+                        setTimeout(() => window.location.reload(), 800);
+                    } else {
+                        AegisAlert.error({ title: 'Restore Failed', text: data.message || 'Could not restore application.' });
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-trash-arrow-up me-1"></i> Restore';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    AegisAlert.error({ title: 'Connection Error', text: 'An unexpected error occurred.' });
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fa-solid fa-trash-arrow-up me-1"></i> Restore';
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('An error occurred.');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-trash-arrow-up me-1"></i> Restore';
+                });
             });
         });
     });
 
     document.querySelectorAll('.withdraw-app-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            if (!confirm('WARNING: Are you sure you want to permanently delete and withdraw this application? This action is irreversible and will delete all files from storage.')) return;
-            
             const id = this.dataset.id;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Deleting...';
             
-            fetch(`/application/${id}/withdraw`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.reload();
-                } else {
-                    alert(data.message);
+            AegisAlert.delete({
+                title: 'Permanently Withdraw?',
+                text: 'WARNING: Are you sure you want to permanently delete and withdraw this application? This action is irreversible and will delete all files from storage.',
+                confirmText: 'Yes, Permanently Delete'
+            }).then(confirmed => {
+                if (!confirmed) return;
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Deleting...';
+                
+                fetch(`/application/${id}/withdraw`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        AegisAlert.toast({ icon: 'success', title: data.message || 'Application permanently withdrawn.' });
+                        setTimeout(() => window.location.reload(), 800);
+                    } else {
+                        AegisAlert.error({ title: 'Deletion Failed', text: data.message || 'Could not delete application.' });
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-times-circle me-1"></i> Withdraw';
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    AegisAlert.error({ title: 'Connection Error', text: 'An unexpected error occurred.' });
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fa-solid fa-times-circle me-1"></i> Withdraw';
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('An error occurred.');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-times-circle me-1"></i> Withdraw';
+                });
             });
         });
     });
 
     // Forfeit SweetAlert2 Modal
     window.triggerForfeit = function(appId) {
-        Swal.fire({
+        AegisAlert.base({
             title: 'Forfeit Scholarship?',
             text: 'Are you sure you want to back out and forfeit this scholarship? This action is irreversible and will release your slot.',
             icon: 'warning',
@@ -1009,15 +1038,17 @@
             },
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
-            cancelButtonColor: '#475569',
+            cancelButtonColor: '#64748b',
             confirmButtonText: 'Yes, Forfeit It',
+            cancelButtonText: 'Keep Scholarship',
+            reverseButtons: true,
             preConfirm: (reason) => {
                 if (!reason || reason.trim().length < 5) {
                     Swal.showValidationMessage('A detailed reason (at least 5 characters) is required.');
                 }
                 return reason;
             }
-        }).then((result) => {
+        }).fire().then((result) => {
             if (result.isConfirmed && result.value) {
                 // Submit form dynamically
                 const form = document.createElement('form');

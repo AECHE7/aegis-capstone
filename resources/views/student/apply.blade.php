@@ -404,11 +404,9 @@
 
                                 const maxSize = 10 * 1024 * 1024;
                                 if (file.size > maxSize) {
-                                    Swal.fire({
-                                        icon: 'error',
+                                    AegisAlert.error({
                                         title: 'File Too Large',
-                                        html: `File size: <strong>${(file.size / 1024 / 1024).toFixed(2)} MB</strong><br>Maximum allowed: <strong>10 MB</strong>`,
-                                        confirmButtonColor: '#dc2626'
+                                        html: `File size: <strong>${(file.size / 1024 / 1024).toFixed(2)} MB</strong><br>Maximum allowed: <strong>10 MB</strong>`
                                     });
                                     input.value = '';
                                     if (preview) preview.remove();
@@ -419,11 +417,9 @@
 
                                 const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf', 'image/webp'];
                                 if (!validTypes.includes(file.type)) {
-                                    Swal.fire({
-                                        icon: 'error',
+                                    AegisAlert.error({
                                         title: 'Invalid File Format',
-                                        html: `File type: <strong>${file.type || 'Unknown'}</strong><br>Accepted formats: <strong>PNG, JPG, PDF, WebP</strong>`,
-                                        confirmButtonColor: '#dc2626'
+                                        html: `File type: <strong>${file.type || 'Unknown'}</strong><br>Accepted formats: <strong>PNG, JPG, PDF, WebP</strong>`
                                     });
                                     input.value = '';
                                     if (preview) preview.remove();
@@ -639,7 +635,29 @@
     }
 
     form.addEventListener('input', saveDraft);
-    form.addEventListener('submit', () => localStorage.removeItem(FORM_KEY));
+    form.addEventListener('submit', function(e) {
+        if (form.dataset.aegisConfirmed === 'true') {
+            localStorage.removeItem(FORM_KEY);
+            return;
+        }
+
+        e.preventDefault();
+        const programName = document.getElementById('programNameInput')?.value || 'this scholarship';
+        AegisAlert.confirm({
+            title: 'Submit Application?',
+            html: `You are about to submit your application for <strong>${programName}</strong>.<br><br><small class="text-muted">Please confirm that all uploaded documents and academic records are authentic and legible.</small>`,
+            icon: 'question',
+            confirmText: 'Yes, Submit Application',
+            cancelText: 'Review Form'
+        }).then(confirmed => {
+            if (confirmed) {
+                form.dataset.aegisConfirmed = 'true';
+                localStorage.removeItem(FORM_KEY);
+                AegisAlert.loading('Submitting Application...', 'Encrypting records and registering your application...');
+                form.submit();
+            }
+        });
+    });
     document.addEventListener('DOMContentLoaded', () => {
         restoreDraft();
 

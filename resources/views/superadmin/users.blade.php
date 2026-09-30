@@ -329,7 +329,11 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="border-radius: 12px; font-size: 0.82rem;">
                                         <li>
-                                            <form action="{{ route('superadmin.users.toggle-status', $student->id) }}" method="POST">
+                                            <form action="{{ route('superadmin.users.toggle-status', $student->id) }}" method="POST"
+                                                  data-confirm="Are you sure you want to {{ $student->is_active ? 'deactivate' : 'reactivate' }} the student account for {{ $student->name }}?"
+                                                  data-confirm-title="{{ $student->is_active ? 'Deactivate Student Account' : 'Reactivate Student Account' }}"
+                                                  data-confirm-destructive="{{ $student->is_active ? 'true' : 'false' }}"
+                                                  data-confirm-btn="Yes, {{ $student->is_active ? 'Deactivate' : 'Reactivate' }}">
                                                 @csrf
                                                 <button type="submit" class="dropdown-item py-2 {{ $student->is_active ? 'text-danger' : 'text-success' }}">
                                                     <i class="fa-solid {{ $student->is_active ? 'fa-user-slash text-danger' : 'fa-user-check text-success' }} me-2"></i>
@@ -338,7 +342,11 @@
                                             </form>
                                         </li>
                                         <li>
-                                            <form action="{{ route('superadmin.users.reset-mfa', $student->id) }}" method="POST" onsubmit="return confirm('Reset all MFA sessions and OTP tokens for {{ $student->name }}?')">
+                                            <form action="{{ route('superadmin.users.reset-mfa', $student->id) }}" method="POST"
+                                                  data-confirm="Reset all MFA sessions, trusted device keys, and OTP tokens for {{ $student->name }}? The student will need to re-verify on their next login."
+                                                  data-confirm-title="Reset MFA & Trusted Devices"
+                                                  data-confirm-destructive="true"
+                                                  data-confirm-btn="Yes, Reset MFA">
                                                 @csrf
                                                 <button type="submit" class="dropdown-item py-2 text-warning">
                                                     <i class="fa-solid fa-key text-warning me-2"></i> Reset MFA / Clear Devices
@@ -346,7 +354,11 @@
                                             </form>
                                         </li>
                                         <li>
-                                            <form action="{{ route('superadmin.users.send-reset', $student->id) }}" method="POST">
+                                            <form action="{{ route('superadmin.users.send-reset', $student->id) }}" method="POST"
+                                                  data-confirm="Send an official password reset link to {{ $student->email }}?"
+                                                  data-confirm-title="Send Password Reset"
+                                                  data-confirm-destructive="false"
+                                                  data-confirm-btn="Yes, Send Link">
                                                 @csrf
                                                 <button type="submit" class="dropdown-item py-2 text-primary">
                                                     <i class="fa-solid fa-paper-plane text-primary me-2"></i> Send Password Reset Link
@@ -474,7 +486,11 @@
                                                 </button>
                                             </li>
                                             <li>
-                                                <form action="{{ route('superadmin.users.toggle-status', $staff->id) }}" method="POST">
+                                                <form action="{{ route('superadmin.users.toggle-status', $staff->id) }}" method="POST"
+                                                      data-confirm="Are you sure you want to {{ $staff->is_active ? 'revoke portal access for' : 'reactivate access for' }} staff member {{ $staff->name }}?"
+                                                      data-confirm-title="{{ $staff->is_active ? 'Revoke Staff Access' : 'Reactivate Staff Access' }}"
+                                                      data-confirm-destructive="{{ $staff->is_active ? 'true' : 'false' }}"
+                                                      data-confirm-btn="Yes, {{ $staff->is_active ? 'Revoke Access' : 'Reactivate Access' }}">
                                                     @csrf
                                                     <button type="submit" class="dropdown-item py-2 {{ $staff->is_active ? 'text-danger' : 'text-success' }}">
                                                         <i class="fa-solid {{ $staff->is_active ? 'fa-user-slash text-danger' : 'fa-user-check text-success' }} me-2"></i>
@@ -483,7 +499,11 @@
                                                 </form>
                                             </li>
                                             <li>
-                                                <form action="{{ route('superadmin.users.reset-mfa', $staff->id) }}" method="POST" onsubmit="return confirm('Reset MFA tokens for {{ $staff->name }}?')">
+                                                <form action="{{ route('superadmin.users.reset-mfa', $staff->id) }}" method="POST"
+                                                      data-confirm="Reset MFA tokens and remembered trusted devices for staff member {{ $staff->name }}? They will need to complete MFA on their next login."
+                                                      data-confirm-title="Reset Staff MFA Tokens"
+                                                      data-confirm-destructive="true"
+                                                      data-confirm-btn="Yes, Reset MFA">
                                                     @csrf
                                                     <button type="submit" class="dropdown-item py-2 text-warning">
                                                         <i class="fa-solid fa-key text-warning me-2"></i> Reset MFA / Clear Devices

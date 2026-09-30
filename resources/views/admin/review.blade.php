@@ -849,24 +849,22 @@
     function confirmDecision(status) {
         const remarks = document.getElementById('evaluatorRemarks').value.trim();
         if (!remarks) {
-            Swal.fire({
-                icon: 'warning',
+            AegisAlert.warning({
                 title: 'Remarks Required',
-                text: 'Please enter evaluator remarks before finalizing.',
-                confirmButtonColor: '#f59e0b'
+                text: 'Please enter evaluator remarks before finalizing your review decision.'
             });
             return;
         }
 
-        Swal.fire({
+        AegisAlert.confirm({
             title: `Confirm ${status}?`,
-            text: `Mark this application as ${status}?`,
-            icon: status === 'Approved' ? 'success' : 'warning',
-            showCancelButton: true,
-            confirmButtonColor: status === 'Approved' ? '#00754A' : '#dc2626',
-            confirmButtonText: `Yes, finalize as ${status}`
-        }).then(res => {
-            if (res.isConfirmed) {
+            text: `Are you sure you want to finalize this application as ${status}?`,
+            icon: status === 'Approved' ? 'question' : 'warning',
+            isDestructive: status !== 'Approved',
+            confirmText: `Yes, finalize as ${status}`,
+            cancelText: 'Cancel'
+        }).then(confirmed => {
+            if (confirmed) {
                 submitDecisionAjax(status);
             }
         });
@@ -876,6 +874,8 @@
         const form = document.getElementById('decisionForm');
         document.getElementById('statusInput').value = status;
         
+        AegisAlert.loading('Saving Decision...', 'Recording decision and updating audit trail...');
+
         try {
             const response = await fetch(form.action, {
                 method: 'POST',
@@ -884,25 +884,20 @@
             });
             const data = await response.json();
             if (data.success) {
-                Swal.fire({ icon: 'success', title: 'Decision Saved', text: data.message, confirmButtonColor: '#00754A' });
-                setTimeout(() => location.reload(), 1500);
+                AegisAlert.success({ title: 'Decision Recorded', text: data.message });
+                setTimeout(() => location.reload(), 1200);
             } else {
-                Swal.fire({ icon: 'error', title: 'Error', text: data.message, confirmButtonColor: '#dc2626' });
+                AegisAlert.error({ title: 'Action Failed', text: data.message });
             }
         } catch (e) {
             console.error(e);
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Decision submission failed.', confirmButtonColor: '#dc2626' });
+            AegisAlert.error({ title: 'Error', text: 'Decision submission failed due to a network error.' });
         }
     }
 
     async function runSyncScan(docId) {
         const url = "{{ route('admin.scanSync', $application->id) }}";
-        Swal.fire({
-            title: 'Running AI Verification...',
-            text: 'Processing neural network inference synchronously.',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-        });
+        AegisAlert.loading('Running AI Forensics...', 'Executing neural network model inference synchronously.');
 
         try {
             const res = await fetch(url, {
@@ -915,13 +910,13 @@
             });
             const data = await res.json();
             if (data.success) {
-                Swal.fire({ icon: 'success', title: 'Scan Completed', text: data.message, confirmButtonColor: '#00754A' });
+                AegisAlert.success({ title: 'Scan Completed', text: data.message });
                 setTimeout(() => location.reload(), 1200);
             } else {
-                Swal.fire({ icon: 'error', title: 'Scan Failed', text: data.message, confirmButtonColor: '#dc2626' });
+                AegisAlert.error({ title: 'Scan Failed', text: data.message });
             }
         } catch (err) {
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Sync scan failed.', confirmButtonColor: '#dc2626' });
+            AegisAlert.error({ title: 'Error', text: 'Sync scan failed.' });
         }
     }
 
