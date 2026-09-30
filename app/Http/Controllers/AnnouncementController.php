@@ -18,9 +18,34 @@ class AnnouncementController extends Controller
     /**
      * Display a listing of the announcements for administrative management.
      */
-    public function index(): View
+    public function index(\Illuminate\Http\Request $request): View
     {
-        $announcements = Announcement::with('author')->latest()->paginate(10);
+        $query = Announcement::with('author');
+
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            if ($status === 'active') {
+                $query->where(function ($q) {
+                    $q->whereNull('scheduled_publish_at')->orWhere('scheduled_publish_at', '<=', now());
+                })->where(function ($q) {
+                    $q->whereNull('scheduled_delete_at')->orWhere('scheduled_delete_at', '>', now());
+                });
+            } elseif ($status === 'scheduled') {
+                $query->where('scheduled_publish_at', '>', now());
+            } elseif ($status === 'expired') {
+                $query->where('scheduled_delete_at', '<=', now());
+            }
+        }
+
+        $announcements = $query->latest()->paginate(10)->withQueryString();
         return view('announcements.index', compact('announcements'));
     }
 
@@ -107,6 +132,24 @@ class AnnouncementController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Announcement successfully deleted.'
+        ]);
+    }
+
+    /**
+     * Remove multiple announcements in bulk.
+     */
+    public function bulkDestroy(\Illuminate\Http\Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $deleted = Announcement::whereIn('id', $request->ids)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Successfully deleted {$deleted} announcements.",
         ]);
     }
 }

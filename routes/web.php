@@ -250,8 +250,9 @@ Route::middleware(['auth'])->group(function () {
         // Announcement Board Management
         Route::get('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('admin.announcements.index');
         Route::post('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'store'])->name('admin.announcements.store');
-        Route::match(['post', 'patch'], '/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'update'])->name('admin.announcements.update');
-        Route::delete('/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'destroy'])->name('admin.announcements.destroy');
+        Route::post('/announcements/bulk-delete', [\App\Http\Controllers\AnnouncementController::class, 'bulkDestroy'])->name('admin.announcements.bulk-destroy');
+        Route::match(['post', 'patch'], '/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'update'])->name('admin.announcements.update')->whereNumber('id');
+        Route::delete('/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'destroy'])->name('admin.announcements.destroy')->whereNumber('id');
     });
 
     // SUPER ADMIN (Scholarship Management)
@@ -326,6 +327,9 @@ Route::middleware(['auth'])->group(function () {
         // Email Broadcast Center
         Route::get('/broadcast', [SuperAdminController::class, 'showBroadcast'])->name('superadmin.broadcast');
         Route::post('/broadcast', [SuperAdminController::class, 'sendBroadcast'])->name('superadmin.broadcast.send');
+        Route::post('/broadcast/bulk-delete', [SuperAdminController::class, 'bulkDestroyBroadcast'])->name('superadmin.broadcast.bulk-delete');
+        Route::post('/broadcast/clear-all', [SuperAdminController::class, 'clearAllBroadcasts'])->name('superadmin.broadcast.clear-all');
+        Route::delete('/broadcast/{id}', [SuperAdminController::class, 'destroyBroadcast'])->name('superadmin.broadcast.destroy');
 
         // Staging/UAT database hard reset (prohibited in production)
         // CRIT-02: Changed from GET to POST. Requires typed confirmation token.

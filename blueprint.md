@@ -979,3 +979,31 @@ All three documents strictly adhere to the two-part structure, styling, and ISO/
 
 
 
+
+
+---
+
+## 27. Communication Data Management Suite (Broadcast Center & Announcements)
+
+### Problem Statement & Requirements
+- Administrators historically lacked comprehensive management tools over dispatched communication records:
+  - In /superadmin/broadcast (Email Broadcast Center), test broadcast history (e.g. Jhvhyvhyf) could not be inspected, filtered, or deleted. There was no search bar, no message content preview modal, no bulk deletion, and no option to clear test logs before production.
+  - In /announcements (Announcements Manager), there were no keyword search filters or lifecycle status tabs (All, Active/Published, Scheduled, Expired), and bulk deletions were unavailable.
+
+### Architectural Enhancements & Implementation
+1. **Email Broadcast Center Data Management (/superadmin/broadcast)**:
+   - **Search & Filtering Engine**: Integrated real-time query parameter filtering (search) matching recipient email, subject, or message body content.
+   - **Metrics Bar**: Added aggregate dynamic counters displaying total broadcast email dispatches and count of unique recipients reached.
+   - **Detailed Inspection Modal (#viewBroadcastModal)**: Administrators can click "View" on any historical broadcast row to inspect recipient email, exact sent timestamp, full subject line, and the formatted message content.
+   - **Template Reuse ("Copy to Composer")**: Modal includes an interactive button that pre-fills the left-hand compose form with the selected broadcast's title and body, enabling rapid reuse of announcements.
+   - **Single Log Deletion (DELETE /superadmin/broadcast/{id})**: Secure single-record deletion with CSRF protection, admin action audit trail logging, and immediate deletion of unwanted/test logs.
+   - **Bulk Selection & Purge (POST /superadmin/broadcast/bulk-delete)**: Checkbox selection for multiple rows with a dynamic selection counter and bulk deletion action.
+   - **Clear All History (POST /superadmin/broadcast/clear-all)**: Confirmation modal allowing administrators to purge all mock/test email broadcast logs before production go-live while leaving user in-app notifications intact.
+   - **Controller & Audit Trail**: Implemented destroyBroadcast, ulkDestroyBroadcast, and clearAllBroadcasts in `SuperAdminController` with structured audit logging.
+
+2. **Announcements Board Data Management (/announcements)**:
+   - **Search & Status Filtering**: Updated AnnouncementController::index to support keyword search on title and content, plus status filtering across ll, ctive, scheduled, and expired.
+   - **Bulk Deletion (POST /announcements/bulk-delete)**: Added multi-select checkbox controls with SweetAlert2 confirmation dialog and batch deletion endpoint in `AnnouncementController`.
+
+3. **Automated Testing Suite**:
+   - Expanded `tests/Feature/BroadcastNotificationTest.php` to test search filtering, single log deletion, bulk deletion, and clearing all broadcast logs. All 7 tests passing with 42 assertions.

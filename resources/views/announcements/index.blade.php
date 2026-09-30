@@ -21,11 +21,54 @@
 </div>
 
 <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden;">
+    {{-- Search & Filter Controls --}}
+    <div class="p-3 border-bottom bg-light">
+        <form method="GET" action="{{ route('admin.announcements.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-6 col-lg-7">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0" placeholder="Search announcement title or content..." value="{{ request('search') }}" style="border-radius: 0 8px 8px 0;">
+                </div>
+            </div>
+            <div class="col-md-3 col-lg-3">
+                <select name="status" class="form-select form-select-sm" style="border-radius: 8px;">
+                    <option value="" {{ !request('status') ? 'selected' : '' }}>All Announcements</option>
+                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active / Published</option>
+                    <option value="scheduled" {{ request('status') === 'scheduled' ? 'selected' : '' }}>Scheduled for Future</option>
+                    <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>Expired</option>
+                </select>
+            </div>
+            <div class="col-md-3 col-lg-2 d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-dark flex-grow-1 fw-semibold" style="border-radius: 8px;">
+                    Filter
+                </button>
+                @if(request('search') || request('status'))
+                    <a href="{{ route('admin.announcements.index') }}" class="btn btn-sm btn-outline-secondary" title="Reset Filters" style="border-radius: 8px;">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </a>
+                @endif
+            </div>
+        </form>
+
+        {{-- Live Bulk Action Bar --}}
+        <div id="announcementBulkBar" class="alert alert-light border d-none align-items-center justify-content-between p-2 mt-2 mb-0" style="border-radius: 10px;">
+            <div class="small fw-semibold text-dark">
+                <span id="announcementSelectedCount">0</span> announcements selected
+            </div>
+            <button type="button" class="btn btn-sm btn-danger fw-bold rounded-pill px-3" onclick="submitAnnouncementBulkDelete()" style="font-size: 0.75rem;">
+                <i class="fa-solid fa-trash-can me-1"></i> Delete Selected
+            </button>
+        </div>
+    </div>
+
     <div class="table-responsive">
         <table class="table mb-0 align-middle">
             <thead>
                 <tr>
-                    <th class="ps-4">Title</th>
+                    <th class="ps-3" style="width: 40px;">
+                        <input type="checkbox" id="selectAllAnnouncements" onchange="toggleSelectAllAnnouncements(this)" style="cursor: pointer;" title="Select All">
+                    </th>
+                    <th>Title</th>
                     <th>Content Preview</th>
                     <th>Author</th>
                     <th class="text-nowrap">Published At</th>
@@ -35,6 +78,9 @@
             <tbody>
                 @forelse($announcements as $announcement)
                 <tr id="announcement-row-{{ $announcement->id }}" class="border-bottom">
+                    <td class="ps-3">
+                        <input type="checkbox" value="{{ $announcement->id }}" class="announcement-checkbox" onchange="updateAnnouncementSelectedCount()" style="cursor: pointer;">
+                    </td>
                     <td class="ps-4">
                         <div class="fw-bold text-dark">{{ $announcement->title }}</div>
                     </td>
@@ -392,6 +438,91 @@
                             icon: 'error',
                             title: 'Error',
                             text: data.message || 'Deletion failed.'
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An unexpected connection error occurred.'
+                    });
+                }
+            }
+        });
+    }
+
+    function toggleSelectAllAnnouncements(master) {
+        const checkboxes = document.querySelectorAll('.announcement-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
+        updateAnnouncementSelectedCount();
+    }
+
+    function updateAnnouncementSelectedCount() {
+        const checked = document.querySelectorAll('.announcement-checkbox:checked');
+        const count = checked.length;
+        const bar = document.getElementById('announcementBulkBar');
+        const countSpan = document.getElementById('announcementSelectedCount');
+
+        if (count > 0) {
+            bar.classList.remove('d-none');
+            bar.classList.add('d-flex');
+            countSpan.textContent = count;
+        } else {
+            bar.classList.add('d-none');
+            bar.classList.remove('d-flex');
+            countSpan.textContent = '0';
+        }
+
+        const totalCheckboxes = document.querySelectorAll('.announcement-checkbox').length;
+        const selectAll = document.getElementById('selectAllAnnouncements');
+        if (selectAll) {
+            selectAll.checked = (count === totalCheckboxes && totalCheckboxes > 0);
+        }
+    }
+
+    function submitAnnouncementBulkDelete() {
+        const checked = document.querySelectorAll('.announcement-checkbox:checked');
+        const ids = Array.from(checked).map(cb => parseInt(cb.value));
+        if (ids.length === 0) return;
+
+        Swal.fire({
+            title: `Delete ${ids.length} Announcements?`,
+            text: "This will remove the selected announcements permanently.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#475569',
+            confirmButtonText: `Yes, delete ${ids.length}!`
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch("{{ route('admin.announcements.bulk-destroy') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ ids: ids })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: data.message,
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Bulk deletion failed.'
                         });
                     }
                 } catch (error) {

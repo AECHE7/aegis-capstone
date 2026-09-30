@@ -1227,13 +1227,89 @@ class SuperAdminController extends Controller
 
 
 
-    public function showBroadcast()
+    public function showBroadcast(Request $request)
     {
         $scholarships = \App\Models\Scholarship::latest()->get();
-        $broadcasts = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')
-            ->latest()
-            ->paginate(10);
-        return view('superadmin.broadcast', compact('scholarships', 'broadcasts'));
+
+        $query = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%');
+
+        if ($request->filled('search')) {
+            $search = trim($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->where('recipient', 'like', "%{$search}%")
+                  ->orWhere('subject', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        $totalBroadcasts = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')->count();
+        $uniqueRecipients = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')
+            ->distinct('recipient')
+            ->count('recipient');
+
+        $broadcasts = $query->latest()->paginate(10)->withQueryString();
+
+        return view('superadmin.broadcast', compact('scholarships', 'broadcasts', 'totalBroadcasts', 'uniqueRecipients'));
+    }
+
+    public function destroyBroadcast($id)
+    {
+        $log = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')
+            ->findOrFail((int) $id);
+
+        $recipient = $log->recipient;
+        $subject = $log->subject;
+        $log->delete();
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id(),
+            'broadcast_log_deleted',
+            'system',
+            null,
+            "Deleted broadcast email log record for {$recipient} ('{$subject}')",
+            request()->ip()
+        );
+
+        return back()->with('success', 'Broadcast log entry successfully deleted.');
+    }
+
+    public function bulkDestroyBroadcast(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $deletedCount = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')
+            ->whereIn('id', $request->ids)
+            ->delete();
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id(),
+            'broadcast_logs_bulk_deleted',
+            'system',
+            null,
+            "Bulk deleted {$deletedCount} broadcast email log records",
+            $request->ip()
+        );
+
+        return back()->with('success', "Successfully deleted {$deletedCount} broadcast records.");
+    }
+
+    public function clearAllBroadcasts(Request $request)
+    {
+        $count = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')->delete();
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id(),
+            'broadcast_history_cleared',
+            'system',
+            null,
+            "Cleared entire broadcast history ({$count} records purged)",
+            $request->ip()
+        );
+
+        return back()->with('success', "All broadcast history ({$count} logs) has been purged.");
     }
 
     public function sendBroadcast(Request $request)

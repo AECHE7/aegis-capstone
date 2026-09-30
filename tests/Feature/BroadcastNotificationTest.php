@@ -128,4 +128,91 @@ class BroadcastNotificationTest extends TestCase
         $readResponse = $this->actingAs($this->student)->postJson(route('notifications.read', $notifId));
         $readResponse->assertStatus(200);
     }
+
+    public function test_superadmin_can_search_and_manage_broadcast_history(): void
+    {
+        \App\Models\EmailLog::create([
+            'application_id' => null,
+            'recipient' => 'test.user@clsu2.edu.ph',
+            'subject' => '[A.E.G.I.S. Broadcast] Important Orientation Notice',
+            'content' => 'Orientation schedule details',
+            'status' => 'sent',
+        ]);
+
+        \App\Models\EmailLog::create([
+            'application_id' => null,
+            'recipient' => 'other.scholar@clsu2.edu.ph',
+            'subject' => '[A.E.G.I.S. Broadcast] Grade Submission Deadline',
+            'content' => 'Submit your COG before Friday',
+            'status' => 'sent',
+        ]);
+
+        // 1. Search by keyword
+        $response = $this->actingAs($this->superadmin)->get(route('superadmin.broadcast', ['search' => 'Orientation']));
+        $response->assertStatus(200);
+        $response->assertSee('Important Orientation Notice');
+        $response->assertDontSee('Grade Submission Deadline');
+
+        // 2. Single delete
+        $logToDelete = \App\Models\EmailLog::where('recipient', 'test.user@clsu2.edu.ph')->first();
+        $delResponse = $this->actingAs($this->superadmin)->delete(route('superadmin.broadcast.destroy', $logToDelete->id));
+        $delResponse->assertRedirect();
+        $this->assertDatabaseMissing('email_logs', ['id' => $logToDelete->id]);
+
+        // 3. Clear all broadcasts
+        $clearResponse = $this->actingAs($this->superadmin)->post(route('superadmin.broadcast.clear-all'));
+        $clearResponse->assertRedirect();
+        $this->assertEquals(0, \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')->count());
+    }
+
+    public function test_superadmin_can_bulk_delete_broadcast_logs(): void
+    {
+        $log1 = \App\Models\EmailLog::create([
+            'recipient' => 'user1@clsu2.edu.ph',
+            'subject' => '[A.E.G.I.S. Broadcast] Notice 1',
+            'content' => 'Content 1',
+        ]);
+        $log2 = \App\Models\EmailLog::create([
+            'recipient' => 'user2@clsu2.edu.ph',
+            'subject' => '[A.E.G.I.S. Broadcast] Notice 2',
+            'content' => 'Content 2',
+        ]);
+
+        $response = $this->actingAs($this->superadmin)->post(route('superadmin.broadcast.bulk-delete'), [
+            'ids' => [$log1->id, $log2->id],
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseMissing('email_logs', ['id' => $log1->id]);
+        $this->assertDatabaseMissing('email_logs', ['id' => $log2->id]);
+    }
+
+    public function test_admin_can_search_and_bulk_delete_announcements(): void
+    {
+        $a1 = Announcement::create([
+            'title' => 'Alpha Meeting',
+            'content' => 'Alpha discussion',
+            'author_id' => $this->admin->id,
+        ]);
+        $a2 = Announcement::create([
+            'title' => 'Beta Schedule',
+            'content' => 'Beta discussion',
+            'author_id' => $this->admin->id,
+        ]);
+
+        // Search
+        $response = $this->actingAs($this->admin)->get(route('admin.announcements.index', ['search' => 'Alpha']));
+        $response->assertStatus(200);
+        $response->assertSee('Alpha Meeting');
+        $response->assertDontSee('Beta Schedule');
+
+        // Bulk Delete
+        $delResponse = $this->actingAs($this->admin)->postJson(route('admin.announcements.bulk-destroy'), [
+            'ids' => [$a1->id, $a2->id],
+        ]);
+        $delResponse->assertStatus(200);
+        $delResponse->assertJson(['success' => true]);
+        $this->assertDatabaseMissing('announcements', ['id' => $a1->id]);
+        $this->assertDatabaseMissing('announcements', ['id' => $a2->id]);
+    }
 }
