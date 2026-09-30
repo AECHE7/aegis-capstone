@@ -1062,3 +1062,22 @@ All three documents strictly adhere to the two-part structure, styling, and ISO/
 5. **Unified Session Toast Dispatcher**:
    - Integrated session flash detection in `resources/views/layouts/app.blade.php`:
      - When Laravel sets `session('success')`, `session('error')`, `session('warning')`, or `session('info')`, a branded `AegisAlert.toast()` displays automatically with progress bar and accessible ARIA alerts.
+
+---
+
+## 29. Production Go-Live & Storage Hardening
+
+### Status: Deployed to `production` and `staging` branches
+- **Commit**: `70d060c`
+- **Scope & Deliverables**:
+  1. **Production Branch Synchronization**:
+     - Fast-forward merged all recent agile sprint enhancements, responsive UI overhaul, broadcast management suite, and unified SweetAlert2 design system directly into the `production` branch.
+     - Pushed cleanly to remote repository (`origin/production` and `origin/staging` both at `70d060c`).
+  2. **Cloud Storage Dual-Fallback (`config/filesystems.php`)**:
+     - Hardened the `r2` storage driver to accept both standard `R2_*` environment keys and Render-specific `CLOUDFLARE_R2_*` keys.
+     - Guarantees zero credential-mismatch errors across both Docker and standard server environments.
+  3. **Operational Safeguards**:
+     - Automated failover mail delivery (`brevo_api` -> `smtp` -> `log`).
+     - Persistent database document backup (`file_data` base64 column).
+     - AI microservice cold-start backoff (`[15s, 45s, 90s, 180s, 360s]`).
+     - Automated `migrate --force` during container start sequence.
