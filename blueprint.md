@@ -1442,6 +1442,28 @@ esources/views/emails/application_form_pdf.blade.php)**:
 ### 3. Automated Verification
 - [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% (8 tests, 79 assertions), asserting presence and synchronization of both `sidebar-unread-badge` and `sidebar-collapsed-dot`.
 
+---
+
+## 41. Navigation Architecture Streamlining: Removal of Redundant Sidebar Notifications Tab (October 2026)
+
+### 1. Rationale & User Request
+- The user observed that having a "Notifications" link in the sidebar felt redundant alongside the topbar notification bell dropdown (`#notifBellBtn`), which already features the high-contrast red counter badge (`#notifBadge`), live time display, unread dropdown drawer, and direct link to the full `/notifications` center.
+- In both expanded and collapsed sidebar modes, the sidebar Notifications item duplicated topbar functionality and crowded the "Account" section navigation tree.
+
+### 2. Implementation & Fixes
+1. **Sidebar Navigation Cleanup ([resources/views/layouts/sidebar.blade.php](file:///f:/aegis-capstone/resources/views/layouts/sidebar.blade.php))**:
+   - Removed the redundant "Notifications" link across all roles (Admin, Superadmin/Director, and Student).
+   - Removed the `$sidebarUnread` database count query at the top of the sidebar template, eliminating unnecessary database overhead on every page view.
+2. **Layout & Style Streamlining ([resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php))**:
+   - Maintained `.sidebar.collapsed .sidebar-link` centering (`justify-content: center; padding: 10px 0; gap: 0 !important;`) and `.sidebar.collapsed .sidebar-text { display: none !important; }` for seamless icon-only navigation without horizontal distortion.
+   - Cleaned up obsolete sidebar badge CSS rules (`.sidebar-collapsed-dot`, `.sidebar.collapsed .sidebar-unread-badge`) and removed DOM query overhead from client-side polling in `fetchNotifications()`.
+3. **Dedicated Primary Notification Channel**:
+   - The topbar notification bell dropdown remains the single, official, high-contrast, accessible hub for all live notifications across the entire portal.
+
+### 3. Automated Verification
+- [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% (8 tests, 79 assertions), confirming topbar bell unread counter rendering and verifying complete absence of redundant sidebar notification badges.
+
+
 
 
 

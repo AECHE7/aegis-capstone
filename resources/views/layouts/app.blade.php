@@ -897,28 +897,6 @@
             gap: 0 !important;
         }
 
-        .sidebar.collapsed .sidebar-unread-badge {
-            display: none !important;
-        }
-
-        .sidebar-collapsed-dot {
-            display: none;
-            position: absolute;
-            top: -2px;
-            right: -3px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #ef4444;
-            border: 1.5px solid var(--clsu-green-dark, #07331c);
-            box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
-            pointer-events: none;
-        }
-
-        .sidebar.collapsed .sidebar-collapsed-dot.has-unread {
-            display: block !important;
-        }
-
         .sidebar.collapsed .sidebar-link::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -2401,29 +2379,6 @@
                         badge.style.display = 'none';
                     }
                 }
-
-                // Synchronize sidebar unread badges
-                document.querySelectorAll('.sidebar-unread-badge').forEach(el => {
-                    if (count > 0) {
-                        el.classList.remove('d-none');
-                        el.style.display = 'inline-block';
-                        el.textContent = count > 99 ? '99+' : count;
-                    } else {
-                        el.classList.add('d-none');
-                        el.style.display = 'none';
-                    }
-                });
-
-                // Synchronize sidebar collapsed indicator dot
-                document.querySelectorAll('.sidebar-collapsed-dot').forEach(el => {
-                    if (count > 0) {
-                        el.classList.add('has-unread');
-                        el.classList.remove('d-none');
-                    } else {
-                        el.classList.remove('has-unread');
-                        el.classList.add('d-none');
-                    }
-                });
 
                 if (dropdownBadge) {
                     dropdownBadge.textContent = `${count} unread`;
