@@ -1081,3 +1081,34 @@ All three documents strictly adhere to the two-part structure, styling, and ISO/
      - Persistent database document backup (`file_data` base64 column).
      - AI microservice cold-start backoff (`[15s, 45s, 90s, 180s, 360s]`).
      - Automated `migrate --force` during container start sequence.
+
+---
+
+## 30. Production Demo Access Clean-Up & IT Expert ISO/IEC 25010 Evaluation Suite
+
+### Problem Statement & Scope
+1. **Production Login Clean-Up**:
+   - On the live production deployment, the "QUICK DEMO ACCESS" buttons (Student, Staff, Director) and dummy bypass notices were visible on `/login`.
+   - The user requested removing these buttons on production to provide a clean, institutional interface, while preserving the ability for users to manually enter credentials and seamlessly pass MFA (`login.mfa`) and email verification (`/email/verify`).
+2. **IT Expert Testing & Evaluation Suite**:
+   - To complement the existing End-User UAT evaluation instruments, a formal evaluation package was required for technical evaluators (IT faculty, software architects, cybersecurity specialists) based on ISO/IEC 25010 standards.
+
+### Architectural Enhancements & Implementation
+1. **Login Screen Hardening (`resources/views/auth/login.blade.php`, `app/Http/Controllers/AuthController.php`)**:
+   - Wrapped the entire Quick Demo Access chip block with `@if(!app()->environment('production') && ($demoStudent || $demoAdmin || $demoSuperAdmin))`.
+   - In `AuthController::showLogin()`, skipped demo user database lookups when in production (`!app()->environment('production') || config('app.show_demo_access', false)`).
+   - In production, public users see only the secure CLSU Login Form with NPC DPA Seal.
+2. **Robust Authentication, MFA & Verification Support**:
+   - Updated `isDummyAccount` in `AuthController.php` to include `staff@clsu.edu.ph` alongside `admin@clsu.edu.ph`, `director@clsu.edu.ph`, and `superadmin@clsu.edu.ph`.
+   - Added `isDemoStudentAccount(?string $email)` for `student@clsu.edu.ph`.
+   - In `verifyMfa`, enabled universal demo OTP (`123456` or `000000`) for `isDummyAccount` and `isDemoStudentAccount`, allowing evaluators testing `student@clsu.edu.ph` on production to pass MFA even without an active university inbox.
+   - In `routes/web.php` and `EmailVerificationPromptController.php`, automatically stamped `email_verified_at` for demo accounts so they are never trapped in unverified email states.
+   - For real students and staff, verified that real 6-digit OTP delivery and email verification links execute normally.
+3. **IT Expert Testing & ISO/IEC 25010 Evaluation Instrument**:
+   - Generated institutional Word document: `docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.docx` (44 KB).
+   - Generated Markdown companion: `docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.md`.
+   - Features:
+     - **Part I: Evaluator Profile**: Degree, technical specialization, years of experience, professional certifications.
+     - **Part II: Hands-On Technical Verification Matrix**: 8 test scenarios (SQLi/Bcrypt, SHA-256 OTP hashing, AES-256 column encryption, RBAC isolation, AI image forensics, structured audit logs, cookie hardening/CSP, and queue/caching performance).
+     - **Part III: ISO/IEC 25010 Questionnaire**: 26 evaluation items across all 8 software quality dimensions (Functional Suitability, Performance Efficiency, Compatibility, Usability, Reliability, Security, Maintainability, Portability) on a 5-point Likert scale.
+     - **Part IV: Qualitative Assessment & Deployment Endorsement**: Structured prompts for architectural strengths, security recommendations, and final sign-off.

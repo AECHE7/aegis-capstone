@@ -151,7 +151,7 @@
             Code expires in <span id="expiryDisplay" style="font-weight: 700; color: #0C4E2D; font-family: monospace;">10:00</span>
         </div>
 
-        @if(\App\Http\Controllers\AuthController::isDummyAccount($user->email ?? '') || !app()->environment('production'))
+        @if(\App\Http\Controllers\AuthController::isDummyAccount($user->email ?? '') || \App\Http\Controllers\AuthController::isDemoStudentAccount($user->email ?? '') || !app()->environment('production'))
             <div class="alert border-0 small mb-3 py-2 text-start d-flex align-items-center gap-2" style="background:#f0fdf4; color:#166534; border-radius:10px; border-left: 3px solid #16a34a !important;">
                 <i class="fa-solid fa-flask-vial flex-shrink-0 text-success fs-5"></i>
                 <div style="font-size:0.8rem; line-height: 1.4;">

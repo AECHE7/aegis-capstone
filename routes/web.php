@@ -178,7 +178,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/email/verification-notification', [\App\Http\Controllers\Auth\EmailVerificationNotificationController::class, 'store'])->middleware(['throttle:6,1'])->name('verification.send');
     Route::get('/email/verification-status', function () {
         $user = auth()->user();
-        if ($user && \App\Http\Controllers\AuthController::isDummyAccount($user->email) && !$user->hasVerifiedEmail()) {
+        if ($user && (\App\Http\Controllers\AuthController::isDummyAccount($user->email) || \App\Http\Controllers\AuthController::isDemoStudentAccount($user->email)) && !$user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();
         }
         $verified = $user && $user->hasVerifiedEmail();

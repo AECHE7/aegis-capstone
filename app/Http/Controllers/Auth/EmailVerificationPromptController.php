@@ -15,7 +15,7 @@ class EmailVerificationPromptController extends Controller
     public function __invoke(Request $request): RedirectResponse|View
     {
         $user = $request->user();
-        if ($user && (\App\Http\Controllers\AuthController::isDummyAccount($user->email) || $user->hasVerifiedEmail())) {
+        if ($user && (\App\Http\Controllers\AuthController::isDummyAccount($user->email) || \App\Http\Controllers\AuthController::isDemoStudentAccount($user->email) || $user->hasVerifiedEmail())) {
             if (!$user->hasVerifiedEmail()) {
                 $user->markEmailAsVerified();
             }

@@ -20,13 +20,15 @@ class AuthController extends Controller
         $demoSuperAdmin = null;
         $latestInvitation = null;
 
-        if (\Illuminate\Support\Facades\Schema::hasTable('users')) {
+        $showDemo = !app()->environment('production') || config('app.show_demo_access', false);
+
+        if ($showDemo && \Illuminate\Support\Facades\Schema::hasTable('users')) {
             $demoStudent = \App\Models\User::where('role', 'student')->first();
             $demoAdmin = \App\Models\User::where('role', 'admin')->first();
             $demoSuperAdmin = \App\Models\User::where('email', 'director@clsu.edu.ph')->first() ?? \App\Models\User::where('role', 'superadmin')->first();
         }
 
-        if (\Illuminate\Support\Facades\Schema::hasTable('user_invitations')) {
+        if ($showDemo && \Illuminate\Support\Facades\Schema::hasTable('user_invitations')) {
             $latestInvitation = \App\Models\UserInvitation::latest()->first();
         }
 
@@ -43,8 +45,22 @@ class AuthController extends Controller
         }
         return in_array(strtolower(trim($email)), [
             'admin@clsu.edu.ph',
+            'staff@clsu.edu.ph',
             'director@clsu.edu.ph',
             'superadmin@clsu.edu.ph',
+        ], true);
+    }
+
+    /**
+     * Determine whether an email belongs to a designated institutional demo student account.
+     */
+    public static function isDemoStudentAccount(?string $email): bool
+    {
+        if (!$email) {
+            return false;
+        }
+        return in_array(strtolower(trim($email)), [
+            'student@clsu.edu.ph',
         ], true);
     }
 
@@ -273,8 +289,8 @@ class AuthController extends Controller
             hash_equals($user->otp_code, $request->code)
         );
 
-        // Universal demo OTP bypass for dummy accounts or non-production environments
-        $isDummy = self::isDummyAccount($user->email);
+        // Universal demo OTP bypass for dummy accounts, demo student, or non-production environments
+        $isDummy = self::isDummyAccount($user->email) || self::isDemoStudentAccount($user->email);
         $isDemoOtp = ($isDummy || !app()->environment('production'))
             && in_array($request->code, ['000000', '123456'], true);
 

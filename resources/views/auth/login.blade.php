@@ -683,7 +683,7 @@
                     <i class="fa-solid fa-arrow-right-to-bracket" id="btnArrow"></i>
                 </button>
 
-                @if($demoStudent || $demoAdmin || $demoSuperAdmin)
+                @if(!app()->environment('production') && ($demoStudent || $demoAdmin || $demoSuperAdmin))
                 <div class="or-divider">QUICK DEMO ACCESS</div>
                 <div class="row g-2 mb-2">
                     @if($demoStudent)
