@@ -96,6 +96,23 @@
                     </form>
                 </div>
             </div>
+
+            {{-- Director Ownership Transfer CTA --}}
+            <div class="card border-0 mt-4 p-4" style="border-radius: 20px; background: linear-gradient(135deg, #0C4E2D, #07331c); color: white;">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(217,119,6,0.25); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                        <i class="fa-solid fa-crown" style="color: #D97706;"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold" style="color:white; font-size:0.95rem;">Transfer System to Client</div>
+                        <div style="color: rgba(255,255,255,0.65); font-size:0.75rem;">Invite the OSA Director to take ownership of the portal</div>
+                    </div>
+                </div>
+                <a href="{{ route('director.transfer.panel') }}" class="btn w-100 fw-bold rounded-pill py-2 text-dark"
+                   style="background: #D97706; border: none; font-size: 0.85rem; box-shadow: 0 4px 14px rgba(217,119,6,0.35);">
+                    <i class="fa-solid fa-paper-plane me-2"></i>Open Director Transfer Panel
+                </a>
+            </div>
         </div>
 
         <!-- RIGHT: Privilege Transfer & Activity -->

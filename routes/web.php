@@ -149,6 +149,10 @@ Route::post('/reset-password', [\App\Http\Controllers\Auth\NewPasswordController
 Route::get('/master/accept-transfer/{token}', [\App\Http\Controllers\MasterController::class, 'acceptTransfer'])->middleware('throttle:5,1')->name('master.accept-transfer');
 Route::post('/master/accept-transfer/{token}', [\App\Http\Controllers\MasterController::class, 'acceptTransfer'])->middleware('throttle:5,1');
 
+// Director Ownership Invitation Accept Routes (Public — email link click lands here)
+Route::get('/director/accept/{token}', [\App\Http\Controllers\DirectorTransferController::class, 'showAccept'])->middleware('throttle:5,1')->name('director.accept-invitation');
+Route::post('/director/accept/{token}', [\App\Http\Controllers\DirectorTransferController::class, 'acceptInvitation'])->middleware('throttle:5,1');
+
 
 
 
@@ -378,5 +382,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/master/gateway', [\App\Http\Controllers\MasterController::class, 'showGateway'])->name('master.gateway');
     Route::post('/master/switch-role', [\App\Http\Controllers\MasterController::class, 'switchRole'])->name('master.switch-role');
     Route::post('/master/transfer', [\App\Http\Controllers\MasterController::class, 'initiateTransfer'])->name('master.transfer');
+
+    // DIRECTOR OWNERSHIP TRANSFER (Master-only management panel)
+    Route::get('/master/director-transfer', [\App\Http\Controllers\DirectorTransferController::class, 'showPanel'])->name('director.transfer.panel');
+    Route::post('/master/director-transfer/send', [\App\Http\Controllers\DirectorTransferController::class, 'sendInvitation'])->middleware('throttle:5,1')->name('director.send-invitation');
+    Route::post('/master/director-transfer/{id}/revoke', [\App\Http\Controllers\DirectorTransferController::class, 'revokeInvitation'])->middleware('throttle:5,1')->name('director.revoke-invitation');
 
 });
