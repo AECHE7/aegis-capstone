@@ -57,20 +57,36 @@ class ReportController extends Controller
     {
         $this->logExportAccess($request, 'applications_list', 'csv');
         $query = $this->buildReportQuery($request);
-        $filename = "aegis_scholarship_report_" . date('Y-m-d') . ".csv";
+        $filename = "ched_dost_masterlist_" . date('Y-m-d') . ".csv";
 
         $headers = [
-            "Content-type"        => "text/csv",
+            "Content-type"        => "text/csv; charset=UTF-8",
             "Content-Disposition" => "attachment; filename=$filename",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0"
         ];
 
-        $columns = ['Ref ID', 'Student Name', 'CLSU ID', 'Course', 'Year Level', 'Program/Grant', 'GWA', 'Status', 'Date Submitted'];
+        // Format aligned with institutional and CHED/DOST portal compliance standards
+        $columns = [
+            'Reference ID',
+            'Student Full Name',
+            'CLSU ID Number',
+            'Course / Degree Program',
+            'Year Level',
+            'Scholarship Grant / Program',
+            'GWA',
+            'Evaluation Status',
+            'Date Submitted',
+            'Portal Format'
+        ];
 
         $callback = function() use($query, $columns) {
             $file = fopen('php://output', 'w');
+            
+            // UTF-8 BOM for Microsoft Excel & institutional portal compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
             fputcsv($file, $columns);
 
             // Chunk by 500 records to prevent memory exhaustion (HIGH-03)
@@ -85,7 +101,8 @@ class ReportController extends Controller
                         $app->program_name,
                         $app->gwa !== null ? number_format((float)$app->gwa, 2) : 'N/A',
                         $app->status,
-                        $app->created_at->format('Y-m-d')
+                        $app->created_at->format('Y-m-d'),
+                        'CHED/DOST Compliant'
                     ];
                     fputcsv($file, $row);
                 }

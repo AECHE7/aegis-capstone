@@ -174,6 +174,14 @@
         <p class="text-muted small mb-0">{{ __('portal.select_scholarship_tagline') }}</p>
     </div>
 
+    {{-- Auto-save Draft Status Indicator --}}
+    <div class="d-flex justify-content-end mb-2">
+        <div id="draftSaveIndicator" class="small px-3 py-1 rounded-pill d-inline-flex align-items-center gap-2" style="font-size:0.75rem; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; transition:all 0.3s ease;">
+            <i class="fa-solid fa-cloud-arrow-up" id="draftSaveIcon"></i>
+            <span id="draftStatusText">Auto-save draft active</span>
+        </div>
+    </div>
+
     {{-- Interactive Stepper Header --}}
     <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius:16px;">
         <div class="d-flex align-items-center justify-content-between text-center position-relative">
@@ -605,16 +613,38 @@
         }
     }
 
-    // Auto-save form inputs
+    // Auto-save form inputs & selected scholarship
     const form = document.getElementById('applicationForm');
     const FORM_KEY = 'aegis_apply_form_backup';
+    let draftSaveDebounce = null;
 
     function saveDraft() {
-        const data = {};
-        form.querySelectorAll('input:not([type="file"]):not([type="hidden"]), select, textarea').forEach(el => {
-            if (el.name && el.value) data[el.name] = el.value;
-        });
-        localStorage.setItem(FORM_KEY, JSON.stringify(data));
+        clearTimeout(draftSaveDebounce);
+        draftSaveDebounce = setTimeout(() => {
+            const data = {};
+            const schId = document.getElementById('scholarshipIdInput')?.value;
+            if (schId) data['_selected_scholarship_id'] = schId;
+
+            form.querySelectorAll('input:not([type="file"]):not([type="hidden"]), select, textarea').forEach(el => {
+                if (el.name && el.value) data[el.name] = el.value;
+            });
+
+            localStorage.setItem(FORM_KEY, JSON.stringify(data));
+
+            const badge = document.getElementById('draftSaveIndicator');
+            const statusText = document.getElementById('draftStatusText');
+            if (badge && statusText) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                statusText.textContent = `Draft auto-saved at ${timeStr}`;
+                badge.style.background = '#dcfce7';
+                badge.style.borderColor = '#86efac';
+                setTimeout(() => {
+                    badge.style.background = '#f0fdf4';
+                    badge.style.borderColor = '#bbf7d0';
+                }, 1200);
+            }
+        }, 250);
     }
 
     function restoreDraft() {
@@ -622,19 +652,46 @@
         if (!raw) return;
         try {
             const data = JSON.parse(raw);
-            Object.entries(data).forEach(([name, val]) => {
-                const el = form.querySelector(`[name="${name}"]`);
-                if (el) {
-                    el.value = val;
-                    el.dispatchEvent(new Event('input'));
+            const savedSchId = data['_selected_scholarship_id'];
+            
+            // If scholarship was saved, select it first so dynamic custom fields mount
+            if (savedSchId && !document.getElementById('scholarshipIdInput')?.value) {
+                const targetCard = document.querySelector(`.scholarship-card-select[data-id="${savedSchId}"]`);
+                if (targetCard) {
+                    selectScholarship(targetCard);
                 }
-            });
+            }
+
+            // Restore field values
+            setTimeout(() => {
+                let restoredCount = 0;
+                Object.entries(data).forEach(([name, val]) => {
+                    if (name.startsWith('_')) return;
+                    const el = form.querySelector(`[name="${name}"]`);
+                    if (el) {
+                        el.value = val;
+                        el.dispatchEvent(new Event('input'));
+                        restoredCount++;
+                    }
+                });
+
+                const badge = document.getElementById('draftSaveIndicator');
+                const statusText = document.getElementById('draftStatusText');
+                if (badge && statusText && (savedSchId || restoredCount > 0)) {
+                    statusText.textContent = 'Draft restored from previous session';
+                    badge.style.background = '#eff6ff';
+                    badge.style.color = '#1d4ed8';
+                    badge.style.borderColor = '#bfdbfe';
+                }
+                updateChecklist();
+            }, 300);
         } catch (e) {
             localStorage.removeItem(FORM_KEY);
         }
     }
 
     form.addEventListener('input', saveDraft);
+    form.addEventListener('change', saveDraft);
     form.addEventListener('submit', function(e) {
         if (form.dataset.aegisConfirmed === 'true') {
             localStorage.removeItem(FORM_KEY);

@@ -26,10 +26,10 @@
         </div>
     </div>
     <div class="d-flex gap-2 w-100 w-md-auto justify-content-start justify-content-md-end flex-wrap">
-        <a id="exportCsvBtn" href="{{ route('admin.export', request()->query()) }}" class="btn-export btn-export-csv">
-            <i class="fa-solid fa-file-csv"></i> Export CSV
+        <a id="exportCsvBtn" href="{{ route('admin.export', request()->query()) }}" class="btn-export btn-export-csv" title="Export CHED/DOST Portal Standard CSV Format">
+            <i class="fa-solid fa-file-csv"></i> Export CSV (CHED/DOST)
         </a>
-        <a id="exportPdfBtn" href="{{ route('admin.exportPdf', request()->query()) }}" class="btn-export btn-export-pdf">
+        <a id="exportPdfBtn" href="{{ route('admin.exportPdf', request()->query()) }}" class="btn-export btn-export-pdf" title="Export Official PDF Report with OSA Seal">
             <i class="fa-solid fa-file-pdf"></i> Export PDF
         </a>
     </div>

@@ -217,10 +217,10 @@ def build_part1_scenarios_table(doc):
         },
         {
             "module": "Data Protection & AES-256 Encryption",
-            "task": "Inspect database storage of sensitive student profile fields (e.g. bank account numbers, guardian contact details, and student identities) in student_profiles.",
+            "task": "Inspect database storage of sensitive student profile fields (e.g. institutional CLSU ID numbers, guardian contact details, and student emergency contacts under R.A. 10173 data minimization) in student_profiles.",
             "expected": "Sensitive attributes encrypted using AES-256-CBC at rest; raw SQL queries return ciphertext; in-memory decryption executed only for authorized sessions (DPA RA 10173).",
             "actual": "Column-level encryption verified via Tinker/SQL inspection; dynamic decryption intact in student profile view.",
-            "remarks": "Compliant with NPC Data Privacy Act of 2012."
+            "remarks": "Compliant with NPC Data Privacy Act of 2012 (Data Minimization & At-Rest Encryption)."
         },
         {
             "module": "Role-Based Access Control (RBAC)",

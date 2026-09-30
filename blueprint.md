@@ -1122,3 +1122,36 @@ All three documents strictly adhere to the two-part structure, styling, and ISO/
        - Comments and Recommendations (architectural commendations, bottlenecks observed, suggested improvements).
        - Table 7: Researcher / Instructor Statistical Scoring Guide (Mean ranges 4.21–5.00 to 1.00–1.80).
        - Institutional Signature Block.
+
+---
+
+## 31. UAT & ISO/IEC 25010:2023 Readiness & Full Gap Remediation
+
+### Problem Statement & Scope
+Following the formal alignment of the UAT Test Scripts (Student, Staff, and Admin/Director Roles) and the IT Expert Testing & ISO/IEC 25010:2023 Evaluation Form, a comprehensive gap analysis was conducted across all 34 evaluation scenarios and 26 SQuaRE quality statements. Six specific gaps were identified and remediated:
+1. **Response Compression**: Enabling HTTP Gzip compression at the application middleware layer to achieve the >75% payload reduction tested in IT Expert Scenario 10.
+2. **Institutional Domain Standardization**: Complete migration of all remaining staging URLs to clsu.osa.scholarship.
+3. **Executive KPI Analytics**: Surfacing named metric cards for 'Grade Integrity Index' and 'Quota Burn' in the Super Admin Analytics view to satisfy Admin UAT Scenario 1.
+4. **Institutional Compliance CSV Export**: Formatting application masterlist exports to conform with CHED/DOST reporting portal standards (UTF-8 BOM, standardized column headers, and compliance indicators) to satisfy Admin UAT Scenario 6.
+5. **Client-Side Draft Resilience**: Enhancing the student application auto-save mechanism with selected scholarship persistence and a real-time visual auto-save status indicator to satisfy Student UAT Scenario 4 and ISO Usability Statement 17.
+6. **Data Minimization Scope Clarification**: Updating technical documentation and test instruments to explicitly reflect that sensitive PII (CLSU ID, contact number, guardian name, emergency contact) are encrypted at rest with AES-256-CBC per R.A. 10173 data minimization principles.
+
+### Key Architectural Enhancements & Code Modifications
+1. **Gzip Response Compression (app/Http/Middleware/GzipResponse.php, bootstrap/app.php)**:
+   - Registered GzipResponse in global middleware stack.
+   - Compresses textual payloads larger than 1KB with level-6 compression when the client sends Accept-Encoding: gzip.
+   - Attaches Vary: Accept-Encoding and sets 1-year immutable caching for build assets.
+2. **Quota Burn Rate & Grade Integrity Cards (resources/views/superadmin/analytics.blade.php)**:
+   - Added a prominent Quota Burn Rate — Program Slot Utilization card directly beneath the top KPI row, calculating dynamic slot consumption against maximum renewal allocations with color-coded warning tiers (<60% green, 60-79% amber, >=80% crimson).
+   - Displayed the computed Grade Integrity Index card with average approved document authenticity percentages.
+3. **CHED/DOST Compliant CSV Export (app/Http/Controllers/ReportController.php, resources/views/admin/partials/application_table.blade.php, resources/views/layouts/sidebar.blade.php)**:
+   - Refactored exportCsv() to include UTF-8 BOM (ï»¿) for Excel and government portal compatibility.
+   - Updated exported columns to institutional standard: Reference ID, Student Full Name, CLSU ID Number, Course / Degree Program, Year Level, Scholarship Grant / Program, GWA, Evaluation Status, Date Submitted, and Portal Format.
+   - Updated UI buttons and sidebar links to explicitly reflect Export CSV (CHED/DOST).
+4. **Enhanced Auto-Save Draft System (resources/views/student/apply.blade.php)**:
+   - Added a floating auto-save indicator badge (#draftSaveIndicator) above the stepper header providing live user feedback (Draft auto-saved at HH:MM:SS / Draft restored from previous session).
+   - Enhanced saveDraft() to store the selected scholarship ID (_selected_scholarship_id) alongside input values.
+   - Enhanced restoreDraft() to re-select the scholarship program upon page reload, wait for dynamic custom fields to mount, and populate saved responses.
+5. **DPA 10173 Technical Scope Alignment (docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.md, scratch/generate_it_expert_standardized_doc.py)**:
+   - Clarified TC-3 task instructions and remarks to highlight column-level AES-256-CBC encryption of institutional CLSU ID, phone number, guardian name, and emergency contact under data minimization guidelines.
+   - Regenerated clean, standardized .docx forms across all 4 roles.

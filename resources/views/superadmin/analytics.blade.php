@@ -98,7 +98,7 @@
 </div>
 
 {{-- Scoped KPI Cards Row --}}
-<div class="row g-3 mb-4">
+<div class="row g-3 mb-3">
     <div class="col-6 col-sm-6 col-xl-3">
         <div class="dark-stat">
             <div class="dark-stat-label">Student Scholars</div>
@@ -136,6 +136,56 @@
             <div style="color:rgba(255,255,255,0.45);font-size:0.75rem;margin-top:4px;">Turnaround: submit to decision</div>
             <div style="position:absolute;bottom:12px;right:16px;opacity:0.15;font-size:2rem;">
                 <i class="fa-solid fa-hourglass-half"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Quota Burn KPI Row --}}
+@php
+    $totalApprovedSlots = $scholarshipsBreakdown->sum('approved_count');
+    $totalMaxRenewals   = $scholarshipsBreakdown->sum('max_renew');
+    $quotaBurnPct       = $totalMaxRenewals > 0 ? round(($totalApprovedSlots / $totalMaxRenewals) * 100, 1) : 0;
+    $quotaBurnPct       = min($quotaBurnPct, 100);
+    $quotaBurnColor     = $quotaBurnPct >= 80 ? '#ef4444' : ($quotaBurnPct >= 60 ? '#f59e0b' : '#22c55e');
+@endphp
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="dark-stat" style="padding: 1rem 1.5rem;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="dark-stat-label mb-1">
+                        <i class="fa-solid fa-fire-flame-curved me-1" style="color: {{ $quotaBurnColor }};"></i>
+                        Quota Burn Rate — Program Slot Utilization
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2">
+                        <span class="dark-stat-num" style="font-size: 1.75rem;">
+                            {{ $totalApprovedSlots }}
+                        </span>
+                        <span style="color:rgba(255,255,255,0.55); font-size:0.85rem;">
+                            / {{ $totalMaxRenewals }} max renewal slots consumed
+                        </span>
+                    </div>
+                    <div style="color:rgba(255,255,255,0.45);font-size:0.72rem;margin-top:2px;">
+                        Across {{ $scholarshipsBreakdown->count() }} active scholarship program(s)
+                    </div>
+                </div>
+                <div style="min-width: 240px; flex: 1;">
+                    <div class="d-flex justify-content-between mb-1" style="font-size:0.72rem; color:rgba(255,255,255,0.65);">
+                        <span>Slot Burn Progress</span>
+                        <span style="color: {{ $quotaBurnColor }}; font-weight: 700;">{{ $quotaBurnPct }}%</span>
+                    </div>
+                    <div style="height:10px; background:rgba(255,255,255,0.08); border-radius:5px; overflow:hidden;">
+                        <div style="height:100%; width:{{ $quotaBurnPct }}%; background: {{ $quotaBurnColor }}; border-radius:5px; transition: width 1s ease;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1" style="font-size:0.65rem; color:rgba(255,255,255,0.4);">
+                        <span>0 slots</span>
+                        <span style="color: {{ $quotaBurnPct >= 80 ? '#ef4444' : 'rgba(255,255,255,0.4)' }};">
+                            @if($quotaBurnPct >= 80) ⚠ High utilization @elseif($quotaBurnPct >= 60) Moderate utilization @else Normal @endif
+                        </span>
+                        <span>{{ $totalMaxRenewals }} slots</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

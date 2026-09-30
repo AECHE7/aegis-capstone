@@ -50,9 +50,9 @@
             <div class="sidebar-label mt-2">Reports</div>
             <a href="{{ route('admin.export') }}"
                class="sidebar-link"
-               data-tooltip="CSV">
+               data-tooltip="CSV (CHED/DOST)">
                 <span class="sidebar-icon"><i class="fa-solid fa-file-csv" aria-hidden="true"></i></span>
-                <span class="sidebar-text">Export CSV</span>
+                <span class="sidebar-text">Export CSV (CHED/DOST)</span>
             </a>
             <a href="{{ route('admin.exportPdf') }}"
                class="sidebar-link"

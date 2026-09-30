@@ -51,7 +51,6 @@ class AuthController extends Controller
         }
         return in_array(strtolower(trim($email)), [
             'admin@clsu.edu.ph',
-            'staff@clsu.edu.ph',
             'director@clsu.edu.ph',
             'superadmin@clsu.edu.ph',
             'gadianoriel07@gmail.com',
