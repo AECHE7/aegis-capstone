@@ -1084,19 +1084,19 @@ All three documents strictly adhere to the two-part structure, styling, and ISO/
 
 ---
 
-## 30. Production Demo Access Clean-Up & IT Expert ISO/IEC 25010 Evaluation Suite
+## 30. Production Demo Access Clean-Up & Institutional IT Expert ISO/IEC 25010:2023 Suite
 
 ### Problem Statement & Scope
-1. **Production Login Clean-Up**:
-   - On the live production deployment, the "QUICK DEMO ACCESS" buttons (Student, Staff, Director) and dummy bypass notices were visible on `/login`.
-   - The user requested removing these buttons on production to provide a clean, institutional interface, while preserving the ability for users to manually enter credentials and seamlessly pass MFA (`login.mfa`) and email verification (`/email/verify`).
-2. **IT Expert Testing & Evaluation Suite**:
-   - To complement the existing End-User UAT evaluation instruments, a formal evaluation package was required for technical evaluators (IT faculty, software architects, cybersecurity specialists) based on ISO/IEC 25010 standards.
+1. **Production Login Clean-Up & Host-Level Detection**:
+   - On the live production deployment (`aegis-production.onrender.com`), the "QUICK DEMO ACCESS" buttons (Student, Staff, Director) and dummy bypass notices were previously visible if the container runtime environment variable `APP_ENV` was unset or defaulted.
+   - The user requested removing these buttons completely on production while preserving manual credential logins, seamless MFA OTP verification (`login.mfa`), and email verification (`/email/verify`).
+2. **IT Expert Testing & Evaluation Suite Alignment**:
+   - The user requested strictly aligning the IT Experts Testing & Evaluation Form with the institutional standards and design modeled after `docs/Client_Testing_and_ISO25010_End_User_Evaluation.docx`.
 
 ### Architectural Enhancements & Implementation
-1. **Login Screen Hardening (`resources/views/auth/login.blade.php`, `app/Http/Controllers/AuthController.php`)**:
-   - Wrapped the entire Quick Demo Access chip block with `@if(!app()->environment('production') && ($demoStudent || $demoAdmin || $demoSuperAdmin))`.
-   - In `AuthController::showLogin()`, skipped demo user database lookups when in production (`!app()->environment('production') || config('app.show_demo_access', false)`).
+1. **Host-Level Production Detection (`resources/views/auth/login.blade.php`, `app/Http/Controllers/AuthController.php`)**:
+   - Configured `$isLiveEnvironment = app()->environment('production') || str_contains(request()->getHost(), 'onrender.com') || !in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1'])`.
+   - Suppressed Quick Demo Access chip block, Developer Quick Links, and demo account pre-queries whenever `$isLiveEnvironment` is true.
    - In production, public users see only the secure CLSU Login Form with NPC DPA Seal.
 2. **Robust Authentication, MFA & Verification Support**:
    - Updated `isDummyAccount` in `AuthController.php` to include `staff@clsu.edu.ph` alongside `admin@clsu.edu.ph`, `director@clsu.edu.ph`, and `superadmin@clsu.edu.ph`.
@@ -1104,11 +1104,21 @@ All three documents strictly adhere to the two-part structure, styling, and ISO/
    - In `verifyMfa`, enabled universal demo OTP (`123456` or `000000`) for `isDummyAccount` and `isDemoStudentAccount`, allowing evaluators testing `student@clsu.edu.ph` on production to pass MFA even without an active university inbox.
    - In `routes/web.php` and `EmailVerificationPromptController.php`, automatically stamped `email_verified_at` for demo accounts so they are never trapped in unverified email states.
    - For real students and staff, verified that real 6-digit OTP delivery and email verification links execute normally.
-3. **IT Expert Testing & ISO/IEC 25010 Evaluation Instrument**:
-   - Generated institutional Word document: `docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.docx` (44 KB).
-   - Generated Markdown companion: `docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.md`.
-   - Features:
-     - **Part I: Evaluator Profile**: Degree, technical specialization, years of experience, professional certifications.
-     - **Part II: Hands-On Technical Verification Matrix**: 8 test scenarios (SQLi/Bcrypt, SHA-256 OTP hashing, AES-256 column encryption, RBAC isolation, AI image forensics, structured audit logs, cookie hardening/CSP, and queue/caching performance).
-     - **Part III: ISO/IEC 25010 Questionnaire**: 26 evaluation items across all 8 software quality dimensions (Functional Suitability, Performance Efficiency, Compatibility, Usability, Reliability, Security, Maintainability, Portability) on a 5-point Likert scale.
-     - **Part IV: Qualitative Assessment & Deployment Endorsement**: Structured prompts for architectural strengths, security recommendations, and final sign-off.
+3. **Institutional IT Expert Testing & ISO/IEC 25010:2023 Form (`docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.docx` & `.md`)**:
+   - Modeled 1:1 after `docs/Client_Testing_and_ISO25010_End_User_Evaluation.docx` (A4 format, 0.55" margins, `#D9EAF7` soft blue & `#E2F0D9` soft green table palettes, `#B0C4DE` borders, and Calibri typography):
+     - **CLSU Institutional Letterhead & Title**: Republic of the Philippines, Central Luzon State University, Office of Student Affairs.
+     - **Part 1: Technical Testing and Verification**:
+       - Testing Instructions (orientation, execution, verdict recording, issue logging).
+       - Table 0: Evaluator & Project Metadata (role, specialization, years of experience, testing environment).
+       - Table 1: 10-Item Technical Test Scenarios Matrix (7 columns: No., Module / Feature, Task / Test Scenario, Expected Result, Actual Result, Status, Remarks) covering SQLi/Bcrypt, SHA-256 OTP hashing, AES-256 column encryption, RBAC boundary isolation, AI image forensics, tamper-evident audit logs, cookie hardening/CSP, official PDF generation & QR seal, asynchronous queue & fault tolerance, and concurrency/caching.
+       - Table 2: Technical Issue / Revision Log (6 columns: No., Issue/Observation, Required Revision, Priority, Retest Result, Remarks).
+       - Table 3: Technical Testing Result & Evaluator Sign-Off Block.
+     - **Part 2: ISO/IEC 25010:2023 Product Quality Evaluation**:
+       - Purpose, Privacy & Voluntary Participation Notice (RA 10173 compliance).
+       - Rating Scale & Direction (5 to 1 + N/A).
+       - Respondent Role & Project Metadata Block.
+       - Table 5: 26 ISO/IEC 25010:2023 Evaluation Statements across all 8 software quality dimensions (Functional Suitability, Performance Efficiency, Compatibility, Usability, Reliability, Security, Maintainability, Portability).
+       - Table 6: Overall Technical Assessment.
+       - Comments and Recommendations (architectural commendations, bottlenecks observed, suggested improvements).
+       - Table 7: Researcher / Instructor Statistical Scoring Guide (Mean ranges 4.21–5.00 to 1.00–1.80).
+       - Institutional Signature Block.

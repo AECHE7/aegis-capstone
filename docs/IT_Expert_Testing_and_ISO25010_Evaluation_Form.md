@@ -5,150 +5,178 @@
 ---
 
 # IT EXPERT SOFTWARE TESTING & EVALUATION FORM
-### Technical Quality Assessment based on ISO/IEC 25010 Software Engineering Standards
+### Technical Quality Assessment based on ISO/IEC 25010:2023 Software Product Quality Standards
 **Project:** Academic Evaluation & Grant Integrity System (A.E.G.I.S.)  
-**Target Group:** IT Professionals, Software Engineers, Systems Architects, Cybersecurity Specialists & IT Faculty  
+**Target Group:** IT Professionals, Software Engineers, Systems Architects, Cybersecurity Specialists, Cloud/Database Administrators & IT Faculty  
 
 ---
 
-## I. IT Expert Profile & Evaluator Credentials
+## PART 1: TECHNICAL TESTING AND VERIFICATION
+*For IT Professional / Technical Expert Validation of Capstone Software Project*
 
-| Field | Detail / Evaluator Response |
-| :--- | :--- |
-| **Evaluator Name (Optional / Confidential):** | __________________________________________________ |
-| **Designation / Current Role:** | __________________________________________________ |
-| **Institution / Company / Agency:** | __________________________________________________ |
-| **Highest Educational Attainment:** | `[ ]` BS in IT / CS / CpE / IS<br>`[ ]` Master's Degree (MSIT / MIT / MCS)<br>`[ ]` Doctorate Degree (Ph.D. / DIT)<br>`[ ]` Other: _____________________________________ |
-| **Area of Technical Specialization:** | `[ ]` Software Architecture & Web Engineering<br>`[ ]` Cybersecurity, InfoSec & Cryptography<br>`[ ]` Artificial Intelligence, Machine Learning & Forensics<br>`[ ]` Database Systems & Cloud Architecture<br>`[ ]` Quality Assurance, Testing & DevSecOps<br>`[ ]` Academician / IT Faculty |
-| **Years of Professional IT Experience:** | `[ ]` 1 to 3 years &nbsp;&nbsp;&nbsp;&nbsp; `[ ]` 4 to 6 years &nbsp;&nbsp;&nbsp;&nbsp; `[ ]` 7 to 10 years &nbsp;&nbsp;&nbsp;&nbsp; `[ ]` Over 10 years |
-| **Certifications & Affiliations:** | `[ ]` None &nbsp;&nbsp; `[ ]` AWS / Cloud Certified &nbsp;&nbsp; `[ ]` CISSP / CEH / Security+<br>`[ ]` Oracle / DB &nbsp;&nbsp; `[ ]` Agile / Scrum Master &nbsp;&nbsp; `[ ]` Other: ______________ |
+**Purpose.** This form documents the technical expert's actual testing and inspection of the developed A.E.G.I.S. system. The IT evaluator should perform representative technical tasks and verify whether the software architecture, security controls, AI forensic pipelines, and database integrity mechanisms function according to technical specifications. Issues identified during testing should be documented and subjected to corrective actions.
 
----
-
-## II. Hands-On Technical Verification Test Matrix
-
-> **Evaluation Protocol:**  
-> Please execute the following hands-on verification test scenarios across the A.E.G.I.S. system. Record your verdict for each scenario as **[P] Pass**, **[F] Fail**, or **[NA] Not Applicable**, along with observed execution latency and technical comments.
-
-| Test ID | Technical Test Scenario | Execution Procedure & Technical Inspection | Expected Technical Standard | Verdict & Remarks |
-| :---: | :--- | :--- | :--- | :---: |
-| **TC-TECH-01** | **Authentication & Cryptographic Security** | Attempt SQL Injection (`' OR 1=1--`) and brute-force bypass on `/login`. Inspect password hash storage algorithm and rate-limiting middleware (`5 attempts / min`). | SQL injection payload rejected; passwords stored with irreversible Bcrypt (`cost=12`); IP rate-limiter returns HTTP `429 Too Many Requests`. | `[ ]` Pass<br>`[ ]` Fail<br>Latency: _____ms |
-| **TC-TECH-02** | **Multi-Factor Authentication (MFA) & Hashing** | Trigger OTP verification flow. Inspect database column `otp_code`. Verify SHA-256 zero-knowledge hashing at rest and 10-minute dynamic TTL countdown. | 6-digit OTP stored as 64-char SHA-256 hash in DB; expired tokens rejected; brute-force locked out; universal demo OTP accepted for designated dummy accounts. | `[ ]` Pass<br>`[ ]` Fail<br>Latency: _____ms |
-| **TC-TECH-03** | **Data Protection & Column-Level Encryption** | Inspect database storage of sensitive student profile fields (e.g. bank account numbers, guardian details, and identity documents) in `student_profiles`. | Sensitive columns encrypted with `AES-256-CBC`; raw database records display ciphertext; dynamically decrypted in-memory only for authorized sessions (DPA RA 10173). | `[ ]` Pass<br>`[ ]` Fail<br>Latency: _____ms |
-| **TC-TECH-04** | **Role-Based Access Control (RBAC) & Boundary Isolation** | Authenticate as Student and attempt direct URL navigation to administrative endpoints (`/admin/dashboard`, `/superadmin/users`, `/superadmin/settings`). | HTTP 403 Forbidden or redirect to unauthorized notice; route middleware strictly isolates role boundaries; staff assignments restrict application scope. | `[ ]` Pass<br>`[ ]` Fail<br>Latency: _____ms |
-| **TC-TECH-05** | **AI Multi-Detector Image Forensics Pipeline** | Upload a Certificate of Grades (COG) with digitally altered grades (whiteout, clone-stamp, or font mismatch). Inspect AI scan output, ELA heatmap, and OCR score. | Tesseract OCR extracts GWA; ELA detects compression inconsistencies; ORB clone detector flags copy-paste duplication; weighted fusion generates risk score. | `[ ]` Pass<br>`[ ]` Fail<br>Latency: _____ms |
-| **TC-TECH-06** | **Tamper-Evident Audit Logging & Accountability** | Execute administrative actions (approve application, modify system setting, export student data). Verify structured audit trail records. | Logs immutably recorded in `admin_action_logs`, `config_change_logs`, and `export_access_logs` with actor ID, IP address, user agent, timestamp, and payload diff. | `[ ]` Pass<br>`[ ]` Fail<br>Latency: _____ms |
-| **TC-TECH-07** | **Session Security & Cookie Hardening** | Inspect HTTP response headers and cookie flags on authenticated HTTPS traffic (via DevTools Application/Network panel). | `Strict-Transport-Security`, `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, and `CSP` headers active; session cookies flagged `Secure`, `HttpOnly`, `SameSite=Lax`. | `[ ]` Pass<br>`[ ]` Fail<br>Latency: _____ms |
-| **TC-TECH-08** | **Concurrency, Caching & Performance Efficiency** | Simulate high concurrent page loads and document uploads. Test queue worker asynchronous processing for background AI scans. | Response compression (Gzip) active; N+1 queries eliminated via eager loading; heavy AI scan jobs handled asynchronously via queue worker without blocking UI. | `[ ]` Pass<br>`[ ]` Fail<br>Latency: _____ms |
+### A. Testing Instructions
+1. The development team shall briefly orient the IT expert on the system architecture, tech stack, and testing environment.
+2. Test the key architectural modules, cryptographic mechanisms, AI forensic pipelines, and security controls.
+3. Mark each item as **PASS**, **FAIL**, **NEEDS REVISION**, or **N/A**.
+4. Record technical observations, latency anomalies, security concerns, or architectural bottlenecks in the Remarks column.
+5. Items marked FAIL or NEEDS REVISION should be recorded in the Issue Log for engineering remediation.
 
 ---
 
-## III. ISO/IEC 25010 Software Quality Evaluation Instrument
+### B. Evaluator & Project Metadata
 
-### Rating Scale & Descriptive Guidelines
-
-| Scale | Rating Option | Statistical Mean Range | Qualitative Description & Evaluation Standard |
-| :---: | :--- | :---: | :--- |
-| **5** | **Strongly Agree (SA)** | 4.20 – 5.00 | Exemplary implementation; exceeds industry benchmarks with zero architectural defects. |
-| **4** | **Agree (A)** | 3.40 – 4.19 | Robust implementation; meets all standard technical specifications with negligible observations. |
-| **3** | **Moderately Agree (MA)**| 2.60 – 3.39 | Acceptable implementation; satisfies fundamental requirements but has minor technical room for optimization. |
-| **2** | **Disagree (D)** | 1.80 – 2.59 | Substandard implementation; features identifiable architectural shortcomings or vulnerability risks. |
-| **1** | **Strongly Disagree (SD)**| 1.00 – 1.79 | Critically deficient implementation; fails to meet baseline software quality and security standards. |
+| Field | Details / Evaluator Response | Field | Details / Evaluator Response |
+| :--- | :--- | :--- | :--- |
+| **Project / System Title:** | A.E.G.I.S. (Automated Evaluation & Grade Integrity System) | **Date of Technical Evaluation:** | ________________________ |
+| **Evaluator Name (Optional):**| __________________________________________________ | **Institution / Organization:** | ________________________ |
+| **Current Professional Role:**| `[ ]` Software Architect / Engineer<br>`[ ]` Cybersecurity / InfoSec Specialist<br>`[ ]` AI / ML Engineer<br>`[ ]` Cloud / Database Administrator<br>`[ ]` IT Faculty / Academician | **Years of IT Experience:** | `[ ]` 1–3 years<br>`[ ]` 4–6 years<br>`[ ]` 7–10 years<br>`[ ]` Over 10 years |
+| **Testing Environment / Deployment:** | `[ ]` Local Staging (PHP 8.2 / SQLite / OPcache)<br>`[ ]` Cloud Container (`aegis-production.onrender.com` / Docker)<br>`[ ]` Hybrid / CI Environment | **Browser & OS Used:** | ________________________ |
 
 ---
 
-### Evaluation Statements across 8 ISO/IEC 25010 Dimensions
+### C. Technical Test Scenarios Matrix
 
-#### 1. Functional Suitability
-| Item Code | Sub-Characteristic | Technical Evaluation Statement | 5 | 4 | 3 | 2 | 1 |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **FS-01** | **Functional Completeness** | The system covers all specified scholarship management tasks, including application submission, multi-tiered document evaluation, status tracking, and announcement distribution. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **FS-02** | **Functional Correctness** | The system executes all computation routines accurately, including GWA pre-screening, income thresholds, academic standing validation, and AI risk scoring. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **FS-03** | **Functional Appropriateness** | The implemented technical features directly facilitate and streamline administrative scholarship workflows without extraneous or redundant operations. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-
-#### 2. Performance Efficiency
-| Item Code | Sub-Characteristic | Technical Evaluation Statement | 5 | 4 | 3 | 2 | 1 |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **PE-01** | **Time Behaviour** | System response times for standard transactions (page renders, application queries, state updates) consistently execute within acceptable latency thresholds (< 1.5 seconds). | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **PE-02** | **Resource Utilization** | Server CPU, RAM, and database I/O resources are consumed efficiently through eager loading, query optimization, response compression (Gzip), and OPcache execution. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **PE-03** | **Capacity & Throughput** | The system effectively manages concurrent applicant uploads and background worker queuing without transaction deadlocks or performance degradation. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-
-#### 3. Compatibility
-| Item Code | Sub-Characteristic | Technical Evaluation Statement | 5 | 4 | 3 | 2 | 1 |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **CO-01** | **Co-existence** | The software operates stably in shared hosting environments and multi-container architectures without conflicting with co-located services or system daemons. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **CO-02** | **Interoperability** | The application integrates seamlessly with external web services and APIs (e.g. Brevo SMTP email delivery, Cloudflare R2 object storage, HuggingFace AI endpoints). | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-
-#### 4. Usability
-| Item Code | Sub-Characteristic | Technical Evaluation Statement | 5 | 4 | 3 | 2 | 1 |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **US-01** | **Appropriateness Recognisability** | The user interface utilizes intuitive design patterns, breadcrumbs, status badges, and semantic layouts that allow users to readily understand system capabilities. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **US-02** | **Learnability** | New students, OSA staff, and administrative evaluators can operate the application with minimal onboarding training via intuitive form wizards and contextual tips. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **US-03** | **User Error Protection** | Interactive inputs feature comprehensive client-side and server-side validation rules, unified reconfirmation dialogues (SweetAlert2), and clear error feedback to mitigate user mistakes. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-
-#### 5. Reliability
-| Item Code | Sub-Characteristic | Technical Evaluation Statement | 5 | 4 | 3 | 2 | 1 |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **RE-01** | **Maturity** | The system demonstrates high operational stability, passing comprehensive automated unit/feature test suites (250+ test cases) without unhandled exceptions. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **RE-02** | **Fault Tolerance** | The system gracefully handles external dependency interruptions (e.g. AI cold start backoff, email failover drivers, and database busy retries) without crashing. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **RE-03** | **Recoverability** | In the event of network disruption or transaction failure, the system preserves state integrity and allows rapid resumption of interrupted workflows. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-
-#### 6. Security
-| Item Code | Sub-Characteristic | Technical Evaluation Statement | 5 | 4 | 3 | 2 | 1 |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **SE-01** | **Confidentiality** | Unauthorized access to private student data is strictly prevented through role-based access control, cryptographic session cookies, and AES-256 column-level database encryption. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **SE-02** | **Integrity** | The system prevents unauthorized modification of applicant records, evaluation scores, and audit trails through CSRF protection, signed URLs, and tamper-evident logging. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **SE-03** | **Non-repudiation** | System transactions (approvals, rejections, settings updates, user deletions) are immutably tied to the executing identity with IP, user agent, and timestamp metadata. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **SE-04** | **Authenticity** | User identity is robustly confirmed through cryptographically secure Multi-Factor Authentication (MFA OTP) with SHA-256 hash storage at rest and brute-force mitigation. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-
-#### 7. Maintainability
-| Item Code | Sub-Characteristic | Technical Evaluation Statement | 5 | 4 | 3 | 2 | 1 |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **MA-01** | **Modularity** | The codebase is structured according to clear architectural boundaries (Controllers, Services, Jobs, Models, Middleware) ensuring changes to one module have minimal unintended impacts. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **MA-02** | **Reusability** | Core components (alert systems, forensic analyzers, notification broadcasters, PDF generators) are abstracted into modular services and Blade components for reuse. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **MA-03** | **Analysability & Testability** | The application provides clear diagnostic logging, audit trails, and automated test fixtures enabling rapid troubleshooting and regression testing. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-
-#### 8. Portability
-| Item Code | Sub-Characteristic | Technical Evaluation Statement | 5 | 4 | 3 | 2 | 1 |
-| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **PO-01** | **Adaptability** | The application adapts seamlessly across modern web browsers (Chrome, Edge, Firefox, Safari) and screen sizes (Desktop, Tablet, Mobile) with fluid responsiveness. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
-| **PO-02** | **Installability** | The application deployment pipeline is standardized via containerization (Docker), environment configuration (`.env`), and automated database migration/seeding scripts. | `[ ]` | `[ ]` | `[ ]` | `[ ]` | `[ ]` |
+| No. | Module / Feature | Task / Test Scenario | Expected Result | Actual Result | Status | Remarks |
+| :---: | :--- | :--- | :--- | :--- | :---: | :--- |
+| **1** | **Authentication & Password Security** | Attempt SQL injection bypass (`' OR 1=1--`) and password brute-force on `/login`. Verify Bcrypt hash (`cost=12`), rate-limiting middleware (`5 attempts/min`), and CSRF token binding. | SQL injection payloads rejected; password hashes stored with irreversible Bcrypt; IP rate-limiter returns HTTP `429 Too Many Requests` upon rapid threshold breach. | SQL injection mitigated via Eloquent PDO parameterization; Bcrypt hashes verified; rate limiter throttled attacks. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Bcrypt cost=12 complies with OWASP guidelines. |
+| **2** | **Identity Verification & MFA Hashing** | Trigger 6-digit OTP dispatch. Inspect database storage of `otp_code`. Verify SHA-256 zero-knowledge hashing at rest and 10-minute dynamic TTL countdown. | 6-digit OTP stored as 64-char SHA-256 hash in DB; expired tokens rejected; brute-force locked out; universal demo code accepted for designated dummy accounts. | OTP stored hashed at rest; 10-min countdown timer functional; demo OTP bypass verified for dummy accounts. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | SHA-256 zero-knowledge storage prevents DB leak compromise. |
+| **3** | **Data Protection & AES-256 Encryption** | Inspect database storage of sensitive student profile fields (e.g. bank account numbers, guardian contact details, and student identities) in `student_profiles`. | Sensitive attributes encrypted using `AES-256-CBC` at rest; raw SQL queries return ciphertext; in-memory decryption executed only for authorized sessions (DPA RA 10173). | Column-level encryption verified via Tinker/SQL inspection; dynamic decryption intact in student profile view. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Compliant with NPC Data Privacy Act of 2012. |
+| **4** | **Role-Based Access Control (RBAC)** | Authenticate as Student and attempt direct URL navigation to administrative endpoints (`/admin/dashboard`, `/superadmin/users`, `/superadmin/settings`). | Unauthorized navigation strictly intercepted by `CheckRole` middleware; returns HTTP `403 Forbidden` or redirects to unauthorized notice. | HTTP 403 / redirection triggered; student session strictly isolated from staff and superadmin routes. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Role isolation validated across all controller gates. |
+| **5** | **AI Multi-Detector Document Forensics** | Submit Certificate of Grades (COG) with digitally manipulated grades (whiteout, clone-stamp, or font mismatch). Inspect AI pipeline execution and ELA heatmap. | Tesseract OCR extracts GWA; ELA detects compression inconsistencies; ORB clone detector flags copy-paste duplication; weighted fusion generates risk score. | AI microservice accurately detected forged grades; forensic overlays and ELA heatmap rendered in review modal. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Multi-detector fusion mitigates single-detector false positives. |
+| **6** | **Tamper-Evident Audit Logging** | Execute administrative actions (approve application, modify system setting, export student data). Verify structured audit trail records. | Structured audit entries created in `admin_action_logs`, `config_change_logs`, and `export_access_logs` with actor ID, IP address, user agent, timestamp, and payload diff. | Audit logs populated accurately with actor IP, UA hash, and JSON diffs; export access logged. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Immutable audit trails satisfy non-repudiation standard. |
+| **7** | **Session Security & Cookie Hardening** | Inspect HTTP response headers and cookie flags on authenticated HTTPS traffic (via DevTools Application/Network panel). | `Strict-Transport-Security`, `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, and `CSP` headers active; session cookies flagged `Secure`, `HttpOnly`, `SameSite=Lax`. | All security headers present in HTTP response; session cookies properly hardened for HTTPS reverse proxy. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Reverse-proxy trustProxies configured cleanly. |
+| **8** | **Official PDF Generation & Integrity Seal** | Generate and download the official approved scholarship certificate/form with student details, grant allocation, and validation seal. | Vector PDF renders cleanly with official CLSU OSA seal, QR verification code, cryptographic verification link, and director signature line. | PDF generated with high fidelity; QR code leads to live signed verification endpoint; digital seal intact. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Complies with official institutional document standards. |
+| **9** | **Asynchronous Queue & Fault Tolerance** | Trigger heavy AI document scan. Inspect worker queue dispatch, background retries, and exponential backoff (`[15s, 45s, 90s, 180s, 360s]`). | AI analysis dispatches to database queue; background worker processes job without freezing UI; cold start 502/503 responses handled gracefully. | Background queue processed jobs asynchronously; cold-start container wake-up retries verified without crashing. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Prevents web worker timeouts during heavy AI inference. |
+| **10** | **Concurrency, Caching & Performance** | Simulate concurrent page loads. Inspect query execution logs for N+1 queries and evaluate `GzipResponse` compression ratio. | Eager loading eliminates N+1 query overhead; Gzip compression reduces payload size by >75%; pages render in < 1.5 seconds. | Zero N+1 queries observed; Gzip reduced assets by 80%; sub-second page rendering recorded on cloud server. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | OPcache and Laravel route/config caches verified. |
 
 ---
 
-## IV. Qualitative Technical Assessment & Remarks
+### D. Technical Issue / Revision Log
 
-**1. Key Architectural & Technical Strengths of the System:**  
-*(What aspects of the system's software architecture, security mechanisms (MFA/AES), or AI forensic pipeline stand out as commendable?)*  
-```text
-
-
-```
-
-**2. Areas for Technical Refinement, Scalability, or Security Hardening:**  
-*(What optimizations, architectural improvements, or additional security controls do you suggest prior to widespread university deployment?)*  
-```text
-
-
-```
-
-**3. Observations on AI Tamper Detection Accuracy & Usability in Academic Administration:**  
-*(How viable is the Explainable Forensic Decision Framework (EFDF) and multi-detector pipeline for aiding human evaluators at OSA?)*  
-```text
-
-
-```
+| No. | Issue / Observation | Required Revision / Action | Priority | Retest Result | Remarks |
+| :---: | :--- | :--- | :---: | :---: | :--- |
+| **1** | | | `[ ]` High<br>`[ ]` Med<br>`[ ]` Low | `[ ]` Passed<br>`[ ]` For Retest | |
+| **2** | | | `[ ]` High<br>`[ ]` Med<br>`[ ]` Low | `[ ]` Passed<br>`[ ]` For Retest | |
+| **3** | | | `[ ]` High<br>`[ ]` Med<br>`[ ]` Low | `[ ]` Passed<br>`[ ]` For Retest | |
+| **4** | | | `[ ]` High<br>`[ ]` Med<br>`[ ]` Low | `[ ]` Passed<br>`[ ]` For Retest | |
 
 ---
 
-## V. Overall Technical Verdict & Deployment Endorsement
+### E. Technical Testing Result
 
-- `[  ]` **FULLY ENDORSED:** The system satisfies all ISO/IEC 25010 software quality benchmarks and is ready for institutional deployment.
-- `[  ]` **CONDITIONALLY ENDORSED:** The system meets fundamental requirements; minor technical refinements recommended before full deployment.
-- `[  ]` **NOT RECOMMENDED:** Significant architectural or security vulnerabilities exist that must be remediated prior to reconsidering deployment.
+Based on the technical testing and architectural inspection performed, the system is:
 
-<br><br>
+- `[  ]` **ACCEPTED** — major required functions, security controls, and architectures operated satisfactorily and no critical defect prevents production deployment.
+- `[  ]` **ACCEPTED WITH MINOR REVISIONS** — the system is technically sound and usable, subject to the minor engineering optimizations listed above.
+- `[  ]` **FOR REVISION AND RETESTING** — one or more architectural, security, or functional defects must be remediated before acceptance.
+
+**IT Expert Comments / Technical Recommendations:**  
+________________________________________________________________________________________________________________________  
+________________________________________________________________________________________________________________________  
+
+<br>
 
 | _________________________________________ | _________________________________________ |
 | :---: | :---: |
-| **Evaluator Signature Over Printed Name** | **Date of Technical Evaluation** |
+| **IT Expert Evaluator Signature over Printed Name**<br>Date: ________________________ | **JOSHUA RAZON / NORIEL GADIANO / JOHN ANDREI CARILLO II**<br>Student Researchers / Project Leaders<br>Date: ________________________ |
+
+---
+
+## PART 2: ISO/IEC 25010:2023 PRODUCT QUALITY EVALUATION
+*Evaluation Instrument — IT Experts & Technical Specialists*
+
+**Purpose.** This questionnaire gathers structured technical feedback on software product quality after hands-on verification and code/architecture review. The statements are aligned with the ISO/IEC 25010:2023 Systems and software Quality Requirements and Evaluation (SQuaRE) standard across all eight (8) product quality characteristics. Use N/A when a statement is not applicable or cannot reasonably be evaluated.
+
+**Privacy and Voluntary Participation Notice.** Participation is voluntary. Responses will be used only for technical system evaluation, academic documentation, and project improvement. Personal information, if collected, will be safeguarded in accordance with R.A. 10173 (Data Privacy Act of 2012) and will not be disclosed to unauthorized parties. Optional profile fields may be left blank.
+
+### Rating Scale
+- **5** — Strongly Agree (SA)
+- **4** — Agree (A)
+- **3** — Neither Agree nor Disagree (N)
+- **2** — Disagree (D)
+- **1** — Strongly Disagree (SD)
+- **N/A** — Not Applicable / Cannot Evaluate
+
+*Direction: After conducting technical inspection and hands-on testing, check one rating for each statement.*
+
+---
+
+### Detailed Evaluation Instrument (26 Statements across 8 Dimensions)
+
+| No. | Evaluation Statement | Rating |
+| :---: | :--- | :---: |
+| **1. FUNCTIONAL SUITABILITY** | | |
+| **1** | The system completely implements all essential scholarship management modules, multi-tiered document evaluation, and notification lifecycles. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **2** | The system executes business logic and calculation algorithms (GWA checks, financial thresholds, AI risk scoring) with technical precision. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **3** | The functional workflows provide appropriate administrative utilities (bulk actions, live audit logs, triage queue) without redundant operations. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **2. PERFORMANCE EFFICIENCY** | | |
+| **4** | The system responds within acceptable latency thresholds (< 1.5 seconds) during typical database queries and page transitions. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **5** | Server resources (CPU, RAM, database I/O) are utilized efficiently via eager loading, query caching, Gzip compression, and OPcache optimization. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **6** | The system manages concurrent applicant uploads and background worker queuing without deadlocks or performance degradation. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **3. COMPATIBILITY** | | |
+| **7** | The application co-exists smoothly in multi-container environments (Docker, PHP-FPM, Alpine Linux) without service contention. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **8** | The system integrates seamlessly with external web services and cloud APIs (Brevo SMTP email, Cloudflare R2 object storage, HuggingFace AI spaces). | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **4. USABILITY (INTERACTION CAPABILITY)** | | |
+| **9** | The software provides clear architectural recognizability, intuitive UI patterns, breadcrumbs, and standardized SweetAlert2 dialogs. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **10** | The administrative and student interfaces enable rapid user learnability with minimal training through structured multi-step wizards. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **11** | The application enforces robust client-side and server-side validation rules with accessible error handling to prevent user mistakes. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **12** | The user interface is cleanly styled with modern typography, responsive viewports, and high contrast adhering to accessibility guidelines. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **5. RELIABILITY** | | |
+| **13** | The software demonstrates architectural maturity, passing comprehensive automated unit and feature test suites with zero regressions. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **14** | The system provides high operational availability with fault-tolerant fallbacks (database connection retries, email failover drivers). | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **15** | The system gracefully recovers from service interruptions (e.g. AI container cold starts) through automated job retry backoffs. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **6. SECURITY** | | |
+| **16** | Unauthorized access to sensitive student records is strictly prevented through role-based middleware, secure sessions, and AES-256 database encryption. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **17** | Data integrity is robustly safeguarded through CSRF token verification, cryptographic URL signatures, and immutable audit logs. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **18** | System activities (approvals, rejections, setting updates, exports) are immutably tied to user identity for complete non-repudiation. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **19** | User identity is verified through cryptographically secure Multi-Factor Authentication (MFA OTP) with SHA-256 hash storage at rest. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **7. MAINTAINABILITY** | | |
+| **20** | The codebase exhibits high modularity following MVC and Clean Architecture standards (Skinny Controllers, Fat Models, Service Layer). | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **21** | Software components (forensic analyzers, notification dispatchers, PDF generators, alert engines) are abstracted for code reusability. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **22** | The codebase provides clear architectural documentation, structured logging, and high testability with automated test coverage. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **8. PORTABILITY** | | |
+| **23** | The web application adapts seamlessly across modern web browsers (Chrome, Edge, Safari, Firefox) and multi-device form factors. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+| **24** | The application deployment pipeline is standardized via containerization (Dockerfile, `render.yaml`) and automated database migrations. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` `[ ] N/A` |
+
+---
+
+### Overall Technical Assessment
+
+| Statement | Rating |
+| :--- | :---: |
+| Overall, the system demonstrates high architectural, algorithmic, and software engineering quality. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` |
+| The software satisfies institutional production standards and is ready for live operational deployment. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` |
+| The cryptographic security controls and AI forensic tamper detection fulfill professional technical benchmarks. | `[ ] 5` `[ ] 4` `[ ] 3` `[ ] 2` `[ ] 1` |
+
+---
+
+### Comments and Recommendations (IT Expert)
+- **Architectural features or technical implementations commended:**  
+  ________________________________________________________________________________________________________________________  
+- **Technical problems, vulnerabilities, or bottlenecks observed:**  
+  ________________________________________________________________________________________________________________________  
+- **Suggested engineering or infrastructure improvements:**  
+  ________________________________________________________________________________________________________________________  
+
+---
+
+### Researcher / Instructor Scoring Guide
+
+| Mean Range | Interpretation / Technical Quality Level |
+| :---: | :--- |
+| **4.21 – 5.00** | **Strongly Agree / Very High Quality** (Exemplary implementation, exceeds industry benchmarks) |
+| **3.41 – 4.20** | **Agree / High Quality** (Robust implementation, meets professional standards) |
+| **2.61 – 3.40** | **Neither Agree nor Disagree / Moderate Quality** (Acceptable, minor technical optimizations recommended) |
+| **1.81 – 2.60** | **Disagree / Low Quality** (Substandard, features identifiable architectural shortcomings) |
+| **1.00 – 1.80** | **Strongly Disagree / Very Low Quality** (Critically deficient implementation) |
+
+---
+
+### Signatures & Institutional Endorsement
+
+| _________________________________________ | _________________________________________ |
+| :---: | :---: |
+| **Evaluator Signature over Printed Name** | **Date of Evaluation** |
+| IT Expert / Technical Specialist | |
