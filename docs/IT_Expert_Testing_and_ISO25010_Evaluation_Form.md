@@ -32,7 +32,7 @@
 | **Project / System Title:** | A.E.G.I.S. (Automated Evaluation & Grade Integrity System) | **Date of Technical Evaluation:** | ________________________ |
 | **Evaluator Name (Optional):**| __________________________________________________ | **Institution / Organization:** | ________________________ |
 | **Current Professional Role:**| `[ ]` Software Architect / Engineer<br>`[ ]` Cybersecurity / InfoSec Specialist<br>`[ ]` AI / ML Engineer<br>`[ ]` Cloud / Database Administrator<br>`[ ]` IT Faculty / Academician | **Years of IT Experience:** | `[ ]` 1–3 years<br>`[ ]` 4–6 years<br>`[ ]` 7–10 years<br>`[ ]` Over 10 years |
-| **Testing Environment / Deployment:** | `[ ]` Local Staging (PHP 8.2 / SQLite / OPcache)<br>`[ ]` Cloud Container (`aegis-production.onrender.com` / Docker)<br>`[ ]` Hybrid / CI Environment | **Browser & OS Used:** | ________________________ |
+| **Testing Environment / Deployment:** | `[ ]` Local Staging (PHP 8.2 / SQLite / OPcache)<br>`[ ]` Cloud Production Portal (`clsu.osa.scholarship` / Docker)<br>`[ ]` Hybrid / CI Environment | **Browser & OS Used:** | ________________________ |
 
 ---
 

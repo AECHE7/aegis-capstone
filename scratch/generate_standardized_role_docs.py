@@ -151,7 +151,7 @@ def build_part1_metadata_table(doc, role_default, tester_name=""):
         (f"Tester / Client Representative: {tester_name}",
          f"Role / Designation: {role_default}"),
         ("Date of Testing: October 2026",
-         "Environment / Build: Cloud Staging Portal (https://aegis-capstone.onrender.com) v1.0.0")
+         "Environment / Build: Cloud Staging Portal (https://clsu.osa.scholarship) v1.0.0")
     ]
 
     for r_i, (c0_text, c1_text) in enumerate(meta_items):

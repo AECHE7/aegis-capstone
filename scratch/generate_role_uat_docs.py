@@ -484,7 +484,7 @@ def generate_student_uat_doc():
         ("Date & Time of Testing:", "________________________, 2026  | Time: ______:______"),
         ("Testing Device & OS:", "[  ] Laptop   [  ] Desktop   [  ] Smartphone   | OS: Windows / macOS / Android / iOS"),
         ("Web Browser & Version:", "[  ] Google Chrome   [  ] Microsoft Edge   [  ] Mozilla Firefox   [  ] Safari"),
-        ("Test Environment URL:", "Cloud Staging Portal (https://aegis-capstone.onrender.com)"),
+        ("Test Environment URL:", "Cloud Staging Portal (https://clsu.osa.scholarship)"),
         ("Capstone Facilitator / Researcher:", "Joshua Razon / Noriel Gadiano / John Andrei Carillo II (BSIT 4-1)")
     ]
     add_metadata_table(doc, metadata)

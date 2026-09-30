@@ -164,7 +164,7 @@ def build_part1_metadata_table(doc):
         ("Institution / Company / Agency: _______________________________",
          "Technical Specialization: [  ] Software Arch  [  ] CyberSec  [  ] AI/ML  [  ] Faculty"),
         ("Date of Testing: October 2026",
-         "Environment / Build: Cloud Production Portal (https://aegis-capstone.onrender.com) v1.0.0")
+         "Environment / Build: Cloud Production Portal (https://clsu.osa.scholarship) v1.0.0")
     ]
 
     for r_i, (c0_text, c1_text) in enumerate(meta_items):

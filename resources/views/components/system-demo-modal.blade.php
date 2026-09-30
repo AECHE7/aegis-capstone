@@ -1054,7 +1054,7 @@
                         "Permanent statutory audit record compliant with Philippine legal standards"
                     ],
                     algorithm: "DomPDF Stream + QR Verification Hash Generator",
-                    simulation: `[CERT_GENERATOR] Target: App #104 (Juan Dela Cruz)\n[CHAIN_OF_CUSTODY] File SHA-256: d41d8cd98f00b204e9800998ecf8427e\n[QR_CODE] URL: https://aegis-capstone.onrender.com/verify/APP-00104\n[RENDER] Output: 1-Page Official Forensic Inspection Certificate (PDF).`
+                    simulation: `[CERT_GENERATOR] Target: App #104 (Juan Dela Cruz)\n[CHAIN_OF_CUSTODY] File SHA-256: d41d8cd98f00b204e9800998ecf8427e\n[QR_CODE] URL: https://clsu.osa.scholarship/verify/APP-00104\n[RENDER] Output: 1-Page Official Forensic Inspection Certificate (PDF).`
                 }
             ]
         },
