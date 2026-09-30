@@ -53,23 +53,22 @@
     @media print {
         @page {
             size: letter portrait;
-            margin: 5mm 8mm;
+            margin: 4mm 6mm;
         }
-        html, body {
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
+        /* Hide surrounding portal navigation and modal headers */
+        nav, header, footer, .sidebar, .topbar, .mobile-bottom-nav, 
+        .modal-header, .modal-backdrop, .btn, .btn-close, .content-header {
+            display: none !important;
+        }
+        body.modal-open {
             overflow: visible !important;
+            background: #ffffff !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
-        body > *:not(#applicantFormModal) {
-            display: none !important;
-        }
         #applicantFormModal {
             display: block !important;
-            position: static !important;
+            position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
@@ -77,6 +76,7 @@
             padding: 0 !important;
             background: #ffffff !important;
             overflow: visible !important;
+            z-index: 99999 !important;
         }
         #applicantFormModal .modal-dialog {
             max-width: 100% !important;
@@ -94,9 +94,6 @@
         #applicantFormModal .modal-body {
             padding: 0 !important;
             background: transparent !important;
-        }
-        .modal-header, .modal-backdrop, .btn, .btn-close, nav, .sidebar, .topbar {
-            display: none !important;
         }
         .applicant-form-sheet {
             box-shadow: none !important;
@@ -252,12 +249,148 @@
         });
     };
 
-    // Print handler
+    // Dedicated Isolated Print Engine for Zero-Failure Modal Printing
+    window.printApplicantFormSheet = function() {
+        const modalBody = document.getElementById('applicantFormModalBody');
+        const sheet = modalBody ? modalBody.querySelector('.applicant-form-sheet') : null;
+        if (!sheet) {
+            window.print();
+            return;
+        }
+
+        let printFrame = document.getElementById('applicantFormPrintFrame');
+        if (!printFrame) {
+            printFrame = document.createElement('iframe');
+            printFrame.id = 'applicantFormPrintFrame';
+            printFrame.style.position = 'fixed';
+            printFrame.style.right = '0';
+            printFrame.style.bottom = '0';
+            printFrame.style.width = '0';
+            printFrame.style.height = '0';
+            printFrame.style.border = '0';
+            document.body.appendChild(printFrame);
+        }
+
+        const doc = printFrame.contentWindow.document;
+        doc.open();
+        doc.write(`<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Official Applicant Information & Evaluation Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @page { size: letter portrait; margin: 4mm 6mm; }
+        body { 
+            background: #ffffff !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            font-family: Arial, Helvetica, sans-serif !important; 
+            font-size: 7.2pt !important; 
+            line-height: 1.15 !important; 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
+        }
+        .applicant-form-sheet { 
+            box-shadow: none !important; 
+            border: none !important; 
+            max-width: 100% !important; 
+            width: 100% !important; 
+            padding: 0 !important; 
+            margin: 0 !important; 
+            font-size: 7.2pt !important; 
+            line-height: 1.15 !important; 
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important; 
+        }
+        .applicant-form-sheet .row.align-items-center.pb-3.mb-3 {
+            padding-bottom: 2px !important;
+            margin-bottom: 3px !important;
+        }
+        .applicant-form-sheet img {
+            max-height: 44px !important;
+            width: auto !important;
+        }
+        .applicant-form-sheet h5 {
+            font-size: 8.5pt !important;
+            margin-bottom: 1px !important;
+        }
+        .applicant-form-sheet .border-success.p-3 {
+            padding: 4px 6px !important;
+            margin-bottom: 3px !important;
+        }
+        .applicant-form-sheet .rounded.d-flex.flex-column {
+            width: 60px !important;
+            height: 60px !important;
+        }
+        .applicant-form-sheet .mb-3 {
+            margin-bottom: 3px !important;
+        }
+        .applicant-form-sheet table {
+            margin-bottom: 0 !important;
+            font-size: 7pt !important;
+        }
+        .applicant-form-sheet table td,
+        .applicant-form-sheet table th {
+            padding: 1.5px 4px !important;
+            line-height: 1.12 !important;
+        }
+        .applicant-form-sheet .rounded-top,
+        .applicant-form-sheet .section-header {
+            padding: 1.5px 5px !important;
+            font-size: 7pt !important;
+        }
+        .applicant-form-sheet .text-muted.text-uppercase {
+            font-size: 5.8pt !important;
+            margin-bottom: 0 !important;
+        }
+        .applicant-form-sheet .attestation-box,
+        .applicant-form-sheet .bg-light {
+            padding: 2.5px 5px !important;
+            font-size: 6.2pt !important;
+            line-height: 1.15 !important;
+            margin-bottom: 3px !important;
+        }
+        .applicant-form-sheet .row.pt-2.pb-3 {
+            padding-top: 2px !important;
+            padding-bottom: 3px !important;
+        }
+        .applicant-form-sheet .border-warning {
+            padding: 3px 5px !important;
+            margin-bottom: 2px !important;
+        }
+        .applicant-form-sheet .badge {
+            font-size: 5.8pt !important;
+            padding: 1px 3px !important;
+        }
+        .applicant-form-sheet .border-top {
+            margin-top: 2px !important;
+            padding-top: 2px !important;
+            font-size: 5.5pt !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="applicant-form-sheet">
+        ${sheet.innerHTML}
+    </div>
+</body>
+</html>`);
+        doc.close();
+
+        setTimeout(() => {
+            printFrame.contentWindow.focus();
+            printFrame.contentWindow.print();
+        }, 250);
+    };
+
+    // Print button handler
     document.addEventListener('DOMContentLoaded', function() {
         const printBtn = document.getElementById('applicantFormPrintBtn');
         if (printBtn) {
             printBtn.addEventListener('click', function() {
-                window.print();
+                window.printApplicantFormSheet();
             });
         }
     });

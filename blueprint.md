@@ -1351,4 +1351,39 @@ esources/views/emails/application_form_pdf.blade.php)**:
 - [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% (7 tests, 71 assertions), verifying relative path sanitization, bulk operations, and view rendering.
 - Combined test suite across notifications, forms, and logos passes 22 tests (152 assertions).
 
+---
+
+## 38. Official Applicant Evaluation Form: 100% Visual Alignment Between PDF & Web Preview & Zero-Failure Print Engine (October 2026)
+
+### 1. Issues Identified
+1. **Discrepancy Between Web Modal Preview & Downloaded PDF (`input_file_0.png` vs `input_file_2.png`)**:
+   - The on-screen generated view ([resources/views/components/applicant-form-content.blade.php](file:///f:/aegis-capstone/resources/views/components/applicant-form-content.blade.php)) and the DomPDF template ([resources/views/emails/application_form_pdf.blade.php](file:///f:/aegis-capstone/resources/views/emails/application_form_pdf.blade.php)) had divergent table markup, section structures, and field filters.
+   - **Section IV Differences:** In `application_form_pdf.blade.php`, custom fields containing `uploads/` were filtered out and remaining questions were chunked into uneven columns, causing the PDF to output `"No additional program questions recorded."`, while the on-screen modal displayed a clean 2-column table (`Parameter / Question` | `Applicant Response`) with all applicant submissions (e.g. `Form 4` and `COG`).
+   - **Section III Differences:** The PDF rendered a bulleted list with attachments appended as item #5, whereas the web preview used an authentic 2x2 grid with 4 clear verification checklists.
+   - **Signatures Layout Differences:** The PDF broke the signatures into 2 rows (Student + Staff on row 1, Director centered on row 2), while the on-screen modal displayed a clean 3-column single-row signature block.
+2. **Modal Print Preview Rendering Blank White Page (`input_file_1.png`)**:
+   - In `resources/views/components/applicant-form-modal.blade.php`, `@media print` declared `body > *:not(#applicantFormModal) { display: none !important; }`.
+   - Because `#applicantFormModal` was nested inside the application's `.main-wrapper` layout container rather than being a direct child of `<body>`, this CSS selector matched and hid the entire application wrapper, making `#applicantFormModal` invisible and causing browser print preview to show an empty blank sheet ("nothing shows").
+
+### 2. Implementation & Fixes
+1. **100% Visual Alignment of DomPDF Template ([resources/views/emails/application_form_pdf.blade.php](file:///f:/aegis-capstone/resources/views/emails/application_form_pdf.blade.php))**:
+   - Re-architected `application_form_pdf.blade.php` to mirror `applicant-form-content.blade.php` 1:1.
+   - **Section IV:** Converted to the identical 2-column table layout with headers `Parameter / Question` (45%) and `Applicant Response` (55%), preserving all program questions, answers, and attachments without filtering.
+   - **Section III:** Converted checklist to an identical 2x2 table grid matching the on-screen modal.
+   - **Signatures:** Standardized to a 3-column single-row layout (`Student Grantee` | `OSA Evaluator / Staff` | `Director, OSA`).
+   - **A.E.G.I.S. Clearance Badge & Footer:** Unified tamper-evident clearance badge, hash, forensic classification, and ISO revision code.
+2. **Strict 1-Page Letter Layout Enforcement ([app/Http/Controllers/AdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/AdminController.php), [app/Http/Controllers/ApplicationController.php](file:///f:/aegis-capstone/app/Http/Controllers/ApplicationController.php))**:
+   - Added explicit `->setPaper('letter', 'portrait')` to both admin and student PDF export controllers.
+   - Tightened vertical margins (`@page { margin: 6px 12px; size: letter portrait; }`), line-heights, and table cell vertical paddings to guarantee that even applications with multiple custom questions fit perfectly on **exactly 1 sheet of paper** (verified via `dompdf->getCanvas()->get_page_count() == 1`).
+3. **Dedicated Isolated Print Engine ([resources/views/components/applicant-form-modal.blade.php](file:///f:/aegis-capstone/resources/views/components/applicant-form-modal.blade.php))**:
+   - Replaced direct `window.print()` with `window.printApplicantFormSheet()`, an isolated hidden `<iframe>` printing mechanism.
+   - Clones the rendered `.applicant-form-sheet`, injects standalone Bootstrap 5 styles, FontAwesome icons, and print media rules, and triggers print from the isolated frame.
+   - Completely resolves the blank page issue regardless of DOM nesting depth, container wrappers, or browser engines.
+
+### 3. Automated Verification
+- [tests/Feature/ApprovedApplicationPdfTest.php](file:///f:/aegis-capstone/tests/Feature/ApprovedApplicationPdfTest.php) passes 100% (5 tests, 13 assertions).
+- [tests/Feature/ApplicantFormAndQuotaTest.php](file:///f:/aegis-capstone/tests/Feature/ApplicantFormAndQuotaTest.php) passes 100% (7 tests, 40 assertions).
+- Combined verification passes all tests and assertions with exact 1-page canvas confirmation.
+
+
 

@@ -821,7 +821,8 @@ class AdminController extends Controller
 
         $this->validateAdminAccess($application);
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.application_form_pdf', ['application' => $application]);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.application_form_pdf', ['application' => $application])
+            ->setPaper('letter', 'portrait');
         return $pdf->download("APP-{$application->id}_Official_Evaluation_Form.pdf");
     }
 

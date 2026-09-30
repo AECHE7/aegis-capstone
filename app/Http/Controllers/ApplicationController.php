@@ -625,7 +625,8 @@ class ApplicationController extends Controller
             return redirect()->route('student.dashboard')->with('error', 'Only approved applications have an official evaluation form available for download.');
         }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.application_form_pdf', ['application' => $application]);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.application_form_pdf', ['application' => $application])
+            ->setPaper('letter', 'portrait');
         return $pdf->download("APP-{$application->id}_Approved_Form.pdf");
     }
 }
