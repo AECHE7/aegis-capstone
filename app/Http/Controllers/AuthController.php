@@ -20,7 +20,11 @@ class AuthController extends Controller
         $demoSuperAdmin = null;
         $latestInvitation = null;
 
-        $showDemo = !app()->environment('production') || config('app.show_demo_access', false);
+        $isLiveEnvironment = app()->environment('production')
+            || str_contains(request()->getHost(), 'onrender.com')
+            || !in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1']);
+
+        $showDemo = !$isLiveEnvironment && config('app.show_demo_access', false);
 
         if ($showDemo && \Illuminate\Support\Facades\Schema::hasTable('users')) {
             $demoStudent = \App\Models\User::where('role', 'student')->first();

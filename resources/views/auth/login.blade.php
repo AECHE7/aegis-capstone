@@ -683,7 +683,12 @@
                     <i class="fa-solid fa-arrow-right-to-bracket" id="btnArrow"></i>
                 </button>
 
-                @if(!app()->environment('production') && ($demoStudent || $demoAdmin || $demoSuperAdmin))
+                @php
+                    $isLiveEnvironment = app()->environment('production')
+                        || str_contains(request()->getHost(), 'onrender.com')
+                        || !in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1']);
+                @endphp
+                @if(!$isLiveEnvironment && ($demoStudent || $demoAdmin || $demoSuperAdmin))
                 <div class="or-divider">QUICK DEMO ACCESS</div>
                 <div class="row g-2 mb-2">
                     @if($demoStudent)
@@ -731,7 +736,7 @@
                 </div>
             </form>
 
-            @if(app()->environment('local', 'testing'))
+            @if(!$isLiveEnvironment && app()->environment('local', 'testing'))
             <div class="text-center mt-4 pt-3 border-top">
                 <div class="small fw-semibold text-muted mb-2">
                     <i class="fa-solid fa-wand-magic-sparkles me-1 text-warning"></i> Developer Quick Links
