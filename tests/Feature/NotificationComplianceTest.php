@@ -308,8 +308,9 @@ class NotificationComplianceTest extends TestCase
         $response->assertSee('3', false);
         $response->assertDontSee('<span class="position-absolute badge rounded-pill bg-danger border border-2 border-white d-none" id="notifBadge"', false);
 
-        // 3. Sidebar unread badge must be rendered
+        // 3. Sidebar unread badge and collapsed indicator dot must be rendered
         $response->assertSee('sidebar-unread-badge', false);
+        $response->assertSee('sidebar-collapsed-dot', false);
     }
 }
 

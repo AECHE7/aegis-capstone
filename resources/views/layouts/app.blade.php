@@ -593,7 +593,7 @@
             flex: 1;
         }
 
-        .sidebar.collapsed .sidebar-text { opacity: 0; width: 0; }
+        .sidebar.collapsed .sidebar-text { display: none !important; opacity: 0; width: 0; }
 
         /* Sidebar footer */
         .sidebar-footer {
@@ -893,6 +893,30 @@
         .sidebar.collapsed .sidebar-link {
             position: relative;
             justify-content: center;
+            padding: 10px 0;
+            gap: 0 !important;
+        }
+
+        .sidebar.collapsed .sidebar-unread-badge {
+            display: none !important;
+        }
+
+        .sidebar-collapsed-dot {
+            display: none;
+            position: absolute;
+            top: -2px;
+            right: -3px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            border: 1.5px solid var(--clsu-green-dark, #07331c);
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+            pointer-events: none;
+        }
+
+        .sidebar.collapsed .sidebar-collapsed-dot.has-unread {
+            display: block !important;
         }
 
         .sidebar.collapsed .sidebar-link::after {
@@ -2381,10 +2405,23 @@
                 // Synchronize sidebar unread badges
                 document.querySelectorAll('.sidebar-unread-badge').forEach(el => {
                     if (count > 0) {
+                        el.classList.remove('d-none');
                         el.style.display = 'inline-block';
                         el.textContent = count > 99 ? '99+' : count;
                     } else {
+                        el.classList.add('d-none');
                         el.style.display = 'none';
+                    }
+                });
+
+                // Synchronize sidebar collapsed indicator dot
+                document.querySelectorAll('.sidebar-collapsed-dot').forEach(el => {
+                    if (count > 0) {
+                        el.classList.add('has-unread');
+                        el.classList.remove('d-none');
+                    } else {
+                        el.classList.remove('has-unread');
+                        el.classList.add('d-none');
                     }
                 });
 

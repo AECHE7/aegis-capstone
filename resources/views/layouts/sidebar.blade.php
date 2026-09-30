@@ -81,7 +81,10 @@
                class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
                {{ request()->routeIs('notifications.*') ? 'aria-current="page"' : '' }}
                data-tooltip="Notifications">
-                <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                <span class="sidebar-icon position-relative">
+                    <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                    <span class="sidebar-collapsed-dot {{ $sidebarUnread > 0 ? 'has-unread' : 'd-none' }}"></span>
+                </span>
                 <span class="sidebar-text">Notifications</span>
                 <span class="badge bg-danger rounded-pill ms-auto px-1.5 py-0.5 sidebar-unread-badge {{ $sidebarUnread > 0 ? '' : 'd-none' }}" 
                       style="font-size: 0.65rem; font-weight: 700; display: {{ $sidebarUnread > 0 ? 'inline-block' : 'none' }};">
@@ -162,7 +165,10 @@
                class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
                {{ request()->routeIs('notifications.*') ? 'aria-current="page"' : '' }}
                data-tooltip="Notifications">
-                <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                <span class="sidebar-icon position-relative">
+                    <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                    <span class="sidebar-collapsed-dot {{ $sidebarUnread > 0 ? 'has-unread' : 'd-none' }}"></span>
+                </span>
                 <span class="sidebar-text">Notifications</span>
                 <span class="badge bg-danger rounded-pill ms-auto px-1.5 py-0.5 sidebar-unread-badge {{ $sidebarUnread > 0 ? '' : 'd-none' }}" 
                       style="font-size: 0.65rem; font-weight: 700; display: {{ $sidebarUnread > 0 ? 'inline-block' : 'none' }};">
@@ -240,7 +246,10 @@
                class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
                {{ request()->routeIs('notifications.*') ? 'aria-current="page"' : '' }}
                data-tooltip="Notifications">
-                <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                <span class="sidebar-icon position-relative">
+                    <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                    <span class="sidebar-collapsed-dot {{ $sidebarUnread > 0 ? 'has-unread' : 'd-none' }}"></span>
+                </span>
                 <span class="sidebar-text">Notifications</span>
                 <span class="badge bg-danger rounded-pill ms-auto px-1.5 py-0.5 sidebar-unread-badge {{ $sidebarUnread > 0 ? '' : 'd-none' }}" 
                       style="font-size: 0.65rem; font-weight: 700; display: {{ $sidebarUnread > 0 ? 'inline-block' : 'none' }};">

@@ -1416,6 +1416,33 @@ esources/views/emails/application_form_pdf.blade.php)**:
 ### 3. Automated Verification
 - [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% (8 tests, 78 assertions), explicitly verifying topbar bell button `overflow: visible`, `#notifBadge` unread count rendering without `d-none`, and sidebar counter badge generation.
 
+---
+
+## 40. Sidebar Notification Indicator: Collapsed Mode Layout Correction & Adaptive Badge/Dot Architecture (October 2026)
+
+### 1. Issues Identified
+1. **Collapsed Sidebar Distortion & Horizontal Overflow (`input_file_0.png` & `input_file_1.png`)**:
+   - In collapsed mode (`.sidebar.collapsed`), the sidebar width is constrained to `72px` (approx. `48px` usable link width).
+   - `.sidebar.collapsed .sidebar-text` only had `opacity: 0; width: 0;` rather than `display: none !important;`, meaning it remained an active flex child and retained inter-item flex gaps (`gap: 12px;`).
+   - The unread badge pill (`.sidebar-unread-badge`) remained in the flex container with `ms-auto`, causing the total child width (`20px icon + 12px gap + 12px gap + 28px badge = 72px`) to exceed the link boundary.
+   - Because `.sidebar-link` has `overflow: hidden;`, the bell icon was forced off-center and clipped on the left border, while the red pill badge was squeezed against the right edge and clipped into a semi-circle.
+
+### 2. Implementation & Fixes
+1. **Adaptive Collapsed Sidebar Rules ([resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php))**:
+   - Added `.sidebar.collapsed .sidebar-link { justify-content: center; padding: 10px 0; gap: 0 !important; }` to center navigation icons with zero horizontal distortion.
+   - Added `.sidebar.collapsed .sidebar-text { display: none !important; }` to remove text nodes completely from the flex layout tree.
+   - Added `.sidebar.collapsed .sidebar-unread-badge { display: none !important; }` to hide the wide pill counter in collapsed mode.
+2. **Compact Unread Dot Indicator on Bell Icon ([resources/views/layouts/sidebar.blade.php](file:///f:/aegis-capstone/resources/views/layouts/sidebar.blade.php))**:
+   - Wrapped the bell icon in `<span class="sidebar-icon position-relative">` and embedded a dedicated `.sidebar-collapsed-dot`.
+   - In collapsed mode (`.sidebar.collapsed .sidebar-collapsed-dot.has-unread`), the indicator appears as a crisp 8px red dot with a 1.5px contrasting dark green border (`border: 1.5px solid var(--clsu-green-dark)`) positioned at the top-right apex of the bell icon.
+   - In expanded mode, the dot is hidden and the full pill badge (`Notifications [ 43 ]`) appears cleanly on the right with `ms-auto`.
+3. **Real-Time Dynamic Synchronization ([resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php))**:
+   - Updated `fetchNotifications()` to dynamically toggle `.has-unread` on `.sidebar-collapsed-dot` and `display` on `.sidebar-unread-badge` in real-time as notifications arrive or are cleared.
+
+### 3. Automated Verification
+- [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% (8 tests, 79 assertions), asserting presence and synchronization of both `sidebar-unread-badge` and `sidebar-collapsed-dot`.
+
+
 
 
 
