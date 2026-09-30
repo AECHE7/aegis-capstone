@@ -824,4 +824,116 @@ class AdminController extends Controller
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('emails.application_form_pdf', ['application' => $application]);
         return $pdf->download("APP-{$application->id}_Official_Evaluation_Form.pdf");
     }
+
+    /**
+     * Live on-screen preview of the official application and student information form.
+     */
+    public function previewForm($id)
+    {
+        $application = Application::withTrashed()
+            ->with([
+                'user.profile', 
+                'scholarship.fields', 
+                'academicTerm', 
+                'customFields', 
+                'document.aiResult', 
+                'documents', 
+                'evaluator'
+            ])
+            ->findOrFail($id);
+
+        $this->validateAdminAccess($application);
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'application_id' => $application->id,
+                'control_no' => 'APP-' . str_pad((string)$application->id, 5, '0', STR_PAD_LEFT),
+                'student_name' => $application->user->name ?? 'Student Applicant',
+                'program_name' => $application->scholarship?->name ?? 'Scholarship Grant',
+                'status' => $application->status,
+                'download_url' => route('admin.application.download-form', $application->id),
+                'html' => view('components.applicant-form-content', compact('application'))->render(),
+            ]);
+        }
+
+        return view('components.applicant-form-content', compact('application'));
+    }
+
+    /**
+     * Dedicated Applicant & Student Information Forms Module (Staff & Director).
+     * Browse, search, filter, preview on-screen, and export official PDF forms.
+     */
+    public function applicantFormsIndex(Request $request)
+    {
+        $user = auth()->user();
+        $query = Application::query()
+            ->with(['user.profile', 'scholarship', 'academicTerm', 'evaluator', 'documents.aiResult'])
+            ->where('is_archived', false);
+
+        $assignedScholarshipIds = [];
+        if ($user->role === 'admin') {
+            $assignedScholarshipIds = $user->scholarships()->pluck('scholarships.id')->toArray();
+            $query->whereIn('scholarship_id', $assignedScholarshipIds);
+        }
+
+        // Search Filter (Student Name, Email, CLSU ID, or Application ID)
+        if ($request->filled('q')) {
+            $searchTerm = trim($request->q);
+            $numericId = (int) preg_replace('/[^0-9]/', '', $searchTerm);
+
+            $query->where(function ($q) use ($searchTerm, $numericId) {
+                if ($numericId > 0) {
+                    $q->orWhere('id', $numericId);
+                }
+                $q->orWhereHas('user', function ($uq) use ($searchTerm) {
+                    $uq->where('name', 'like', "%{$searchTerm}%")
+                       ->orWhere('email', 'like', "%{$searchTerm}%")
+                       ->orWhereHas('profile', function ($pq) use ($searchTerm) {
+                           $pq->where('clsu_id_number', 'like', "%{$searchTerm}%")
+                              ->orWhere('college', 'like', "%{$searchTerm}%")
+                              ->orWhere('course', 'like', "%{$searchTerm}%");
+                       });
+                })->orWhere('program_name', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Program Filter
+        if ($request->filled('scholarship_id')) {
+            $query->where('scholarship_id', $request->scholarship_id);
+        }
+
+        // Status Filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Academic Term Filter
+        if ($request->filled('academic_term_id')) {
+            $query->where('academic_term_id', $request->academic_term_id);
+        }
+
+        // Quick Statistics
+        $statsBase = Application::query()->where('is_archived', false);
+        if ($user->role === 'admin') {
+            $statsBase->whereIn('scholarship_id', $assignedScholarshipIds);
+        }
+
+        $stats = [
+            'total' => (clone $statsBase)->count(),
+            'approved' => (clone $statsBase)->where('status', 'Approved')->count(),
+            'review' => (clone $statsBase)->whereIn('status', ['Under Review', 'Pending Verification'])->count(),
+            'today' => (clone $statsBase)->whereDate('created_at', now()->today())->count(),
+        ];
+
+        $applications = $query->latest()->paginate(12)->withQueryString();
+
+        $scholarships = ($user->role === 'admin')
+            ? $user->scholarships()->orderBy('name')->get()
+            : \App\Models\Scholarship::orderBy('name')->get();
+
+        $academicTerms = \App\Models\AcademicTerm::orderByDesc('is_active')->orderBy('academic_year')->get();
+
+        return view('admin.applicant_forms', compact('applications', 'scholarships', 'academicTerms', 'stats'));
+    }
 }

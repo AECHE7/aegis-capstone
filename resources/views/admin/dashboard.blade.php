@@ -369,6 +369,8 @@
         <button class="btn btn-sm btn-success px-3 fw-bold" onclick="submitBulkAction()" style="border-radius: 8px;">Apply</button>
     </div>
 </div>
+
+@include('components.applicant-form-modal')
 @endsection
 
 @push('scripts')

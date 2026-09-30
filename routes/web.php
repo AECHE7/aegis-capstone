@@ -171,10 +171,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/update', [AuthController::class, 'updateProfile'])->name('profile.update');
     Route::post('/tour/reset', [ApplicationController::class, 'resetTour'])->name('tour.reset');
 
-    // Notifications routes
+    // Dynamic Notifications & Notification Center Management
     Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [AuthController::class, 'markNotificationAsRead'])->name('notifications.read');
+    Route::post('/notifications/{id}/unread', [AuthController::class, 'markNotificationAsUnread'])->name('notifications.unread');
+    Route::delete('/notifications/{id}', [AuthController::class, 'deleteNotification'])->name('notifications.delete');
+    Route::post('/notifications/bulk', [AuthController::class, 'bulkNotifications'])->name('notifications.bulk');
     Route::post('/notifications/clear', [AuthController::class, 'clearNotifications'])->name('notifications.clear');
+    Route::post('/notifications/preferences', [AuthController::class, 'updateNotificationPreferences'])->name('notifications.preferences');
+    Route::post('/notifications/test', [AuthController::class, 'sendTestNotification'])->name('notifications.test');
 
     // Email Verification Routes
     Route::get('/email/verify', [\App\Http\Controllers\Auth\EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
@@ -243,6 +248,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export-pdf', [\App\Http\Controllers\ReportController::class, 'exportPdf'])->name('admin.exportPdf');
         Route::get('/review/{id}/forensic-pdf/{docId?}', [\App\Http\Controllers\ReportController::class, 'exportForensicReport'])->name('admin.forensicPdf');
         Route::get('/review/{id}/download-form', [AdminController::class, 'downloadApprovedForm'])->name('admin.application.download-form');
+        Route::get('/applications/{id}/preview-form', [AdminController::class, 'previewForm'])->name('admin.applications.preview-form');
+        Route::get('/applications/{id}/download-form', [AdminController::class, 'downloadApprovedForm'])->name('admin.applications.download-form');
+        Route::get('/applicant-forms', [AdminController::class, 'applicantFormsIndex'])->name('admin.applicant-forms.index');
         
         // Restore soft-deleted application (Admin Action)
         Route::post('/review/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.restore');

@@ -29,6 +29,7 @@ class UpdateScholarshipRequest extends FormRequest
             'min_gwa_required' => 'nullable|numeric|min:1.00|max:5.00',
             'deadline' => 'nullable|date',
             'max_renewals' => 'nullable|integer|min:1|max:12',
+            'quota' => 'nullable|integer|min:1|max:100000',
             'fields' => 'nullable|array',
             'fields.*.label' => 'required|string|max:255',
             'fields.*.type' => 'required|in:text,number,textarea,select,file,date,email',

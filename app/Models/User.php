@@ -77,6 +77,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'otp_expires_at',
         'has_completed_tour',
         'dpa_consent_at',
+        'notification_preferences',
     ];
 
     /**
@@ -112,7 +113,37 @@ class User extends Authenticatable implements MustVerifyEmail
             'otp_expires_at' => 'datetime',
             'has_completed_tour' => 'boolean',
             'dpa_consent_at' => 'datetime',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    /**
+     * Get user notification preferences with fallback defaults.
+     */
+    public function getNotificationPreferences(): array
+    {
+        $defaults = [
+            'in_app' => true,
+            'applications' => true,
+            'announcements' => true,
+            'broadcasts' => true,
+            'email' => true,
+        ];
+
+        return array_merge($defaults, $this->notification_preferences ?? []);
+    }
+
+    /**
+     * Check if user prefers to receive a specific notification category.
+     */
+    public function allowsNotification(string $category): bool
+    {
+        $prefs = $this->getNotificationPreferences();
+        if (!($prefs['in_app'] ?? true)) {
+            return false;
+        }
+
+        return (bool) ($prefs[$category] ?? true);
     }
 
     public function sendEmailVerificationNotification()

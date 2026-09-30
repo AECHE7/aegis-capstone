@@ -563,27 +563,104 @@ class AuthController extends Controller
         return redirect('/');
     }
 
-    // 4. Get notifications
-    public function getNotifications()
+    /**
+     * Map database notification model to a rich presentation array.
+     */
+    protected function mapNotification($n): array
+    {
+        $data = $n->data ?? [];
+        $rawType = $data['type'] ?? 'system';
+
+        $category = match($rawType) {
+            'new_application', 'submission_confirmation', 'status_update' => 'application',
+            'announcement' => 'announcement',
+            'broadcast' => 'broadcast',
+            default => 'system',
+        };
+
+        $icon = match($rawType) {
+            'submission_confirmation' => 'fa-file-circle-check',
+            'status_update' => 'fa-certificate',
+            'new_application' => 'fa-user-shield',
+            'announcement' => 'fa-bullhorn',
+            'broadcast' => 'fa-tower-broadcast',
+            default => 'fa-bell',
+        };
+
+        $badgeColor = match($category) {
+            'application' => '#0c4e2d',
+            'announcement' => '#d97706',
+            'broadcast' => '#7c3aed',
+            default => '#0284c7',
+        };
+
+        return [
+            'id' => $n->id,
+            'title' => $data['title'] ?? 'System Notification',
+            'message' => $data['message'] ?? '',
+            'url' => $data['url'] ?? null,
+            'type' => $rawType,
+            'category' => $category,
+            'icon' => $icon,
+            'badge_color' => $badgeColor,
+            'is_read' => $n->read_at !== null,
+            'created_at' => $n->created_at ? $n->created_at->diffForHumans() : 'Recently',
+            'created_at_full' => $n->created_at ? $n->created_at->format('M d, Y h:i A') : '',
+        ];
+    }
+
+    // 4. Get notifications (JSON for AJAX polling, HTML for full Notifications Center)
+    public function getNotifications(Request $request)
     {
         $user = auth()->user();
         if (!$user) {
-            return response()->json(['notifications' => [], 'count' => 0, 'unread_count' => 0]);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['notifications' => [], 'count' => 0, 'unread_count' => 0]);
+            }
+            return redirect()->route('login');
         }
 
-        $unreadCount = $user->unreadNotifications()->count();
+        // HTML Browser Request: render the full Notifications Management Center
+        if (!$request->expectsJson() && !$request->ajax()) {
+            $query = $user->notifications();
 
-        // Retrieve latest 15 notifications (both unread and recent read)
-        $notifications = $user->notifications()->take(15)->get()->map(function($n) {
-            return [
-                'id' => $n->id,
-                'title' => $n->data['title'] ?? 'System Notification',
-                'message' => $n->data['message'] ?? '',
-                'url' => $n->data['url'] ?? null,
-                'is_read' => $n->read_at !== null,
-                'created_at' => $n->created_at ? $n->created_at->diffForHumans() : 'Recently',
-            ];
-        });
+            if ($request->filled('category') && $request->category !== 'all') {
+                $cat = $request->category;
+                $query->where(function($q) use ($cat) {
+                    if ($cat === 'application') {
+                        $q->where('data', 'like', '%"type":"new_application"%')
+                          ->orWhere('data', 'like', '%"type":"submission_confirmation"%')
+                          ->orWhere('data', 'like', '%"type":"status_update"%');
+                    } elseif ($cat === 'announcement') {
+                        $q->where('data', 'like', '%"type":"announcement"%');
+                    } elseif ($cat === 'broadcast') {
+                        $q->where('data', 'like', '%"type":"broadcast"%');
+                    }
+                });
+            }
+
+            if ($request->query('status') === 'unread') {
+                $query->whereNull('read_at');
+            } elseif ($request->query('status') === 'read') {
+                $query->whereNotNull('read_at');
+            }
+
+            if ($request->filled('q')) {
+                $searchTerm = trim($request->q);
+                $query->where('data', 'like', "%{$searchTerm}%");
+            }
+
+            $notifications = $query->paginate(12)->withQueryString();
+            $unreadCount = $user->unreadNotifications()->count();
+            $totalCount = $user->notifications()->count();
+            $preferences = $user->getNotificationPreferences();
+
+            return view('notifications.center', compact('notifications', 'unreadCount', 'totalCount', 'preferences'));
+        }
+
+        // AJAX / JSON Request: returns JSON for topbar dropdown polling
+        $unreadCount = $user->unreadNotifications()->count();
+        $notifications = $user->notifications()->take(20)->get()->map(fn($n) => $this->mapNotification($n));
 
         return response()->json([
             'notifications' => $notifications,
@@ -601,11 +678,111 @@ class AuthController extends Controller
         return response()->json(['success' => true]);
     }
 
+    // 5b. Mark notification as unread
+    public function markNotificationAsUnread($id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->update(['read_at' => null]);
+
+        return response()->json(['success' => true]);
+    }
+
+    // 5c. Delete single notification
+    public function deleteNotification($id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->delete();
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Notification deleted.']);
+        }
+        return back()->with('success', 'Notification deleted successfully.');
+    }
+
+    // 5d. Bulk notifications actions
+    public function bulkNotifications(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:mark_read,mark_unread,delete',
+            'ids' => 'required|array',
+            'ids.*' => 'string',
+        ]);
+
+        $user = auth()->user();
+        $notifications = $user->notifications()->whereIn('id', $request->ids);
+
+        switch ($request->action) {
+            case 'mark_read':
+                $notifications->update(['read_at' => now()]);
+                $msg = 'Selected notifications marked as read.';
+                break;
+            case 'mark_unread':
+                $notifications->update(['read_at' => null]);
+                $msg = 'Selected notifications marked as unread.';
+                break;
+            case 'delete':
+                $notifications->delete();
+                $msg = 'Selected notifications removed.';
+                break;
+            default:
+                $msg = 'Action completed.';
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => $msg]);
+        }
+        return back()->with('success', $msg);
+    }
+
     // 6. Clear all notifications
     public function clearNotifications()
     {
         auth()->user()->unreadNotifications->markAsRead();
 
-        return response()->json(['success' => true]);
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+        return back()->with('success', 'All notifications marked as read.');
+    }
+
+    // 7. Update notification preferences
+    public function updateNotificationPreferences(Request $request)
+    {
+        $user = auth()->user();
+        $prefs = [
+            'in_app' => $request->boolean('in_app', true),
+            'applications' => $request->boolean('applications', true),
+            'announcements' => $request->boolean('announcements', true),
+            'broadcasts' => $request->boolean('broadcasts', true),
+            'email' => $request->boolean('email', true),
+        ];
+
+        $user->update(['notification_preferences' => $prefs]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Notification preferences updated successfully!']);
+        }
+
+        return back()->with('success', 'Notification delivery preferences updated successfully!');
+    }
+
+    // 8. Send test notification
+    public function sendTestNotification(Request $request)
+    {
+        $user = auth()->user();
+        $user->notify(new \App\Notifications\BroadcastNotification(
+            'Dynamic Notification Verification',
+            'Your real-time notification engine is active and functioning with zero-latency delivery.',
+            route('notifications.index')
+        ));
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Test notification dispatched! Check your notification bell and Notifications Center.',
+            ]);
+        }
+
+        return back()->with('success', 'Test notification dispatched! Check your bell icon and list below.');
     }
 }

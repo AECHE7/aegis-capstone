@@ -1251,15 +1251,33 @@
         /* ══════════════════════════════════════════
            A.E.G.I.S. UNIFIED SWEETALERT2 THEME
         ══════════════════════════════════════════ */
-        .swal2-container {
+        .swal2-container:not(.swal2-top-end):not(.swal2-top-start):not(.swal2-bottom-end):not(.swal2-bottom-start):not(.swal2-top):not(.swal2-bottom):not(.swal2-center-start):not(.swal2-center-end) {
             backdrop-filter: blur(8px) !important;
             -webkit-backdrop-filter: blur(8px) !important;
             background: rgba(7, 35, 20, 0.45) !important;
             z-index: 99999 !important;
         }
 
-        [data-theme="dark"] .swal2-container {
+        [data-theme="dark"] .swal2-container:not(.swal2-top-end):not(.swal2-top-start):not(.swal2-bottom-end):not(.swal2-bottom-start):not(.swal2-top):not(.swal2-bottom):not(.swal2-center-start):not(.swal2-center-end) {
             background: rgba(3, 7, 18, 0.72) !important;
+        }
+
+        /* Toast Container Reset - Prevents right-side vertical blur overlay */
+        body.swal2-toast-shown .swal2-container,
+        .swal2-container.swal2-top-end,
+        .swal2-container.swal2-top-start,
+        .swal2-container.swal2-bottom-end,
+        .swal2-container.swal2-bottom-start {
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            pointer-events: none !important;
+        }
+
+        body.swal2-toast-shown .swal2-popup,
+        .swal2-container.swal2-top-end .swal2-popup,
+        .swal2-container.swal2-bottom-end .swal2-popup {
+            pointer-events: auto !important;
         }
 
         .swal2-popup.aegis-swal-popup {
@@ -1649,19 +1667,39 @@
                             0
                         </span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2 text-start" 
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-0 text-start overflow-hidden" 
                         aria-labelledby="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
-                        style="width: 320px; max-width: calc(100vw - 32px); border-radius: 16px; font-size: 0.85rem; max-height: 420px; overflow-y: auto;">
-                        <li class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
-                            <span class="fw-bold">Notifications</span>
-                            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 small text-success fw-semibold" onclick="clearAllNotifications(event)">Mark all as read</button>
+                        style="width: 360px; max-width: calc(100vw - 32px); border-radius: 18px; font-size: 0.85rem; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.15) !important;">
+                        <li class="px-3 py-2.5 border-bottom d-flex justify-content-between align-items-center bg-white">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold text-dark" style="font-size: 0.9rem;">Notifications</span>
+                                <span class="badge bg-success-subtle text-success rounded-pill px-2 py-0.5" id="notifDropdownBadge" style="font-size: 0.65rem;">0 unread</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-success fw-semibold" style="font-size: 0.72rem;" onclick="clearAllNotifications(event)">Mark all read</button>
+                                <a href="{{ route('notifications.index') }}" class="text-muted text-decoration-none" title="Notifications Center" style="font-size: 0.75rem;"><i class="fa-solid fa-gear"></i></a>
+                            </div>
                         </li>
-                        <ul class="list-unstyled mb-0" id="@if(auth()->user()->role === 'student') notifListStudent @else notifListAdmin @endif">
+                        {{-- Dynamic Filter Pills --}}
+                        <li class="px-3 py-1.5 border-bottom bg-light">
+                            <div class="d-flex gap-1" id="notifFilterPills">
+                                <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab active" data-filter="all" onclick="filterDropdownNotifs('all', event)" style="font-size: 0.7rem; background: #0c4e2d; color: #fff;">All</button>
+                                <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="unread" onclick="filterDropdownNotifs('unread', event)" style="font-size: 0.7rem; background: transparent;">Unread</button>
+                                <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="application" onclick="filterDropdownNotifs('application', event)" style="font-size: 0.7rem; background: transparent;">Apps</button>
+                                <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="announcement" onclick="filterDropdownNotifs('announcement', event)" style="font-size: 0.7rem; background: transparent;">News</button>
+                            </div>
+                        </li>
+                        <ul class="list-unstyled mb-0" id="@if(auth()->user()->role === 'student') notifListStudent @else notifListAdmin @endif" style="max-height: 380px; overflow-y: auto;">
                             <li class="px-3 py-4 text-center text-muted small">
                                 <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
                                 No new notifications
                             </li>
                         </ul>
+                        <li class="p-2 border-top text-center bg-light">
+                            <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-light w-100 fw-bold text-success py-1.5" style="font-size: 0.78rem; border-radius: 10px;">
+                                <i class="fa-solid fa-sliders me-1.5"></i> Open Notifications Center
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
@@ -2283,7 +2321,11 @@
         }
     });
 
-    // ── Notification Box JS ──────────────────────────────────
+    // ── Dynamic Notification Box JS ──────────────────────────────────
+    let cachedNotifications = [];
+    let currentFilter = 'all';
+    let lastKnownUnreadCount = null;
+
     function fetchNotifications() {
         fetch('/notifications', {
             headers: {
@@ -2293,25 +2335,28 @@
         })
             .then(res => {
                 if (!res || !res.ok) return null;
-                return res.text();
-            })
-            .then(text => {
-                if (!text || !text.trim()) return null;
-                try {
-                    return JSON.parse(text);
-                } catch(e) {
-                    return null;
-                }
+                return res.json();
             })
             .then(data => {
                 if (!data) return;
                 const badgeAdmin = document.getElementById('notifBadgeAdmin');
-                const listAdmin = document.getElementById('notifListAdmin');
                 const badgeStudent = document.getElementById('notifBadgeStudent');
-                const listStudent = document.getElementById('notifListStudent');
+                const dropdownBadge = document.getElementById('notifDropdownBadge');
                 
                 const count = data.count || 0;
-                const notifications = data.notifications || [];
+                cachedNotifications = data.notifications || [];
+
+                // Toast alert when new unread notification arrives during session
+                if (lastKnownUnreadCount !== null && count > lastKnownUnreadCount) {
+                    const newCount = count - lastKnownUnreadCount;
+                    if (typeof AegisAlert !== 'undefined' && AegisAlert.toast) {
+                        AegisAlert.toast({
+                            icon: 'info',
+                            title: `You have ${newCount} new notification${newCount > 1 ? 's' : ''}`
+                        });
+                    }
+                }
+                lastKnownUnreadCount = count;
                 
                 if (badgeAdmin) {
                     if (count > 0) {
@@ -2322,10 +2367,6 @@
                     }
                 }
                 
-                if (listAdmin) {
-                    renderNotificationList(listAdmin, notifications);
-                }
-                
                 if (badgeStudent) {
                     if (count > 0) {
                         badgeStudent.classList.remove('d-none');
@@ -2334,14 +2375,54 @@
                         badgeStudent.classList.add('d-none');
                     }
                 }
-                
-                if (listStudent) {
-                    renderNotificationList(listStudent, notifications);
+
+                if (dropdownBadge) {
+                    dropdownBadge.textContent = `${count} unread`;
                 }
+
+                renderActiveNotificationLists();
             })
-            .catch(() => {
-                // Silently ignore network or gateway interruptions
-            });
+            .catch(() => {});
+    }
+
+    function filterDropdownNotifs(filter, event) {
+        if (event) event.stopPropagation();
+        currentFilter = filter;
+
+        // Update button states
+        const pills = document.querySelectorAll('.notif-filter-tab');
+        pills.forEach(pill => {
+            if (pill.getAttribute('data-filter') === filter) {
+                pill.style.background = '#0c4e2d';
+                pill.style.color = '#fff';
+                pill.classList.add('active');
+                pill.classList.remove('text-muted');
+            } else {
+                pill.style.background = 'transparent';
+                pill.style.color = '';
+                pill.classList.remove('active');
+                pill.classList.add('text-muted');
+            }
+        });
+
+        renderActiveNotificationLists();
+    }
+
+    function renderActiveNotificationLists() {
+        const listAdmin = document.getElementById('notifListAdmin');
+        const listStudent = document.getElementById('notifListStudent');
+
+        let filtered = cachedNotifications;
+        if (currentFilter === 'unread') {
+            filtered = cachedNotifications.filter(n => !n.is_read);
+        } else if (currentFilter === 'application') {
+            filtered = cachedNotifications.filter(n => n.category === 'application');
+        } else if (currentFilter === 'announcement') {
+            filtered = cachedNotifications.filter(n => n.category === 'announcement' || n.category === 'broadcast');
+        }
+
+        if (listAdmin) renderNotificationList(listAdmin, filtered);
+        if (listStudent) renderNotificationList(listStudent, filtered);
     }
     
     function renderNotificationList(listElement, notifications) {
@@ -2350,7 +2431,7 @@
             listElement.innerHTML = `
                 <li class="px-3 py-4 text-center text-muted small">
                     <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
-                    No new notifications
+                    No ${currentFilter !== 'all' ? currentFilter : ''} notifications
                 </li>
             `;
             return;
@@ -2359,21 +2440,27 @@
         notifications.forEach(n => {
             const li = document.createElement('li');
             const isUnread = !n.is_read;
-            li.className = 'px-3 py-2 border-bottom notification-item transition-all';
+            li.className = 'px-3 py-2.5 border-bottom notification-item transition-all';
             li.style.cursor = 'pointer';
             if (isUnread) {
-                li.style.backgroundColor = 'rgba(12, 78, 45, 0.05)';
+                li.style.backgroundColor = 'rgba(12, 78, 45, 0.04)';
             }
             li.innerHTML = `
-                <div class="d-flex flex-column gap-1 text-start">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-1.5 overflow-hidden">
-                            ${isUnread ? '<span class="d-inline-block rounded-circle bg-success flex-shrink-0" style="width: 7px; height: 7px;"></span>' : ''}
-                            <strong class="text-truncate" style="font-size: 0.8rem; color: ${isUnread ? 'var(--clsu-green)' : 'var(--text-main)'};">${n.title}</strong>
-                        </div>
-                        <span class="text-muted flex-shrink-0 ms-1" style="font-size: 0.65rem;">${n.created_at}</span>
+                <div class="d-flex align-items-start gap-2.5 text-start">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-0.5" 
+                         style="width: 32px; height: 32px; background: ${n.badge_color ? n.badge_color + '18' : 'rgba(12, 78, 45, 0.1)'}; color: ${n.badge_color || '#0c4e2d'}; font-size: 0.8rem;">
+                        <i class="fa-solid ${n.icon || 'fa-bell'}"></i>
                     </div>
-                    <div class="text-muted small" style="line-height: 1.35; font-size: 0.76rem;">${n.message}</div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-0.5">
+                            <div class="d-flex align-items-center gap-1.5 overflow-hidden">
+                                ${isUnread ? '<span class="d-inline-block rounded-circle bg-success flex-shrink-0" style="width: 6px; height: 6px;"></span>' : ''}
+                                <strong class="text-truncate" style="font-size: 0.82rem; color: ${isUnread ? 'var(--clsu-green)' : 'var(--text-main)'};">${n.title}</strong>
+                            </div>
+                            <span class="text-muted flex-shrink-0 ms-1" style="font-size: 0.65rem;">${n.created_at}</span>
+                        </div>
+                        <div class="text-muted small text-truncate-2" style="line-height: 1.35; font-size: 0.75rem;">${n.message}</div>
+                    </div>
                 </div>
             `;
             li.addEventListener('click', (e) => {

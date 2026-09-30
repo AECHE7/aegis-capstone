@@ -129,6 +129,9 @@
                 </td>
                 <td class="pe-4 text-end d-none d-md-table-cell text-nowrap" data-label="Action" onclick="event.stopPropagation()">
                     <div class="d-flex justify-content-end align-items-center gap-2 flex-nowrap">
+                        <button type="button" class="btn btn-sm btn-outline-success fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;" title="View & Export Official Applicant Form" onclick="event.stopPropagation(); openApplicantFormModal({{ $app->id }})">
+                            <i class="fa-solid fa-file-contract me-1"></i> Form
+                        </button>
                         @if($app->trashed())
                             <a href="{{ route('admin.review', $app->id) }}" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1.5" style="border-radius: 8px; font-size: 0.75rem;">
                                 <i class="fa-solid fa-eye me-1"></i> View Details

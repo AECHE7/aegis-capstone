@@ -1155,3 +1155,118 @@ Following the formal alignment of the UAT Test Scripts (Student, Staff, and Admi
 5. **DPA 10173 Technical Scope Alignment (docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.md, scratch/generate_it_expert_standardized_doc.py)**:
    - Clarified TC-3 task instructions and remarks to highlight column-level AES-256-CBC encryption of institutional CLSU ID, phone number, guardian name, and emergency contact under data minimization guidelines.
    - Regenerated clean, standardized .docx forms across all 4 roles.
+
+
+---
+
+## 32. Applicant & Student Information Form Generator Module & Scholarship Program Quota Management
+
+### Problem Statement & Scope
+1. **Applicant Information & Evaluation Form Module (Staff & Director)**:
+   - Evaluators (OSA Staff) and Executive Management (OSA Director / Super Admin) required a unified module to inspect the complete academic, demographic, forensic, and decisioning records of any applicant or student directly on-screen in an authentic institutional format modeled after the official approved application form.
+   - The module must provide an on-screen interactive live preview of the form across all application statuses (Pending, Under Review, Approved, Rejected, Returned) with appropriate official status watermarks and allow immediate export to an authenticated PDF with the CLSU OSA seal, signatory block, and QR verification link.
+2. **Scholarship Program Slot Quota Management**:
+   - The scholarship lifecycle management system previously lacked explicit slot quota tracking at program creation.
+   - The user requested adding slot quotas during scholarship program creation and editing, displaying slot availability/utilization, and warning evaluators with an 'At Capacity' status when the quota is reached while still permitting applications to queue for waitlists.
+
+### Key Architectural Enhancements & Code Modifications
+1. **Database Schema Migration (database/migrations/..._add_quota_to_scholarships_table.php)**:
+   - Added quota (unsigned integer, nullable) to scholarships table.
+2. **Model Enhancements (pp/Models/Scholarship.php)**:
+   - Added quota to $fillable.
+   - Added vailableSlots(), isQuotaExhausted(), and quotaUtilizationPct() helper methods.
+3. **Program Governance (pp/Http/Controllers/SuperAdminController.php, 
+esources/views/superadmin/scholarships.blade.php)**:
+   - Added Slot Quota (Slots Available) input to #newProgramModal and #editProgramModal.
+   - Added validation in UpdateScholarshipRequest and SuperAdminController::store().
+   - Rendered slot quota column in the Program Table with dynamic utilization progress and 'At Capacity (Waitlist Active)' badge.
+4. **Universal Form Generator & PDF Export (pp/Http/Controllers/AdminController.php, 
+esources/views/emails/application_form_pdf.blade.php)**:
+   - Generalized form generation to support all applicant statuses with status-specific headers, watermarks, and forensic summaries.
+   - Implemented GET /admin/applications/{id}/preview-form returning an authentic, responsive preview modal.
+   - Accessible by both Staff (admin) and Director (superadmin).
+5. **Interactive Preview Modal Component (resources/views/components/applicant-form-modal.blade.php)**:
+   - Reusable modal component with live vector preview, 1-click 'Export Official PDF', and 'Print Form' controls.
+   - Embedded into Staff Application Table (application_table.blade.php), Review Dossier (review.blade.php), and Director Scholars Monitoring Hub (analytics.blade.php).
+
+---
+
+## 33. SweetAlert2 Toast Overlay Remediation & In-App Notification System Compliance
+
+### 1. SweetAlert2 Right Sidebar Blur Overlay Bug Fix
+- **Root Cause**: In [resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php), `.swal2-container` had `backdrop-filter: blur(8px) !important;` and `background: rgba(7, 35, 20, 0.45) !important;` applied globally to all SweetAlert2 containers. SweetAlert2 creates `.swal2-container.swal2-top-end` (a fixed 360px-wide container along the right screen edge) when rendering toast alerts (`AegisAlert.toast()`). This caused a dark green blurred vertical column covering ~20% of the viewport whenever a deletion or action toast fired.
+- **Architectural Solution**:
+  - Scoped modal backdrops using `:not(.swal2-top-end):not(.swal2-top-start):not(.swal2-bottom-end):not(.swal2-bottom-start):not(.swal2-top):not(.swal2-bottom)`.
+  - Added dedicated toast container resets for `body.swal2-toast-shown .swal2-container` and `.swal2-container.swal2-top-end`, explicitly setting `background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; pointer-events: none !important;`.
+  - Retained `pointer-events: auto !important` on `.swal2-popup` so toasts remain interactive and dismissible without blocking background viewport interactions.
+
+### 2. In-App Notification Architecture & Role-Based Inventory
+- **Delivery Mechanism**: Uses Laravel's native Database Notification Channel (`via: ['database']`). Records are stored in the `notifications` table (`id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`).
+- **Frontend Real-Time Polling**: Polled every 20 seconds via `GET /notifications` ([AuthController.php](file:///f:/aegis-capstone/app/Http/Controllers/AuthController.php)).
+- **Unread Counter & Direct Redirection**: Dynamically updates `#notifBadgeAdmin` / `#notifBadgeStudent`. Clicking any notification invokes `POST /notifications/{id}/read` and navigates the user directly to the relevant action URL.
+- **Automated Verification**: Established [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) verifying 100% compliance across all notification lifecycles (4 passed, 38 assertions).
+
+---
+
+## 34. Dedicated Applicant & Student Information Forms Module & Quota Integration
+
+### 1. Dedicated Applicant Forms Module (`/admin/applicant-forms`)
+- **Purpose**: Provides a dedicated, first-class module for both **Staff (Evaluators)** and **Director (SuperAdmin)** to search, inspect, live-preview on-screen, and export official institutional applicant & student forms.
+- **Routes & Authorization**:
+  - `GET /admin/applicant-forms` -> `AdminController::applicantFormsIndex` (Route: `admin.applicant-forms.index`).
+  - Scoped by `role:admin,superadmin` middleware. Staff accounts are automatically filtered to their assigned scholarship programs; Directors have universal university-wide visibility.
+- **Sidebar Integration**:
+  - Added dedicated navigation item **"Applicant Forms"** with icon `fa-file-signature` to both Staff (`admin`) and Director (`superadmin`) menus in [resources/views/layouts/sidebar.blade.php](file:///f:/aegis-capstone/resources/views/layouts/sidebar.blade.php).
+- **Module Features ([resources/views/admin/applicant_forms.blade.php](file:///f:/aegis-capstone/resources/views/admin/applicant_forms.blade.php))**:
+  - Institutional CLSU Green hero header with quick metric cards (Total Records, Approved Scholars, Under Review, Today's Submissions).
+  - Multi-parameter search & filter bar (Student Name, CLSU ID, Email, Control No, Scholarship Program, Status, Academic Term).
+  - Elevated student dossier cards featuring student avatar, institutional ID, program details, and verified status badges.
+  - Interactive Action Controls:
+    1. **"View Live Form"**: Launches the authentic on-screen live form preview modal ([components/applicant-form-modal.blade.php](file:///f:/aegis-capstone/resources/views/components/applicant-form-modal.blade.php)) displaying the official CLSU letterhead, dual stamps, GWA, personal profile, custom fields, oath of veracity, signatures, and QR code.
+    2. **"Export PDF"**: 1-click direct download of the official approved-style PDF document ([emails/application_form_pdf.blade.php](file:///f:/aegis-capstone/resources/views/emails/application_form_pdf.blade.php)).
+
+### 2. Scholarship Program Quota Management
+- **Program Creation & Editing ([resources/views/superadmin/scholarships.blade.php](file:///f:/aegis-capstone/resources/views/superadmin/scholarships.blade.php))**:
+  - Prominent `Slot Quota` input added to `#newProgramModal` and `#editProgramModal`.
+  - Quota field validated in `StoreScholarshipRequest` and `UpdateScholarshipRequest`.
+  - Table displays slot capacity, progress bar, and "At Capacity (Waitlist Active)" indicators when slots are exhausted.
+- **Automated Verification**:
+  - [tests/Feature/ApplicantFormAndQuotaTest.php](file:///f:/aegis-capstone/tests/Feature/ApplicantFormAndQuotaTest.php) passes 100% across all 7 test cases (40 assertions).
+
+---
+
+## 35. Dynamic Notification Engine & Comprehensive Notifications Management Center
+
+### 1. Architectural Overview & Problem Solved
+- **Need**: Previously, in-app notifications only populated a simple unread list in the topbar bell. Users had no means to search past alerts, organize notifications by category, delete old records, customize delivery preferences, or verify in real-time whether alerts were actively dispatching.
+- **Solution**: Built an end-to-end Dynamic Notification Engine and dedicated Notifications Center (`/notifications`) supporting all user roles (Student, Staff, and Director).
+
+### 2. Key Capabilities & Implementation Details
+1. **Dynamic Topbar Dropdown ([resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php))**:
+   - **Category Filter Pills**: Interactive pills (`All`, `Unread`, `Apps`, `News`) filter the list client-side instantly without page reload.
+   - **Contextual Visual Badges**: Color-coded icon avatars for each notification category (Green Check / Blue Document for Applications, Amber Megaphone for Announcements, Violet Tower for Broadcasts).
+   - **Real-Time Alert Toast**: Compares unread counts across polling intervals (20s) and automatically displays an interactive toast notification (`AegisAlert.toast`) when new notifications arrive during an active browsing session.
+   - **Direct Redirection & Quick Actions**: Single-click mark-as-read, direct target URL redirection, and direct link to the full Notifications Center.
+
+2. **Dedicated Notifications Center Page ([resources/views/notifications/center.blade.php](file:///f:/aegis-capstone/resources/views/notifications/center.blade.php))**:
+   - **Accessible at `/notifications`**: Connected to the sidebar navigation for **Student**, **Staff Evaluator**, and **Director / SuperAdmin**.
+   - **Multi-Param Filtering & Search**: Filter by status (`All`, `Unread`, `Read`), category (`Applications`, `Announcements`, `Broadcasts`), and keyword text search.
+   - **Bulk Management Operations**: Multi-select checkboxes with bulk actions (`Mark Read`, `Mark Unread`, `Delete Selected`, `Clear All Read`).
+   - **Single-Row Controls**: Direct action links (`Open & View`), mark read/unread toggles, and individual delete controls.
+
+3. **Per-User Delivery Preferences**:
+   - Database Migration: Added JSON column `notification_preferences` to the `users` table ([database/migrations/2026_10_01_052419_add_notification_preferences_to_users_table.php](file:///f:/aegis-capstone/database/migrations/2026_10_01_052419_add_notification_preferences_to_users_table.php)).
+   - Model Casts & Methods in [app/Models/User.php](file:///f:/aegis-capstone/app/Models/User.php): `getNotificationPreferences()` and `allowsNotification($category)`.
+   - Dedicated Settings Card on `/notifications` allowing users to toggle:
+     - *In-App Portal Alerts*
+     - *Applications & Reviews*
+     - *Campus Announcements*
+     - *Executive Broadcasts*
+     - *Direct Email Delivery*
+
+4. **Live Test Notification Trigger (`POST /notifications/test`)**:
+   - Provides a 1-click test button for users and evaluators to immediately verify that the notification pipeline, database persistence, and real-time polling are fully operative.
+
+### 3. Automated Verification
+- [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% across all 6 test cases (66 assertions).
+- Combined suite (`ApplicantFormAndQuotaTest` + `NotificationComplianceTest`) passes 13 out of 13 tests (106 assertions).

@@ -26,6 +26,7 @@
                     <th scope="col">Description</th>
                     <th class="text-center text-nowrap" scope="col">Max GWA</th>
                     <th class="text-center text-nowrap" scope="col">Max Renewals</th>
+                    <th class="text-center text-nowrap" scope="col">Quota / Slots</th>
                     <th scope="col">Assigned Evaluators</th>
                     <th class="text-center text-nowrap" scope="col">Status</th>
                     <th class="pe-4 text-end text-nowrap" scope="col">Action</th>
@@ -55,6 +56,27 @@
                         <span class="d-inline-flex align-items-center justify-content-center text-nowrap" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:700;white-space:nowrap !important;flex-shrink:0;">
                             <i class="fa-solid fa-rotate me-1" style="font-size:0.6rem;"></i> {{ $scholarship->max_renewals ?? 4 }}
                         </span>
+                    </td>
+                    <td class="text-center text-nowrap">
+                        @if($scholarship->quota)
+                            <div class="d-inline-flex flex-column align-items-center">
+                                <span class="d-inline-flex align-items-center justify-content-center text-nowrap" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:20px;padding:3px 10px;font-size:0.75rem;font-weight:700;">
+                                    <i class="fa-solid fa-users me-1" style="font-size:0.65rem;"></i> {{ $scholarship->approvedCount() }} / {{ $scholarship->quota }}
+                                </span>
+                                <small class="text-muted fw-bold" style="font-size:0.68rem; margin-top:2px;">
+                                    {{ $scholarship->quotaUtilizationPct() }}% filled
+                                </small>
+                                @if($scholarship->isQuotaExhausted())
+                                    <span class="badge bg-warning text-dark mt-1" style="font-size:0.65rem;" title="Capacity reached. Additional applicants placed on waitlist.">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Waitlist Active
+                                    </span>
+                                @endif
+                            </div>
+                        @else
+                            <span class="d-inline-flex align-items-center justify-content-center text-nowrap" style="background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:20px;padding:3px 12px;font-size:0.78rem;font-weight:600;">
+                                <i class="fa-solid fa-infinity me-1" style="font-size:0.65rem;"></i> Unlimited
+                            </span>
+                        @endif
                     </td>
                     <td>
                         <div class="d-flex flex-wrap gap-1">
@@ -149,13 +171,18 @@
                         {{-- Left Column: Form Builder --}}
                         <div class="col-lg-7 border-end pe-lg-4">
                             <div class="row g-3 mb-3">
-                                <div class="col-md-8">
-                                    <label class="form-label fw-semibold small text-muted" for="programName">Program Name</label>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-muted" for="programName">Program Name <span class="text-danger">*</span></label>
                                     <input type="text" name="name" id="programName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small text-muted" for="maxRenewals">Max Renewals</label>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold small text-muted" for="maxRenewals">Max Renewals <span class="text-danger">*</span></label>
                                     <input type="number" min="1" max="12" name="max_renewals" id="maxRenewals" class="form-control" required value="4" placeholder="e.g., 4">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold small text-muted" for="programQuota">Slot Quota</label>
+                                    <input type="number" min="1" max="100000" name="quota" id="programQuota" class="form-control" placeholder="Unlimited" title="Leave blank for unlimited slots">
+                                    <small class="text-muted d-block" style="font-size:0.68rem;">Blank = Unlimited</small>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -248,13 +275,18 @@
                         {{-- Left Column: Form Builder --}}
                         <div class="col-lg-7 border-end pe-lg-4">
                             <div class="row g-3 mb-3">
-                                <div class="col-md-8">
-                                    <label class="form-label fw-semibold small text-muted" for="editProgramName">Program Name</label>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-muted" for="editProgramName">Program Name <span class="text-danger">*</span></label>
                                     <input type="text" name="name" id="editProgramName" class="form-control" required placeholder="e.g., DOST-SEI Merit Scholarship" autocomplete="off">
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small text-muted" for="editMaxRenewals">Max Renewals</label>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold small text-muted" for="editMaxRenewals">Max Renewals <span class="text-danger">*</span></label>
                                     <input type="number" min="1" max="12" name="max_renewals" id="editMaxRenewals" class="form-control" required placeholder="e.g., 4">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold small text-muted" for="editProgramQuota">Slot Quota</label>
+                                    <input type="number" min="1" max="100000" name="quota" id="editProgramQuota" class="form-control" placeholder="Unlimited" title="Leave blank for unlimited slots">
+                                    <small class="text-muted d-block" style="font-size:0.68rem;">Blank = Unlimited</small>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -895,6 +927,7 @@
                     const s = data.scholarship;
                     document.getElementById('editProgramName').value = s.name;
                     document.getElementById('editMaxRenewals').value = s.max_renewals ?? 4;
+                    document.getElementById('editProgramQuota').value = s.quota || '';
                     document.getElementById('editProgramDesc').value = s.description;
 
                     // Set form update URL action

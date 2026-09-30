@@ -29,6 +29,7 @@ class SuperAdminController extends Controller
             'min_gwa_required' => $request->min_gwa_required,
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
+            'quota' => $request->quota,
             'status' => 'Active'
         ]);
 
@@ -100,6 +101,7 @@ class SuperAdminController extends Controller
             'min_gwa_required' => $request->min_gwa_required,
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
+            'quota' => $request->quota,
         ]);
 
         if ($request->has('staff_ids')) {
@@ -419,6 +421,7 @@ class SuperAdminController extends Controller
                 'status' => $scholarship->status,
                 'min_gwa' => $scholarship->min_gwa_required,
                 'max_renew' => $scholarship->max_renewals ?? 4,
+                'quota' => $scholarship->quota,
                 'total_apps' => $apps->count(),
                 'approved_count' => $approvedApps->count(),
                 'rejected_count' => $apps->where('status', 'Rejected')->count(),

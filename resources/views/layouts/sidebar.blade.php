@@ -39,6 +39,14 @@
                 <span class="sidebar-text">Application Queue</span>
             </a>
 
+            <a href="{{ route('admin.applicant-forms.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.applicant-forms.*') ? 'active' : '' }}"
+               {{ request()->routeIs('admin.applicant-forms.*') ? 'aria-current="page"' : '' }}
+               data-tooltip="Forms">
+                <span class="sidebar-icon"><i class="fa-solid fa-file-signature" aria-hidden="true"></i></span>
+                <span class="sidebar-text">Applicant Forms</span>
+            </a>
+
             <a href="{{ route('admin.announcements.index') }}"
                class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
                {{ request()->routeIs('admin.announcements.index') ? 'aria-current="page"' : '' }}
@@ -62,6 +70,13 @@
             </a>
 
             <div class="sidebar-label mt-2">Account</div>
+            <a href="{{ route('notifications.index') }}"
+               class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
+               {{ request()->routeIs('notifications.*') ? 'aria-current="page"' : '' }}
+               data-tooltip="Notifications">
+                <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                <span class="sidebar-text">Notifications</span>
+            </a>
             <a href="{{ route('profile.security') }}"
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
                {{ request()->routeIs('profile.security') ? 'aria-current="page"' : '' }}
@@ -86,6 +101,15 @@
                 <span class="sidebar-icon"><i class="fa-solid fa-list-check" aria-hidden="true"></i></span>
                 <span class="sidebar-text">Scholarship Programs</span>
             </a>
+
+            <a href="{{ route('admin.applicant-forms.index') }}"
+               class="sidebar-link {{ request()->routeIs('admin.applicant-forms.*') ? 'active' : '' }}"
+               {{ request()->routeIs('admin.applicant-forms.*') ? 'aria-current="page"' : '' }}
+               data-tooltip="Forms">
+                <span class="sidebar-icon"><i class="fa-solid fa-file-signature" aria-hidden="true"></i></span>
+                <span class="sidebar-text">Applicant Forms</span>
+            </a>
+
             <a href="{{ route('superadmin.users') }}"
                class="sidebar-link {{ request()->routeIs('superadmin.users') || request()->routeIs('superadmin.staff') ? 'active' : '' }}"
                {{ request()->routeIs('superadmin.users') || request()->routeIs('superadmin.staff') ? 'aria-current="page"' : '' }}
@@ -123,6 +147,13 @@
             </a>
 
             <div class="sidebar-label mt-2">Account</div>
+            <a href="{{ route('notifications.index') }}"
+               class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
+               {{ request()->routeIs('notifications.*') ? 'aria-current="page"' : '' }}
+               data-tooltip="Notifications">
+                <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                <span class="sidebar-text">Notifications</span>
+            </a>
             <a href="{{ route('profile.security') }}"
                class="sidebar-link {{ request()->routeIs('profile.security') ? 'active' : '' }}"
                {{ request()->routeIs('profile.security') ? 'aria-current="page"' : '' }}
@@ -189,6 +220,14 @@
                     <span class="sidebar-text">Apply for Scholarship</span>
                 </a>
             @endif
+
+            <a href="{{ route('notifications.index') }}"
+               class="sidebar-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
+               {{ request()->routeIs('notifications.*') ? 'aria-current="page"' : '' }}
+               data-tooltip="Notifications">
+                <span class="sidebar-icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                <span class="sidebar-text">Notifications</span>
+            </a>
 
             <a href="{{ route('student.profile') }}"
                class="sidebar-link {{ request()->routeIs('student.profile') || request()->routeIs('profile.security') ? 'active' : '' }}"

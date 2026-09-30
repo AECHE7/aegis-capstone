@@ -175,9 +175,12 @@
                 <i class="fa-solid fa-clock me-1"></i> After-Hours Queue
             </span>
         @endif
-        {{-- Official Evaluation Form PDF --}}
-        <a href="{{ route('admin.application.download-form', $application->id) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold shadow-sm" target="_blank" title="Download or print official application & evaluation form">
-            <i class="fa-solid fa-file-pdf text-danger me-1"></i> Form PDF
+        {{-- Official Evaluation Form Preview & PDF Export --}}
+        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold shadow-sm" onclick="openApplicantFormModal({{ $application->id }})" title="View and export authentic application form">
+            <i class="fa-solid fa-file-contract text-success me-1"></i> View Form
+        </button>
+        <a href="{{ route('admin.application.download-form', $application->id) }}" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-semibold shadow-sm text-white" target="_blank" title="Download or print official application & evaluation form PDF">
+            <i class="fa-solid fa-file-pdf me-1"></i> Form PDF
         </a>
 
         {{-- Test COG Fixtures Dropdown --}}
@@ -778,6 +781,7 @@
     </div>
 </div>
 
+@include('components.applicant-form-modal')
 @endsection
 
 @push('scripts')

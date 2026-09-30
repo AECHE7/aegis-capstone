@@ -290,6 +290,7 @@
                             <th scope="col" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Program</th>
                             <th scope="col" class="text-nowrap" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;">Decision</th>
                             <th scope="col" class="text-nowrap" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;text-align:right;">Evaluator</th>
+                            <th scope="col" class="text-nowrap" style="font-size:0.68rem;letter-spacing:0.5px;text-transform:uppercase;color:#94a3b8;font-weight:700;padding:0.5rem 0.75rem;background:transparent;border:none;text-align:right;">Form</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -313,6 +314,11 @@
                                 <span class="text-nowrap" style="background:#f1f5f9;color:#64748b;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:600;">
                                     <i class="fa-solid fa-user-shield me-1" style="font-size:0.6rem;"></i>Admin #{{ $eval->evaluated_by }}
                                 </span>
+                            </td>
+                            <td class="text-nowrap" style="padding:0.65rem 0.75rem;text-align:right;">
+                                <button type="button" class="btn btn-sm btn-outline-success fw-bold px-2.5 py-1" style="border-radius: 8px; font-size: 0.72rem;" onclick="openApplicantFormModal({{ $eval->id }})" title="View and export authentic applicant form">
+                                    <i class="fa-solid fa-file-contract me-1"></i> Form
+                                </button>
                             </td>
                         </tr>
                         @endforeach
@@ -515,6 +521,7 @@
                     <thead>
                         <tr>
                             <th class="ps-4" scope="col">Scholarship Program</th>
+                            <th class="text-center text-nowrap" scope="col">Quota / Slots</th>
                             <th class="text-center text-nowrap" scope="col">Limit/Max</th>
                             <th class="text-center text-nowrap" scope="col">Applicants</th>
                             <th class="text-center text-nowrap" scope="col">Approved</th>
@@ -536,6 +543,24 @@
                                         <span class="text-danger text-nowrap"><i class="fa-solid fa-circle-dot fs-9"></i> Closed</span>
                                     @endif
                                 </div>
+                            </td>
+                            <td class="text-center text-nowrap">
+                                @if(!empty($sb['quota']))
+                                    <div class="d-inline-flex flex-column align-items-center">
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 fw-bold">
+                                            {{ $sb['approved_count'] }} / {{ $sb['quota'] }}
+                                        </span>
+                                        @if($sb['approved_count'] >= $sb['quota'])
+                                            <span class="badge bg-warning text-dark mt-1" style="font-size:0.65rem;">
+                                                <i class="fa-solid fa-triangle-exclamation me-1"></i> At Capacity
+                                            </span>
+                                        @else
+                                            <small class="text-muted" style="font-size:0.68rem;">{{ round(($sb['approved_count'] / $sb['quota']) * 100) }}% filled</small>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="badge bg-light text-muted border px-2 py-1">Unlimited</span>
+                                @endif
                             </td>
                             <td class="text-center text-nowrap">
                                 <div class="small">Max GWA: <strong>{{ $sb['min_gwa'] ?: 'None' }}</strong></div>
@@ -641,7 +666,8 @@
                             <th scope="col" class="text-nowrap">Active Term</th>
                             <th class="text-center text-nowrap" scope="col">Min GWA Required</th>
                             <th class="text-center text-nowrap" scope="col">Current Student GWA</th>
-                            <th class="pe-4 text-center text-nowrap" scope="col">Status</th>
+                            <th class="text-center text-nowrap" scope="col">Status</th>
+                            <th class="pe-4 text-end text-nowrap" scope="col">Form / Export</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -679,7 +705,7 @@
                                     {{ $scholar->gwa !== null ? number_format($scholar->gwa, 2) : 'N/A' }}
                                 </span>
                             </td>
-                            <td class="pe-4 text-center text-nowrap">
+                            <td class="text-center text-nowrap">
                                 @php
                                     $isGwaValid = !$scholar->scholarship || !$scholar->scholarship->min_gwa_required || ($scholar->gwa <= $scholar->scholarship->min_gwa_required);
                                 @endphp
@@ -689,10 +715,15 @@
                                     <span class="badge bg-danger px-2 py-1 rounded-pill" style="font-size: 0.68rem;" title="Student's GWA exceeds the maximum allowed limit for this scholarship program"><i class="fa-solid fa-circle-exclamation me-1"></i> GWA Violation</span>
                                 @endif
                             </td>
+                            <td class="pe-4 text-end text-nowrap">
+                                <button type="button" class="btn btn-sm btn-outline-success fw-bold px-2.5 py-1" style="border-radius: 8px; font-size: 0.72rem;" onclick="openApplicantFormModal({{ $scholar->id }})" title="View authentic approved application form and export PDF">
+                                    <i class="fa-solid fa-file-contract me-1"></i> Form
+                                </button>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted small">
+                            <td colspan="7" class="text-center py-4 text-muted small">
                                 <i class="fa-solid fa-circle-info me-1"></i> No approved scholars currently registered matching these filters.
                             </td>
                         </tr>
@@ -704,6 +735,7 @@
     </div>
 </div>
 
+@include('components.applicant-form-modal')
 @endsection
 
 @push('scripts')

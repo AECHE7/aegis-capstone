@@ -206,6 +206,20 @@
         $controlNo = 'APP-' . str_pad((string)$application->id, 5, '0', STR_PAD_LEFT);
         $directorName = \App\Models\User::where('role', 'superadmin')->first()?->name ?? 'Director, Office of Student Affairs';
         $evaluatorName = $application->evaluator->name ?? 'OSA Scholarship Evaluator';
+
+        $normStatus = strtolower($application->status ?? 'submitted');
+        $statusColor = match($normStatus) {
+            'approved' => '#15803d',
+            'rejected', 'disapproved' => '#b91c1c',
+            'incomplete', 'returned' => '#b45309',
+            default => '#0369a1',
+        };
+        $statusBg = match($normStatus) {
+            'approved' => '#dcfce7',
+            'rejected', 'disapproved' => '#fee2e2',
+            'incomplete', 'returned' => '#fef3c7',
+            default => '#e0f2fe',
+        };
     @endphp
 
     <!-- Institutional Header with Authentic CLSU & OSA Logos -->
@@ -247,7 +261,7 @@
                     &nbsp;&bull;&nbsp;
                     <strong>Control No:</strong> {{ $controlNo }}
                     &nbsp;&bull;&nbsp;
-                    <strong>Official Status:</strong> <span style="color: #15803d; font-weight: bold;">{{ strtoupper($application->status) }}</span>
+                    <strong>Official Status:</strong> <span style="background-color: {{ $statusBg }}; color: {{ $statusColor }}; border: 1px solid {{ $statusColor }}; border-radius: 3px; padding: 1.5px 6px; font-weight: bold; font-size: 7.5px;">{{ strtoupper($application->status) }}</span>
                 </div>
                 <div style="margin-top: 3px;">
                     <span class="checkbox-box @if($isNew) checkbox-checked @endif">@if($isNew) X @endif</span>
@@ -516,7 +530,15 @@
             <td style="width: 25%;"></td>
             <td style="width: 50%; text-align: center; vertical-align: top;">
                 <div class="signature-line">{{ $directorName }}</div>
-                <div class="signature-title">Approved by: Director, Office of Student Affairs</div>
+                <div class="signature-title">
+                    @if(strtolower($application->status) === 'approved')
+                        Approved by: Director, Office of Student Affairs
+                    @elseif(in_array(strtolower($application->status), ['rejected', 'disapproved']))
+                        Disapproved by: Director, Office of Student Affairs
+                    @else
+                        Endorsed for Review: Office of Student Affairs
+                    @endif
+                </div>
             </td>
             <td style="width: 25%;"></td>
         </tr>
