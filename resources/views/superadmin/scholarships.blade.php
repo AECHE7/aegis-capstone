@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Program Manager | A.E.G.I.S.')
 @section('page-title', 'Scholarship Manager')
@@ -341,7 +341,9 @@
             const typeSelect = row.querySelector('.field-type-select');
             const requiredCheck = row.querySelector('.field-required-check');
             const optionsInput = row.querySelector('.field-options-input');
+            const orderNum = row.querySelector('.field-order-num');
 
+            if (orderNum) orderNum.textContent = index + 1;
             if (labelInput) labelInput.name = `fields[${index}][label]`;
             if (typeSelect) typeSelect.name = `fields[${index}][type]`;
             if (requiredCheck) requiredCheck.name = `fields[${index}][required]`;
@@ -413,15 +415,26 @@
         }
 
         const row = document.createElement('div');
-        row.className = 'field-row bg-white p-3 border mb-3 position-relative';
-        row.style.borderRadius = '10px';
+        row.className = 'field-row bg-white p-3 border mb-3 shadow-xs';
+        row.style.borderRadius = '12px';
         row.innerHTML = `
-            <div class="position-absolute top-0 end-0 m-2 d-flex gap-1 align-items-center">
-                <button type="button" class="btn btn-xs btn-outline-secondary p-1 move-up-btn" style="line-height:1; font-size:0.65rem; border-radius:4px;"><i class="fa-solid fa-arrow-up"></i></button>
-                <button type="button" class="btn btn-xs btn-outline-secondary p-1 move-down-btn" style="line-height:1; font-size:0.65rem; border-radius:4px;"><i class="fa-solid fa-arrow-down"></i></button>
-                <button type="button" class="btn-close remove-field-btn" style="font-size: 0.75rem; margin-left:4px;"></button>
+            <div class="d-flex justify-content-between align-items-center mb-2.5 pb-2 border-bottom">
+                <span class="badge bg-light text-secondary border px-2.5 py-1 small fw-semibold d-inline-flex align-items-center gap-1.5" style="font-size: 0.75rem;">
+                    <i class="fa-solid fa-bars text-muted" style="font-size: 0.7rem;"></i> Field #<span class="field-order-num">1</span>
+                </span>
+                <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="btn btn-xs btn-outline-secondary move-up-btn" style="width: 28px !important; height: 28px !important; min-width: 28px !important; padding: 0 !important; border-radius: 6px !important; line-height: 1;" title="Move Up">
+                        <i class="fa-solid fa-arrow-up" style="font-size: 0.72rem;"></i>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary move-down-btn" style="width: 28px !important; height: 28px !important; min-width: 28px !important; padding: 0 !important; border-radius: 6px !important; line-height: 1;" title="Move Down">
+                        <i class="fa-solid fa-arrow-down" style="font-size: 0.72rem;"></i>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-danger remove-field-btn ms-1" style="width: 28px !important; height: 28px !important; min-width: 28px !important; padding: 0 !important; border-radius: 6px !important; line-height: 1;" title="Remove Field">
+                        <i class="fa-solid fa-xmark" style="font-size: 0.8rem;"></i>
+                    </button>
+                </div>
             </div>
-            <div class="row g-2 text-start pt-2">
+            <div class="row g-2 text-start align-items-center">
                 <div class="col-md-5">
                     <label class="form-label small fw-semibold text-muted mb-1">Field Label</label>
                     <input type="text" name="fields[${fieldIndex}][label]" class="form-control form-control-sm field-label-input" required placeholder="e.g., Annual Household Income">
@@ -439,9 +452,10 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small fw-semibold text-muted mb-1">Required</label>
-                    <div class="form-check form-switch mt-1">
-                        <input class="form-check-input field-required-check" type="checkbox" name="fields[${fieldIndex}][required]" value="1" checked>
+                    <label class="form-label small fw-semibold text-muted mb-1">Requirement</label>
+                    <div class="form-check form-switch d-flex align-items-center gap-2 mt-1">
+                        <input class="form-check-input field-required-check m-0" type="checkbox" name="fields[${fieldIndex}][required]" value="1" checked style="cursor: pointer;">
+                        <span class="small text-muted" style="font-size: 0.75rem;">Required</span>
                     </div>
                 </div>
                 <div class="col-md-12 select-options-wrapper d-none">
@@ -743,15 +757,26 @@
         }
 
         const row = document.createElement('div');
-        row.className = 'field-row bg-white p-3 border mb-3 position-relative';
-        row.style.borderRadius = '10px';
+        row.className = 'field-row bg-white p-3 border mb-3 shadow-xs';
+        row.style.borderRadius = '12px';
         row.innerHTML = `
-            <div class="position-absolute top-0 end-0 m-2 d-flex gap-1 align-items-center">
-                <button type="button" class="btn btn-xs btn-outline-secondary p-1 move-up-btn" style="line-height:1; font-size:0.65rem; border-radius:4px;"><i class="fa-solid fa-arrow-up"></i></button>
-                <button type="button" class="btn btn-xs btn-outline-secondary p-1 move-down-btn" style="line-height:1; font-size:0.65rem; border-radius:4px;"><i class="fa-solid fa-arrow-down"></i></button>
-                <button type="button" class="btn-close remove-field-btn" style="font-size: 0.75rem; margin-left:4px;"></button>
+            <div class="d-flex justify-content-between align-items-center mb-2.5 pb-2 border-bottom">
+                <span class="badge bg-light text-secondary border px-2.5 py-1 small fw-semibold d-inline-flex align-items-center gap-1.5" style="font-size: 0.75rem;">
+                    <i class="fa-solid fa-bars text-muted" style="font-size: 0.7rem;"></i> Field #<span class="field-order-num">1</span>
+                </span>
+                <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="btn btn-xs btn-outline-secondary move-up-btn" style="width: 28px !important; height: 28px !important; min-width: 28px !important; padding: 0 !important; border-radius: 6px !important; line-height: 1;" title="Move Up">
+                        <i class="fa-solid fa-arrow-up" style="font-size: 0.72rem;"></i>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-secondary move-down-btn" style="width: 28px !important; height: 28px !important; min-width: 28px !important; padding: 0 !important; border-radius: 6px !important; line-height: 1;" title="Move Down">
+                        <i class="fa-solid fa-arrow-down" style="font-size: 0.72rem;"></i>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-outline-danger remove-field-btn ms-1" style="width: 28px !important; height: 28px !important; min-width: 28px !important; padding: 0 !important; border-radius: 6px !important; line-height: 1;" title="Remove Field">
+                        <i class="fa-solid fa-xmark" style="font-size: 0.8rem;"></i>
+                    </button>
+                </div>
             </div>
-            <div class="row g-2 text-start pt-2">
+            <div class="row g-2 text-start align-items-center">
                 <div class="col-md-5">
                     <label class="form-label small fw-semibold text-muted mb-1">Field Label</label>
                     <input type="text" name="fields[${editFieldIndex}][label]" class="form-control form-control-sm field-label-input" required placeholder="e.g., Annual Household Income" value="${escapeHtml(label)}">
@@ -769,9 +794,10 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label small fw-semibold text-muted mb-1">Required</label>
-                    <div class="form-check form-switch mt-1">
-                        <input class="form-check-input field-required-check" type="checkbox" name="fields[${editFieldIndex}][required]" value="1" ${required ? 'checked' : ''}>
+                    <label class="form-label small fw-semibold text-muted mb-1">Requirement</label>
+                    <div class="form-check form-switch d-flex align-items-center gap-2 mt-1">
+                        <input class="form-check-input field-required-check m-0" type="checkbox" name="fields[${editFieldIndex}][required]" value="1" ${required ? 'checked' : ''} style="cursor: pointer;">
+                        <span class="small text-muted" style="font-size: 0.75rem;">Required</span>
                     </div>
                 </div>
                 <div class="col-md-12 select-options-wrapper ${type === 'select' ? '' : 'd-none'}">

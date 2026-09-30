@@ -842,3 +842,30 @@ Enable seamless evaluation and testing across Staff Evaluator, Director / SuperA
      9. Role-Based Access Control & 2FA Device Management.
      10. Executive KPI Analytics & Tamper-Evident Audit Trail Export.
    - **ISO/IEC 25010:2023 Quality Evaluation**: Pre-filled with project title, CLSU OSA organization, evaluation date, and respondent role selectors.
+
+---
+
+## 24. Custom Form Field Builder Layout Overlap Remediation
+
+### Problem & Visual Collision
+- In `#newProgramModal` and `#editProgramModal` under **Custom Form Fields** (`resources/views/superadmin/scholarships.blade.php`), the reordering arrows (`↑`, `↓`) and delete button (`✕`) were positioned using `position-absolute top-0 end-0 m-2`.
+- Simultaneously, the rightmost column in the form row (`col-md-3`) held the `Required` label and switch toggle.
+- Because both elements shared the top-right quadrant of the field container, and because global `.btn` rules enforced horizontal pill padding (`0.55rem 1.6rem !important`), the reordering buttons expanded and collided directly with the `Required` label and toggle switch, creating an illegible, overlapping UI mess.
+
+### Architectural Resolution
+1. **Dedicated Card Sub-Header Row**:
+   - Replaced the absolute positioning hack with a dedicated semantic sub-header bar separated by a light border (`border-bottom pb-2 mb-2.5`).
+   - Left side: Renders a compact badge indicating the field position (`Field #<span class="field-order-num">1</span>`).
+   - Right side: Grouped the action buttons (`move-up-btn`, `move-down-btn`, `remove-field-btn`) in an inline flex container with strict dimension overrides:
+     ```css
+     width: 28px !important;
+     height: 28px !important;
+     min-width: 28px !important;
+     padding: 0 !important;
+     border-radius: 6px !important;
+     ```
+2. **Form Row Alignment**:
+   - The input controls (`Field Label` in `col-md-5`, `Field Type` in `col-md-4`, and `Requirement` switch in `col-md-3`) now sit uninhibited in their own row below the header.
+   - The `Required` switch is paired with an inline label using `d-flex align-items-center gap-2 mt-1`, completely eliminating vertical and horizontal collisions.
+3. **Dynamic Reindexing (`reindexFields`)**:
+   - Updated `reindexFields()` to automatically synchronize `.field-order-num` alongside input array indices (`fields[i][label]`, etc.) when fields are added, reordered with arrows, or deleted.
