@@ -141,7 +141,7 @@
                     <div class="d-flex flex-column gap-2 mb-4">
                         @foreach($notifications as $n)
                             @php
-                                $data = $n->data ?? [];
+                                $data = is_string($n->data) ? json_decode($n->data, true) : ($n->data ?? []);
                                 $isUnread = $n->read_at === null;
                                 $rawType = $data['type'] ?? 'system';
                                 $category = match($rawType) {
@@ -170,6 +170,30 @@
                                     'broadcast' => 'rgba(124, 58, 237, 0.1)',
                                     default => 'rgba(2, 132, 199, 0.1)',
                                 };
+
+                                // Robust Relative URL sanitization and intelligent role fallbacks
+                                $rawUrl = $data['url'] ?? null;
+                                $targetUrl = null;
+                                if (!empty($rawUrl)) {
+                                    $parsed = parse_url($rawUrl);
+                                    if (!empty($parsed['path'])) {
+                                        $targetUrl = $parsed['path'] . (!empty($parsed['query']) ? '?' . $parsed['query'] : '');
+                                    }
+                                }
+                                if (empty($targetUrl)) {
+                                    $currentUser = auth()->user();
+                                    $isStudentUser = $currentUser && $currentUser->role === 'student';
+                                    $targetUrl = match($category) {
+                                        'application' => !empty($data['application_id']) && !$isStudentUser
+                                            ? route('admin.review', $data['application_id'], false)
+                                            : ($isStudentUser ? route('student.dashboard', [], false) : route('admin.dashboard', [], false)),
+                                        'announcement' => $isStudentUser
+                                            ? route('student.announcements', [], false)
+                                            : route('admin.announcements.index', [], false),
+                                        'broadcast' => route('notifications.index', [], false),
+                                        default => route('notifications.index', [], false),
+                                    };
+                                }
                             @endphp
                             <div class="card border-0 shadow-sm transition-all notification-card {{ $isUnread ? 'unread-card' : '' }}" 
                                  style="border-radius: 14px; background: {{ $isUnread ? 'rgba(12, 78, 45, 0.03)' : '#ffffff' }}; border-left: 4px solid {{ $isUnread ? 'var(--clsu-green)' : 'transparent' }} !important;">
@@ -207,14 +231,12 @@
 
                                         {{-- Actions on Notification --}}
                                         <div class="d-flex align-items-center gap-3">
-                                            @if(!empty($data['url']))
-                                                <a href="{{ $data['url'] }}" 
-                                                   class="btn btn-sm btn-outline-success rounded-pill px-3 py-0.5 fw-semibold" 
-                                                   style="font-size: 0.72rem;"
-                                                   onclick="quickMarkRead('{{ $n->id }}')">
-                                                    <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Open & View
-                                                </a>
-                                            @endif
+                                            <a href="{{ $targetUrl }}" 
+                                               class="btn btn-sm btn-outline-success rounded-pill px-3 py-0.5 fw-semibold" 
+                                               style="font-size: 0.72rem;"
+                                               onclick="event.preventDefault(); openNotification('{{ $n->id }}', '{{ $targetUrl }}');">
+                                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Open & View
+                                            </a>
 
                                             @if($isUnread)
                                                 <button type="button" class="btn btn-link text-decoration-none p-0 text-muted small" 
@@ -239,9 +261,9 @@
                         @endforeach
                     </div>
 
-                    {{-- Pagination --}}
+                    {{-- Pagination (Bootstrap 5 template to avoid Tailwind unstyled full-width SVG arrows) --}}
                     <div class="d-flex justify-content-center mt-3">
-                        {{ $notifications->links() }}
+                        {{ $notifications->links('pagination::bootstrap-5') }}
                     </div>
                 @endif
             </form>
@@ -422,6 +444,24 @@ function quickDelete(id) {
         window.location.reload();
     });
 }
+
+function openNotification(id, targetUrl) {
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (id && csrf) {
+        fetch(`/notifications/${id}/read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            keepalive: true
+        }).catch(() => {});
+    }
+    if (targetUrl) {
+        window.location.href = targetUrl;
+    }
+}
 </script>
 
 <style>
@@ -431,6 +471,36 @@ function quickDelete(id) {
 .notification-card:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Pagination sizing & aesthetics to prevent oversized arrows */
+.pagination {
+    margin-bottom: 0;
+    gap: 4px;
+    align-items: center;
+}
+.pagination svg {
+    width: 14px !important;
+    height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+.pagination .page-link {
+    color: var(--clsu-green, #0c4e2d);
+    border-radius: 8px !important;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.pagination .page-item.active .page-link {
+    background-color: var(--clsu-green, #0c4e2d);
+    border-color: var(--clsu-green, #0c4e2d);
+    color: #ffffff;
 }
 </style>
 @endsection

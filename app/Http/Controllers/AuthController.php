@@ -568,7 +568,7 @@ class AuthController extends Controller
      */
     protected function mapNotification($n): array
     {
-        $data = $n->data ?? [];
+        $data = is_array($n->data) ? $n->data : (json_decode($n->data ?? '', true) ?: []);
         $rawType = $data['type'] ?? 'system';
 
         $category = match($rawType) {
@@ -594,11 +594,34 @@ class AuthController extends Controller
             default => '#0284c7',
         };
 
+        // Resilient Relative URL resolution to prevent cross-origin/localhost redirection breakage
+        $url = $data['url'] ?? null;
+        if (!empty($url)) {
+            $parsed = parse_url($url);
+            if (!empty($parsed['path'])) {
+                $url = $parsed['path'] . (!empty($parsed['query']) ? '?' . $parsed['query'] : '');
+            }
+        }
+        if (empty($url)) {
+            $user = auth()->user();
+            $isStudent = $user && $user->role === 'student';
+            $url = match($category) {
+                'application' => !empty($data['application_id']) && !$isStudent
+                    ? route('admin.review', $data['application_id'], false)
+                    : ($isStudent ? route('student.dashboard', [], false) : route('admin.dashboard', [], false)),
+                'announcement' => $isStudent
+                    ? route('student.announcements', [], false)
+                    : route('admin.announcements.index', [], false),
+                'broadcast' => route('notifications.index', [], false),
+                default => route('notifications.index', [], false),
+            };
+        }
+
         return [
             'id' => $n->id,
             'title' => $data['title'] ?? 'System Notification',
             'message' => $data['message'] ?? '',
-            'url' => $data['url'] ?? null,
+            'url' => $url,
             'type' => $rawType,
             'category' => $category,
             'icon' => $icon,

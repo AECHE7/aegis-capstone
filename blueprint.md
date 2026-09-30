@@ -1318,3 +1318,37 @@ esources/views/emails/application_form_pdf.blade.php)**:
 - [tests/Feature/LogoAndFaviconTest.php](file:///f:/aegis-capstone/tests/Feature/LogoAndFaviconTest.php) passes 100% (8 tests, 41 assertions).
 - Comprehensive test suite (`ApplicantFormAndQuotaTest` + `NotificationComplianceTest` + `LogoAndFaviconTest`) passes **21 out of 21 tests (147 assertions)**.
 
+---
+
+## 37. Notification System Hardening: Pagination Fix, Bell Dropdown Normalization, and Resilient Redirection (October 2026)
+
+### 1. Issues Identified
+1. **Notifications Center Giant Chevron SVG Arrows (`input_file_0.png`)**:
+   - In `resources/views/notifications/center.blade.php`, `{{ $notifications->links() }}` was rendered without a template parameter. In Laravel, this defaults to Tailwind CSS pagination (`tailwind.blade.php`), which renders `<svg class="w-5 h-5">`.
+   - Because Tailwind sizing classes were not active globally on Bootstrap views, the SVG icons defaulted to 100% viewport width, resulting in enormous black and blue chevrons and excessive empty vertical spacing.
+2. **Bell Dropdown "No new notifications" False Negative (`input_file_1.png`)**:
+   - In `resources/views/layouts/app.blade.php`, Blade whitespace inside the element ID attribute (`id="@if(...) notifListStudent @else notifListAdmin @endif"`) rendered literal whitespace (`id=" notifListAdmin "`).
+   - Consequently, `document.getElementById('notifListAdmin')` in JavaScript evaluated to `null`, preventing the dropdown from rendering any notifications despite the header counter accurately stating "43 unread".
+   - An inner `<ul>` was also directly nested inside an outer `<ul class="dropdown-menu">`, violating HTML DOM structure specifications.
+3. **Notification Redirection Breakage**:
+   - Notifications created in earlier database seeds or local environments stored absolute URLs like `http://localhost/...` or `http://127.0.0.1:8000/...`, failing when accessed from cloud domains like `https://aegis-capstone.onrender.com`.
+   - When users clicked "Open & View", the quick mark-as-read `fetch()` request could be prematurely aborted by Chrome when navigating away without `keepalive: true`.
+
+### 2. Implementation & Fixes
+1. **Bootstrap 5 Pagination & Defensive CSS ([resources/views/notifications/center.blade.php](file:///f:/aegis-capstone/resources/views/notifications/center.blade.php))**:
+   - Replaced default links call with `{{ $notifications->links('pagination::bootstrap-5') }}`.
+   - Added scoped `.pagination svg { width: 14px !important; height: 14px !important; max-width: 14px !important; }` and styled `.page-link` to match CLSU green brand colors.
+2. **Topbar Bell Dropdown Normalization ([resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php))**:
+   - Converted the dropdown container into a valid Bootstrap 5 `<div class="dropdown-menu">`.
+   - Unified IDs to clean, single identifiers (`notifBellBtn`, `notifBadge`, `notifDropdownBadge`, `notifList`), completely eliminating whitespace bugs.
+   - Updated client-side polling and rendering logic to populate `#notifList` with category badges, timestamps, and interactive links.
+3. **Resilient Notification URL Sanitization & Instant Redirection ([app/Http/Controllers/AuthController.php](file:///f:/aegis-capstone/app/Http/Controllers/AuthController.php), [resources/views/notifications/center.blade.php](file:///f:/aegis-capstone/resources/views/notifications/center.blade.php))**:
+   - `AuthController::mapNotification()` and `center.blade.php` now parse notification URLs using `parse_url()` and strip external or localhost hosts into root-relative paths (`/admin/review/{id}`).
+   - Implemented intelligent contextual fallbacks for notifications lacking explicit URLs based on notification category and recipient role.
+   - Added `openNotification(id, targetUrl)` utility utilizing `fetch(..., { keepalive: true })` before instantaneous browser navigation.
+
+### 3. Automated Verification
+- [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% (7 tests, 71 assertions), verifying relative path sanitization, bulk operations, and view rendering.
+- Combined test suite across notifications, forms, and logos passes 22 tests (152 assertions).
+
+

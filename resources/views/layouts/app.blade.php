@@ -1657,9 +1657,9 @@
                 {{-- Demo Guide, Data Privacy Guide, and System Evaluation Feedback are now in Account Settings --}}
 <!-- Notification Bell Dropdown -->
                 <div class="dropdown me-0 me-sm-1">
-                    {{-- WCAG 4.1.2: Name/Role/Value — accessible name on icon-only button --}}
+                    {{-- WCAG 4.1.2: Accessible Topbar Notification Bell --}}
                     <button class="btn btn-link position-relative p-1 topbar-icon-btn" type="button" 
-                            id="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
+                            id="notifBellBtn" 
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             aria-label="View notifications"
@@ -1667,15 +1667,15 @@
                             style="box-shadow: none;">
                         <i class="fa-regular fa-bell fs-5"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white d-none" 
-                              id="@if(auth()->user()->role === 'student') notifBadgeStudent @else notifBadgeAdmin @endif" 
+                              id="notifBadge" 
                               style="font-size: 0.6rem; padding: 3px 6px;">
                             0
                         </span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-0 text-start overflow-hidden" 
-                        aria-labelledby="@if(auth()->user()->role === 'student') notifBellStudent @else notifBellAdmin @endif" 
-                        style="width: 360px; max-width: calc(100vw - 32px); border-radius: 18px; font-size: 0.85rem; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.15) !important;">
-                        <li class="px-3 py-2.5 border-bottom d-flex justify-content-between align-items-center bg-white">
+                    <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 text-start overflow-hidden" 
+                         aria-labelledby="notifBellBtn" 
+                         style="width: 360px; max-width: calc(100vw - 32px); border-radius: 18px; font-size: 0.85rem; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.15) !important;">
+                        <div class="px-3 py-2.5 border-bottom d-flex justify-content-between align-items-center bg-white">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="fw-bold text-dark" style="font-size: 0.9rem;">Notifications</span>
                                 <span class="badge bg-success-subtle text-success rounded-pill px-2 py-0.5" id="notifDropdownBadge" style="font-size: 0.65rem;">0 unread</span>
@@ -1684,28 +1684,28 @@
                                 <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-success fw-semibold" style="font-size: 0.72rem;" onclick="clearAllNotifications(event)">Mark all read</button>
                                 <a href="{{ route('notifications.index') }}" class="text-muted text-decoration-none" title="Notifications Center" style="font-size: 0.75rem;"><i class="fa-solid fa-gear"></i></a>
                             </div>
-                        </li>
+                        </div>
                         {{-- Dynamic Filter Pills --}}
-                        <li class="px-3 py-1.5 border-bottom bg-light">
+                        <div class="px-3 py-1.5 border-bottom bg-light">
                             <div class="d-flex gap-1" id="notifFilterPills">
                                 <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab active" data-filter="all" onclick="filterDropdownNotifs('all', event)" style="font-size: 0.7rem; background: #0c4e2d; color: #fff;">All</button>
                                 <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="unread" onclick="filterDropdownNotifs('unread', event)" style="font-size: 0.7rem; background: transparent;">Unread</button>
                                 <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="application" onclick="filterDropdownNotifs('application', event)" style="font-size: 0.7rem; background: transparent;">Apps</button>
                                 <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="announcement" onclick="filterDropdownNotifs('announcement', event)" style="font-size: 0.7rem; background: transparent;">News</button>
                             </div>
-                        </li>
-                        <ul class="list-unstyled mb-0" id="@if(auth()->user()->role === 'student') notifListStudent @else notifListAdmin @endif" style="max-height: 380px; overflow-y: auto;">
+                        </div>
+                        <ul class="list-unstyled mb-0" id="notifList" style="max-height: 380px; overflow-y: auto;">
                             <li class="px-3 py-4 text-center text-muted small">
                                 <i class="fa-solid fa-bell-slash mb-2 d-block opacity-40 fs-4"></i>
                                 No new notifications
                             </li>
                         </ul>
-                        <li class="p-2 border-top text-center bg-light">
+                        <div class="p-2 border-top text-center bg-light">
                             <a href="{{ route('notifications.index') }}" class="btn btn-sm btn-light w-100 fw-bold text-success py-1.5" style="font-size: 0.78rem; border-radius: 10px;">
                                 <i class="fa-solid fa-sliders me-1.5"></i> Open Notifications Center
                             </a>
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                 </div>
 
                 @if(auth()->user()->role === 'admin')
@@ -2344,8 +2344,7 @@
             })
             .then(data => {
                 if (!data) return;
-                const badgeAdmin = document.getElementById('notifBadgeAdmin');
-                const badgeStudent = document.getElementById('notifBadgeStudent');
+                const badge = document.getElementById('notifBadge');
                 const dropdownBadge = document.getElementById('notifDropdownBadge');
                 
                 const count = data.count || 0;
@@ -2363,21 +2362,12 @@
                 }
                 lastKnownUnreadCount = count;
                 
-                if (badgeAdmin) {
+                if (badge) {
                     if (count > 0) {
-                        badgeAdmin.classList.remove('d-none');
-                        badgeAdmin.textContent = count;
+                        badge.classList.remove('d-none');
+                        badge.textContent = count > 99 ? '99+' : count;
                     } else {
-                        badgeAdmin.classList.add('d-none');
-                    }
-                }
-                
-                if (badgeStudent) {
-                    if (count > 0) {
-                        badgeStudent.classList.remove('d-none');
-                        badgeStudent.textContent = count;
-                    } else {
-                        badgeStudent.classList.add('d-none');
+                        badge.classList.add('d-none');
                     }
                 }
 
@@ -2414,8 +2404,8 @@
     }
 
     function renderActiveNotificationLists() {
-        const listAdmin = document.getElementById('notifListAdmin');
-        const listStudent = document.getElementById('notifListStudent');
+        const list = document.getElementById('notifList');
+        if (!list) return;
 
         let filtered = cachedNotifications;
         if (currentFilter === 'unread') {
@@ -2426,8 +2416,7 @@
             filtered = cachedNotifications.filter(n => n.category === 'announcement' || n.category === 'broadcast');
         }
 
-        if (listAdmin) renderNotificationList(listAdmin, filtered);
-        if (listStudent) renderNotificationList(listStudent, filtered);
+        renderNotificationList(list, filtered);
     }
     
     function renderNotificationList(listElement, notifications) {
@@ -2477,26 +2466,22 @@
     }
     
     function markAsRead(id, targetUrl) {
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        fetch(`/notifications/${id}/read`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            fetchNotifications();
-            if (targetUrl) {
-                window.location.href = targetUrl;
-            }
-        })
-        .catch(err => {
-            if (targetUrl) {
-                window.location.href = targetUrl;
-            }
-        });
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (id && csrfToken) {
+            fetch(`/notifications/${id}/read`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                keepalive: true
+            }).catch(() => {});
+        }
+        
+        // Immediate redirection with fallback
+        const destination = targetUrl || '{{ route("notifications.index") }}';
+        window.location.href = destination;
     }
     
     function clearAllNotifications(event) {

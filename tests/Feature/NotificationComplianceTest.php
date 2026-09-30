@@ -244,4 +244,35 @@ class NotificationComplianceTest extends TestCase
         $this->assertEquals(1, $user->notifications()->count());
         $this->assertEquals('Broadcast: Dynamic Notification Verification', $user->notifications()->first()->data['title']);
     }
+
+    public function test_notification_urls_are_sanitized_to_relative_paths(): void
+    {
+        $user = User::factory()->create(['role' => 'admin', 'is_active' => true]);
+
+        // Create a database notification with hardcoded localhost URL
+        $user->notifications()->create([
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'type' => 'App\Notifications\NewApplicationNotification',
+            'data' => [
+                'type' => 'new_application',
+                'title' => 'New Application APP-999',
+                'message' => 'New application received.',
+                'url' => 'http://localhost/admin/review/999',
+            ],
+            'read_at' => null,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user)->getJson('/notifications');
+        $response->assertOk();
+        $notifs = $response->json('notifications');
+
+        $this->assertCount(1, $notifs);
+        $this->assertEquals('/admin/review/999', $notifs[0]['url']);
+
+        // Check HTML page renders bootstrap-5 pagination and not Tailwind giant icons
+        $htmlResponse = $this->actingAs($user)->get('/notifications');
+        $htmlResponse->assertOk();
+        $htmlResponse->assertSee('Open & View', false);
+    }
 }
