@@ -19,8 +19,13 @@
     <meta name="description" content="@yield('meta_description', 'A.E.G.I.S. is Central Luzon State University\'s official scholarship management portal. Apply for scholarships, track your application status, and receive real-time updates.')">
     <meta name="robots" content="noindex, nofollow">
     <title>@yield('title', \App\Models\Setting::get('app_name', 'A.E.G.I.S.') . ' Portal') — {{ \App\Models\Setting::get('university_name', 'Central Luzon State University') }}</title>
-    <link rel="icon" type="image/webp" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
-    <link rel="icon" type="image/png" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.png') }}">
+
+    {{-- Universal Favicon & Brand Icons --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
     {{-- Open Graph meta --}}
     <meta property="og:type" content="website">

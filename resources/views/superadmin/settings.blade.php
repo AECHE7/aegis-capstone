@@ -209,7 +209,7 @@
                     <div class="d-flex align-items-center gap-4 flex-wrap flex-md-nowrap">
                         <div class="flex-shrink-0" style="width: 100px; height: 100px; border-radius: 16px; background: var(--clsu-bg); border: 2px dashed var(--border-color); display: flex; align-items: center; justify-content: center; overflow: hidden;">
                             @if($settings['app_logo'])
-                                <img src="{{ route('system.logo') }}" id="logo-preview-img" style="width:100%; height:100%; object-fit:contain;">
+                                <img src="{{ route('system.logo') }}" id="logo-preview-img" alt="Logo Preview" style="width:100%; height:100%; object-fit:contain;" onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';">
                             @else
                                 <div id="logo-preview-placeholder" class="text-muted"><i class="fa-solid fa-shield-halved fa-2x"></i></div>
                             @endif

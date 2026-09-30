@@ -49,14 +49,32 @@ class Setting extends Model
     }
 
     /**
-     * Get system logo URL (uploaded system logo if available, or default CLSU logo asset).
+     * Get system logo URL (uploaded system logo if available and exists, or default CLSU logo asset).
      */
     public static function getLogoUrl(): string
     {
         $customLogo = self::get('app_logo');
         if ($customLogo) {
-            $url = route('system.logo');
-            return str_replace('http://', 'https://', $url);
+            if (str_starts_with($customLogo, 'http') || str_starts_with($customLogo, 'data:')) {
+                return $customLogo;
+            }
+            if (\Illuminate\Support\Facades\Storage::disk('local')->exists($customLogo)) {
+                $url = route('system.logo');
+                return str_replace('http://', 'https://', $url);
+            }
+        }
+
+        // Reliable fallback to CLSU seal
+        if (file_exists(public_path('images/clsu-seal.png'))) {
+            return asset('images/clsu-seal.png');
+        }
+
+        if (file_exists(public_path('logo.png'))) {
+            return asset('logo.png');
+        }
+
+        if (file_exists(public_path('logo.webp'))) {
+            return asset('logo.webp');
         }
 
         $domain = config('app.url', 'https://clsu.osa.scholarship');
@@ -71,6 +89,6 @@ class Setting extends Model
                 $domain = 'https://clsu.osa.scholarship';
             }
         }
-        return rtrim(str_replace('http://', 'https://', $domain), '/') . '/logo-email.png';
+        return rtrim(str_replace('http://', 'https://', $domain), '/') . '/images/clsu-seal.png';
     }
 }

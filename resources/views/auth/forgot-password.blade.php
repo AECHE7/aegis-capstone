@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A.E.G.I.S. | Forgot Password</title>
-    <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
-    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
+    {{-- Universal Favicon & Brand Icons --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MFA Verification | {{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}</title>
+    {{-- Universal Favicon & Brand Icons --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     {{-- Preconnect hints --}}
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -124,7 +130,7 @@
 <body>
     <div class="mfa-card">
         <div class="logo-container">
-            <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="CLSU Logo" style="height: 64px; object-fit: contain;">
+            <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="CLSU Logo" style="height: 64px; object-fit: contain;" onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';">
         </div>
         <h1 class="mfa-title">Security Verification</h1>
         <p class="mfa-desc">Enter the 6-digit verification code sent to <strong style="color: #0C4E2D;">{{ !empty($user->email) ? \Illuminate\Support\Str::mask($user->email, '*', 2, -4) : 'your registered email' }}</strong> to complete signing in.</p>

@@ -18,9 +18,12 @@
     {{-- Canonical URL --}}
     <link rel="canonical" href="{{ url('/') }}">
 
-    {{-- Favicon: WebP for modern browsers, PNG fallback --}}
-    <link rel="icon" type="image/webp" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
-    <link rel="icon" type="image/png" href="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.png') }}">
+    {{-- Universal Favicon & Brand Icons --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
     {{-- Open Graph (Facebook, LinkedIn) --}}
     <meta property="og:type" content="website">
@@ -827,7 +830,7 @@
         <a href="{{ route('welcome') }}" class="nav-brand">
             <div class="nav-brand-icon d-flex align-items-center justify-content-center" style="overflow: hidden;">
                 @if(\App\Models\Setting::get('app_logo'))
-                    <img src="{{ route('system.logo') }}" style="width: 20px; height: 20px; object-fit: contain;">
+                    <img src="{{ route('system.logo') }}" alt="A.E.G.I.S. Logo" style="width: 20px; height: 20px; object-fit: contain;" onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';">
                 @else
                     <i class="fa-solid fa-shield-halved"></i>
                 @endif

@@ -1270,3 +1270,51 @@ esources/views/emails/application_form_pdf.blade.php)**:
 ### 3. Automated Verification
 - [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% across all 6 test cases (66 assertions).
 - Combined suite (`ApplicantFormAndQuotaTest` + `NotificationComplianceTest`) passes 13 out of 13 tests (106 assertions).
+
+---
+
+## 36. Universal Favicon Architecture, System Logo Resilience, and Applicant Form 1-Sheet Print Layout
+
+### 1. Root Cause Analysis & Problem Solved
+1. **Broken Sidebar Logo on Render (`input_file_3.png`)**:
+   - On ephemeral Render containers or clean builds, if `Setting::get('app_logo')` in the database pointed to an older local upload path (e.g. `settings/logo.png`), `Storage::disk('local')->exists($path)` evaluated to `false`.
+   - The route `GET /system/logo` aborted with an HTTP 404 error, breaking the sidebar brand image (`<img src="{{ \App\Models\Setting::getLogoUrl() }}">`) into a broken image icon with alt text `[image] S...`.
+2. **Missing Favicon Across Portal Views**:
+   - The default `public/favicon.ico` was an empty, 0-byte file.
+   - When views requested `route('system.logo')` for their `<link rel="icon">`, it returned 404 due to the missing storage path.
+   - Browsers fell back to the root `/favicon.ico`, received 0 bytes, and displayed a generic globe placeholder on all browser tabs.
+3. **Official Applicant Form 2-Page Print Spillage (`input_file_1.png`)**:
+   - When evaluators and students clicked "Print" in the modal (`applicant-form-modal.blade.php`), the print dialog defaulted to standard browser margins (~20mm) and unrestricted modal container margins/paddings (`p-4 p-md-5`, `mb-3`), pushing Section III and signatures onto a second sheet of paper ("2 sheets of paper"), whereas the exported PDF was a clean 1-page document.
+
+### 2. Implementation & Enhancements
+1. **Zero-Failure System Logo Route & Model Fallbacks ([app/Models/Setting.php](file:///f:/aegis-capstone/app/Models/Setting.php), [routes/web.php](file:///f:/aegis-capstone/routes/web.php))**:
+   - `Setting::getLogoUrl()` now verifies that any custom logo path actually exists on disk via `Storage::disk('local')->exists()` before returning `route('system.logo')`. If missing or invalid, it immediately resolves to `asset('images/clsu-seal.png')` or `asset('logo.png')`.
+   - `GET /system/logo` in `routes/web.php` no longer aborts with 404 when a file is absent from disk. Instead, it seamlessly serves the official CLSU seal (`public/images/clsu-seal.png`) with proper `image/png` Content-Type and 24-hour browser caching headers.
+   - Added defensive `onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';"` handlers across sidebar brand icons, login/register headers, MFA views, and applicant forms.
+
+2. **Universal High-Resolution Favicon Architecture**:
+   - Generated a valid multi-resolution `public/favicon.ico` (5.2 KB) supporting 16x16, 32x32, and 48x48 icon frames crafted directly from the CLSU seal.
+   - Standardized universal `<link rel="icon">`, `<link rel="apple-touch-icon">`, and `<link rel="shortcut icon">` tags across:
+     - [resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php) (All authenticated student and staff views)
+     - [resources/views/layouts/guest.blade.php](file:///f:/aegis-capstone/resources/views/layouts/guest.blade.php)
+     - [resources/views/welcome.blade.php](file:///f:/aegis-capstone/resources/views/welcome.blade.php)
+     - [resources/views/scholarships/catalog.blade.php](file:///f:/aegis-capstone/resources/views/scholarships/catalog.blade.php)
+     - [resources/views/auth/login.blade.php](file:///f:/aegis-capstone/resources/views/auth/login.blade.php)
+     - [resources/views/auth/register.blade.php](file:///f:/aegis-capstone/resources/views/auth/register.blade.php)
+     - [resources/views/auth/forgot-password.blade.php](file:///f:/aegis-capstone/resources/views/auth/forgot-password.blade.php)
+     - [resources/views/auth/reset-password.blade.php](file:///f:/aegis-capstone/resources/views/auth/reset-password.blade.php)
+     - [resources/views/auth/activate-account.blade.php](file:///f:/aegis-capstone/resources/views/auth/activate-account.blade.php)
+     - [resources/views/auth/verify-email.blade.php](file:///f:/aegis-capstone/resources/views/auth/verify-email.blade.php)
+     - [resources/views/auth/mfa_verify.blade.php](file:///f:/aegis-capstone/resources/views/auth/mfa_verify.blade.php)
+     - [resources/views/errors/](file:///f:/aegis-capstone/resources/views/errors/) (`403`, `404`, `419`, `500`, `503`, `db_error`)
+
+3. **Official Applicant Form 1-Sheet Print Layout ([resources/views/components/applicant-form-modal.blade.php](file:///f:/aegis-capstone/resources/views/components/applicant-form-modal.blade.php), [resources/views/components/applicant-form-content.blade.php](file:///f:/aegis-capstone/resources/views/components/applicant-form-content.blade.php))**:
+   - Engineered dedicated `@media print` rules with `@page { size: letter portrait; margin: 5mm 8mm; }`.
+   - Compacted element paddings, cell vertical heights (`padding: 1.5px 4px !important`), and font sizes (`7pt` – `8.2pt`).
+   - Added `page-break-inside: avoid !important;` and `page-break-after: avoid !important;` preventing unwanted sheet splitting and ensuring the entire dossier, checklists, oath, signatures, and tamper-evident security clearance fit cleanly onto **1 single sheet of paper**.
+   - Added defensive fallback handlers on header seals (CLSU seal and OSA seal).
+
+### 3. Automated Verification
+- [tests/Feature/LogoAndFaviconTest.php](file:///f:/aegis-capstone/tests/Feature/LogoAndFaviconTest.php) passes 100% (8 tests, 41 assertions).
+- Comprehensive test suite (`ApplicantFormAndQuotaTest` + `NotificationComplianceTest` + `LogoAndFaviconTest`) passes **21 out of 21 tests (147 assertions)**.
+

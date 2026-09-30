@@ -51,22 +51,51 @@
 
 <style>
     @media print {
-        body * {
-            visibility: hidden;
+        @page {
+            size: letter portrait;
+            margin: 5mm 8mm;
         }
-        #applicantFormModal, #applicantFormModal * {
-            visibility: visible;
+        html, body {
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            overflow: visible !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        body > *:not(#applicantFormModal) {
+            display: none !important;
         }
         #applicantFormModal {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            margin: 0;
-            padding: 0;
+            display: block !important;
+            position: static !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            overflow: visible !important;
+        }
+        #applicantFormModal .modal-dialog {
+            max-width: 100% !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transform: none !important;
+        }
+        #applicantFormModal .modal-content {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            padding: 0 !important;
+        }
+        #applicantFormModal .modal-body {
+            padding: 0 !important;
             background: transparent !important;
         }
-        .modal-header, .modal-backdrop, .btn, .btn-close {
+        .modal-header, .modal-backdrop, .btn, .btn-close, nav, .sidebar, .topbar {
             display: none !important;
         }
         .applicant-form-sheet {
@@ -75,6 +104,72 @@
             max-width: 100% !important;
             width: 100% !important;
             padding: 0 !important;
+            margin: 0 !important;
+            font-size: 7.2pt !important;
+            line-height: 1.16 !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+        }
+        .applicant-form-sheet .row.align-items-center.pb-3.mb-3 {
+            padding-bottom: 2px !important;
+            margin-bottom: 3px !important;
+        }
+        .applicant-form-sheet img {
+            max-height: 44px !important;
+            width: auto !important;
+        }
+        .applicant-form-sheet .mb-3 {
+            margin-bottom: 3px !important;
+        }
+        .applicant-form-sheet .p-3 {
+            padding: 3px 6px !important;
+        }
+        .applicant-form-sheet h5 {
+            font-size: 8.2pt !important;
+            margin-bottom: 2px !important;
+            line-height: 1.15 !important;
+        }
+        .applicant-form-sheet .table {
+            margin-bottom: 0 !important;
+            font-size: 7pt !important;
+        }
+        .applicant-form-sheet .table td,
+        .applicant-form-sheet .table th {
+            padding: 1.5px 4px !important;
+            line-height: 1.12 !important;
+        }
+        .applicant-form-sheet .rounded-top,
+        .applicant-form-sheet .section-header {
+            padding: 1.5px 5px !important;
+            font-size: 7pt !important;
+        }
+        .applicant-form-sheet .text-muted.text-uppercase {
+            font-size: 5.8pt !important;
+            margin-bottom: 0 !important;
+        }
+        .applicant-form-sheet .attestation-box,
+        .applicant-form-sheet .bg-light {
+            padding: 2.5px 5px !important;
+            font-size: 6.2pt !important;
+            line-height: 1.15 !important;
+            margin-bottom: 3px !important;
+        }
+        .applicant-form-sheet .row.pt-2.pb-3 {
+            padding-top: 2px !important;
+            padding-bottom: 3px !important;
+        }
+        .applicant-form-sheet .border-warning {
+            padding: 3px 5px !important;
+            margin-bottom: 2px !important;
+        }
+        .applicant-form-sheet .badge {
+            font-size: 5.8pt !important;
+            padding: 1px 3px !important;
+        }
+        .applicant-form-sheet .border-top {
+            margin-top: 2px !important;
+            padding-top: 2px !important;
+            font-size: 5.5pt !important;
         }
     }
 </style>

@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A.E.G.I.S. | Create Account</title>
-    <link rel="icon" type="image/webp" href="{{ asset('logo.webp') }}">
-    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
+    {{-- Universal Favicon & Brand Icons --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/clsu-seal.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#0C4E2D">
@@ -475,7 +479,7 @@
         <!-- Hero footer -->
         <div class="hero-footer mt-4">
             <div class="brand-circle d-flex align-items-center justify-content-center" style="overflow: hidden; background: rgba(255,255,255,0.15);">
-                <img src="{{ \App\Models\Setting::getLogoUrl() }}" style="width: 28px; height: 28px; object-fit: contain;">
+                <img src="{{ \App\Models\Setting::getLogoUrl() }}" style="width: 28px; height: 28px; object-fit: contain;" alt="Brand Logo" onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';">
             </div>
             <div>
                 <div class="brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} Portal</div>
@@ -492,7 +496,7 @@
             <!-- Mobile Brand Header (Visible only on smartphones) -->
             <div class="mobile-brand-header d-block d-md-none text-center mb-4 pb-2 border-bottom">
                 <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2" style="width: 56px; height: 56px; background: rgba(12, 78, 45, 0.08); border: 1px solid rgba(12, 78, 45, 0.15);">
-                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" style="width: 38px; height: 38px; object-fit: contain;">
+                    <img src="{{ \App\Models\Setting::getLogoUrl() }}" style="width: 38px; height: 38px; object-fit: contain;" alt="Brand Logo" onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';">
                 </div>
                 <h3 class="h5 fw-bold mb-0 text-dark">Student Registration</h3>
                 <span class="badge bg-light text-success border border-success-subtle rounded-pill fw-semibold px-2 py-1 small" style="font-size: 0.72rem;">

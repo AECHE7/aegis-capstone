@@ -3,7 +3,11 @@
     <!-- Brand -->
     <a href="#" class="sidebar-brand text-decoration-none">
         <div class="sidebar-brand-icon d-flex align-items-center justify-content-center">
-            <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} logo" style="width: 28px; height: 28px; object-fit: contain;" decoding="async">
+            <img src="{{ \App\Models\Setting::getLogoUrl() }}"
+                 alt="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} logo"
+                 style="width: 28px; height: 28px; object-fit: contain;"
+                 decoding="async"
+                 onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';">
         </div>
         <div class="sidebar-brand-text">
             <span class="sidebar-brand-name">{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }}</span>

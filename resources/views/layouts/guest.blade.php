@@ -7,7 +7,12 @@
         <meta name="description" content="Sign in or create an account to access the A.E.G.I.S. CLSU Scholarship Management Portal.">
 
         <title>A.E.G.I.S. Portal — CLSU Scholarship System</title>
-        <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
+        {{-- Universal Favicon & Brand Icons --}}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/clsu-seal.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/clsu-seal.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/clsu-seal.png') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
         {{-- Preconnect hints --}}
         <link rel="preconnect" href="https://fonts.bunny.net">

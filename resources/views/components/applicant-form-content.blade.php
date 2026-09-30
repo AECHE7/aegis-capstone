@@ -76,7 +76,7 @@
     <div class="row align-items-center pb-3 mb-3 border-bottom" style="border-bottom-color: #cbd5e1 !important;">
         <div class="col-2 text-center">
             @if(file_exists(public_path('images/clsu-seal.png')))
-                <img src="{{ asset('images/clsu-seal.png') }}" style="max-height: 68px; width: auto;" alt="CLSU Seal">
+                <img src="{{ asset('images/clsu-seal.png') }}" onerror="this.onerror=null; this.src='{{ asset('logo.png') }}';" style="max-height: 68px; width: auto;" alt="CLSU Seal">
             @elseif(file_exists(public_path('logo.png')))
                 <img src="{{ asset('logo.png') }}" style="max-height: 68px; width: auto;" alt="CLSU Logo">
             @else
@@ -92,7 +92,7 @@
         </div>
         <div class="col-2 text-center">
             @if(file_exists(public_path('images/osa-seal.png')))
-                <img src="{{ asset('images/osa-seal.png') }}" style="max-height: 68px; width: auto;" alt="OSA Seal">
+                <img src="{{ asset('images/osa-seal.png') }}" onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';" style="max-height: 68px; width: auto;" alt="OSA Seal">
             @else
                 <div class="rounded-circle border border-2 border-warning d-flex align-items-center justify-content-center text-warning fw-bold mx-auto" style="width: 58px; height: 58px; font-size: 0.9rem;">OSA</div>
             @endif

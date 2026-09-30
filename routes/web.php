@@ -119,16 +119,33 @@ Route::get('/robots.txt', function () {
 
 Route::get('/system/logo', function () {
     $logoPath = \App\Models\Setting::get('app_logo');
-    if (empty($logoPath)) {
-        abort(404);
+    if (!empty($logoPath)) {
+        if (str_starts_with($logoPath, 'http')) {
+            return redirect($logoPath);
+        }
+        if (\Illuminate\Support\Facades\Storage::disk('local')->exists($logoPath)) {
+            return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($logoPath));
+        }
     }
-    if (str_starts_with($logoPath, 'http')) {
-        return redirect($logoPath);
+
+    // Resilient Fallback: CLSU Seal
+    $clsuSeal = public_path('images/clsu-seal.png');
+    if (file_exists($clsuSeal)) {
+        return response()->file($clsuSeal, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
     }
-    if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($logoPath)) {
-        abort(404);
+
+    $logoPng = public_path('logo.png');
+    if (file_exists($logoPng)) {
+        return response()->file($logoPng, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
     }
-    return response()->file(\Illuminate\Support\Facades\Storage::disk('local')->path($logoPath));
+
+    abort(404);
 })->name('system.logo');
 
 
