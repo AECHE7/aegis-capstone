@@ -883,23 +883,29 @@ Enable seamless evaluation and testing across Staff Evaluator, Director / SuperA
   - **Objective 5**: ISO/IEC 25010:2023 product quality evaluation across 5 operational dimensions.
 - To facilitate structured evaluation during the testing phase, three distinct role-specific testing documents (`.docx`) were designed and compiled:
 
-### Generated Instruments
+### Generated Instruments (Standardized to Client_Testing_and_ISO25010_End_User_Evaluation.docx)
+All three documents strictly adhere to the two-part structure, styling, and ISO/IEC 25010:2023 questionnaire established in `docs/Client_Testing_and_ISO25010_End_User_Evaluation.docx`:
+- **Part 1**: Client System Testing and Acceptance Form (Institutional CLSU header, Purpose, Instructions, Metadata table, 7-column Client Test Scenarios table, Issue/Revision Log table with priority & retest status, Client Testing Result determination, and Sign-off signatures).
+- **Part 2**: End-User System Evaluation Form (Privacy & Voluntary Notice, 5-point Likert Scale [5-SA to 1-SD plus N/A], Respondent Profile, the complete 26-item ISO/IEC 25010:2023 Questionnaire across all 8 characteristics contextualized for the role, Overall Assessment, Comments & Recommendations, and Researcher/Instructor Scoring Guide).
+
 1. **Student Applicant Testing Instrument (`docs/UAT_Test_Script_Student_Role.docx`)**:
    - **Target Audience**: Undergraduate student applicants using `@clsu2.edu.ph` institutional emails.
    - **User Stories Covered**: US-01 through US-06 (Registration, Profile completeness, Catalog discovery, Dynamic custom form fields, Encrypted document upload, Application timeline tracking, Resubmission of returned applications, Official application PDF export with QR seal).
-   - **Test Scenarios**: 8 rigorous step-by-step test cases (`TC-STU-01` to `TC-STU-08`) with input data, expected behavior, and pass/fail rating blocks.
-   - **Evaluation**: 12-item ISO/IEC 25010 questionnaire tailored to student interaction capability, mobile responsiveness, and data privacy under R.A. 10173.
+   - **Test Scenarios**: 8 rigorous test scenarios in 7-column format with expected/actual results, pass/fail/needs revision status, and remarks.
+   - **Evaluation**: Full 26-item ISO/IEC 25010:2023 questionnaire across all 8 characteristics (Functional Suitability, Performance Efficiency, Compatibility, Interaction Capability, Reliability, Security, Flexibility, Safety) contextualized for student applicants.
 
 2. **OSA Scholarship Evaluator / Staff Testing Instrument (`docs/UAT_Test_Script_Staff_Role.docx`)**:
    - **Target Audience**: Office of Student Affairs (OSA) Scholarship Officers and Administrative Staff.
    - **User Stories Covered**: US-07 through US-10 (MFA login, Queue triage and multi-criteria filtering, Comprehensive student dossier inspection, High-resolution interactive canvas manipulation, AI forensic fraud score interpretation, Grad-CAM heatmap & ELA discrepancy verification, Decisioning with Fast-Triage remarks, Confidential internal evaluator notes & audit logging).
-   - **Test Scenarios**: 8 deep-dive test cases (`TC-STF-01` to `TC-STF-08`).
-   - **Specialized Feature**: 10-sample **AI-Assisted vs. Human-Only Document Review Comparison Worksheet** for blind vs. AI-assisted testing (measuring detection accuracy, review time in seconds, false positive/negative rates, and reviewer confidence from 1 to 5).
-   - **Evaluation**: Complete 21-item ISO/IEC 25010 questionnaire covering all 5 quality dimensions evaluated by OSA staff.
+   - **Test Scenarios**: 8 deep-dive staff test scenarios in 7-column format.
+   - **Specialized Section B.1**: 10-sample **AI-Assisted vs. Human-Only Document Review Comparison Worksheet** for blind vs. AI-assisted testing (measuring detection accuracy, review time in seconds, false positive/negative rates, and reviewer confidence from 1 to 5).
+   - **Evaluation**: Full 26-item ISO/IEC 25010:2023 questionnaire across all 8 characteristics contextualized for scholarship evaluators.
 
 3. **Super Administrator & OSA Director Testing Instrument (`docs/UAT_Test_Script_Admin_Role.docx`)**:
    - **Target Audience**: OSA Director and System Super Administrators.
    - **User Stories Covered**: US-11 and US-12 (Executive KPI analytics, Scholarship program quota and lifecycle governance, Custom dynamic form field builder, RBAC and evaluator assignment, AI microservice health & sensitivity calibration, Statutory CHED/DOST CSV and PDF compliance reporting, Tamper-evident audit trail monitoring, Soft-deletion & trash recovery).
-   - **Test Scenarios**: 8 administrative governance test cases (`TC-ADM-01` to `TC-ADM-08`).
-   - **Acceptance Determination**: Formal Institutional Acceptance Determination matrix (Accepted without reservation / Accepted with minor observations / Provisional / Not accepted) and quad-signatory sign-off block (Director, Capstone Adviser, Student Researchers, IT Department Chair).
+   - **Test Scenarios**: 8 administrative governance test scenarios in 7-column format.
+   - **Acceptance Determination**: Formal Institutional Acceptance Determination matrix and Quad-Signatory block (Director, Capstone Adviser, Student Researchers, IT Department Chair).
+   - **Evaluation**: Full 26-item ISO/IEC 25010:2023 questionnaire across all 8 characteristics contextualized for executive administrators.
+
 
