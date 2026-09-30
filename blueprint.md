@@ -869,3 +869,37 @@ Enable seamless evaluation and testing across Staff Evaluator, Director / SuperA
    - The `Required` switch is paired with an inline label using `d-flex align-items-center gap-2 mt-1`, completely eliminating vertical and horizontal collisions.
 3. **Dynamic Reindexing (`reindexFields`)**:
    - Updated `reindexFields()` to automatically synchronize `.field-order-num` alongside input array indices (`fields[i][label]`, etc.) when fields are added, reordered with arrows, or deleted.
+
+---
+
+## 25. Role-Specific User Acceptance Testing (UAT) & ISO/IEC 25010 Documentation Suite
+
+### Context & Capstone 2 Alignment (Chapters 1–3)
+- In strict adherence to the Capstone 2 methodology and research objectives:
+  - **Objective 1**: Centralized scholarship lifecycle management (Student application, staff evaluation, executive governance).
+  - **Objective 2**: AI-powered COG document verification (ELA preprocessing, ResNet-50 CNN inference, Grad-CAM saliency heatmaps).
+  - **Objective 3**: Real-time automated email notifications triggered by application status transitions.
+  - **Objective 4**: Statutory record export engine (CHED/DOST compliant CSV masterlists and authenticated PDF certificates with QR codes).
+  - **Objective 5**: ISO/IEC 25010:2023 product quality evaluation across 5 operational dimensions.
+- To facilitate structured evaluation during the testing phase, three distinct role-specific testing documents (`.docx`) were designed and compiled:
+
+### Generated Instruments
+1. **Student Applicant Testing Instrument (`docs/UAT_Test_Script_Student_Role.docx`)**:
+   - **Target Audience**: Undergraduate student applicants using `@clsu2.edu.ph` institutional emails.
+   - **User Stories Covered**: US-01 through US-06 (Registration, Profile completeness, Catalog discovery, Dynamic custom form fields, Encrypted document upload, Application timeline tracking, Resubmission of returned applications, Official application PDF export with QR seal).
+   - **Test Scenarios**: 8 rigorous step-by-step test cases (`TC-STU-01` to `TC-STU-08`) with input data, expected behavior, and pass/fail rating blocks.
+   - **Evaluation**: 12-item ISO/IEC 25010 questionnaire tailored to student interaction capability, mobile responsiveness, and data privacy under R.A. 10173.
+
+2. **OSA Scholarship Evaluator / Staff Testing Instrument (`docs/UAT_Test_Script_Staff_Role.docx`)**:
+   - **Target Audience**: Office of Student Affairs (OSA) Scholarship Officers and Administrative Staff.
+   - **User Stories Covered**: US-07 through US-10 (MFA login, Queue triage and multi-criteria filtering, Comprehensive student dossier inspection, High-resolution interactive canvas manipulation, AI forensic fraud score interpretation, Grad-CAM heatmap & ELA discrepancy verification, Decisioning with Fast-Triage remarks, Confidential internal evaluator notes & audit logging).
+   - **Test Scenarios**: 8 deep-dive test cases (`TC-STF-01` to `TC-STF-08`).
+   - **Specialized Feature**: 10-sample **AI-Assisted vs. Human-Only Document Review Comparison Worksheet** for blind vs. AI-assisted testing (measuring detection accuracy, review time in seconds, false positive/negative rates, and reviewer confidence from 1 to 5).
+   - **Evaluation**: Complete 21-item ISO/IEC 25010 questionnaire covering all 5 quality dimensions evaluated by OSA staff.
+
+3. **Super Administrator & OSA Director Testing Instrument (`docs/UAT_Test_Script_Admin_Role.docx`)**:
+   - **Target Audience**: OSA Director and System Super Administrators.
+   - **User Stories Covered**: US-11 and US-12 (Executive KPI analytics, Scholarship program quota and lifecycle governance, Custom dynamic form field builder, RBAC and evaluator assignment, AI microservice health & sensitivity calibration, Statutory CHED/DOST CSV and PDF compliance reporting, Tamper-evident audit trail monitoring, Soft-deletion & trash recovery).
+   - **Test Scenarios**: 8 administrative governance test cases (`TC-ADM-01` to `TC-ADM-08`).
+   - **Acceptance Determination**: Formal Institutional Acceptance Determination matrix (Accepted without reservation / Accepted with minor observations / Provisional / Not accepted) and quad-signatory sign-off block (Director, Capstone Adviser, Student Researchers, IT Department Chair).
+

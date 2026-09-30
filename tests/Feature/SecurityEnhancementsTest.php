@@ -19,6 +19,7 @@ class SecurityEnhancementsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        \Illuminate\Support\Facades\Cache::flush();
         Setting::set('mfa_enforcement', 'all');
     }
 
