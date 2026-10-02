@@ -1607,6 +1607,31 @@ esources/views/emails/application_form_pdf.blade.php)**:
    - Run `php artisan test --filter NotificationComplianceTest` to verify zero functional regressions.
    - Verify layout stability and immediate font/icon rendering.
 
+---
+
+## 46. Button Layout Collision Remediation & Responsive Hero Action Group Ergonomics (October 2026)
+
+### 1. Problem Analysis & Root Cause Diagnosis
+1. **Vertical Button Collision & Overlap**:
+   - The user provided a screenshot showing "Bulk Summary PDF" and "Review Queue" pill buttons overlapping vertically in [resources/views/admin/applicant_forms.blade.php](file:///f:/aegis-capstone/resources/views/admin/applicant_forms.blade.php).
+   - The parent container was a standard block element `<div class="col-lg-4 text-lg-end mt-3 mt-lg-0">` without flexbox formatting (`d-flex flex-wrap gap-2`). When the viewport narrowed (e.g. tablet or side-by-side split screen), the inline-flex button elements wrapped onto a new line, but without a flex gap or line-height clearance, their vertical padding collided and overlapped.
+2. **Aggressive `!important` Padding on Buttons**:
+   - In [resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php), `.btn` had blanket `padding: 0.55rem 1.6rem !important;` and a mobile rule `@media (max-width: 767.98px) { .btn { padding: 0.7rem 1.8rem !important; } }`.
+   - The `!important` flag completely overrode `.btn-sm`, `.btn-xs`, and inline utilities like `px-3 py-2`, artificially bloating compact secondary action buttons and compounding vertical collision when wrapped.
+
+### 2. Actionable Implementation Steps
+1. **Scope Button Padding & Restore Sizing Modifiers ([resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php))**:
+   - Remove `!important` from base `.btn` padding so utility classes (`py-2`, `px-3`, etc.) can override when necessary.
+   - Add explicit proportional rules for `.btn-sm` (`padding: 0.38rem 1.1rem !important; font-size: 0.82rem !important;`) and `.btn-xs` (`padding: 0.22rem 0.65rem !important; font-size: 0.72rem !important;`).
+   - Scope mobile padding boost to `.btn:not(.btn-sm):not(.btn-xs):not(.btn-link)`.
+   - Add `vertical-align: middle;` to `.btn`.
+2. **Implement Resilient Flex Hero Button Groups**:
+   - [resources/views/admin/applicant_forms.blade.php](file:///f:/aegis-capstone/resources/views/admin/applicant_forms.blade.php): Convert button wrapper to `<div class="col-lg-4 d-flex flex-wrap gap-2 justify-content-lg-end align-items-center mt-3 mt-lg-0">` and add `text-nowrap` to prevent awkward internal breaks.
+   - [resources/views/notifications/center.blade.php](file:///f:/aegis-capstone/resources/views/notifications/center.blade.php): Convert button wrapper to `<div class="col-lg-4 d-flex flex-wrap gap-2 justify-content-lg-end align-items-center mt-3 mt-lg-0">` with `m-0` on inline form wrappers.
+3. **Automated Verification**:
+   - Run `php artisan test` to verify complete test suite execution.
+   - Verify responsive flex wrapping and zero button overlap across breakpoints.
+
 
 
 

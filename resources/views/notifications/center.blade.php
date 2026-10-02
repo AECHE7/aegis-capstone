@@ -26,16 +26,16 @@
                         View, search, filter, and manage all your institutional announcements, application status updates, and university advisories. Configure delivery preferences to customize alerts.
                     </p>
                 </div>
-                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                    <form method="POST" action="{{ route('notifications.test') }}" class="d-inline" id="testNotifForm">
+                <div class="col-lg-4 d-flex flex-wrap gap-2 justify-content-lg-end align-items-center mt-3 mt-lg-0">
+                    <form method="POST" action="{{ route('notifications.test') }}" class="d-inline m-0" id="testNotifForm">
                         @csrf
-                        <button type="submit" class="btn btn-outline-light btn-sm fw-semibold rounded-pill px-3 py-2 me-2">
+                        <button type="submit" class="btn btn-outline-light btn-sm fw-semibold rounded-pill px-3 py-2 text-nowrap">
                             <i class="fa-solid fa-paper-plane me-1"></i> Send Test Alert
                         </button>
                     </form>
-                    <form method="POST" action="{{ route('notifications.clear') }}" class="d-inline">
+                    <form method="POST" action="{{ route('notifications.clear') }}" class="d-inline m-0">
                         @csrf
-                        <button type="submit" class="btn btn-light btn-sm fw-bold text-success rounded-pill px-3 py-2 shadow-sm" {{ $unreadCount === 0 ? 'disabled' : '' }}>
+                        <button type="submit" class="btn btn-light btn-sm fw-bold text-success rounded-pill px-3 py-2 shadow-sm text-nowrap" {{ $unreadCount === 0 ? 'disabled' : '' }}>
                             <i class="fa-solid fa-check-double me-1"></i> Mark All as Read
                         </button>
                     </form>

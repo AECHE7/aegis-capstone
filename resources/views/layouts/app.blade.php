@@ -294,18 +294,30 @@
         .btn {
             border-radius: var(--radius-pill) !important;
             font-weight: 600 !important;
-            padding: 0.55rem 1.6rem !important;
+            padding: 0.55rem 1.6rem;
             letter-spacing: -0.01em !important;
             transition: var(--transition) !important;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
+            vertical-align: middle;
+            line-height: 1.4;
         }
-        /* Mobile Touch-Target scale and padding boost */
+        .btn-sm {
+            padding: 0.38rem 1.1rem !important;
+            font-size: 0.8125rem !important;
+            line-height: 1.35;
+        }
+        .btn-xs {
+            padding: 0.22rem 0.65rem !important;
+            font-size: 0.72rem !important;
+            line-height: 1.3;
+        }
+        /* Mobile Touch-Target scale and padding boost for standard primary/secondary buttons */
         @media (max-width: 767.98px) {
-            .btn {
-                padding: 0.7rem 1.8rem !important; /* WCAG 48px touch target height */
+            .btn:not(.btn-sm):not(.btn-xs):not(.btn-link):not(.topbar-icon-btn) {
+                padding: 0.65rem 1.6rem !important; /* WCAG touch target height */
             }
         }
         .btn:active, .btn:focus:active {

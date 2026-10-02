@@ -26,11 +26,11 @@
                         Generate, inspect, and export official CLSU OSA application & evaluation forms for applicants and scholars across all workflow stages. Every form matches the official approved institutional design with dual seals, academic credentials, and forensic integrity signatures.
                     </p>
                 </div>
-                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                    <a href="{{ route('admin.exportPdf') }}" class="btn btn-outline-light btn-sm fw-semibold rounded-pill px-3 py-2 me-2">
+                <div class="col-lg-4 d-flex flex-wrap gap-2 justify-content-lg-end align-items-center mt-3 mt-lg-0">
+                    <a href="{{ route('admin.exportPdf') }}" class="btn btn-outline-light btn-sm fw-semibold rounded-pill px-3 py-2 text-nowrap">
                         <i class="fa-solid fa-file-pdf me-1"></i> Bulk Summary PDF
                     </a>
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light btn-sm fw-bold text-success rounded-pill px-3 py-2 shadow-sm">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-light btn-sm fw-bold text-success rounded-pill px-3 py-2 shadow-sm text-nowrap">
                         <i class="fa-solid fa-layer-group me-1"></i> Review Queue
                     </a>
                 </div>
