@@ -626,6 +626,119 @@
             color: white;
         }
 
+        /* Sidebar Role Switcher */
+        .sidebar-role-switcher {
+            margin-top: 0.5rem;
+            position: relative;
+        }
+
+        .sidebar-role-switch-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 12px;
+            padding: 8px 12px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            width: 100%;
+        }
+
+        .sidebar-role-switch-btn:hover,
+        .sidebar-role-switch-btn:focus {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-role-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-role-dropdown-menu {
+            border-radius: 14px !important;
+            font-size: 0.82rem !important;
+            background: #062b19 !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45) !important;
+            min-width: 200px !important;
+            padding: 0.4rem !important;
+            z-index: 2100 !important;
+        }
+
+        .sidebar-role-dropdown-menu .dropdown-item {
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            padding: 8px 12px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-role-dropdown-menu .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .sidebar-role-dropdown-menu .dropdown-item.active {
+            background: rgba(0, 117, 74, 0.35);
+            color: #86efac;
+            font-weight: 600;
+        }
+
+        /* Collapsed Sidebar Master Role Switcher */
+        .sidebar.collapsed .sidebar-role-switcher {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            display: flex;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .sidebar-role-switch-btn {
+            width: 44px !important;
+            height: 44px !important;
+            padding: 0 !important;
+            justify-content: center !important;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .sidebar.collapsed .sidebar-role-switch-btn .sidebar-role-icon {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar.collapsed .sidebar-role-switch-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 2000;
+        }
+
+        .sidebar.collapsed .sidebar-role-switch-btn:hover::after {
+            opacity: 1;
+        }
+
         /* Toggle button */
         .sidebar-toggle {
             position: fixed;

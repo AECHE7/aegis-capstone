@@ -1632,6 +1632,49 @@ esources/views/emails/application_form_pdf.blade.php)**:
    - Run `php artisan test` to verify complete test suite execution.
    - Verify responsive flex wrapping and zero button overlap across breakpoints.
 
+---
+
+## 47. Unified Sidebar Master Role Switcher & Dynamic Student Academic / Address Profile Completion (October 2026)
+
+### 1. Problem Analysis & Root Cause Diagnosis
+1. **Unstyled Sidebar Master Role Switcher**:
+   - The "Switch Active Role" selector in [resources/views/layouts/sidebar.blade.php](file:///f:/aegis-capstone/resources/views/layouts/sidebar.blade.php) was implemented using a raw HTML `<select>` inside an unstyled form.
+   - When the sidebar was collapsed to 72px icon mode, the text label wrapped into 3 broken lines with a tiny truncated select box.
+   - When expanded, it rendered a default OS select element with bright orange system outlines on focus, clashing with the dark emerald institutional design system.
+2. **Missing Dynamic College & Program Cascading Selection**:
+   - In [resources/views/auth/change_password.blade.php](file:///f:/aegis-capstone/resources/views/auth/change_password.blade.php), `college` was a select dropdown while `course` was an unguided freeform text input (`<input type="text" name="course">`).
+   - Students frequently mistyped their degree programs or used non-standard acronyms, hindering administrative filtering, analytics, and statutory CHED reporting.
+   - The College of Fisheries was also absent from the hardcoded list in that view.
+3. **Absence of Structured Student Address Attributes**:
+   - The `student_profiles` table only stored basic contact numbers and guardian information, lacking structured residential address fields (`province`, `city_municipality`, `barangay`, `street_address`).
+   - Scholarship application PDFs and eligibility evaluations required the student's residential location, but students had no structured interface to select their province, municipality, or barangay.
+
+### 2. Actionable Implementation Steps
+1. **Unified Custom Master Role Switcher ([resources/views/layouts/sidebar.blade.php](file:///f:/aegis-capstone/resources/views/layouts/sidebar.blade.php), [resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php))**:
+   - Replaced raw `<select>` with a custom Bootstrap dropdown button (`.sidebar-role-switch-btn`) with portal icons (crown for Director, shield for Admin, cap for Student) and chevron indicators.
+   - Styled dropdown menu (`.sidebar-role-dropdown-menu`) with emerald frosted background (`#062b19`), rounded border, and active status checkmarks.
+   - Added `data-bs-popper-config='{"strategy":"fixed"}'` to prevent clipping within the sidebar's `overflow: hidden;` container.
+   - In collapsed sidebar mode (`.sidebar.collapsed`), styled the button into a centered 44x44px icon button with a floating tooltip (`attr(data-tooltip)`).
+2. **Database Migration & Model Encryption ([database/migrations/2026_10_02_221147_add_address_fields_to_student_profiles_table.php](file:///f:/aegis-capstone/database/migrations/2026_10_02_221147_add_address_fields_to_student_profiles_table.php), [app/Models/StudentProfile.php](file:///f:/aegis-capstone/app/Models/StudentProfile.php))**:
+   - Added `province`, `city_municipality`, `barangay`, `street_address`, and `address` to `student_profiles`.
+   - Applied `'encrypted'` casting to all address attributes on `StudentProfile` in compliance with R.A. 10173 (Data Privacy Act of 2012).
+   - Added `getFullAddressAttribute()` accessor to synthesize human-readable comma-delimited addresses automatically.
+3. **Backend Validation & Synthesis ([app/Http/Controllers/AuthController.php](file:///f:/aegis-capstone/app/Http/Controllers/AuthController.php), [app/Http/Controllers/ApplicationController.php](file:///f:/aegis-capstone/app/Http/Controllers/ApplicationController.php))**:
+   - Added validation rules for `province`, `city_municipality`, `barangay`, `street_address`, and `address`.
+   - Implemented automated server-side synthesis of composite `address` string from submitted components.
+4. **Dynamic Cascading College & Degree Program Selector ([resources/views/auth/change_password.blade.php](file:///f:/aegis-capstone/resources/views/auth/change_password.blade.php))**:
+   - Mapped all 9 official CLSU colleges and their degree programs (CAg, CASS, CBAA, CEd, CEn, CF, CHSI, CS, CVSM).
+   - Dynamically populates the degree program dropdown when a college is selected, pre-selecting previously saved or old-input courses.
+   - Included a toggle to type manually if a student has an unlisted, specialized, or graduate program.
+5. **Cascading Structured Address Interface ([resources/views/auth/change_password.blade.php](file:///f:/aegis-capstone/resources/views/auth/change_password.blade.php))**:
+   - Added a dedicated "Permanent Home Address" section with Province dropdown (prioritizing Nueva Ecija, Central Luzon, and major provinces).
+   - Added City/Municipality dropdown populated with all 32 cities and municipalities of Nueva Ecija, other regional centers, and a fallback custom input.
+   - Added Barangay input with Muñoz barangay datalist for autocomplete, plus Street/Purok/House No. input.
+6. **Automated Verification**:
+   - `UserProfileTest` passes 7 tests with 55 assertions verifying storage, encryption, decryption, and PDF rendering.
+   - `EnsureStudentProfileCompleteTest` and `NotificationComplianceTest` pass without regression.
+
+
 
 
 

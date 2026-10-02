@@ -50,6 +50,10 @@ class UserProfileTest extends TestCase
             'contact_number' => '09123456789',
             'guardian_name' => 'Maria Santos',
             'emergency_contact_number' => '09998887777',
+            'province' => 'Nueva Ecija',
+            'city_municipality' => 'Science City of Muñoz',
+            'barangay' => 'Bantug',
+            'street_address' => 'Purok 2',
         ]);
 
         $response->assertRedirect(route('student.profile'));
@@ -71,6 +75,11 @@ class UserProfileTest extends TestCase
         $this->assertEquals('09123456789', $profile->contact_number);
         $this->assertEquals('Maria Santos', $profile->guardian_name);
         $this->assertEquals('09998887777', $profile->emergency_contact_number);
+        $this->assertEquals('Nueva Ecija', $profile->province);
+        $this->assertEquals('Science City of Muñoz', $profile->city_municipality);
+        $this->assertEquals('Bantug', $profile->barangay);
+        $this->assertEquals('Purok 2', $profile->street_address);
+        $this->assertEquals('Purok 2, Brgy. Bantug, Science City of Muñoz, Nueva Ecija', $profile->address);
     }
 
     public function test_profile_validation_rejects_invalid_inputs(): void
@@ -127,6 +136,10 @@ class UserProfileTest extends TestCase
             'contact_number' => '09998887777',
             'guardian_name' => 'Encrypted Guardian',
             'emergency_contact_number' => '09887776666',
+            'province' => 'Nueva Ecija',
+            'city_municipality' => 'Science City of Muñoz',
+            'barangay' => 'Bantug',
+            'street_address' => 'Purok 1',
         ]);
 
         // Access raw SQLite table database values directly using DB Query
@@ -141,6 +154,10 @@ class UserProfileTest extends TestCase
         $this->assertNotEquals('09998887777', $rawProfile->contact_number);
         $this->assertNotEquals('Encrypted Guardian', $rawProfile->guardian_name);
         $this->assertNotEquals('09887776666', $rawProfile->emergency_contact_number);
+        $this->assertNotEquals('Nueva Ecija', $rawProfile->province);
+        $this->assertNotEquals('Science City of Muñoz', $rawProfile->city_municipality);
+        $this->assertNotEquals('Bantug', $rawProfile->barangay);
+        $this->assertNotEquals('Purok 1', $rawProfile->street_address);
 
         // Eager loading decrypted values works fine
         $profileModel = StudentProfile::where('user_id', $this->student->id)->first();
@@ -148,6 +165,10 @@ class UserProfileTest extends TestCase
         $this->assertEquals('09998887777', $profileModel->contact_number);
         $this->assertEquals('Encrypted Guardian', $profileModel->guardian_name);
         $this->assertEquals('09887776666', $profileModel->emergency_contact_number);
+        $this->assertEquals('Nueva Ecija', $profileModel->province);
+        $this->assertEquals('Science City of Muñoz', $profileModel->city_municipality);
+        $this->assertEquals('Bantug', $profileModel->barangay);
+        $this->assertEquals('Purok 1', $profileModel->street_address);
     }
 
     public function test_approved_email_pdf_attachment_contains_student_profile_details(): void

@@ -233,16 +233,61 @@
                 <span class="sidebar-text">Master Gateway</span>
             </a>
 
-            <div class="px-3 py-2">
-                <form action="{{ route('master.switch-role') }}" method="POST" id="masterRoleForm">
+            <div class="sidebar-role-switcher px-2 py-2">
+                <form action="{{ route('master.switch-role') }}" method="POST" id="masterRoleForm" class="d-none">
                     @csrf
-                    <label for="masterRoleSelect" class="form-label small text-muted mb-1" style="font-size: 0.72rem; color: rgba(255,255,255,0.6) !important;">Switch Active Role:</label>
-                    <select name="role" id="masterRoleSelect" class="form-select form-select-sm text-dark bg-white border-0" style="font-size: 0.8rem; border-radius: 8px; font-weight: 550;" onchange="document.getElementById('masterRoleForm').submit()">
-                        <option value="student" {{ auth()->user()->role === 'student' ? 'selected' : '' }}>Student Portal</option>
-                        <option value="admin" {{ auth()->user()->role === 'admin' ? 'selected' : '' }}>Admin Portal</option>
-                        <option value="superadmin" {{ auth()->user()->role === 'superadmin' ? 'selected' : '' }}>Director Portal</option>
-                    </select>
+                    <input type="hidden" name="role" id="masterRoleInput" value="">
                 </form>
+
+                <div class="dropdown">
+                    <button class="sidebar-role-switch-btn w-100 d-flex align-items-center justify-content-between text-start" 
+                            type="button" 
+                            id="masterRoleDropdownBtn" 
+                            data-bs-toggle="dropdown" 
+                            data-bs-display="dynamic"
+                            data-bs-popper-config='{"strategy":"fixed"}'
+                            aria-expanded="false"
+                            data-tooltip="Switch Portal Role">
+                        <span class="d-flex align-items-center gap-2 overflow-hidden" style="min-width: 0;">
+                            @if(auth()->user()->role === 'superadmin')
+                                <span class="sidebar-role-icon text-warning"><i class="fa-solid fa-crown" aria-hidden="true"></i></span>
+                                <span class="sidebar-text text-truncate fw-semibold" style="color: #ffffff; font-size: 0.8rem;">Director Portal</span>
+                            @elseif(auth()->user()->role === 'admin')
+                                <span class="sidebar-role-icon text-info"><i class="fa-solid fa-user-shield" aria-hidden="true"></i></span>
+                                <span class="sidebar-text text-truncate fw-semibold" style="color: #ffffff; font-size: 0.8rem;">Admin Portal</span>
+                            @else
+                                <span class="sidebar-role-icon text-success"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span>
+                                <span class="sidebar-text text-truncate fw-semibold" style="color: #ffffff; font-size: 0.8rem;">Student Portal</span>
+                            @endif
+                        </span>
+                        <i class="fa-solid fa-chevron-down sidebar-text text-white-50" style="font-size: 0.65rem;" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark sidebar-role-dropdown-menu shadow-lg border-0 py-1.5" aria-labelledby="masterRoleDropdownBtn" 
+                        style="border-radius: 14px; font-size: 0.82rem; background: #072F1B; border: 1px solid rgba(255,255,255,0.15) !important; min-width: 190px; z-index: 2100;">
+                        <li><h6 class="dropdown-header text-uppercase text-warning fw-bold py-1.5 px-3" style="font-size: 0.68rem; letter-spacing: 0.5px;">Switch Active Role</h6></li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 {{ auth()->user()->role === 'student' ? 'active' : '' }}" onclick="document.getElementById('masterRoleInput').value='student'; document.getElementById('masterRoleForm').submit();">
+                                <i class="fa-solid fa-graduation-cap text-success" style="width: 16px;"></i>
+                                <span class="flex-grow-1">Student Portal</span>
+                                @if(auth()->user()->role === 'student')<i class="fa-solid fa-check text-success ms-auto"></i>@endif
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 {{ auth()->user()->role === 'admin' ? 'active' : '' }}" onclick="document.getElementById('masterRoleInput').value='admin'; document.getElementById('masterRoleForm').submit();">
+                                <i class="fa-solid fa-user-shield text-info" style="width: 16px;"></i>
+                                <span class="flex-grow-1">Admin Portal</span>
+                                @if(auth()->user()->role === 'admin')<i class="fa-solid fa-check text-info ms-auto"></i>@endif
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2 px-3 {{ auth()->user()->role === 'superadmin' ? 'active' : '' }}" onclick="document.getElementById('masterRoleInput').value='superadmin'; document.getElementById('masterRoleForm').submit();">
+                                <i class="fa-solid fa-crown text-warning" style="width: 16px;"></i>
+                                <span class="flex-grow-1">Director Portal</span>
+                                @if(auth()->user()->role === 'superadmin')<i class="fa-solid fa-check text-warning ms-auto"></i>@endif
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         @endif
     </nav>

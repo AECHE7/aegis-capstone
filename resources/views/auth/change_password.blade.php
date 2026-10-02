@@ -107,7 +107,7 @@
                     </div>
                 @endif
 
-                @if($errors->any() && ($errors->has('name') || $errors->has('clsu_id_number') || $errors->has('contact_number') || $errors->has('college') || $errors->has('course') || $errors->has('year_level') || $errors->has('guardian_name') || $errors->has('emergency_contact_number')))
+                @if($errors->any() && ($errors->has('name') || $errors->has('clsu_id_number') || $errors->has('contact_number') || $errors->has('college') || $errors->has('course') || $errors->has('year_level') || $errors->has('guardian_name') || $errors->has('emergency_contact_number') || $errors->has('province') || $errors->has('city_municipality') || $errors->has('barangay') || $errors->has('street_address')))
                     <div class="alert alert-danger border-0 small mb-4" style="background-color: #fee2e2; color: #7f1d1d; border-radius: 12px;">
                         <ul class="mb-0 ps-3">
                             @foreach($errors->all() as $error)
@@ -196,6 +196,7 @@
                                             'College of Business Administration and Accountancy',
                                             'College of Education',
                                             'College of Engineering',
+                                            'College of Fisheries',
                                             'College of Home Science and Industry',
                                             'College of Science',
                                             'College of Veterinary Science and Medicine'
@@ -222,18 +223,25 @@
                                 </div>
                             </div>
 
-                            <!-- Degree Course -->
+                            <!-- Degree Course / Program -->
                             <div class="col-12">
-                                <label for="course" class="form-label fw-semibold text-dark small mb-1">
-                                    Degree Course / Program <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="course" class="form-label fw-semibold text-dark small mb-0">
+                                        Degree Course / Program <span class="text-danger">*</span>
+                                    </label>
+                                    <button type="button" id="manualCourseToggle" class="btn btn-link p-0 text-decoration-none small text-muted" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i>Type manually
+                                    </button>
+                                </div>
+                                <div class="input-group" id="courseSelectGroup">
                                     <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-graduation-cap"></i></span>
-                                    <input type="text" name="course" id="course" 
-                                           class="form-control border-start-0 py-2" 
-                                           autocomplete="off"
-                                           placeholder="e.g. BS Information Technology"
-                                           value="{{ old('course', $user->profile->course ?? '') }}" required style="border-radius: 0 10px 10px 0;">
+                                    <select name="course" id="course" class="form-select border-start-0 py-2" required style="border-radius: 0 10px 10px 0;">
+                                        <option value="" disabled selected>Select College first...</option>
+                                    </select>
+                                </div>
+                                <div class="input-group d-none" id="courseInputGroup">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-graduation-cap"></i></span>
+                                    <input type="text" id="manual_course_input" class="form-control border-start-0 py-2" placeholder="e.g. BS Information Technology" style="border-radius: 0 10px 10px 0;">
                                 </div>
                             </div>
 
@@ -263,6 +271,138 @@
                                            autocomplete="tel"
                                            placeholder="e.g. 09123456789"
                                            value="{{ old('emergency_contact_number', $user->profile->emergency_contact_number ?? '') }}" required style="border-radius: 0 10px 10px 0;">
+                                </div>
+                            </div>
+
+                            <!-- Permanent Residential Address Section -->
+                            <div class="col-12 mt-4 pt-3 border-top">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="d-inline-flex align-items-center justify-content-center bg-success-subtle text-success rounded-circle" style="width: 28px; height: 28px;">
+                                            <i class="fa-solid fa-location-dot" style="font-size: 0.85rem;"></i>
+                                        </span>
+                                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">Permanent Home Address</h6>
+                                    </div>
+                                    <span class="badge bg-light text-secondary border small">Student Residence</span>
+                                </div>
+                                <p class="text-muted small mb-3" style="font-size: 0.78rem;">
+                                    Official residential address used for statutory scholarship eligibility verification and official certificate generation.
+                                </p>
+                            </div>
+
+                            <!-- Province Dropdown -->
+                            <div class="col-md-6">
+                                <label for="address_province" class="form-label fw-semibold text-dark small mb-1">
+                                    Province <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-map"></i></span>
+                                    <select name="province" id="address_province" class="form-select border-start-0 py-2" required style="border-radius: 0 10px 10px 0;">
+                                        <option value="" disabled {{ !old('province', $user->profile->province ?? '') ? 'selected' : '' }}>Select Province...</option>
+                                        <option value="Nueva Ecija" {{ old('province', $user->profile->province ?? '') === 'Nueva Ecija' || (!old('province') && !($user->profile->province ?? null)) ? 'selected' : '' }}>Nueva Ecija</option>
+                                        <option value="Pangasinan" {{ old('province', $user->profile->province ?? '') === 'Pangasinan' ? 'selected' : '' }}>Pangasinan</option>
+                                        <option value="Pampanga" {{ old('province', $user->profile->province ?? '') === 'Pampanga' ? 'selected' : '' }}>Pampanga</option>
+                                        <option value="Tarlac" {{ old('province', $user->profile->province ?? '') === 'Tarlac' ? 'selected' : '' }}>Tarlac</option>
+                                        <option value="Bulacan" {{ old('province', $user->profile->province ?? '') === 'Bulacan' ? 'selected' : '' }}>Bulacan</option>
+                                        <option value="Bataan" {{ old('province', $user->profile->province ?? '') === 'Bataan' ? 'selected' : '' }}>Bataan</option>
+                                        <option value="Zambales" {{ old('province', $user->profile->province ?? '') === 'Zambales' ? 'selected' : '' }}>Zambales</option>
+                                        <option value="Aurora" {{ old('province', $user->profile->province ?? '') === 'Aurora' ? 'selected' : '' }}>Aurora</option>
+                                        <option value="Metro Manila" {{ old('province', $user->profile->province ?? '') === 'Metro Manila' ? 'selected' : '' }}>Metro Manila</option>
+                                        <option value="Benguet" {{ old('province', $user->profile->province ?? '') === 'Benguet' ? 'selected' : '' }}>Benguet</option>
+                                        <option value="La Union" {{ old('province', $user->profile->province ?? '') === 'La Union' ? 'selected' : '' }}>La Union</option>
+                                        <option value="Ilocos Norte" {{ old('province', $user->profile->province ?? '') === 'Ilocos Norte' ? 'selected' : '' }}>Ilocos Norte</option>
+                                        <option value="Ilocos Sur" {{ old('province', $user->profile->province ?? '') === 'Ilocos Sur' ? 'selected' : '' }}>Ilocos Sur</option>
+                                        <option value="Cagayan" {{ old('province', $user->profile->province ?? '') === 'Cagayan' ? 'selected' : '' }}>Cagayan</option>
+                                        <option value="Isabela" {{ old('province', $user->profile->province ?? '') === 'Isabela' ? 'selected' : '' }}>Isabela</option>
+                                        <option value="Nueva Vizcaya" {{ old('province', $user->profile->province ?? '') === 'Nueva Vizcaya' ? 'selected' : '' }}>Nueva Vizcaya</option>
+                                        <option value="Quirino" {{ old('province', $user->profile->province ?? '') === 'Quirino' ? 'selected' : '' }}>Quirino</option>
+                                        <option value="Batangas" {{ old('province', $user->profile->province ?? '') === 'Batangas' ? 'selected' : '' }}>Batangas</option>
+                                        <option value="Cavite" {{ old('province', $user->profile->province ?? '') === 'Cavite' ? 'selected' : '' }}>Cavite</option>
+                                        <option value="Laguna" {{ old('province', $user->profile->province ?? '') === 'Laguna' ? 'selected' : '' }}>Laguna</option>
+                                        <option value="Quezon" {{ old('province', $user->profile->province ?? '') === 'Quezon' ? 'selected' : '' }}>Quezon</option>
+                                        <option value="Rizal" {{ old('province', $user->profile->province ?? '') === 'Rizal' ? 'selected' : '' }}>Rizal</option>
+                                        <option value="Other" {{ !in_array(old('province', $user->profile->province ?? ''), ['', 'Nueva Ecija', 'Pangasinan', 'Pampanga', 'Tarlac', 'Bulacan', 'Bataan', 'Zambales', 'Aurora', 'Metro Manila', 'Benguet', 'La Union', 'Ilocos Norte', 'Ilocos Sur', 'Cagayan', 'Isabela', 'Nueva Vizcaya', 'Quirino', 'Batangas', 'Cavite', 'Laguna', 'Quezon', 'Rizal']) && old('province', $user->profile->province ?? '') ? 'selected' : '' }}>Other Province...</option>
+                                    </select>
+                                </div>
+                                <div id="customProvinceWrapper" class="mt-2 {{ !in_array(old('province', $user->profile->province ?? ''), ['', 'Nueva Ecija', 'Pangasinan', 'Pampanga', 'Tarlac', 'Bulacan', 'Bataan', 'Zambales', 'Aurora', 'Metro Manila', 'Benguet', 'La Union', 'Ilocos Norte', 'Ilocos Sur', 'Cagayan', 'Isabela', 'Nueva Vizcaya', 'Quirino', 'Batangas', 'Cavite', 'Laguna', 'Quezon', 'Rizal']) && old('province', $user->profile->province ?? '') ? '' : 'd-none' }}">
+                                    <input type="text" id="custom_province_input" class="form-control py-2" placeholder="Enter your province name..." value="{{ old('province', $user->profile->province ?? '') }}" style="border-radius: 10px;">
+                                </div>
+                            </div>
+
+                            <!-- City / Municipality Dropdown -->
+                            <div class="col-md-6">
+                                <label for="address_city" class="form-label fw-semibold text-dark small mb-1">
+                                    City / Municipality <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-city"></i></span>
+                                    <select name="city_municipality" id="address_city" class="form-select border-start-0 py-2" required style="border-radius: 0 10px 10px 0;">
+                                        <option value="" disabled selected>Select City / Municipality...</option>
+                                    </select>
+                                </div>
+                                <div id="customCityWrapper" class="mt-2 d-none">
+                                    <input type="text" id="custom_city_input" class="form-control py-2" placeholder="Enter city / municipality name..." style="border-radius: 10px;">
+                                </div>
+                            </div>
+
+                            <!-- Barangay -->
+                            <div class="col-md-6">
+                                <label for="address_barangay" class="form-label fw-semibold text-dark small mb-1">
+                                    Barangay <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-tree-city"></i></span>
+                                    <input type="text" name="barangay" id="address_barangay" list="munoz_barangay_list"
+                                           class="form-control border-start-0 py-2" 
+                                           autocomplete="address-level3"
+                                           placeholder="e.g. Bantug or Poblacion"
+                                           value="{{ old('barangay', $user->profile->barangay ?? '') }}" required style="border-radius: 0 10px 10px 0;">
+                                </div>
+                                <datalist id="munoz_barangay_list">
+                                    <option value="Bantug">
+                                    <option value="Bagong Sikat">
+                                    <option value="Bical">
+                                    <option value="Catalanacan">
+                                    <option value="Curva">
+                                    <option value="Franza">
+                                    <option value="Labney">
+                                    <option value="Licaong">
+                                    <option value="Linglingay">
+                                    <option value="Magtanggol">
+                                    <option value="Maligaya">
+                                    <option value="Mangandingay">
+                                    <option value="Maragol">
+                                    <option value="Poblacion East">
+                                    <option value="Poblacion North">
+                                    <option value="Poblacion South">
+                                    <option value="Poblacion West">
+                                    <option value="Rang-ayan">
+                                    <option value="Rizal">
+                                    <option value="San Antonio">
+                                    <option value="San Felipe">
+                                    <option value="San Juan">
+                                    <option value="Santa Sofia">
+                                    <option value="Sapang Cauayan">
+                                    <option value="Villa Cuizon">
+                                    <option value="Villa Isla">
+                                    <option value="Villa Nati">
+                                    <option value="Villa Santos">
+                                    <option value="Villa Soriano">
+                                </datalist>
+                            </div>
+
+                            <!-- Street Address / House No. / Purok -->
+                            <div class="col-md-6">
+                                <label for="address_street" class="form-label fw-semibold text-dark small mb-1">
+                                    Street / Purok / House No. <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-road"></i></span>
+                                    <input type="text" name="street_address" id="address_street" 
+                                           class="form-control border-start-0 py-2" 
+                                           autocomplete="street-address"
+                                           placeholder="e.g. Purok 2, Maharlika Highway"
+                                           value="{{ old('street_address', $user->profile->street_address ?? '') }}" required style="border-radius: 0 10px 10px 0;">
                                 </div>
                             </div>
                         @else
@@ -547,5 +687,296 @@
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // ── 1. COLLEGE & DEGREE PROGRAM CASCADING SELECTOR ──
+        const collegePrograms = {
+            'College of Agriculture': [
+                'BS in Agriculture (BSA)',
+                'BS in Agribusiness (BSAB)'
+            ],
+            'College of Arts and Social Sciences': [
+                'BA in Development Communication (BADC)',
+                'BA in Literature (BALit)',
+                'BA in Social Sciences (BASS)',
+                'BS in Psychology (BSPsych)'
+            ],
+            'College of Business Administration and Accountancy': [
+                'BS in Accountancy (BSA)',
+                'BS in Business Administration - Marketing Management (BSBA-MM)',
+                'BS in Business Administration - Financial Management (BSBA-FM)',
+                'BS in Management Accounting (BSMA)',
+                'BS in Entrepreneurship (BSEntrep)'
+            ],
+            'College of Education': [
+                'Bachelor of Elementary Education (BEEd)',
+                'Bachelor of Secondary Education (BSEd)',
+                'Bachelor of Culture and Arts Education (BCAEd)',
+                'Bachelor of Early Childhood Education (BECEd)',
+                'Bachelor of Physical Education (BPEd)',
+                'BS in Hospitality Management (BSHM)',
+                'BS in Tourism Management (BSTM)'
+            ],
+            'College of Engineering': [
+                'BS in Agricultural and Biosystems Engineering (BSABE)',
+                'BS in Civil Engineering (BSCE)',
+                'BS in Information Technology (BSIT)',
+                'BS in Meteorology (BSMet)'
+            ],
+            'College of Fisheries': [
+                'BS in Fisheries (BSFi)'
+            ],
+            'College of Home Science and Industry': [
+                'BS in Food Technology (BSFT)',
+                'BS in Textile and Fashion Technology (BSTFT)'
+            ],
+            'College of Science': [
+                'BS in Biology (BSBio)',
+                'BS in Chemistry (BSChem)',
+                'BS in Environmental Science (BSES)',
+                'BS in Mathematics (BSMath)',
+                'BS in Statistics (BSStat)'
+            ],
+            'College of Veterinary Science and Medicine': [
+                'Doctor of Veterinary Medicine (DVM)'
+            ]
+        };
+
+        const collegeSelect = document.getElementById('college');
+        const courseSelect = document.getElementById('course');
+        const courseSelectGroup = document.getElementById('courseSelectGroup');
+        const courseInputGroup = document.getElementById('courseInputGroup');
+        const manualCourseInput = document.getElementById('manual_course_input');
+        const manualCourseToggle = document.getElementById('manualCourseToggle');
+
+        const initialSavedCourse = {!! json_encode(old('course', $user->profile->course ?? '')) !!};
+        let isManualCourseMode = false;
+
+        function updateCourseOptions(selectedCollege, selectedValue) {
+            if (!courseSelect) return;
+            courseSelect.innerHTML = '<option value="" disabled selected>Select Degree Program...</option>';
+            
+            const programs = collegePrograms[selectedCollege] || [];
+            let valueMatched = false;
+
+            programs.forEach(function (prog) {
+                const opt = document.createElement('option');
+                opt.value = prog;
+                opt.textContent = prog;
+                if (selectedValue && (selectedValue === prog || selectedValue.toLowerCase() === prog.toLowerCase())) {
+                    opt.selected = true;
+                    valueMatched = true;
+                }
+                courseSelect.appendChild(opt);
+            });
+
+            // Add other option
+            const otherOpt = document.createElement('option');
+            otherOpt.value = '__OTHER__';
+            otherOpt.textContent = 'Other Degree Program...';
+            courseSelect.appendChild(otherOpt);
+
+            // If user has a previously saved course that wasn't an exact match, append it so it's not lost
+            if (selectedValue && !valueMatched && selectedValue !== '__OTHER__') {
+                const customOpt = document.createElement('option');
+                customOpt.value = selectedValue;
+                customOpt.textContent = selectedValue;
+                customOpt.selected = true;
+                courseSelect.insertBefore(customOpt, otherOpt);
+            }
+        }
+
+        if (collegeSelect && courseSelect) {
+            collegeSelect.addEventListener('change', function () {
+                if (!isManualCourseMode) {
+                    updateCourseOptions(this.value, '');
+                }
+            });
+
+            courseSelect.addEventListener('change', function () {
+                if (this.value === '__OTHER__') {
+                    toggleManualCourse(true);
+                }
+            });
+
+            if (manualCourseToggle) {
+                manualCourseToggle.addEventListener('click', function () {
+                    toggleManualCourse(!isManualCourseMode);
+                });
+            }
+
+            function toggleManualCourse(enableManual) {
+                isManualCourseMode = enableManual;
+                if (enableManual) {
+                    courseSelectGroup.classList.add('d-none');
+                    courseInputGroup.classList.remove('d-none');
+                    manualCourseInput.value = (courseSelect.value && courseSelect.value !== '__OTHER__') ? courseSelect.value : '';
+                    manualCourseInput.name = 'course';
+                    courseSelect.removeAttribute('name');
+                    manualCourseToggle.innerHTML = '<i class="fa-solid fa-list me-1"></i>Select from list';
+                    manualCourseInput.focus();
+                } else {
+                    courseInputGroup.classList.add('d-none');
+                    courseSelectGroup.classList.remove('d-none');
+                    courseSelect.name = 'course';
+                    manualCourseInput.removeAttribute('name');
+                    manualCourseToggle.innerHTML = '<i class="fa-solid fa-pen-to-square me-1"></i>Type manually';
+                    if (collegeSelect.value) {
+                        updateCourseOptions(collegeSelect.value, manualCourseInput.value);
+                    }
+                }
+            }
+
+            // Initialize on page load
+            if (collegeSelect.value) {
+                updateCourseOptions(collegeSelect.value, initialSavedCourse);
+            }
+        }
+
+        // ── 2. PROVINCE & CITY/MUNICIPALITY CASCADING SELECTOR ──
+        const provinceCities = {
+            'Nueva Ecija': [
+                'Science City of Muñoz',
+                'San Jose City',
+                'Cabanatuan City',
+                'Gapan City',
+                'Palayan City',
+                'Aliaga',
+                'Bongabon',
+                'Cabiao',
+                'Carranglan',
+                'Cuyapo',
+                'Gabaldon',
+                'General Mamerto Natividad',
+                'General Tinio',
+                'Guimba',
+                'Jaen',
+                'Laur',
+                'Licab',
+                'Llanera',
+                'Lupao',
+                'Nampicuan',
+                'Pantabangan',
+                'Peñaranda',
+                'Quezon',
+                'Rizal',
+                'San Antonio',
+                'San Isidro',
+                'San Leonardo',
+                'Santa Rosa',
+                'Santo Domingo',
+                'Talavera',
+                'Talugtug',
+                'Zaragoza'
+            ],
+            'Pangasinan': [
+                'San Carlos City', 'Dagupan City', 'Urdaneta City', 'Alaminos City',
+                'Rosales', 'Lingayen', 'Bayambang', 'Malasiqui', 'Calasiao', 'Mangaldan'
+            ],
+            'Pampanga': [
+                'San Fernando City', 'Angeles City', 'Mabalacat City', 'Guagua', 'Lubao', 'Mexico', 'Arayat', 'Candaba'
+            ],
+            'Tarlac': [
+                'Tarlac City', 'Concepcion', 'Capas', 'Paniqui', 'Camiling', 'Gerona', 'Moncada', 'Victoria'
+            ],
+            'Bulacan': [
+                'Malolos City', 'San Jose del Monte City', 'Meycauayan City', 'Baliuag', 'Marilao', 'Santa Maria', 'Bocaue', 'San Miguel'
+            ],
+            'Bataan': [
+                'Balanga City', 'Dinalupihan', 'Hermosa', 'Mariveles', 'Orani'
+            ],
+            'Zambales': [
+                'Olongapo City', 'Subic', 'Iba', 'Castillejos', 'San Marcelino'
+            ],
+            'Aurora': [
+                'Baler', 'Casiguran', 'Dilasag', 'Dinalungan', 'Dingalan', 'Dipaculao', 'Maria Aurora', 'San Luis'
+            ],
+            'Metro Manila': [
+                'Manila', 'Quezon City', 'Caloocan', 'Taguig', 'Pasig', 'Makati', 'Parañaque', 'Valenzuela', 'Las Piñas', 'Muntinlupa', 'Mandaluyong', 'Marikina', 'Pasay', 'Malabon', 'Navotas', 'San Juan', 'Pateros'
+            ]
+        };
+
+        const provinceSelect = document.getElementById('address_province');
+        const customProvinceWrapper = document.getElementById('customProvinceWrapper');
+        const customProvinceInput = document.getElementById('custom_province_input');
+        const citySelect = document.getElementById('address_city');
+        const customCityWrapper = document.getElementById('customCityWrapper');
+        const customCityInput = document.getElementById('custom_city_input');
+
+        const initialSavedCity = {!! json_encode(old('city_municipality', $user->profile->city_municipality ?? '')) !!};
+
+        function updateCityOptions(province, selectedCity) {
+            if (!citySelect) return;
+            citySelect.innerHTML = '<option value="" disabled selected>Select City / Municipality...</option>';
+
+            const cities = provinceCities[province] || [];
+            let cityMatched = false;
+
+            cities.forEach(function (c) {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                if (selectedCity && (selectedCity === c || selectedCity.toLowerCase() === c.toLowerCase())) {
+                    opt.selected = true;
+                    cityMatched = true;
+                }
+                citySelect.appendChild(opt);
+            });
+
+            // Other City option
+            const otherOpt = document.createElement('option');
+            otherOpt.value = '__OTHER_CITY__';
+            otherOpt.textContent = 'Other City / Municipality...';
+            citySelect.appendChild(otherOpt);
+
+            // Retain custom or unmatched saved city
+            if (selectedCity && !cityMatched && selectedCity !== '__OTHER_CITY__') {
+                const customCityOpt = document.createElement('option');
+                customCityOpt.value = selectedCity;
+                customCityOpt.textContent = selectedCity;
+                customCityOpt.selected = true;
+                citySelect.insertBefore(customCityOpt, otherOpt);
+            }
+        }
+
+        if (provinceSelect && citySelect) {
+            provinceSelect.addEventListener('change', function () {
+                if (this.value === 'Other') {
+                    customProvinceWrapper.classList.remove('d-none');
+                    customProvinceInput.setAttribute('required', 'required');
+                    customProvinceInput.name = 'province';
+                    provinceSelect.removeAttribute('name');
+                    customProvinceInput.focus();
+                } else {
+                    customProvinceWrapper.classList.add('d-none');
+                    customProvinceInput.removeAttribute('required');
+                    provinceSelect.name = 'province';
+                    customProvinceInput.removeAttribute('name');
+                }
+                updateCityOptions(this.value, '');
+            });
+
+            citySelect.addEventListener('change', function () {
+                if (this.value === '__OTHER_CITY__') {
+                    customCityWrapper.classList.remove('d-none');
+                    customCityInput.setAttribute('required', 'required');
+                    customCityInput.name = 'city_municipality';
+                    citySelect.removeAttribute('name');
+                    customCityInput.focus();
+                } else {
+                    customCityWrapper.classList.add('d-none');
+                    customCityInput.removeAttribute('required');
+                    citySelect.name = 'city_municipality';
+                    customCityInput.removeAttribute('name');
+                }
+            });
+
+            // Initialize on load
+            const activeProv = provinceSelect.value || 'Nueva Ecija';
+            if (activeProv) {
+                updateCityOptions(activeProv, initialSavedCity);
+            }
+        }
+    });
 </script>
 @endsection

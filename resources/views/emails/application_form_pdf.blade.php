@@ -367,7 +367,7 @@
             <td colspan="3">
                 <span class="label-text">PERMANENT HOME ADDRESS</span>
                 <span class="value-text">
-                    {{ $getField('home address') ?? $getField('permanent address') ?? $getField('address') ?? $application->user->profile?->address ?? '—' }}
+                    {{ $getField('home address') ?? $getField('permanent address') ?? $getField('address') ?? $application->user->profile?->full_address ?? $application->user->profile?->address ?? '—' }}
                 </span>
             </td>
         </tr>

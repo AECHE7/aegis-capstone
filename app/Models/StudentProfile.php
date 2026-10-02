@@ -30,6 +30,11 @@ class StudentProfile extends Model
         'contact_number',
         'guardian_name',
         'emergency_contact_number',
+        'province',
+        'city_municipality',
+        'barangay',
+        'street_address',
+        'address',
     ];
 
     protected $casts = [
@@ -37,7 +42,31 @@ class StudentProfile extends Model
         'contact_number' => 'encrypted',
         'guardian_name' => 'encrypted',
         'emergency_contact_number' => 'encrypted',
+        'province' => 'encrypted',
+        'city_municipality' => 'encrypted',
+        'barangay' => 'encrypted',
+        'street_address' => 'encrypted',
+        'address' => 'encrypted',
     ];
+
+    /**
+     * Get the formatted full address string.
+     */
+    public function getFullAddressAttribute(): string
+    {
+        if (!empty($this->attributes['address'] ?? null)) {
+            return (string) $this->address;
+        }
+
+        $parts = array_filter([
+            $this->street_address,
+            $this->barangay ? 'Brgy. ' . $this->barangay : null,
+            $this->city_municipality,
+            $this->province,
+        ]);
+
+        return !empty($parts) ? implode(', ', $parts) : '';
+    }
 
     public function user()
     {

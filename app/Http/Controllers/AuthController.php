@@ -494,6 +494,11 @@ class AuthController extends Controller
                 'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
                 'guardian_name' => 'required|string|max:255',
                 'emergency_contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
+                'province' => 'nullable|string|max:100',
+                'city_municipality' => 'nullable|string|max:100',
+                'barangay' => 'nullable|string|max:100',
+                'street_address' => 'nullable|string|max:255',
+                'address' => 'nullable|string|max:500',
             ], [
                 'clsu_id_number.regex' => 'The CLSU ID number format must be 00-0000 (e.g. 23-1234).',
                 'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
@@ -502,6 +507,17 @@ class AuthController extends Controller
 
             $user->name = $request->name;
             $user->save();
+
+            $formattedAddress = $request->address;
+            if (empty($formattedAddress) && ($request->province || $request->city_municipality)) {
+                $addressParts = array_filter([
+                    $request->street_address,
+                    $request->barangay ? 'Brgy. ' . $request->barangay : null,
+                    $request->city_municipality,
+                    $request->province,
+                ]);
+                $formattedAddress = implode(', ', $addressParts);
+            }
 
             $user->profile()->updateOrCreate(
                 ['user_id' => $user->id],
@@ -513,6 +529,11 @@ class AuthController extends Controller
                     'contact_number' => $request->contact_number,
                     'guardian_name' => $request->guardian_name,
                     'emergency_contact_number' => $request->emergency_contact_number,
+                    'province' => $request->province,
+                    'city_municipality' => $request->city_municipality,
+                    'barangay' => $request->barangay,
+                    'street_address' => $request->street_address,
+                    'address' => $formattedAddress,
                 ]
             );
 
