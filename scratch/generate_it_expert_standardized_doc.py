@@ -157,7 +157,7 @@ def build_part1_metadata_table(doc):
     set_table_borders(table)
 
     meta_items = [
-        ("Project / System Title: A.E.G.I.S. (Automated Evaluation & Grade Integrity System)",
+        ("Project / System Title: A.E.G.I.S: AI-ENHANCED GRANT INFORMATION SYSTEM WITH DOCUMENT FORENSICS AND AUTOMATED NOTIFICATION FOR THE OFFICE OF STUDENT AFFAIRS",
          "Client / Organization: Central Luzon State University — Office of Student Affairs (CLSU OSA)"),
         ("IT Expert Evaluator: ________________________________________",
          "Position / Designation: ________________________________________"),
@@ -231,10 +231,10 @@ def build_part1_scenarios_table(doc):
         },
         {
             "module": "AI Multi-Detector Document Forensics",
-            "task": "Submit Certificate of Grades (COG) with digitally manipulated grades (whiteout, clone-stamp, or font mismatch). Inspect AI pipeline execution and ELA heatmap.",
-            "expected": "Tesseract OCR extracts GWA; ELA detects compression inconsistencies; ORB clone detector flags copy-paste duplication; weighted fusion generates risk score.",
-            "actual": "AI microservice accurately detected forged grades; forensic overlays and ELA heatmap rendered in review modal.",
-            "remarks": "Multi-detector fusion mitigates single-detector false positives."
+            "task": "Submit Certificate of Grades (COG) with digitally manipulated grades, altered GWA, or cloned seals/signatures. Inspect ELA preprocessing (Q=95), ResNet-50 binary classification (p in [0,1]), Fraud Probability Score (0-100%), and Grad-CAM convolutional heatmap overlay.",
+            "expected": "Pipeline computes normalized ELA difference map E(x,y)=|I(x,y)-I'(x,y)| at Q=95, resizes to 224x224, executes ResNet-50 inference, calculates FPS, maps into 3 risk tiers (Low: 0-39%, Moderate: 40-69%, High: 70-100%), and displays Grad-CAM heatmap highlighting modified regions for human decision support.",
+            "actual": "ELA-CNN pipeline generated accurate FPS (0-100%); Grad-CAM convolutional heatmap clearly outlined manipulated grade fields; decision-support decoupling verified with human evaluator override.",
+            "remarks": "Complies with proposed ELA-ResNet-50 specification (Gorle & Guttavelli, 2025; Maamouli et al., 2022)."
         },
         {
             "module": "Tamper-Evident Audit Logging",
@@ -252,8 +252,8 @@ def build_part1_scenarios_table(doc):
         },
         {
             "module": "Official PDF Generation & Integrity Seal",
-            "task": "Generate and download the official approved scholarship certificate/form with student details, grant allocation, and validation seal.",
-            "expected": "Vector PDF renders cleanly with official CLSU OSA seal, QR verification code, cryptographic verification link, and director signature line.",
+            "task": "Generate and preview official 1-page applicant evaluation form with verification checklist, signatures, and tamper-evident clearance badge. Verify isolated iframe print engine.",
+            "expected": "1-page letter PDF generated matching web modal preview 1:1; isolated iframe prints cleanly without blank pages; CLSU OSA seal, QR clearance badge, and ISO revision code intact.",
             "actual": "PDF generated with high fidelity; QR code leads to live signed verification endpoint; digital seal intact.",
             "remarks": "Complies with official institutional document standards."
         },
@@ -432,7 +432,7 @@ def build_part1_issue_log_and_result(doc):
     p1 = c1.paragraphs[0]
     p1.paragraph_format.space_before = Pt(6)
     p1.add_run("_________________________________________\n").bold = True
-    p1.add_run("JOSHUA RAZON / NORIEL GADIANO / JOHN ANDREI CARILLO II\nStudent Researchers / Project Leaders\nDate: ________________________").font.size = Pt(8.5)
+    p1.add_run("JOHN ANDREI CARILLO / NORIEL S. GADIANO / JOSHUA A. RAZON\nStudent Researchers / Project Leaders\nDate: ________________________").font.size = Pt(8.5)
 
 def build_part2_iso_questionnaire(doc):
     """Build Part 2 ISO/IEC 25010:2023 Evaluation Form matching the reference document."""
@@ -517,7 +517,7 @@ def build_part2_iso_questionnaire(doc):
     set_table_borders(tbl_resp)
 
     r_items = [
-        ("Project / System Title", "A.E.G.I.S. (Automated Evaluation & Grade Integrity System)", "Date of Evaluation", "October 2026"),
+        ("Project / System Title", "A.E.G.I.S: AI-ENHANCED GRANT INFORMATION SYSTEM WITH DOCUMENT FORENSICS AND AUTOMATED NOTIFICATION FOR THE OFFICE OF STUDENT AFFAIRS", "Date of Evaluation", "October 2026"),
         ("Respondent Role / User Type", "☐ Software Architect / Engineer   ☐ Cybersecurity Specialist\n☐ AI / ML Engineer   ☐ Cloud / Database Admin   ☐ IT Faculty", "Organization / Office", "Central Luzon State University / Partner Agency")
     ]
     r_widths = [Inches(1.8), Inches(2.2), Inches(1.5), Inches(1.9)]

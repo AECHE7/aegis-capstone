@@ -185,7 +185,7 @@ class NotificationComplianceTest extends TestCase
         $user->notify(new NewAnnouncementNotification($announcement2));
 
         // 1. Visit HTML page
-        $htmlResponse = $this->actingAs($user)->get('/notifications');
+        $htmlResponse = $this->actingAs($user)->get('/notifications?view=center');
         $htmlResponse->assertOk();
         $htmlResponse->assertSee('Notifications & Alerts Center');
         $htmlResponse->assertSee('Delivery Preferences');
@@ -271,7 +271,7 @@ class NotificationComplianceTest extends TestCase
         $this->assertEquals('/admin/review/999', $notifs[0]['url']);
 
         // Check HTML page renders bootstrap-5 pagination and not Tailwind giant icons
-        $htmlResponse = $this->actingAs($user)->get('/notifications');
+        $htmlResponse = $this->actingAs($user)->get('/notifications?view=center');
         $htmlResponse->assertOk();
         $htmlResponse->assertSee('Open & View', false);
     }

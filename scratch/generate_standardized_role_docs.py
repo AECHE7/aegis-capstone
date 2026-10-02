@@ -146,7 +146,7 @@ def build_part1_metadata_table(doc, role_default, tester_name=""):
     set_table_borders(table)
 
     meta_items = [
-        ("Project / System Title: A.E.G.I.S. (Automated Evaluation & Grade Integrity System)",
+        ("Project / System Title: A.E.G.I.S: AI-ENHANCED GRANT INFORMATION SYSTEM WITH DOCUMENT FORENSICS AND AUTOMATED NOTIFICATION FOR THE OFFICE OF STUDENT AFFAIRS",
          "Client / Organization: Central Luzon State University — Office of Student Affairs (CLSU OSA)"),
         (f"Tester / Client Representative: {tester_name}",
          f"Role / Designation: {role_default}"),
@@ -346,7 +346,7 @@ def build_part1_issue_log_and_result(doc, role_label="Client Representative"):
     p1 = c1.paragraphs[0]
     p1.paragraph_format.space_before = Pt(6)
     p1.add_run("_________________________________________\n").bold = True
-    p1.add_run("JOSHUA RAZON / NORIEL GADIANO / JOHN ANDREI CARILLO II\nStudent Researchers / Project Leaders\nDate: ________________________").font.size = Pt(8.5)
+    p1.add_run("JOHN ANDREI CARILLO / NORIEL S. GADIANO / JOSHUA A. RAZON\nStudent Researchers / Project Leaders\nDate: ________________________").font.size = Pt(8.5)
 
 def build_part2_iso_questionnaire(doc, role_title, respondent_role_box, statements_dict):
     """Build Part 2 ISO/IEC 25010:2023 Evaluation Form matching the reference document."""
@@ -426,7 +426,7 @@ def build_part2_iso_questionnaire(doc, role_title, respondent_role_box, statemen
     set_table_borders(tbl_resp)
 
     r_items = [
-        ("Project / System Title", "A.E.G.I.S. (Automated Evaluation & Grade Integrity System)", "Date of Evaluation", "October 2026"),
+        ("Project / System Title", "A.E.G.I.S: AI-ENHANCED GRANT INFORMATION SYSTEM WITH DOCUMENT FORENSICS AND AUTOMATED NOTIFICATION FOR THE OFFICE OF STUDENT AFFAIRS", "Date of Evaluation", "October 2026"),
         ("Respondent Role / User Type", respondent_role_box, "Organization / Office", "Central Luzon State University — Office of Student Affairs (CLSU OSA)")
     ]
     r_widths = [Inches(1.8), Inches(2.2), Inches(1.5), Inches(1.9)]

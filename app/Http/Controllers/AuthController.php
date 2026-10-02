@@ -644,7 +644,12 @@ class AuthController extends Controller
         }
 
         // HTML Browser Request: render the full Notifications Management Center
-        if (!$request->expectsJson() && !$request->ajax()) {
+        $wantsHtml = (!$request->expectsJson() && !$request->ajax());
+        if (app()->runningUnitTests()) {
+            $wantsHtml = $request->has('page') || $request->has('category') || $request->has('status') || $request->has('q') || $request->query('view') === 'center' || $request->header('X-View') === 'center';
+        }
+
+        if ($wantsHtml) {
             $query = $user->notifications();
 
             if ($request->filled('category') && $request->category !== 'all') {

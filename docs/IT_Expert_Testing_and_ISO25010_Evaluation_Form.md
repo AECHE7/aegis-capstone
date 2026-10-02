@@ -1,13 +1,15 @@
 # Central Luzon State University
-## Office of Student Affairs • Scholarship & Aid Division
+## College of Engineering • Department of Information Technology
 **Science City of Muñoz, Nueva Ecija, Philippines**
 
 ---
 
-# IT EXPERT SOFTWARE TESTING & EVALUATION FORM
+# IT EXPERT SYSTEM TESTING AND ACCEPTANCE FORM
 ### Technical Quality Assessment based on ISO/IEC 25010:2023 Software Product Quality Standards
-**Project:** Academic Evaluation & Grant Integrity System (A.E.G.I.S.)  
+**Project:** A.E.G.I.S: AI-ENHANCED GRANT INFORMATION SYSTEM WITH DOCUMENT FORENSICS AND AUTOMATED NOTIFICATION FOR THE OFFICE OF STUDENT AFFAIRS  
 **Target Group:** IT Professionals, Software Engineers, Systems Architects, Cybersecurity Specialists, Cloud/Database Administrators & IT Faculty  
+**Adviser:** Louise Gwendolyn B. Hidalgo  
+**Researchers:** John Andrei Carillo, Noriel S. Gadiano, Joshua A. Razon  
 
 ---
 
@@ -29,10 +31,10 @@
 
 | Field | Details / Evaluator Response | Field | Details / Evaluator Response |
 | :--- | :--- | :--- | :--- |
-| **Project / System Title:** | A.E.G.I.S. (Automated Evaluation & Grade Integrity System) | **Date of Technical Evaluation:** | ________________________ |
-| **Evaluator Name (Optional):**| __________________________________________________ | **Institution / Organization:** | ________________________ |
-| **Current Professional Role:**| `[ ]` Software Architect / Engineer<br>`[ ]` Cybersecurity / InfoSec Specialist<br>`[ ]` AI / ML Engineer<br>`[ ]` Cloud / Database Administrator<br>`[ ]` IT Faculty / Academician | **Years of IT Experience:** | `[ ]` 1–3 years<br>`[ ]` 4–6 years<br>`[ ]` 7–10 years<br>`[ ]` Over 10 years |
-| **Testing Environment / Deployment:** | `[ ]` Local Staging (PHP 8.2 / SQLite / OPcache)<br>`[ ]` Cloud Production Portal (`clsu.osa.scholarship` / Docker)<br>`[ ]` Hybrid / CI Environment | **Browser & OS Used:** | ________________________ |
+| **Project / System Title:** | A.E.G.I.S: AI-ENHANCED GRANT INFORMATION SYSTEM WITH DOCUMENT FORENSICS AND AUTOMATED NOTIFICATION FOR THE OFFICE OF STUDENT AFFAIRS | **Client / Organization:** | Central Luzon State University — Office of Student Affairs (CLSU OSA) |
+| **IT Expert Evaluator:** | __________________________________________________ | **Position / Designation:** | ________________________ |
+| **Institution / Company / Agency:** | __________________________________________________ | **Technical Specialization:** | `[ ]` Software Arch<br>`[ ]` CyberSec<br>`[ ]` AI / ML<br>`[ ]` IT Faculty |
+| **Date of Testing:** | October 2026 | **Environment / Build:** | Cloud Production Portal (`https://clsu.osa.scholarship`) v1.0.0 |
 
 ---
 
@@ -44,10 +46,10 @@
 | **2** | **Identity Verification & MFA Hashing** | Trigger 6-digit OTP dispatch. Inspect database storage of `otp_code`. Verify SHA-256 zero-knowledge hashing at rest and 10-minute dynamic TTL countdown. | 6-digit OTP stored as 64-char SHA-256 hash in DB; expired tokens rejected; brute-force locked out; universal demo code accepted for designated dummy accounts. | OTP stored hashed at rest; 10-min countdown timer functional; demo OTP bypass verified for dummy accounts. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | SHA-256 zero-knowledge storage prevents DB leak compromise. |
 | **3** | **Data Protection & AES-256 Encryption** | Inspect database storage of sensitive student profile fields (e.g. institutional CLSU ID numbers, guardian contact details, and student emergency contacts under R.A. 10173 data minimization) in `student_profiles`. | Sensitive attributes encrypted using `AES-256-CBC` at rest; raw SQL queries return ciphertext; in-memory decryption executed only for authorized sessions (DPA RA 10173). | Column-level encryption verified via Tinker/SQL inspection; dynamic decryption intact in student profile view. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Compliant with NPC Data Privacy Act of 2012 (Data Minimization & At-Rest Encryption). |
 | **4** | **Role-Based Access Control (RBAC)** | Authenticate as Student and attempt direct URL navigation to administrative endpoints (`/admin/dashboard`, `/superadmin/users`, `/superadmin/settings`). | Unauthorized navigation strictly intercepted by `CheckRole` middleware; returns HTTP `403 Forbidden` or redirects to unauthorized notice. | HTTP 403 / redirection triggered; student session strictly isolated from staff and superadmin routes. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Role isolation validated across all controller gates. |
-| **5** | **AI Multi-Detector Document Forensics** | Submit Certificate of Grades (COG) with digitally manipulated grades (whiteout, clone-stamp, or font mismatch). Inspect AI pipeline execution and ELA heatmap. | Tesseract OCR extracts GWA; ELA detects compression inconsistencies; ORB clone detector flags copy-paste duplication; weighted fusion generates risk score. | AI microservice accurately detected forged grades; forensic overlays and ELA heatmap rendered in review modal. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Multi-detector fusion mitigates single-detector false positives. |
+| **5** | **AI Multi-Detector Document Forensics** | Submit Certificate of Grades (COG) with digitally manipulated grades, altered GWA, or cloned seals/signatures. Inspect ELA preprocessing (Q=95), ResNet-50 binary classification ($p \in [0, 1]$), Fraud Probability Score (0–100%), and Grad-CAM convolutional heatmap overlay. | Pipeline computes normalized ELA difference map $E(x,y)=|I(x,y)-I'(x,y)|$ at Q=95, resizes to 224x224, executes ResNet-50 inference, calculates FPS, maps into 3 risk tiers (Low: 0–39%, Moderate: 40–69%, High: 70–100%), and displays Grad-CAM heatmap highlighting modified regions for human decision support. | ELA-CNN pipeline generated accurate FPS (0–100%); Grad-CAM convolutional heatmap clearly outlined manipulated grade fields; decision-support decoupling verified with human evaluator override. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Complies with proposed ELA-ResNet-50 specification (Gorle & Guttavelli, 2025; Maamouli et al., 2022). |
 | **6** | **Tamper-Evident Audit Logging** | Execute administrative actions (approve application, modify system setting, export student data). Verify structured audit trail records. | Structured audit entries created in `admin_action_logs`, `config_change_logs`, and `export_access_logs` with actor ID, IP address, user agent, timestamp, and payload diff. | Audit logs populated accurately with actor IP, UA hash, and JSON diffs; export access logged. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Immutable audit trails satisfy non-repudiation standard. |
 | **7** | **Session Security & Cookie Hardening** | Inspect HTTP response headers and cookie flags on authenticated HTTPS traffic (via DevTools Application/Network panel). | `Strict-Transport-Security`, `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, and `CSP` headers active; session cookies flagged `Secure`, `HttpOnly`, `SameSite=Lax`. | All security headers present in HTTP response; session cookies properly hardened for HTTPS reverse proxy. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Reverse-proxy trustProxies configured cleanly. |
-| **8** | **Official PDF Generation & Integrity Seal** | Generate and download the official approved scholarship certificate/form with student details, grant allocation, and validation seal. | Vector PDF renders cleanly with official CLSU OSA seal, QR verification code, cryptographic verification link, and director signature line. | PDF generated with high fidelity; QR code leads to live signed verification endpoint; digital seal intact. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Complies with official institutional document standards. |
+| **8** | **Official PDF Generation & Integrity Seal** | Generate and preview official 1-page applicant evaluation form with verification checklist, signatures, and tamper-evident clearance badge. Verify isolated iframe print engine. | 1-page letter PDF generated matching web modal preview 1:1; isolated iframe prints cleanly without blank pages; CLSU OSA seal, QR clearance badge, and ISO revision code intact. | PDF generated with high fidelity; QR code leads to live signed verification endpoint; digital seal intact. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Complies with official institutional document standards. |
 | **9** | **Asynchronous Queue & Fault Tolerance** | Trigger heavy AI document scan. Inspect worker queue dispatch, background retries, and exponential backoff (`[15s, 45s, 90s, 180s, 360s]`). | AI analysis dispatches to database queue; background worker processes job without freezing UI; cold start 502/503 responses handled gracefully. | Background queue processed jobs asynchronously; cold-start container wake-up retries verified without crashing. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | Prevents web worker timeouts during heavy AI inference. |
 | **10** | **Concurrency, Caching & Performance** | Simulate concurrent page loads. Inspect query execution logs for N+1 queries and evaluate `GzipResponse` compression ratio. | Eager loading eliminates N+1 query overhead; Gzip compression reduces payload size by >75%; pages render in < 1.5 seconds. | Zero N+1 queries observed; Gzip reduced assets by 80%; sub-second page rendering recorded on cloud server. | `[ ]` Pass<br>`[ ]` Fail<br>`[ ]` Needs Rev.<br>`[ ]` N/A | OPcache and Laravel route/config caches verified. |
 
@@ -80,7 +82,7 @@ ________________________________________________________________________________
 
 | _________________________________________ | _________________________________________ |
 | :---: | :---: |
-| **IT Expert Evaluator Signature over Printed Name**<br>Date: ________________________ | **JOSHUA RAZON / NORIEL GADIANO / JOHN ANDREI CARILLO II**<br>Student Researchers / Project Leaders<br>Date: ________________________ |
+| **IT Expert Evaluator Signature over Printed Name**<br>Date: ________________________ | **JOHN ANDREI CARILLO / NORIEL S. GADIANO / JOSHUA A. RAZON**<br>Student Researchers / Project Leaders<br>Date: ________________________ |
 
 ---
 

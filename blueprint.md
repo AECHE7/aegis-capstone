@@ -1463,6 +1463,46 @@ esources/views/emails/application_form_pdf.blade.php)**:
 ### 3. Automated Verification
 - [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% (8 tests, 79 assertions), confirming topbar bell unread counter rendering and verifying complete absence of redundant sidebar notification badges.
 
+---
+
+## 42. Standardization & Synchronization of Testing and Evaluation Instruments with Proposal & Chapter IV (October 2026)
+
+### 1. Rationale & Research Context
+- Synchronized all testing scripts, client validation instruments, and ISO/IEC 25010:2023 evaluation forms in `docs/` to 100% reflect the approved capstone proposal ([docs/edited-AEGIS.docx](file:///f:/aegis-capstone/docs/edited-AEGIS.docx)) and the empirical methodology in Chapter IV ([AEGIS_CHAPTER_4_RESULTS_AND_DISCUSSION_PROPOSAL_ALIGNED.docx](file:///f:/aegis-capstone/AEGIS_CHAPTER_4_RESULTS_AND_DISCUSSION_PROPOSAL_ALIGNED.docx)).
+- Harmonized title, author names, institutional affiliations, AI forensic specifications (Error Level Analysis Q=95 + ResNet-50 CNN, binary classification $p \in [0, 1]$, FPS 0–100%, 3 risk tiers, Grad-CAM heatmap), notification engine, compliance reporting (CHED StuFAPs / DOST-SEI), 1-page official evaluation PDF engine, and the blind-first UAT protocol across 5–8 OSA staff members.
+
+### 2. Standardized Project Identity & Authorship
+- **Approved Project Title**: `A.E.G.I.S: AI-ENHANCED GRANT INFORMATION SYSTEM WITH DOCUMENT FORENSICS AND AUTOMATED NOTIFICATION FOR THE OFFICE OF STUDENT AFFAIRS`
+- **Proponents / Authors**: `John Andrei Carillo, Noriel S. Gadiano, Joshua A. Razon` (Course: BSIT 4-1)
+- **Thesis Adviser**: `Louise Gwendolyn B. Hidalgo`
+- **Institutional Letterhead**: `Central Luzon State University • College of Engineering • Department of Information Technology • Science City of Muñoz, Nueva Ecija, Philippines`
+- **Partner Agency / Client**: `Central Luzon State University — Office of Student Affairs (CLSU OSA)`
+
+### 3. Comprehensive Document Suite Synchronized
+1. **[docs/Research_Participant_Interview_Consent_Form.docx](file:///f:/aegis-capstone/docs/Research_Participant_Interview_Consent_Form.docx)**:
+   - Updated research title, course details, abstract with ELA Q=95 + ResNet-50 specifications, automated SMTP/in-app notification engine, and compliance exports.
+   - Updated institutional emails (`johnandrei.carillo@clsu2.edu.ph`, `noriel.gadiano@clsu2.edu.ph`, `joshua.razon@clsu2.edu.ph`) and voluntary participation clauses pursuant to R.A. 10173 (Data Privacy Act of 2012).
+2. **[docs/Client_Testing_and_ISO25010_End_User_Evaluation.docx](file:///f:/aegis-capstone/docs/Client_Testing_and_ISO25010_End_User_Evaluation.docx)**:
+   - Part 1: Client System Testing & Acceptance Form (10 core user acceptance scenarios covering scholarship application, ELA-CNN COG forensic verification, automated notifications, 1-page PDF print engine, and CHED/DOST compliance export).
+   - Part 2: ISO/IEC 25010:2023 End-User Product Quality Evaluation (32 evaluation items across all 8 dimensions with 5-point Likert scale and 4.00 acceptability threshold).
+   - Standardized development team and researchers order in Table 0 and signatures.
+3. **[docs/UAT_Test_Script_Student_Role.docx](file:///f:/aegis-capstone/docs/UAT_Test_Script_Student_Role.docx)**:
+   - Student role-specific walkthrough: account registration, MFA OTP, profile completion with AES-256 encrypted fields, scholarship application wizard, COG upload with validation, real-time in-app bell notification, and stipend disbursement ledger.
+4. **[docs/UAT_Test_Script_Staff_Role.docx](file:///f:/aegis-capstone/docs/UAT_Test_Script_Staff_Role.docx)**:
+   - OSA Scholarship Staff walkthrough: application queue triage, ELA-CNN ResNet-50 forensic review modal (FPS 0–100%, 3 risk tiers, Grad-CAM heatmap), decision support override, status notification dispatch, and official 1-page applicant evaluation PDF generation.
+   - **Section B.1 Staff Blind-First Evaluation Worksheet**: Preloaded 30 dummy COG document testing protocol (Phase 1: Human evaluation without AI assistance; Phase 2: Assisted evaluation with AI FPS and Grad-CAM heatmap revealed; Reviewer confidence rating 1–5).
+5. **[docs/UAT_Test_Script_Admin_Role.docx](file:///f:/aegis-capstone/docs/UAT_Test_Script_Admin_Role.docx)**:
+   - Superadmin / OSA Director walkthrough: RBAC enforcement, scholarship program CRUD, applicant final approval and rejection workflows, tamper-evident audit logging (`admin_action_logs`, `config_change_logs`), system configuration management, and CHED/DOST compliance data export.
+6. **[docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.docx](file:///f:/aegis-capstone/docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.docx)** & **[docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.md](file:///f:/aegis-capstone/docs/IT_Expert_Testing_and_ISO25010_Evaluation_Form.md)**:
+   - Part 1: Technical Testing & Verification Matrix (10 technical test cases: Bcrypt password security & rate limiting, SHA-256 OTP hashing, AES-256 column encryption, RBAC middleware, ELA-CNN ResNet-50 pipeline, structured audit logs, session security headers, official 1-page PDF engine, async database queues, and OPcache/Gzip performance).
+   - Part 2: ISO/IEC 25010:2023 Technical Quality Questionnaire (26 architectural statements across all 8 dimensions with 5-point Likert scale and statistical scoring guide).
+
+### 4. Methodological Alignment with Chapter IV Draft
+- **Table 20 (Demographic Profile of Evaluators)**: Categorizes evaluators into OSA Head ($N=1$), Scholarship Coordinators ($N=2\text{--}3$), and Administrative Staff ($N=2\text{--}4$) for a total census of 5 to 8 OSA staff members.
+- **Table 21 (ISO/IEC 25010 Results by Dimension)**: Evaluates Functional Suitability, Usability, Reliability, Performance Efficiency, and Security against the specific $\ge 4.00$ minimum mean threshold (Specific Objective 5).
+- **Section 4.5.2 & 4.5.3 Integration**: Directly operationalizes the ELA-ResNet-50 performance metrics (Target Accuracy $\ge 85\%$, False-Negative $\le 15\%$, False-Positive $\le 20\%$) and the blind-first decision-support workflow.
+
+
 
 
 
