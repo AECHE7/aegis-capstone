@@ -388,14 +388,25 @@ function submitBulkAction(action) {
     if (selected.length === 0) {
         if (typeof AegisAlert !== 'undefined') {
             AegisAlert.toast({ icon: 'warning', title: 'Please select at least one notification.' });
-        } else {
-            alert('Please select at least one notification.');
         }
         return;
     }
 
     if (action === 'delete') {
-        if (!confirm('Are you sure you want to delete the selected notifications?')) return;
+        const count = selected.length;
+        if (typeof AegisAlert !== 'undefined') {
+            AegisAlert.delete({
+                title: 'Delete Selected Notifications?',
+                text: `Are you sure you want to permanently delete ${count} selected notification${count > 1 ? 's' : ''}? This action cannot be undone.`,
+                confirmText: 'Yes, Delete Selected'
+            }).then(confirmed => {
+                if (confirmed) {
+                    document.getElementById('bulkActionInput').value = action;
+                    document.getElementById('bulkNotifForm').submit();
+                }
+            });
+            return;
+        }
     }
 
     document.getElementById('bulkActionInput').value = action;
@@ -431,7 +442,21 @@ function quickMarkUnread(id) {
 }
 
 function quickDelete(id) {
-    if (!confirm('Delete this notification?')) return;
+    if (typeof AegisAlert !== 'undefined') {
+        AegisAlert.delete({
+            title: 'Delete Notification?',
+            text: 'Are you sure you want to permanently delete this notification? This action cannot be undone.',
+            confirmText: 'Yes, Delete'
+        }).then(confirmed => {
+            if (!confirmed) return;
+            executeDelete(id);
+        });
+    } else {
+        executeDelete(id);
+    }
+}
+
+function executeDelete(id) {
     const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     fetch(`/notifications/${id}`, {
         method: 'DELETE',

@@ -144,7 +144,10 @@
                                     <div class="d-flex flex-column align-items-end gap-2">
                                         <span class="badge rounded-pill fw-semibold" style="background: #D97706; font-size:0.65rem; padding: 4px 10px;">Pending</span>
                                         <form action="{{ route('director.revoke-invitation', $inv->id) }}" method="POST"
-                                              onsubmit="return confirm('Revoke invitation for {{ $inv->recipient_email }}?')">
+                                              data-confirm="Revoke invitation for {{ $inv->recipient_email }}? The recipient will no longer be able to claim the Director role."
+                                              data-confirm-title="Revoke Director Invitation"
+                                              data-confirm-destructive="true"
+                                              data-confirm-btn="Yes, Revoke Invitation">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill"
                                                 style="font-size: 0.65rem; padding: 2px 10px; border-radius: 20px !important;">

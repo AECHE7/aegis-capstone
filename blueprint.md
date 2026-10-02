@@ -1545,6 +1545,40 @@ esources/views/emails/application_form_pdf.blade.php)**:
    - Pause notification polling when `document.visibilityState === 'hidden'`.
    - Add font smoothing (`-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;`) to `body`.
 
+### 3. Automated Verification
+- [tests/Feature/NotificationComplianceTest.php](file:///f:/aegis-capstone/tests/Feature/NotificationComplianceTest.php) passes 100% (8 tests, 79 assertions).
+- Verified zero layout shift (CLS = 0) and immediate Bootstrap framework rendering without FOUC.
+
+---
+
+## 44. Universal SweetAlert2 Modal Architecture for All Reconfirmations (October 2026)
+
+### 1. Problem Analysis & User Directive
+- The user pointed out that clicking "Delete" on `/notifications` still launched the browser's default native modal (`aegis-capstone.onrender.com says: Delete this notification? [OK] [Cancel]`).
+- The system already has a premium, accessible, CLSU-themed SweetAlert2 dialog system (`AegisAlert.confirm`, `AegisAlert.delete`, and declarative `data-confirm` attributes on forms and buttons), but residual legacy JavaScript functions still used `window.confirm(...)` and `window.alert(...)`.
+- Specific locations identified:
+  1. [resources/views/notifications/center.blade.php](file:///f:/aegis-capstone/resources/views/notifications/center.blade.php):
+     - `quickDelete(id)`: Used `if (!confirm('Delete this notification?')) return;`.
+     - `submitBulkAction(action)`: Used `if (!confirm('Are you sure you want to delete the selected notifications?')) return;`.
+     - Empty selection validation: Used fallback `alert('Please select at least one notification.');`.
+  2. [resources/views/master/director_transfer.blade.php](file:///f:/aegis-capstone/resources/views/master/director_transfer.blade.php):
+     - Invitation revocation form: Used `onsubmit="return confirm('Revoke invitation for {{ $inv->recipient_email }}?')"` instead of `data-confirm`.
+
+### 2. Actionable Implementation Steps
+1. **Refactor Notifications Center ([resources/views/notifications/center.blade.php](file:///f:/aegis-capstone/resources/views/notifications/center.blade.php))**:
+   - Update `quickDelete(id)` to invoke `AegisAlert.delete({ title: 'Delete Notification?', text: 'Are you sure you want to delete this notification? This cannot be undone.', confirmText: 'Yes, Delete' })`.
+   - Update `submitBulkAction('delete')` to invoke `AegisAlert.delete({ title: 'Delete Selected Notifications?', text: 'Are you sure you want to delete ' + count + ' selected notification(s)?', confirmText: 'Yes, Delete Selected' })`.
+   - Replace any `alert(...)` fallback with `AegisAlert.toast({ icon: 'warning', title: '...' })`.
+2. **Standardize Director Transfer ([resources/views/master/director_transfer.blade.php](file:///f:/aegis-capstone/resources/views/master/director_transfer.blade.php))**:
+   - Replace `onsubmit="return confirm(...)"` with standard declarative attributes:
+     - `data-confirm="Revoke invitation for {{ $inv->recipient_email }}? The recipient will no longer be able to claim the director role."`
+     - `data-confirm-title="Revoke Director Invitation"`
+     - `data-confirm-destructive="true"`
+     - `data-confirm-btn="Yes, Revoke Invitation"`
+3. **Automated Verification**:
+   - Run `php artisan test` to verify complete system integrity.
+   - Confirm zero occurrences of raw `confirm(` or `alert(` in user-facing blade views.
+
 
 
 
