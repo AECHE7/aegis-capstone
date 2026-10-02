@@ -767,8 +767,8 @@ class AuthController extends Controller
     {
         auth()->user()->unreadNotifications->markAsRead();
 
-        if (request()->expectsJson() || request()->ajax()) {
-            return response()->json(['success' => true]);
+        if (request()->expectsJson() || request()->ajax() || request()->wantsJson() || request()->isJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json(['success' => true, 'count' => 0, 'unread_count' => 0, 'message' => 'All notifications marked as read.']);
         }
         return back()->with('success', 'All notifications marked as read.');
     }

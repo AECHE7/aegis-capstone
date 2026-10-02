@@ -311,7 +311,7 @@
                             <td class="text-nowrap">
                                 <span class="text-muted small">
                                     @if($scholar->academicTerm)
-                                        {{ $scholar->academicTerm->semester }} Sem, AY {{ $scholar->academicTerm->academic_year }}
+                                        {{ $scholar->academicTerm->short_semester }}, AY {{ $scholar->academicTerm->academic_year }}
                                     @else
                                         N/A
                                     @endif

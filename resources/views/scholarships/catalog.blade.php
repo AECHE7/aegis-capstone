@@ -71,7 +71,7 @@
             @if(isset($activeTerm) && $activeTerm)
                 <div class="text-md-end px-3 py-2 rounded-4" style="background: rgba(255, 255, 255, 0.15) !important; border: 1px solid rgba(255, 255, 255, 0.25) !important;">
                     <span class="d-block small" style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255, 255, 255, 0.8) !important;">Active Academic Term</span>
-                    <strong class="text-warning small">{{ $activeTerm->semester }} Semester, A.Y. {{ $activeTerm->academic_year }}</strong>
+                    <strong class="text-warning small">{{ $activeTerm->full_term_label }}</strong>
                 </div>
             @endif
         </div>
@@ -85,8 +85,8 @@
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </span>
                         <input type="text" name="search" class="form-control border-0 bg-transparent py-1.5" 
-                               placeholder="Search scholarship name, eligibility terms, or guidelines..." 
-                               value="{{ request('search') }}" style="box-shadow: none; font-size: 0.88rem;">
+                                placeholder="Search scholarship name, eligibility terms, or guidelines..." 
+                                value="{{ request('search') }}" style="box-shadow: none; font-size: 0.88rem;">
                         @if(request('search'))
                             <a href="{{ route('scholarships.catalog') }}" class="btn btn-link text-muted text-decoration-none">
                                 <i class="fa-solid fa-xmark"></i>
@@ -123,8 +123,8 @@
 <div class="row g-4">
     @forelse($scholarships as $scholarship)
     <div class="col-lg-6">
-        <div class="card h-100 border-0 shadow-sm d-flex flex-column justify-content-between p-4" 
-             style="border-radius: 18px; border-top: 4px solid #0C4E2D !important; transition: transform 0.2s, box-shadow 0.2s;">
+        <div class="card h-100 shadow-sm d-flex flex-column justify-content-between p-4 scholarship-program-card" 
+             style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-top: 4px solid #0C4E2D !important; border-radius: 18px !important; color: #1e293b !important; transition: transform 0.2s, box-shadow 0.2s;">
             <div>
                 {{-- Card Header: Title & Badges --}}
                 <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
@@ -132,7 +132,7 @@
                         <span class="badge bg-success-subtle text-success px-2.5 py-1 rounded-pill fw-bold mb-1" style="font-size: 0.68rem;">
                             <i class="fa-solid fa-circle-check me-1"></i> Active Grant
                         </span>
-                        <h5 class="fw-bold text-dark mb-0" style="font-family: 'Poppins', sans-serif; font-size: 1.15rem; line-height: 1.35;">
+                        <h5 class="fw-bold mb-0" style="font-family: 'Poppins', sans-serif; font-size: 1.15rem; line-height: 1.35; color: #0C4E2D !important;">
                             {{ $scholarship->name }}
                         </h5>
                     </div>
@@ -146,26 +146,26 @@
                 </div>
 
                 {{-- Full Description --}}
-                <div class="mt-3 text-muted" style="font-size: 0.88rem; line-height: 1.6; white-space: pre-line;">
+                <div class="mt-3" style="font-size: 0.88rem; line-height: 1.6; color: #475569 !important; white-space: pre-line;">
                     {{ $scholarship->description ?: 'No detailed program description provided. Please consult the CLSU Office of Student Affairs for guidelines.' }}
                 </div>
 
                 {{-- Key Criteria & Parameters --}}
-                <div class="row g-2 mt-3 pt-3 border-top">
+                <div class="row g-2 mt-3 pt-3" style="border-top: 1px solid #f1f5f9;">
                     <div class="col-sm-6">
-                        <div class="p-2.5 bg-light rounded-3 d-flex align-items-center gap-2">
+                        <div class="p-2.5 rounded-3 d-flex align-items-center gap-2" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                             <i class="fa-solid fa-rotate-right text-success"></i>
                             <div style="font-size: 0.78rem;">
-                                <span class="text-muted d-block">Max Renewals</span>
-                                <strong class="text-dark">{{ $scholarship->max_renewals ?? 4 }} Academic Terms</strong>
+                                <span class="d-block" style="color: #64748b;">Max Renewals</span>
+                                <strong style="color: #0f172a;">{{ $scholarship->max_renewals ?? 4 }} Academic Terms</strong>
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-6">
-                        <div class="p-2.5 bg-light rounded-3 d-flex align-items-center gap-2">
+                        <div class="p-2.5 rounded-3 d-flex align-items-center gap-2" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                             <i class="fa-solid fa-calendar-check text-primary"></i>
                             <div style="font-size: 0.78rem;">
-                                <span class="text-muted d-block">Application Status</span>
+                                <span class="d-block" style="color: #64748b;">Application Status</span>
                                 <strong class="text-success">Accepting Applications</strong>
                             </div>
                         </div>
@@ -175,12 +175,12 @@
                 {{-- Required Supporting Documents & Custom Fields --}}
                 @if($scholarship->fields && $scholarship->fields->count() > 0)
                     <div class="mt-3">
-                        <span class="text-muted d-block small mb-1.5 fw-semibold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <span class="d-block small mb-1.5 fw-semibold" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">
                             <i class="fa-solid fa-file-circle-check text-warning me-1"></i> Program Required Attachments & Inputs:
                         </span>
                         <div class="d-flex flex-wrap gap-1.5">
                             @foreach($scholarship->fields as $field)
-                                <span class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill" style="font-size: 0.72rem; font-weight: 500;">
+                                <span class="badge border px-2.5 py-1.5 rounded-pill" style="font-size: 0.72rem; font-weight: 500; background: #ffffff; color: #1e293b; border-color: #cbd5e1 !important;">
                                     @if($field->field_type === 'file')
                                         <i class="fa-solid fa-paperclip text-muted me-1"></i>
                                     @else
@@ -198,15 +198,15 @@
             </div>
 
             {{-- Card Footer Action --}}
-            <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
-                <span class="text-muted small" style="font-size: 0.75rem;">
+            <div class="mt-4 pt-3 d-flex justify-content-between align-items-center" style="border-top: 1px solid #f1f5f9;">
+                <span class="small" style="font-size: 0.75rem; color: #64748b;">
                     <i class="fa-solid fa-shield-halved text-success me-1"></i> Verified by CLSU OSA
                 </span>
                 @if(auth()->check())
                     @if(auth()->user()->role === 'student')
                         <a href="{{ route('student.apply', ['program' => $scholarship->id]) }}" 
-                           class="btn btn-success fw-bold px-4 py-2 rounded-pill" 
-                           style="font-size: 0.85rem; background: var(--clsu-green);">
+                           class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm" 
+                           style="font-size: 0.85rem; background: var(--clsu-green); border-color: var(--clsu-green);">
                             Apply Now <i class="fa-solid fa-arrow-right ms-1"></i>
                         </a>
                     @else

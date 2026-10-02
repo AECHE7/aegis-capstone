@@ -1,5 +1,5 @@
-// A.E.G.I.S. High-Performance PWA Service Worker — v2.0.0
-const CACHE_NAME = 'aegis-static-v2.0.0';
+// A.E.G.I.S. High-Performance PWA Service Worker — v2.1.0
+const CACHE_NAME = 'aegis-static-v2.1.0';
 
 // Only cache static, immutable assets — NEVER cache dynamic HTML pages or auth routes
 const STATIC_ASSETS = [
@@ -53,6 +53,7 @@ self.addEventListener('fetch', (event) => {
         url.pathname.startsWith('/superadmin') ||
         url.pathname.startsWith('/student') ||
         url.pathname.startsWith('/master') ||
+        url.pathname.startsWith('/notifications') ||
         url.pathname === '/'
     ) {
         return; // Direct browser network fetch without service worker caching
@@ -65,19 +66,14 @@ self.addEventListener('fetch', (event) => {
         request.destination === 'image' ||
         request.destination === 'font' ||
         url.pathname.startsWith('/build/') ||
+        url.pathname.startsWith('/images/') ||
         url.pathname.startsWith('/logo');
 
     if (isStaticAsset) {
         event.respondWith(
             caches.match(request).then((cachedResponse) => {
                 if (cachedResponse) {
-                    // Update cache in background
-                    fetch(request).then((networkResponse) => {
-                        if (networkResponse && networkResponse.status === 200) {
-                            caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
-                        }
-                    }).catch(() => {});
-                    return cachedResponse;
+                    return cachedResponse; // Instant cache response without firing redundant background network calls
                 }
                 return fetch(request).then((networkResponse) => {
                     if (networkResponse && networkResponse.status === 200) {

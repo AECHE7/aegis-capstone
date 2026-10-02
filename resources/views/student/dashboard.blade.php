@@ -419,7 +419,7 @@
                     @if(!$canRenew && $application->academicTerm)
                         <div class="alert alert-info border-0 rounded-3 p-3 mb-0 small" style="background-color: #e0f2fe; color: #0369a1;">
                             <i class="fa-solid fa-circle-info me-1"></i>
-                            <strong>Renewal Locked:</strong> Your current scholarship term ({{ $application->academicTerm->semester }} Sem, AY {{ $application->academicTerm->academic_year }}) is still active. 
+                            <strong>Renewal Locked:</strong> Your current scholarship term ({{ $application->academicTerm->short_semester }}, AY {{ $application->academicTerm->academic_year }}) is still active. 
                             Renewal applications will open automatically once this term closes.
                         </div>
                     @elseif($canRenew)
@@ -687,7 +687,7 @@
                             @if($application->academicTerm)
                             <div class="border-bottom pb-2">
                                 <div class="small fw-semibold text-muted mb-1">Academic Term</div>
-                                <div class="text-dark fw-semibold" style="font-size: 0.85rem;">{{ $application->academicTerm->semester }} Semester, A.Y. {{ $application->academicTerm->academic_year }}</div>
+                                <div class="text-dark fw-semibold" style="font-size: 0.85rem;">{{ $application->academicTerm->full_term_label }}</div>
                             </div>
                             @endif
                             

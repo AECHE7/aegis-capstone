@@ -68,7 +68,7 @@
                 <option value="">All Academic Terms</option>
                 @foreach($allTerms as $term)
                     <option value="{{ $term->id }}" {{ $termId == $term->id ? 'selected' : '' }}>
-                        {{ $term->semester }} Semester (AY {{ $term->academic_year }})
+                        {{ $term->formatted_semester }} (AY {{ $term->academic_year }})
                     </option>
                 @endforeach
             </select>
@@ -690,7 +690,7 @@
                             <td class="text-nowrap">
                                 <span class="text-muted small">
                                     @if($scholar->academicTerm)
-                                        {{ $scholar->academicTerm->semester }} Sem, AY {{ $scholar->academicTerm->academic_year }}
+                                        {{ $scholar->academicTerm->short_semester }}, AY {{ $scholar->academicTerm->academic_year }}
                                     @else
                                         N/A
                                     @endif

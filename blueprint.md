@@ -1502,6 +1502,50 @@ esources/views/emails/application_form_pdf.blade.php)**:
 - **Table 21 (ISO/IEC 25010 Results by Dimension)**: Evaluates Functional Suitability, Usability, Reliability, Performance Efficiency, and Security against the specific $\ge 4.00$ minimum mean threshold (Specific Objective 5).
 - **Section 4.5.2 & 4.5.3 Integration**: Directly operationalizes the ELA-ResNet-50 performance metrics (Target Accuracy $\ge 85\%$, False-Negative $\le 15\%$, False-Positive $\le 20\%$) and the blind-first decision-support workflow.
 
+---
+
+## 43. Network Overload Resolution, UI/UX Contrast Repair, and Notification System Optimization (October 2026)
+
+### 1. Problem Analysis & Root Cause Diagnosis
+1. **Console SyntaxError & Notification Clearing Failure**:
+   - `clearAllNotifications()` in [resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php) dispatched `fetch('/notifications/clear', { method: 'POST' })` without `Accept: application/json` or `X-Requested-With: XMLHttpRequest`.
+   - `AuthController::clearNotifications()` defaulted to returning a 302 redirect back to `/student/dashboard`.
+   - The browser followed the redirect, returning an HTML `<!DOCTYPE>` payload to `.then(res => res.json())`, triggering `SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON`.
+   - The client UI was never cleared, causing repeated user attempts (9 logged console errors).
+2. **Duplicated Notification Pops ("notif pops")**:
+   - [resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php) flashed session messages via TWO concurrent mechanisms: an inline Bootstrap `.toast-custom` alert in `#toastContainerCustom` AND an inline script calling `AegisAlert.toast()`, resulting in double toast popups for every action.
+3. **Catastrophic Scholarship Card Contrast (Screenshot 3)**:
+   - A blanket CSS selector `.card[style*="#0C4E2D"]` in [app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php) matched ANY card with inline `#0C4E2D` (e.g. `border-top: 4px solid #0C4E2D !important;` in [catalog.blade.php](file:///f:/aegis-capstone/resources/views/scholarships/catalog.blade.php)).
+   - This forced `background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important;` on normal cards, while child text retained `.text-dark` / `.text-muted`, rendering black/dark-green text on dark-green backgrounds with zero contrast.
+4. **Duplicate Content & Text Artifacts**:
+   - `{{ $activeTerm->semester }} Semester` rendered `"2nd Semester Semester, A.Y. 2025-2026"` because `$activeTerm->semester` already includes the word `"Semester"`.
+   - Notification dropdown unread badge had a server-side default of `0 unread` while the bell badge displayed `3`.
+   - Truncated/awkward filter tab labels (`Apps`, `News`) degraded UX.
+5. **High Network Load & Performance Degradation (104 requests / 2.6 min, LCP 4.02s, CLS 0.19)**:
+   - [public/sw.js](file:///f:/aegis-capstone/public/sw.js) executed an aggressive background `fetch(request)` on every single cache hit (`caches.match`), doubling asset downloads on every page view.
+   - Uncontrolled 20s polling occurred even when tabs were inactive or backgrounded.
+   - Lack of font-smoothing rules caused jagged/blurry subpixel text rendering on dropdown titles.
+
+### 2. Actionable Implementation Steps
+1. **Repair Notification Clearing & Server Response**:
+   - Pass `'Accept': 'application/json'` and `'X-Requested-With': 'XMLHttpRequest'` in `clearAllNotifications()`.
+   - Ensure `AuthController::clearNotifications()` returns JSON `['success' => true]` whenever JSON or AJAX is requested.
+   - Optimistically update client-side unread state, bell badge, and dropdown list immediately upon click.
+   - Synchronize server-side initial unread counter in `notifDropdownBadge` with `$initialUnread`.
+2. **Eliminate Duplicated Toast Alerts**:
+   - Remove redundant Bootstrap alert HTML elements inside `#toastContainerCustom` and standardize solely on `AegisAlert.toast()`.
+3. **Eliminate Overly Broad CSS Attribute Selector & Fix Card Contrast**:
+   - Remove `.card[style*="#0C4E2D"]` and `.card[style*="#00754A"]` from global hero rules in `app.blade.php`.
+   - Enhance [catalog.blade.php](file:///f:/aegis-capstone/resources/views/scholarships/catalog.blade.php) card styles with explicit white backgrounds, readable typography, and accessible contrast.
+4. **Resolve Duplicate Content**:
+   - Correct `"Semester Semester"` across `catalog.blade.php`, `dashboard.blade.php`, and `analytics.blade.php`.
+   - Refactor filter pills in notification dropdown to `All`, `Unread`, `Grants`, `Announcements`.
+5. **Optimize Service Worker & Network Polling**:
+   - Remove the double-fetch stale-while-revalidate loop from [public/sw.js](file:///f:/aegis-capstone/public/sw.js) for static assets.
+   - Pause notification polling when `document.visibilityState === 'hidden'`.
+   - Add font smoothing (`-webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;`) to `body`.
+
+
 
 
 

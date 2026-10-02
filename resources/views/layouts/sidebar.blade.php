@@ -5,6 +5,8 @@
         <div class="sidebar-brand-icon d-flex align-items-center justify-content-center">
             <img src="{{ \App\Models\Setting::getLogoUrl() }}"
                  alt="{{ \App\Models\Setting::get('app_name', 'A.E.G.I.S.') }} logo"
+                 width="28"
+                 height="28"
                  style="width: 28px; height: 28px; object-fit: contain;"
                  decoding="async"
                  onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';">

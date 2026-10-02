@@ -41,10 +41,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    {{-- Bootstrap CSS: non-blocking preload (eliminates 1,210ms render-block) --}}
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-          as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"></noscript>
+    {{-- Bootstrap CSS: standard stylesheet to eliminate layout shifts (CLS) and FOUC --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
     {{-- Font Awesome CSS: non-blocking preload (eliminates 900ms render-block) --}}
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -277,6 +275,9 @@
             overflow-x: hidden;
             letter-spacing: -0.01em; /* SoDoSans tight layout tracking */
             transition: background-color 0.25s, color 0.25s;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -358,9 +359,7 @@
         .scholar-banner,
         .card[style*="linear-gradient"],
         .card[style*="#07331c"],
-        .card[style*="#072F1B"],
-        .card[style*="#0C4E2D"],
-        .card[style*="#00754A"] {
+        .card[style*="#072F1B"] {
             background: linear-gradient(135deg, #072F1B 0%, #0C4E2D 55%, #166534 100%) !important;
             color: #ffffff !important;
         }
@@ -1685,7 +1684,7 @@
                         <div class="px-3 py-2.5 border-bottom d-flex justify-content-between align-items-center bg-white">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="fw-bold text-dark" style="font-size: 0.9rem;">Notifications</span>
-                                <span class="badge bg-success-subtle text-success rounded-pill px-2 py-0.5" id="notifDropdownBadge" style="font-size: 0.65rem;">0 unread</span>
+                                <span class="badge bg-success-subtle text-success rounded-pill px-2 py-0.5" id="notifDropdownBadge" style="font-size: 0.65rem;">{{ $initialUnread }} unread</span>
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 text-success fw-semibold" style="font-size: 0.72rem;" onclick="clearAllNotifications(event)">Mark all read</button>
@@ -1697,8 +1696,8 @@
                             <div class="d-flex gap-1" id="notifFilterPills">
                                 <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab active" data-filter="all" onclick="filterDropdownNotifs('all', event)" style="font-size: 0.7rem; background: #0c4e2d; color: #fff;">All</button>
                                 <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="unread" onclick="filterDropdownNotifs('unread', event)" style="font-size: 0.7rem; background: transparent;">Unread</button>
-                                <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="application" onclick="filterDropdownNotifs('application', event)" style="font-size: 0.7rem; background: transparent;">Apps</button>
-                                <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="announcement" onclick="filterDropdownNotifs('announcement', event)" style="font-size: 0.7rem; background: transparent;">News</button>
+                                <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="application" onclick="filterDropdownNotifs('application', event)" style="font-size: 0.7rem; background: transparent;">Grants</button>
+                                <button type="button" class="btn btn-xs rounded-pill px-2.5 py-0.5 fw-semibold notif-filter-tab text-muted" data-filter="announcement" onclick="filterDropdownNotifs('announcement', event)" style="font-size: 0.7rem; background: transparent;">Announcements</button>
                             </div>
                         </div>
                         <ul class="list-unstyled mb-0" id="notifList" style="max-height: 380px; overflow-y: auto;">
@@ -1742,78 +1741,24 @@
 
         {{-- W3C Semantic Landmark: <main> (WCAG 1.3.1 Info and Relationships, Level A) --}}
         <main id="main-content" class="page-content" role="main" tabindex="-1">
-            {{-- Toast Container for Slide-in Notifications (WCAG 4.1.3 Status Messages) --}}
-            {{-- Toasts auto-dismiss after 3 seconds (see JS in app.blade.php DOMContentLoaded) --}}
-            <div class="toast-container-custom" id="toastContainerCustom">
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="status" aria-live="polite" aria-atomic="true"
-                         style="background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e !important;">
-                        <div class="d-flex align-items-center">
-                            <i class="fa-solid fa-circle-check me-2 fs-5" aria-hidden="true"></i>
-                            <div>{{ session('success') }}</div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss success message"></button>
-                    </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            if (window.AegisAlert) {
+            {{-- Unified Session Flash Toast Dispatcher (Prevents duplicate popups) --}}
+            @if(session('success') || session('error') || session('warning') || session('info'))
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (window.AegisAlert && AegisAlert.toast) {
+                            @if(session('success'))
                                 AegisAlert.toast({ icon: 'success', title: @json(session('success')), timer: 4500 });
-                            }
-                        });
-                    </script>
-                @endif
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="alert" aria-live="assertive" aria-atomic="true"
-                         style="background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444 !important;">
-                        <div class="d-flex align-items-center">
-                            <i class="fa-solid fa-circle-exclamation me-2 fs-5" aria-hidden="true"></i>
-                            <div>{{ session('error') }}</div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss error message"></button>
-                    </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            if (window.AegisAlert) {
+                            @elseif(session('error'))
                                 AegisAlert.toast({ icon: 'error', title: @json(session('error')), timer: 5000 });
-                            }
-                        });
-                    </script>
-                @endif
-                @if(session('warning'))
-                    <div class="alert alert-warning alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="alert" aria-live="polite" aria-atomic="true"
-                         style="background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b !important;">
-                        <div class="d-flex align-items-center">
-                            <i class="fa-solid fa-triangle-exclamation me-2 fs-5" aria-hidden="true"></i>
-                            <div>{{ session('warning') }}</div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss warning message"></button>
-                    </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            if (window.AegisAlert) {
+                            @elseif(session('warning'))
                                 AegisAlert.toast({ icon: 'warning', title: @json(session('warning')), timer: 5000 });
-                            }
-                        });
-                    </script>
-                @endif
-                @if(session('info'))
-                    <div class="alert alert-info alert-dismissible fade show border-0 toast-custom mb-0 auto-dismiss-toast" role="status" aria-live="polite" aria-atomic="true"
-                         style="background: #e0f2fe; color: #0c4a6e; border-left: 4px solid #0ea5e9 !important;">
-                        <div class="d-flex align-items-center">
-                            <i class="fa-solid fa-circle-info me-2 fs-5" aria-hidden="true"></i>
-                            <div>{{ session('info') }}</div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss info message"></button>
-                    </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            if (window.AegisAlert) {
+                            @elseif(session('info'))
                                 AegisAlert.toast({ icon: 'info', title: @json(session('info')), timer: 4500 });
-                            }
-                        });
-                    </script>
-                @endif
-            </div>
+                            @endif
+                        }
+                    });
+                </script>
+            @endif
 
             @yield('content')
         </main>
@@ -2336,9 +2281,11 @@
     // ── Dynamic Notification Box JS ──────────────────────────────────
     let cachedNotifications = [];
     let currentFilter = 'all';
-    let lastKnownUnreadCount = null;
+    let lastKnownUnreadCount = {{ $initialUnread ?? 0 }};
 
     function fetchNotifications() {
+        if (document.hidden) return; // Skip polling when tab is inactive to preserve network resources
+
         fetch('/notifications', {
             headers: {
                 'Accept': 'application/json',
@@ -2354,10 +2301,10 @@
                 const badge = document.getElementById('notifBadge');
                 const dropdownBadge = document.getElementById('notifDropdownBadge');
                 
-                const count = data.count || 0;
+                const count = typeof data.count === 'number' ? data.count : (data.unread_count || 0);
                 cachedNotifications = data.notifications || [];
 
-                // Toast alert when new unread notification arrives during session
+                // Toast alert when new unread notification arrives during active session
                 if (lastKnownUnreadCount !== null && count > lastKnownUnreadCount) {
                     const newCount = count - lastKnownUnreadCount;
                     if (typeof AegisAlert !== 'undefined' && AegisAlert.toast) {
@@ -2494,20 +2441,47 @@
     }
     
     function clearAllNotifications(event) {
-        event.stopPropagation();
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        if (event) event.stopPropagation();
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (!csrfToken) return;
+
+        // Optimistically clear client UI immediately
+        const badge = document.getElementById('notifBadge');
+        const dropdownBadge = document.getElementById('notifDropdownBadge');
+        if (badge) {
+            badge.classList.add('d-none');
+            badge.style.display = 'none';
+            badge.textContent = '0';
+        }
+        if (dropdownBadge) {
+            dropdownBadge.textContent = '0 unread';
+        }
+        cachedNotifications.forEach(n => { n.is_read = true; });
+        renderActiveNotificationLists();
+
         fetch('/notifications/clear', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(res => res.json())
-        .then(data => {
-            fetchNotifications();
+        .then(res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
         })
-        .catch(err => console.error('Error clearing notifications:', err));
+        .then(data => {
+            lastKnownUnreadCount = 0;
+            if (typeof AegisAlert !== 'undefined' && AegisAlert.toast) {
+                AegisAlert.toast({ icon: 'success', title: 'All notifications marked as read' });
+            }
+        })
+        .catch(err => {
+            console.warn('Notification sync notice:', err);
+            fetchNotifications(); // Resync state if network failed
+        });
     }
 
     function setSystemTheme(theme) {
@@ -2555,29 +2529,17 @@
         fetchNotifications();
         updatePstClock();
 
-        // Use standard AJAX polling instead of EventSource/SSE to prevent PHP worker exhaustion and session locking
-        setInterval(fetchNotifications, 20000);
+        // Visibility-aware background polling (35s) — pauses when tab is hidden to save network bandwidth
+        setInterval(() => {
+            if (!document.hidden) {
+                fetchNotifications();
+            }
+        }, 35000);
 
-        // â”€â”€ Auto-dismiss flash toast notifications after 3 seconds (UX polish) â”€â”€
-        document.querySelectorAll('.auto-dismiss-toast').forEach(function(toast) {
-            var progress = null;
-            // Add a shrinking progress bar at the bottom of the toast
-            var bar = document.createElement('div');
-            bar.style.cssText = 'position:absolute;bottom:0;left:0;height:3px;width:100%;border-radius:0 0 12px 12px;background:rgba(0,0,0,0.15);transition:width 3s linear;';
-            toast.style.position = 'relative';
-            toast.style.overflow = 'hidden';
-            toast.appendChild(bar);
-            // Start shrinking after a short delay (allow paint)
-            requestAnimationFrame(function() {
-                requestAnimationFrame(function() { bar.style.width = '0%'; });
-            });
-            // Remove after 3s with fade
-            setTimeout(function() {
-                toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(110%)';
-                setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 420);
-            }, 3000);
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                fetchNotifications();
+            }
         });
 
         // SweetAlert2 Logout Confirmation
