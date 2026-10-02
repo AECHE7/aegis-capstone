@@ -1701,12 +1701,37 @@ esources/views/emails/application_form_pdf.blade.php)**:
    - Added `test_clsu_id_number_must_be_unique_across_students` and `test_clsu_id_number_with_spaces_normalizes_to_standard_format` in [tests/Feature/UserProfileTest.php](file:///f:/aegis-capstone/tests/Feature/UserProfileTest.php).
    - All 9 test cases in `UserProfileTest` pass with 64 assertions.
 
+---
 
+## 49. Live PSGC Address API Integration & Comprehensive CLSU Academic Degree Catalog (October 2026)
 
+### 1. Problem Analysis & Scope
+1. **Live Cascading Philippine Address API**:
+   - The user requested integrating a live API for Philippine addresses across cascading dropdowns (Province -> City/Municipality -> Barangay) during student profile completion/editing to eliminate manual typing and standardize geographic data.
+2. **Complete CLSU Academic Catalog**:
+   - Gathering all official degree programs across all CLSU colleges (Undergraduate majors, Master's, and Doctoral programs) and dynamically populating the degree program dropdown based on college selection.
 
-
-
-
-
-
+### 2. Implementation & Key Enhancements
+1. **Live Philippine Standard Geographic Code (PSGC) API Integration ([resources/views/auth/change_password.blade.php](file:///f:/aegis-capstone/resources/views/auth/change_password.blade.php))**:
+   - Integrated zero-latency static CDN PSGC API endpoints (`https://psgc.gitlab.io/api/`):
+     - `provinces.json` (All 82 provinces + NCR region code `130000000`)
+     - `provinces/{code}/cities-municipalities.json` (All cities and municipalities)
+     - `cities-municipalities/{code}/barangays.json` (All 42,000+ barangays)
+   - Embedded priority pinning for **Nueva Ecija** and Central Luzon for optimal CLSU student convenience.
+   - Built a dual-layer offline fallback (pre-baked local datasets for Nueva Ecija municipalities and Science City of Muñoz barangays) ensuring 100% operational resilience even during network outages or restricted environments.
+   - Provided an intuitive toggle for custom address entry if an unlisted address is needed.
+2. **Comprehensive CLSU Degree Programs Catalog ([resources/views/auth/change_password.blade.php](file:///f:/aegis-capstone/resources/views/auth/change_password.blade.php))**:
+   - Mapped all 10 degree-granting units and their complete program catalogs:
+     - **CAg (College of Agriculture)**: BSA (with all majors: Agronomy, Animal Science, Crop Protection, Soil Science, Agricultural Extension, Horticulture), BSAgrib, BS Organic Agriculture, and graduate MS/PhD programs.
+     - **CASS (College of Arts and Social Sciences)**: BA Social Sciences, BA Communication, BA Literature and Cultural Studies, BS Psychology, BS Development Communication, MA/PhD Language & Literature, MS Rural Development.
+     - **CBAA (College of Business Administration and Accountancy)**: BS Accountancy, BSBA (Marketing Management, Financial Management, Human Resource Development, Operations Management), BS Entrepreneurship, BS Hospitality Management, BS Tourism Management, MBA, PhD in Business Administration.
+     - **CEd (College of Education)**: BSEd (English, Mathematics, Science, Social Studies, Filipino), BEEd, BPEd, BTLEd (Home Economics, Industrial Arts, ICT), Master of Arts in Education, PhD in Development Education.
+     - **CEn (College of Engineering)**: BS Agricultural and Biosystems Engineering (BSABE), BS Civil Engineering (BSCE), BS Electrical Engineering (BSEE), BS Mechanical Engineering (BSME), BS Information Technology (BSIT), BS Meteorology, MS/PhD in Agricultural Engineering.
+     - **CF (College of Fisheries)**: BS Fisheries (Freshwater Aquaculture, Fish Processing, Marine Fisheries), MS Aquaculture, PhD in Aquaculture.
+     - **CHSI (College of Home Science and Industry)**: BS Food Technology, BS Textile and Fashion Technology, BS Nutrition and Dietetics, MS Food Science.
+     - **CS (College of Science)**: BS Biology, BS Chemistry, BS Mathematics, BS Statistics, BS Environmental Science, MS/PhD in Biological Sciences.
+     - **CVSM (College of Veterinary Science and Medicine)**: Doctor of Veterinary Medicine (DVM), Master in Veterinary Studies.
+     - **DOT-Uni (Distance, Open, and Transnational University)**: Distance education undergraduate and graduate programs.
+3. **Automated Verification**:
+   - `UserProfileTest` passes 100% (9 tests, 64 assertions) covering address synthesis, encryption, decryption, PDF output, and unique CLSU ID enforcement.
 

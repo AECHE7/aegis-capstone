@@ -202,7 +202,8 @@
                                             'College of Fisheries',
                                             'College of Home Science and Industry',
                                             'College of Science',
-                                            'College of Veterinary Science and Medicine'
+                                            'College of Veterinary Science and Medicine',
+                                            'Distance, Open, and Transnational University (DOT-Uni)'
                                         ] as $college)
                                             <option value="{{ $college }}" {{ old('college', $user->profile->college ?? '') === $college ? 'selected' : '' }}>{{ $college }}</option>
                                         @endforeach
@@ -350,48 +351,24 @@
 
                             <!-- Barangay -->
                             <div class="col-md-6">
-                                <label for="address_barangay" class="form-label fw-semibold text-dark small mb-1">
-                                    Barangay <span class="text-danger">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-tree-city"></i></span>
-                                    <input type="text" name="barangay" id="address_barangay" list="munoz_barangay_list"
-                                           class="form-control border-start-0 py-2" 
-                                           autocomplete="address-level3"
-                                           placeholder="e.g. Bantug or Poblacion"
-                                           value="{{ old('barangay', $user->profile->barangay ?? '') }}" required style="border-radius: 0 10px 10px 0;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="address_barangay" class="form-label fw-semibold text-dark small mb-0">
+                                        Barangay <span class="text-danger">*</span>
+                                    </label>
+                                    <button type="button" id="manualBarangayToggle" class="btn btn-link p-0 text-decoration-none small text-muted" style="font-size: 0.75rem;">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i>Type manually
+                                    </button>
                                 </div>
-                                <datalist id="munoz_barangay_list">
-                                    <option value="Bantug">
-                                    <option value="Bagong Sikat">
-                                    <option value="Bical">
-                                    <option value="Catalanacan">
-                                    <option value="Curva">
-                                    <option value="Franza">
-                                    <option value="Labney">
-                                    <option value="Licaong">
-                                    <option value="Linglingay">
-                                    <option value="Magtanggol">
-                                    <option value="Maligaya">
-                                    <option value="Mangandingay">
-                                    <option value="Maragol">
-                                    <option value="Poblacion East">
-                                    <option value="Poblacion North">
-                                    <option value="Poblacion South">
-                                    <option value="Poblacion West">
-                                    <option value="Rang-ayan">
-                                    <option value="Rizal">
-                                    <option value="San Antonio">
-                                    <option value="San Felipe">
-                                    <option value="San Juan">
-                                    <option value="Santa Sofia">
-                                    <option value="Sapang Cauayan">
-                                    <option value="Villa Cuizon">
-                                    <option value="Villa Isla">
-                                    <option value="Villa Nati">
-                                    <option value="Villa Santos">
-                                    <option value="Villa Soriano">
-                                </datalist>
+                                <div class="input-group" id="barangaySelectGroup">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-tree-city"></i></span>
+                                    <select name="barangay" id="address_barangay" class="form-select border-start-0 py-2" required style="border-radius: 0 10px 10px 0;">
+                                        <option value="" disabled selected>Select City / Municipality first...</option>
+                                    </select>
+                                </div>
+                                <div class="input-group d-none" id="barangayInputGroup">
+                                    <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fa-solid fa-tree-city"></i></span>
+                                    <input type="text" id="manual_barangay_input" class="form-control border-start-0 py-2" placeholder="e.g. Bantug or Poblacion" style="border-radius: 0 10px 10px 0;">
+                                </div>
                             </div>
 
                             <!-- Street Address / House No. / Purok -->
@@ -715,56 +692,102 @@
             });
         }
 
-        // ── 1. COLLEGE & DEGREE PROGRAM CASCADING SELECTOR ──
+        // ── 1. COMPREHENSIVE CLSU ACADEMIC PROGRAMS MAPPING ──
         const collegePrograms = {
             'College of Agriculture': [
-                'BS in Agriculture (BSA)',
-                'BS in Agribusiness (BSAB)'
+                'BS in Agriculture (BSA) - Agronomy',
+                'BS in Agriculture (BSA) - Animal Science',
+                'BS in Agriculture (BSA) - Crop Protection (Entomology / Plant Pathology)',
+                'BS in Agriculture (BSA) - Horticulture',
+                'BS in Agriculture (BSA) - Soil Science',
+                'BS in Agribusiness (BSAB)',
+                'Certificate in Agricultural Science (CAS)',
+                'Master of Science (MS) in Agriculture',
+                'Master of Science (MS) in Animal Science',
+                'Master of Science (MS) in Crop Science',
+                'Master of Science (MS) in Soil Science',
+                'Doctor of Philosophy (PhD) in Animal Science',
+                'Doctor of Philosophy (PhD) in Crop Science'
             ],
             'College of Arts and Social Sciences': [
                 'BA in Development Communication (BADC)',
+                'BS in Development Communication (BSDC)',
                 'BA in Literature (BALit)',
                 'BA in Social Sciences (BASS)',
-                'BS in Psychology (BSPsych)'
+                'BA in Filipino (BAFil)',
+                'BS in Psychology (BSPsych)',
+                'Master of Science in Development Communication (MSDC)',
+                'Master of Science in Rural Development (MSRD)',
+                'Doctor of Philosophy in Development Communication (PhD DevCom)',
+                'Doctor of Philosophy in Rural Development (PhD RD)'
             ],
             'College of Business Administration and Accountancy': [
                 'BS in Accountancy (BSA)',
+                'BS in Management Accounting (BSMA)',
                 'BS in Business Administration - Marketing Management (BSBA-MM)',
                 'BS in Business Administration - Financial Management (BSBA-FM)',
-                'BS in Management Accounting (BSMA)',
-                'BS in Entrepreneurship (BSEntrep)'
+                'BS in Business Administration - Human Resource Management (BSBA-HRM)',
+                'BS in Business Administration - Business Economics (BSBA-BE)',
+                'BS in Entrepreneurship (BSEntrep)',
+                'Master in Business Administration (MBA)',
+                'Doctor of Philosophy in Business Administration (PhD BA)'
             ],
             'College of Education': [
                 'Bachelor of Elementary Education (BEEd)',
-                'Bachelor of Secondary Education (BSEd)',
+                'Bachelor of Secondary Education (BSEd) - Major in English',
+                'Bachelor of Secondary Education (BSEd) - Major in Filipino',
+                'Bachelor of Secondary Education (BSEd) - Major in Mathematics',
+                'Bachelor of Secondary Education (BSEd) - Major in Science',
+                'Bachelor of Secondary Education (BSEd) - Major in Social Studies',
+                'Bachelor of Secondary Education (BSEd) - Major in Values Education',
                 'Bachelor of Culture and Arts Education (BCAEd)',
                 'Bachelor of Early Childhood Education (BECEd)',
                 'Bachelor of Physical Education (BPEd)',
                 'BS in Hospitality Management (BSHM)',
-                'BS in Tourism Management (BSTM)'
+                'BS in Tourism Management (BSTM)',
+                'Master of Arts in Education (MAEd)',
+                'Master of Science in Education (MSEd)',
+                'Doctor of Philosophy in Education (PhD Ed)',
+                'Doctor of Philosophy in Development Education (PhD DevEd)'
             ],
             'College of Engineering': [
                 'BS in Agricultural and Biosystems Engineering (BSABE)',
                 'BS in Civil Engineering (BSCE)',
                 'BS in Information Technology (BSIT)',
-                'BS in Meteorology (BSMet)'
+                'BS in Meteorology (BSMet)',
+                'Master of Science in Agricultural Engineering (MSAE)',
+                'Doctor of Philosophy in Agricultural Engineering (PhD AE)'
             ],
             'College of Fisheries': [
-                'BS in Fisheries (BSFi)'
+                'BS in Fisheries (BSFi)',
+                'Master of Science in Aquaculture (MSAc)',
+                'Doctor of Philosophy in Aquaculture (PhD Ac)'
             ],
             'College of Home Science and Industry': [
                 'BS in Food Technology (BSFT)',
-                'BS in Textile and Fashion Technology (BSTFT)'
+                'BS in Textile and Fashion Technology (BSTFT)',
+                'Master of Science in Food Science (MSFS)'
             ],
             'College of Science': [
                 'BS in Biology (BSBio)',
                 'BS in Chemistry (BSChem)',
                 'BS in Environmental Science (BSES)',
                 'BS in Mathematics (BSMath)',
-                'BS in Statistics (BSStat)'
+                'BS in Statistics (BSStat)',
+                'Master of Science in Biology (MSBio)',
+                'Master of Science in Chemistry (MSChem)',
+                'Master of Science in Environmental Management (MSEM)',
+                'Doctor of Philosophy in Environmental Management (PhD EM)',
+                'Doctor of Philosophy in Plant Science (PhD PS)'
             ],
             'College of Veterinary Science and Medicine': [
-                'Doctor of Veterinary Medicine (DVM)'
+                'Doctor of Veterinary Medicine (DVM)',
+                'Master of Science in Veterinary Medicine (MSVM)'
+            ],
+            'Distance, Open, and Transnational University (DOT-Uni)': [
+                'Master in Management (MM)',
+                'Master in Agribusiness Management (MABM)',
+                'Master of Science in Renewable Energy Systems (MSRES)'
             ]
         };
 
@@ -859,67 +882,12 @@
             }
         }
 
-        // ── 2. PROVINCE & CITY/MUNICIPALITY CASCADING SELECTOR ──
-        const provinceCities = {
-            'Nueva Ecija': [
-                'Science City of Muñoz',
-                'San Jose City',
-                'Cabanatuan City',
-                'Gapan City',
-                'Palayan City',
-                'Aliaga',
-                'Bongabon',
-                'Cabiao',
-                'Carranglan',
-                'Cuyapo',
-                'Gabaldon',
-                'General Mamerto Natividad',
-                'General Tinio',
-                'Guimba',
-                'Jaen',
-                'Laur',
-                'Licab',
-                'Llanera',
-                'Lupao',
-                'Nampicuan',
-                'Pantabangan',
-                'Peñaranda',
-                'Quezon',
-                'Rizal',
-                'San Antonio',
-                'San Isidro',
-                'San Leonardo',
-                'Santa Rosa',
-                'Santo Domingo',
-                'Talavera',
-                'Talugtug',
-                'Zaragoza'
-            ],
-            'Pangasinan': [
-                'San Carlos City', 'Dagupan City', 'Urdaneta City', 'Alaminos City',
-                'Rosales', 'Lingayen', 'Bayambang', 'Malasiqui', 'Calasiao', 'Mangaldan'
-            ],
-            'Pampanga': [
-                'San Fernando City', 'Angeles City', 'Mabalacat City', 'Guagua', 'Lubao', 'Mexico', 'Arayat', 'Candaba'
-            ],
-            'Tarlac': [
-                'Tarlac City', 'Concepcion', 'Capas', 'Paniqui', 'Camiling', 'Gerona', 'Moncada', 'Victoria'
-            ],
-            'Bulacan': [
-                'Malolos City', 'San Jose del Monte City', 'Meycauayan City', 'Baliuag', 'Marilao', 'Santa Maria', 'Bocaue', 'San Miguel'
-            ],
-            'Bataan': [
-                'Balanga City', 'Dinalupihan', 'Hermosa', 'Mariveles', 'Orani'
-            ],
-            'Zambales': [
-                'Olongapo City', 'Subic', 'Iba', 'Castillejos', 'San Marcelino'
-            ],
-            'Aurora': [
-                'Baler', 'Casiguran', 'Dilasag', 'Dinalungan', 'Dingalan', 'Dipaculao', 'Maria Aurora', 'San Luis'
-            ],
-            'Metro Manila': [
-                'Manila', 'Quezon City', 'Caloocan', 'Taguig', 'Pasig', 'Makati', 'Parañaque', 'Valenzuela', 'Las Piñas', 'Muntinlupa', 'Mandaluyong', 'Marikina', 'Pasay', 'Malabon', 'Navotas', 'San Juan', 'Pateros'
-            ]
+        // ── 2. LIVE PSGC PHILIPPINE STANDARD GEOGRAPHIC CODE API ENGINE ──
+        const PSGC_BASE = 'https://psgc.gitlab.io/api';
+        const psgcCache = {
+            provinces: null,
+            cities: {},
+            barangays: {}
         };
 
         const provinceSelect = document.getElementById('address_province');
@@ -929,20 +897,174 @@
         const customCityWrapper = document.getElementById('customCityWrapper');
         const customCityInput = document.getElementById('custom_city_input');
 
+        const barangaySelect = document.getElementById('address_barangay');
+        const barangaySelectGroup = document.getElementById('barangaySelectGroup');
+        const barangayInputGroup = document.getElementById('barangayInputGroup');
+        const manualBarangayInput = document.getElementById('manual_barangay_input');
+        const manualBarangayToggle = document.getElementById('manualBarangayToggle');
+
+        const initialSavedProvince = {!! json_encode(old('province', $user->profile->province ?? 'Nueva Ecija')) !!};
         const initialSavedCity = {!! json_encode(old('city_municipality', $user->profile->city_municipality ?? '')) !!};
+        const initialSavedBarangay = {!! json_encode(old('barangay', $user->profile->barangay ?? '')) !!};
 
-        function updateCityOptions(province, selectedCity) {
+        let isManualBarangayMode = false;
+
+        // Offline / Pre-baked Fallbacks
+        const fallbackCities = {
+            'Nueva Ecija': [
+                'Science City of Muñoz', 'San Jose City', 'Cabanatuan City', 'Gapan City', 'Palayan City',
+                'Aliaga', 'Bongabon', 'Cabiao', 'Carranglan', 'Cuyapo', 'Gabaldon',
+                'General Mamerto Natividad', 'General Tinio', 'Guimba', 'Jaen', 'Laur',
+                'Licab', 'Llanera', 'Lupao', 'Nampicuan', 'Pantabangan', 'Peñaranda',
+                'Quezon', 'Rizal', 'San Antonio', 'San Isidro', 'San Leonardo',
+                'Santa Rosa', 'Santo Domingo', 'Talavera', 'Talugtug', 'Zaragoza'
+            ],
+            'Pangasinan': ['San Carlos City', 'Dagupan City', 'Urdaneta City', 'Alaminos City', 'Rosales', 'Lingayen', 'Bayambang', 'Malasiqui', 'Calasiao', 'Mangaldan'],
+            'Pampanga': ['San Fernando City', 'Angeles City', 'Mabalacat City', 'Guagua', 'Lubao', 'Mexico', 'Arayat', 'Candaba'],
+            'Tarlac': ['Tarlac City', 'Concepcion', 'Capas', 'Paniqui', 'Camiling', 'Gerona', 'Moncada', 'Victoria'],
+            'Bulacan': ['Malolos City', 'San Jose del Monte City', 'Meycauayan City', 'Baliuag', 'Marilao', 'Santa Maria', 'Bocaue', 'San Miguel'],
+            'Bataan': ['Balanga City', 'Dinalupihan', 'Hermosa', 'Mariveles', 'Orani'],
+            'Zambales': ['Olongapo City', 'Subic', 'Iba', 'Castillejos', 'San Marcelino'],
+            'Aurora': ['Baler', 'Casiguran', 'Dilasag', 'Dinalungan', 'Dingalan', 'Dipaculao', 'Maria Aurora', 'San Luis'],
+            'Metro Manila': ['Manila', 'Quezon City', 'Caloocan', 'Taguig', 'Pasig', 'Makati', 'Parañaque', 'Valenzuela', 'Las Piñas', 'Muntinlupa', 'Mandaluyong', 'Marikina', 'Pasay', 'Malabon', 'Navotas', 'San Juan', 'Pateros']
+        };
+
+        const fallbackMunozBarangays = [
+            'Bagong Sikat', 'Balante', 'Bantug', 'Bical', 'Cabisuculan', 'Calabalabaan', 'Calisitan',
+            'Catalanacan', 'Curva', 'Franza', 'Labney', 'Licaong', 'Linglingay', 'Magtanggol',
+            'Maligaya', 'Mangandingay', 'Maragol', 'Matingkis', 'Naglabrahan', 'Palusapis',
+            'Pandalla', 'Poblacion East', 'Poblacion North', 'Poblacion South', 'Poblacion West',
+            'Rang-ayan', 'Rizal', 'San Andres', 'San Antonio', 'San Felipe', 'San Juan',
+            'Santa Sofia', 'Sapang Cauayan', 'Villa Cuizon', 'Villa Isla', 'Villa Nati',
+            'Villa Santos', 'Villa Soriano'
+        ];
+
+        // Maps name to PSGC codes
+        let provinceCodeMap = {
+            'Nueva Ecija': '034900000',
+            'Metro Manila': '130000000'
+        };
+        let cityCodeMap = {};
+
+        // Load all 82 Philippine Provinces from PSGC API
+        async function loadProvinces() {
+            try {
+                if (!psgcCache.provinces) {
+                    const res = await fetch(`${PSGC_BASE}/provinces.json`);
+                    if (res.ok) {
+                        psgcCache.provinces = await res.json();
+                    }
+                }
+
+                if (psgcCache.provinces && Array.isArray(psgcCache.provinces)) {
+                    // Populate code map
+                    psgcCache.provinces.forEach(p => {
+                        provinceCodeMap[p.name] = p.code;
+                    });
+
+                    // Build options list
+                    const sorted = [...psgcCache.provinces].sort((a, b) => a.name.localeCompare(b.name));
+                    
+                    // Keep currently selected value
+                    const currentVal = provinceSelect.value || initialSavedProvince;
+
+                    provinceSelect.innerHTML = '<option value="" disabled>Select Province...</option>';
+                    
+                    // Pin priority provinces (Nueva Ecija and Central Luzon / NCR)
+                    const priorityList = ['Nueva Ecija', 'Pangasinan', 'Pampanga', 'Tarlac', 'Bulacan', 'Bataan', 'Zambales', 'Aurora', 'Metro Manila'];
+                    const priorityGroup = document.createElement('optgroup');
+                    priorityGroup.label = 'Priority / Nearby Provinces';
+
+                    priorityList.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        if (name === currentVal) opt.selected = true;
+                        priorityGroup.appendChild(opt);
+                    });
+                    provinceSelect.appendChild(priorityGroup);
+
+                    const allGroup = document.createElement('optgroup');
+                    allGroup.label = 'All Philippine Provinces (A-Z)';
+                    sorted.forEach(p => {
+                        if (!priorityList.includes(p.name)) {
+                            const opt = document.createElement('option');
+                            opt.value = p.name;
+                            opt.textContent = p.name;
+                            if (p.name === currentVal) opt.selected = true;
+                            allGroup.appendChild(opt);
+                        }
+                    });
+                    provinceSelect.appendChild(allGroup);
+
+                    // Other option
+                    const otherOpt = document.createElement('option');
+                    otherOpt.value = 'Other';
+                    otherOpt.textContent = 'Other Province...';
+                    provinceSelect.appendChild(otherOpt);
+
+                    if (currentVal && !provinceSelect.value) {
+                        const customOpt = document.createElement('option');
+                        customOpt.value = currentVal;
+                        customOpt.textContent = currentVal;
+                        customOpt.selected = true;
+                        provinceSelect.insertBefore(customOpt, otherOpt);
+                    }
+                }
+            } catch (err) {
+                console.warn('PSGC Provinces API fallback engaged:', err);
+            }
+        }
+
+        // Load Cities / Municipalities via PSGC API
+        async function loadCitiesForProvince(provName, selectedCity) {
             if (!citySelect) return;
-            citySelect.innerHTML = '<option value="" disabled selected>Select City / Municipality...</option>';
+            citySelect.innerHTML = '<option value="" disabled selected>Loading cities & municipalities...</option>';
 
-            const cities = provinceCities[province] || [];
+            const code = provinceCodeMap[provName];
+            let cityList = [];
+            cityCodeMap = {};
+
+            if (code) {
+                try {
+                    if (!psgcCache.cities[code]) {
+                        const endpoint = (code === '130000000') 
+                            ? `${PSGC_BASE}/regions/130000000/cities-municipalities.json`
+                            : `${PSGC_BASE}/provinces/${code}/cities-municipalities.json`;
+                        
+                        const res = await fetch(endpoint);
+                        if (res.ok) {
+                            psgcCache.cities[code] = await res.json();
+                        }
+                    }
+
+                    if (psgcCache.cities[code]) {
+                        psgcCache.cities[code].forEach(c => {
+                            cityList.push(c.name);
+                            cityCodeMap[c.name] = c.code;
+                            // Also map clean names without 'City of ' prefix if applicable
+                            const altName = c.name.replace(/^City of /, '') + (c.isCity ? ' City' : '');
+                            cityCodeMap[altName] = c.code;
+                        });
+                    }
+                } catch (err) {
+                    console.warn('PSGC Cities API failed, using local fallback:', err);
+                }
+            }
+
+            // Fallback if API returned empty
+            if (cityList.length === 0 && fallbackCities[provName]) {
+                cityList = fallbackCities[provName];
+            }
+
+            citySelect.innerHTML = '<option value="" disabled selected>Select City / Municipality...</option>';
             let cityMatched = false;
 
-            cities.forEach(function (c) {
+            cityList.sort((a, b) => a.localeCompare(b)).forEach(cityName => {
                 const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                if (selectedCity && (selectedCity === c || selectedCity.toLowerCase() === c.toLowerCase())) {
+                opt.value = cityName;
+                opt.textContent = cityName;
+                if (selectedCity && (selectedCity.toLowerCase() === cityName.toLowerCase() || cityName.toLowerCase().includes(selectedCity.toLowerCase()))) {
                     opt.selected = true;
                     cityMatched = true;
                 }
@@ -955,7 +1077,6 @@
             otherOpt.textContent = 'Other City / Municipality...';
             citySelect.appendChild(otherOpt);
 
-            // Retain custom or unmatched saved city
             if (selectedCity && !cityMatched && selectedCity !== '__OTHER_CITY__') {
                 const customCityOpt = document.createElement('option');
                 customCityOpt.value = selectedCity;
@@ -963,8 +1084,114 @@
                 customCityOpt.selected = true;
                 citySelect.insertBefore(customCityOpt, otherOpt);
             }
+
+            // Trigger barangay load for selected city
+            const activeCity = citySelect.value;
+            if (activeCity && activeCity !== '__OTHER_CITY__') {
+                loadBarangaysForCity(activeCity, initialSavedBarangay);
+            }
         }
 
+        // Load Barangays via PSGC API
+        async function loadBarangaysForCity(cityName, selectedBarangay) {
+            if (!barangaySelect) return;
+            barangaySelect.innerHTML = '<option value="" disabled selected>Loading barangays...</option>';
+
+            let cityCode = cityCodeMap[cityName];
+            let bList = [];
+
+            // If Science City of Muñoz, ensure code
+            if (!cityCode && (cityName.includes('Muñoz') || cityName.includes('Munoz'))) {
+                cityCode = '034917000';
+            }
+
+            if (cityCode) {
+                try {
+                    if (!psgcCache.barangays[cityCode]) {
+                        const res = await fetch(`${PSGC_BASE}/cities-municipalities/${cityCode}/barangays.json`);
+                        if (res.ok) {
+                            psgcCache.barangays[cityCode] = await res.json();
+                        }
+                    }
+
+                    if (psgcCache.barangays[cityCode]) {
+                        psgcCache.barangays[cityCode].forEach(b => {
+                            bList.push(b.name);
+                        });
+                    }
+                } catch (err) {
+                    console.warn('PSGC Barangays API failed, using fallback:', err);
+                }
+            }
+
+            if (bList.length === 0 && (cityName.includes('Muñoz') || cityName.includes('Munoz'))) {
+                bList = fallbackMunozBarangays;
+            }
+
+            barangaySelect.innerHTML = '<option value="" disabled selected>Select Barangay...</option>';
+            let barangayMatched = false;
+
+            bList.sort((a, b) => a.localeCompare(b)).forEach(bName => {
+                const opt = document.createElement('option');
+                opt.value = bName;
+                opt.textContent = bName;
+                if (selectedBarangay && (selectedBarangay.toLowerCase() === bName.toLowerCase())) {
+                    opt.selected = true;
+                    barangayMatched = true;
+                }
+                barangaySelect.appendChild(opt);
+            });
+
+            // Other Barangay option
+            const otherOpt = document.createElement('option');
+            otherOpt.value = '__OTHER_BARANGAY__';
+            otherOpt.textContent = 'Other Barangay (Type manually)...';
+            barangaySelect.appendChild(otherOpt);
+
+            if (selectedBarangay && !barangayMatched && selectedBarangay !== '__OTHER_BARANGAY__') {
+                const customOpt = document.createElement('option');
+                customOpt.value = selectedBarangay;
+                customOpt.textContent = selectedBarangay;
+                customOpt.selected = true;
+                barangaySelect.insertBefore(customOpt, otherOpt);
+            }
+        }
+
+        // Toggle Manual Barangay Input
+        if (manualBarangayToggle) {
+            manualBarangayToggle.addEventListener('click', function () {
+                toggleManualBarangay(!isManualBarangayMode);
+            });
+        }
+
+        if (barangaySelect) {
+            barangaySelect.addEventListener('change', function () {
+                if (this.value === '__OTHER_BARANGAY__') {
+                    toggleManualBarangay(true);
+                }
+            });
+        }
+
+        function toggleManualBarangay(enableManual) {
+            isManualBarangayMode = enableManual;
+            if (enableManual) {
+                barangaySelectGroup.classList.add('d-none');
+                barangayInputGroup.classList.remove('d-none');
+                manualBarangayInput.value = (barangaySelect.value && barangaySelect.value !== '__OTHER_BARANGAY__') ? barangaySelect.value : '';
+                manualBarangayInput.name = 'barangay';
+                barangaySelect.removeAttribute('name');
+                manualBarangayToggle.innerHTML = '<i class="fa-solid fa-list me-1"></i>Select from list';
+                manualBarangayInput.focus();
+            } else {
+                barangayInputGroup.classList.add('d-none');
+                barangaySelectGroup.classList.remove('d-none');
+                barangaySelect.name = 'barangay';
+                manualBarangayInput.removeAttribute('name');
+                manualBarangayToggle.innerHTML = '<i class="fa-solid fa-pen-to-square me-1"></i>Type manually';
+            }
+        }
+
+        // Event Listeners for Province and City
         if (provinceSelect && citySelect) {
             provinceSelect.addEventListener('change', function () {
                 if (this.value === 'Other') {
@@ -979,7 +1206,7 @@
                     provinceSelect.name = 'province';
                     customProvinceInput.removeAttribute('name');
                 }
-                updateCityOptions(this.value, '');
+                loadCitiesForProvince(this.value, '');
             });
 
             citySelect.addEventListener('change', function () {
@@ -994,14 +1221,15 @@
                     customCityInput.removeAttribute('required');
                     citySelect.name = 'city_municipality';
                     customCityInput.removeAttribute('name');
+                    loadBarangaysForCity(this.value, '');
                 }
             });
 
-            // Initialize on load
-            const activeProv = provinceSelect.value || 'Nueva Ecija';
-            if (activeProv) {
-                updateCityOptions(activeProv, initialSavedCity);
-            }
+            // Initialize Address Engine
+            loadProvinces().then(() => {
+                const initialProv = provinceSelect.value || initialSavedProvince || 'Nueva Ecija';
+                loadCitiesForProvince(initialProv, initialSavedCity);
+            });
         }
     });
 </script>
