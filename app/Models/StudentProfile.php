@@ -19,11 +19,19 @@ class StudentProfile extends Model
                 static::where('user_id', $profile->user_id)->delete();
             }
         });
+
+        static::saving(function (StudentProfile $profile) {
+            if (!empty($profile->clsu_id_number)) {
+                $normalized = strtoupper(preg_replace('/\s+/', '', (string) $profile->clsu_id_number));
+                $profile->clsu_id_hash = hash('sha256', $normalized);
+            }
+        });
     }
 
     protected $fillable = [
         'user_id',
         'clsu_id_number',
+        'clsu_id_hash',
         'college',
         'course',
         'year_level',

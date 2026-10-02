@@ -259,4 +259,91 @@ class UserProfileTest extends TestCase
         $this->assertEquals('09071067137', $profile->emergency_contact_number);
         $this->assertTrue($this->student->fresh()->isProfileComplete());
     }
+
+    public function test_clsu_id_number_must_be_unique_across_students(): void
+    {
+        // 1. Student A saves with 23-2548
+        $this->actingAs($this->student)->post('/student/profile', [
+            'name' => 'Student A',
+            'clsu_id_number' => '23-2548',
+            'college' => 'College of Science',
+            'course' => 'BS Information Technology',
+            'year_level' => '3rd Year',
+            'contact_number' => '09123456789',
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09998887777',
+        ])->assertSessionHas('success');
+
+        // 2. Student B tries to use the same ID number 23-2548
+        $studentB = User::create([
+            'name' => 'Student B',
+            'email' => 'studentB@clsu.edu.ph',
+            'password' => bcrypt('password123'),
+            'role' => 'student',
+            'email_verified_at' => now(),
+        ]);
+
+        $responseB = $this->actingAs($studentB)->post('/student/profile', [
+            'name' => 'Student B',
+            'clsu_id_number' => '23-2548',
+            'college' => 'College of Engineering',
+            'course' => 'BS Civil Engineering',
+            'year_level' => '1st Year',
+            'contact_number' => '09171112222',
+            'guardian_name' => 'Juan Dela Cruz',
+            'emergency_contact_number' => '09183334444',
+        ]);
+
+        $responseB->assertSessionHasErrors(['clsu_id_number']);
+        $this->assertEquals(
+            'The CLSU ID number has already been registered by another student.',
+            session('errors')->first('clsu_id_number')
+        );
+
+        // 3. Student B tries with spaced version '23 - 2548'
+        $responseBSpaced = $this->actingAs($studentB)->post('/student/profile', [
+            'name' => 'Student B',
+            'clsu_id_number' => '23 - 2548',
+            'college' => 'College of Engineering',
+            'course' => 'BS Civil Engineering',
+            'year_level' => '1st Year',
+            'contact_number' => '09171112222',
+            'guardian_name' => 'Juan Dela Cruz',
+            'emergency_contact_number' => '09183334444',
+        ]);
+
+        $responseBSpaced->assertSessionHasErrors(['clsu_id_number']);
+
+        // 4. Student A updating their own profile with the same ID succeeds
+        $responseA = $this->actingAs($this->student)->post('/student/profile', [
+            'name' => 'Student A Updated',
+            'clsu_id_number' => '23-2548',
+            'college' => 'College of Science',
+            'course' => 'BS Information Technology',
+            'year_level' => '4th Year',
+            'contact_number' => '09123456789',
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09998887777',
+        ]);
+        $responseA->assertSessionHas('success');
+    }
+
+    public function test_clsu_id_number_with_spaces_normalizes_to_standard_format(): void
+    {
+        $response = $this->actingAs($this->student)->post('/student/profile', [
+            'name' => 'Spaced ID Student',
+            'clsu_id_number' => '23 - 2548', // spaces around hyphen
+            'college' => 'College of Science',
+            'course' => 'BS Information Technology',
+            'year_level' => '2nd Year',
+            'contact_number' => '09123456789',
+            'guardian_name' => 'Maria Santos',
+            'emergency_contact_number' => '09998887777',
+        ]);
+
+        $response->assertSessionHas('success');
+
+        $profile = StudentProfile::where('user_id', $this->student->id)->first();
+        $this->assertEquals('23-2548', $profile->clsu_id_number);
+    }
 }

@@ -161,8 +161,11 @@
                                            class="form-control border-start-0 py-2 font-monospace" 
                                            autocomplete="off"
                                            placeholder="e.g. 23-1234" pattern="\d{2}-\d{4}" maxlength="7"
-                                           title="Format: 00-0000 (e.g. 23-1234)"
+                                           title="Format: XX-XXXX (e.g. 23-1234)"
                                            value="{{ old('clsu_id_number', $user->profile->clsu_id_number ?? '') }}" required style="border-radius: 0 10px 10px 0;">
+                                </div>
+                                <div class="form-text text-muted mt-1" style="font-size: 0.72rem;">
+                                    <i class="fa-solid fa-circle-info me-1 text-primary"></i>Format: <strong class="text-dark">XX-XXXX</strong> (e.g. 23-2548). Must be unique to your student record.
                                 </div>
                             </div>
 
@@ -689,6 +692,29 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        // ── 0. CLSU ID NUMBER FORMATTER (XX-XXXX) ──
+        const idInput = document.getElementById('clsu_id_number');
+        if (idInput) {
+            function formatClsuId(val) {
+                const digits = val.replace(/\D/g, '').slice(0, 6);
+                if (digits.length <= 2) {
+                    return digits;
+                }
+                return digits.slice(0, 2) + '-' + digits.slice(2);
+            }
+
+            idInput.addEventListener('input', function () {
+                const formatted = formatClsuId(this.value);
+                if (this.value !== formatted) {
+                    this.value = formatted;
+                }
+            });
+
+            idInput.addEventListener('blur', function () {
+                this.value = formatClsuId(this.value);
+            });
+        }
+
         // ── 1. COLLEGE & DEGREE PROGRAM CASCADING SELECTOR ──
         const collegePrograms = {
             'College of Agriculture': [

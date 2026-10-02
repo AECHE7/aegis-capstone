@@ -485,9 +485,42 @@ class AuthController extends Controller
         $user = auth()->user();
 
         if ($user->role === 'student') {
+            if ($request->has('clsu_id_number')) {
+                $cleanedId = strtoupper(preg_replace('/\s+/', '', (string) $request->clsu_id_number));
+                $request->merge(['clsu_id_number' => $cleanedId]);
+            }
+
             $request->validate([
                 'name' => 'required|string|max:255',
-                'clsu_id_number' => ['required', 'string', 'max:50', 'regex:/^\d{2}-\d{4}$/'],
+                'clsu_id_number' => [
+                    'required',
+                    'string',
+                    'max:50',
+                    'regex:/^\d{2}-\d{4}$/',
+                    function ($attribute, $value, $fail) use ($user) {
+                        $normalized = strtoupper(preg_replace('/\s+/', '', (string) $value));
+                        $hash = hash('sha256', $normalized);
+                        $exists = \App\Models\StudentProfile::where('clsu_id_hash', $hash)
+                            ->where('user_id', '!=', $user->id)
+                            ->exists();
+
+                        if (!$exists) {
+                            $conflict = \App\Models\StudentProfile::whereNull('clsu_id_hash')
+                                ->where('user_id', '!=', $user->id)
+                                ->get()
+                                ->first(function ($p) use ($normalized) {
+                                    return strtoupper(preg_replace('/\s+/', '', (string) $p->clsu_id_number)) === $normalized;
+                                });
+                            if ($conflict) {
+                                $exists = true;
+                            }
+                        }
+
+                        if ($exists) {
+                            $fail('The CLSU ID number has already been registered by another student.');
+                        }
+                    },
+                ],
                 'college' => 'required|string|max:255',
                 'course' => 'required|string|max:255',
                 'year_level' => 'required|string|max:50',
@@ -500,7 +533,8 @@ class AuthController extends Controller
                 'street_address' => 'nullable|string|max:255',
                 'address' => 'nullable|string|max:500',
             ], [
-                'clsu_id_number.regex' => 'The CLSU ID number format must be 00-0000 (e.g. 23-1234).',
+                'clsu_id_number.required' => 'The CLSU ID number is required.',
+                'clsu_id_number.regex' => 'The CLSU ID number format must be XX-XXXX (e.g. 23-1234).',
                 'contact_number.regex' => 'The contact number must be a valid Philippine mobile number (e.g. 09123456789).',
                 'emergency_contact_number.regex' => 'The emergency contact number must be a valid Philippine mobile number (e.g. 09123456789).',
             ]);

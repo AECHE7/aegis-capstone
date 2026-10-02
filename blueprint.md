@@ -1674,6 +1674,34 @@ esources/views/emails/application_form_pdf.blade.php)**:
    - `UserProfileTest` passes 7 tests with 55 assertions verifying storage, encryption, decryption, and PDF rendering.
    - `EnsureStudentProfileCompleteTest` and `NotificationComplianceTest` pass without regression.
 
+---
+
+## 48. CLSU ID Number Cryptographic Uniqueness Enforcement & Automatic `XX-XXXX` Input Formatting (October 2026)
+
+### 1. Problem Analysis & Root Cause Diagnosis
+1. **Uniqueness on Encrypted PII**:
+   - `clsu_id_number` is encrypted using Laravel's AES-256-CBC `'encrypted'` cast with randomized IVs to comply with R.A. 10173 (Data Privacy Act of 2012).
+   - Because identical ID numbers generate completely different ciphertexts, traditional database unique constraints (`$table->unique('clsu_id_number')`) cannot prevent duplicate registrations across students.
+2. **Format Discrepancies & Spacing**:
+   - Students occasionally entered spaces around hyphens (e.g. `23 - 2548` instead of `23-2548`) or omitted hyphens entirely, resulting in validation rejections or inconsistent record formats.
+
+### 2. Actionable Implementation Steps
+1. **Cryptographic Blind Indexing ([database/migrations/2026_10_02_223000_add_clsu_id_hash_to_student_profiles_table.php](file:///f:/aegis-capstone/database/migrations/2026_10_02_223000_add_clsu_id_hash_to_student_profiles_table.php), [app/Models/StudentProfile.php](file:///f:/aegis-capstone/app/Models/StudentProfile.php))**:
+   - Added an indexed `clsu_id_hash` (64-character SHA-256) column to `student_profiles`.
+   - In `StudentProfile::booted()`, hooked into the `saving` Eloquent event to automatically calculate deterministic SHA-256 hashes of normalized ID numbers (`hash('sha256', strtoupper(preg_replace('/\s+/', '', $profile->clsu_id_number)))`).
+   - Ran migration to backfill hashes for all existing student profiles.
+2. **Backend Normalization & Uniqueness Validation ([app/Http/Controllers/AuthController.php](file:///f:/aegis-capstone/app/Http/Controllers/AuthController.php), [app/Http/Controllers/ApplicationController.php](file:///f:/aegis-capstone/app/Http/Controllers/ApplicationController.php))**:
+   - Implemented pre-validation request sanitization to automatically strip all whitespace (`preg_replace('/\s+/', '', $request->clsu_id_number)`), converting inputs like `23 - 2548` into `23-2548`.
+   - Added regex enforcement for strict `XX-XXXX` structure (`regex:/^\d{2}-\d{4}$/`).
+   - Added custom uniqueness validation closure verifying that no other student profile (`where('user_id', '!=', $user->id)`) shares the same `clsu_id_hash`, returning `'The CLSU ID number has already been registered by another student.'`.
+3. **Client-Side Auto-Formatting & UX Guidance ([resources/views/auth/change_password.blade.php](file:///f:/aegis-capstone/resources/views/auth/change_password.blade.php))**:
+   - Attached an interactive `input` listener to `#clsu_id_number` that strips non-digits and automatically inserts the hyphen after the 2-digit year prefix (e.g. typing `232548` instantly formats to `23-2548`).
+   - Added descriptive helper text: `Format: XX-XXXX (e.g. 23-2548). Must be unique to your student record.`
+4. **Automated Verification**:
+   - Added `test_clsu_id_number_must_be_unique_across_students` and `test_clsu_id_number_with_spaces_normalizes_to_standard_format` in [tests/Feature/UserProfileTest.php](file:///f:/aegis-capstone/tests/Feature/UserProfileTest.php).
+   - All 9 test cases in `UserProfileTest` pass with 64 assertions.
+
+
 
 
 
