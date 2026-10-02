@@ -35,29 +35,20 @@
     <meta property="og:image" content="{{ \App\Models\Setting::get('app_logo') ? route('system.logo') : asset('logo.webp') }}">
     <meta property="og:locale" content="en_PH">
 
-    {{-- Preconnect to CDN origins (reduces DNS + TLS overhead) --}}
+    {{-- Preconnect & DNS-Prefetch to CDN origins (reduces connection setup latency) --}}
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 
-    {{-- Bootstrap CSS: standard stylesheet to eliminate layout shifts (CLS) and FOUC --}}
+    {{-- Core Framework, Iconography, and Typography Stylesheets (eliminates layout shifts, FOUC, and delayed LCP) --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-
-    {{-- Font Awesome CSS: non-blocking preload (eliminates 900ms render-block) --}}
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-          as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    {{-- font-display:swap override — prevents FOIT on Font Awesome webfonts --}}
-    <style>
-        @font-face { font-family: "Font Awesome 6 Free"; font-display: swap; }
-        @font-face { font-family: "Font Awesome 6 Free Solid"; font-display: swap; }
-        @font-face { font-family: "Font Awesome 6 Brands"; font-display: swap; }
-    </style>
-
-    {{-- Google Fonts: non-blocking load via media='print' trick --}}
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap">
 
     {{-- SweetAlert2: loaded async (moved to end of body) --}}
 
@@ -682,12 +673,6 @@
 
         .page-content {
             padding: 1.75rem 2rem 3rem;
-            animation: fadeInUp 0.4s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Responsive sidebar & backdrop for mobile/tablet */

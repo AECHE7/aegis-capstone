@@ -1579,6 +1579,34 @@ esources/views/emails/application_form_pdf.blade.php)**:
    - Run `php artisan test` to verify complete system integrity.
    - Confirm zero occurrences of raw `confirm(` or `alert(` in user-facing blade views.
 
+---
+
+## 45. Core Web Vitals Remediation: Eliminating Delayed LCP (10.58s) and Layout Shifts (CLS 0.18) via Synchronous Font & Style Architecture (October 2026)
+
+### 1. Problem Analysis & Root Cause Diagnosis
+1. **Delayed Largest Contentful Paint (LCP: 10.58s)**:
+   - In Chrome DevTools Live Metrics on `/notifications`, the LCP element was identified as `p.text-white-50.mb-0.small` with a 10.58-second delay.
+   - [resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php) loaded Google Fonts and Font Awesome using `<link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'">`.
+   - The browser initially painted using system fallback fonts. When the preload eventually completed in the background, Google Fonts downloaded woff2 files and triggered a font swap (`font-display: swap`).
+   - The moment `p.text-white-50.mb-0.small` re-rendered with `Inter`, Chrome's PerformanceObserver reset the LCP timestamp to 10.58 seconds.
+2. **Cumulative Layout Shift (CLS: 0.18 with 4 Shift Clusters)**:
+   - When Font Awesome CSS loaded asynchronously, every `<i>` icon element (which had 0 width before CSS execution) snapped to 16–20px wide with pseudo-elements, pushing headers, buttons, pills, and navigation links.
+   - [layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php) contained `.page-content { animation: fadeInUp 0.4s ease-out; }` with `from { opacity: 0; transform: translateY(12px); }`, shifting all primary page content by 12px vertically during initial mount.
+   - Google Fonts URL requested 9 weights across Inter and Poppins, inflating font transfer size and delaying font completion.
+   - Empty `@font-face` overrides in `app.blade.php` without `src: url(...)` caused font resolution discrepancies.
+
+### 2. Actionable Implementation Steps
+1. **Standardize Core Stylesheet & Font Loading ([resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php))**:
+   - Remove the `as="style" onload="..."` preload hack on Google Fonts and Font Awesome.
+   - Add `<link rel="stylesheet">` tags alongside `<link rel="preconnect">` and `<link rel="dns-prefetch">` for `cdn.jsdelivr.net`, `cdnjs.cloudflare.com`, `fonts.googleapis.com`, and `fonts.gstatic.com`.
+   - Streamline font weights to essential production variants: `Inter:wght@400;500;600;700` and `Poppins:wght@600;700`.
+   - Remove the empty `@font-face` overrides.
+2. **Eliminate Layout-Displacing Content Animations**:
+   - Remove `animation: fadeInUp 0.4s ease-out` and `@keyframes fadeInUp` from `.page-content` in [resources/views/layouts/app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php).
+3. **Automated Verification**:
+   - Run `php artisan test --filter NotificationComplianceTest` to verify zero functional regressions.
+   - Verify layout stability and immediate font/icon rendering.
+
 
 
 
