@@ -1793,4 +1793,28 @@ A comprehensive, line-by-line architectural audit was executed across the Larave
    - Author multi-stage `Dockerfile.production` featuring Node Vite compilation, PHP 8.4-FPM, OPcache tuning, Nginx, and Supervisord.
    - Provide complete `.env.production.example` and pre-deployment manual checklist.
 
+---
+
+## 51. Production Release to Staging & Production Branches with Standardized Operations Manual (October 2026)
+
+### 1. Delivery & Deployment Confirmation
+- **Staging & Production Branch Synchronization**:
+  - Committed all hardening enhancements (`feat(core): Production hardening pass, OWASP audit, multi-stage Docker & DB optimization`) on `staging`.
+  - Pushed `staging` to remote GitHub origin repository (`https://github.com/AECHE7/aegis-capstone.git`).
+  - Switched to `production` branch, merged `staging`, and pushed to remote `production` branch.
+- **Compiled Production Frontend Bundles**:
+  - Executed `npm run build` using Vite v7.3.1.
+  - Successfully generated minified, fingerprinted CSS (`app-1K7uK7Ey.css` - 57.28 kB) and JS (`app-BJWJlesB.js` - 85.22 kB) in `public/build/`.
+  - Unignored `/public/build` in `.gitignore` to guarantee zero-dependency asset serving on cloud deployment platforms.
+
+### 2. Standardized User & Instructional Operations Manual Deliverables
+1. **Stand-Alone Institutional Operations Manual ([docs/USER_AND_INSTRUCTIONAL_MANUAL.md](file:///f:/aegis-capstone/docs/USER_AND_INSTRUCTIONAL_MANUAL.md))**:
+   - Comprehensive, 4-Module guide covering Student Portal, OSA Evaluator Studio, OSA Director (SuperAdmin), and DevOps Administration.
+   - Embeds 11 high-resolution system view screenshots (`thesis_figures/screenshots/Figure_*.png`) with numbered visual callouts `[1]`, `[2]`, `[3]`.
+   - Standardized step-by-step procedures, 4-pillar forensic explanation, 4-tier GWA discrepancy rules, and complete troubleshooting FAQ.
+2. **Academic Manuscript Appendices Integration ([AEGIS_COMPLETE_CAPSTONE2_THESIS.md](file:///f:/aegis-capstone/AEGIS_COMPLETE_CAPSTONE2_THESIS.md))**:
+   - Formally appended **APPENDIX A: STANDARDIZED SYSTEM USER & INSTRUCTIONAL OPERATIONS MANUAL** to the master thesis document following Chapter V.
+   - Fully aligns thesis deliverables with institutional operational handover standards.
+
+
 

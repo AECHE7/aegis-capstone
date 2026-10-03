@@ -1538,3 +1538,228 @@ The researchers hope that A.E.G.I.S. serves as a foundation for continued innova
 ---
 
 **END OF CHAPTER V**
+
+---
+---
+
+# APPENDICES
+
+---
+
+# APPENDIX A
+## STANDARDIZED SYSTEM USER & INSTRUCTIONAL OPERATIONS MANUAL
+
+**Central Luzon State University — Office of Student Affairs (CLSU OSA)**  
+**Document Code: CLSU-OSA-AEGIS-UIM-2026-V1**  
+**Classification: Institutional Operations Standard**
+
+---
+
+### A.1 Overview & System Architecture
+A.E.G.I.S. (Academic Evaluation & Grant Integrity System) is an enterprise web application integrating deep learning document forensics to automate scholarship intake, verify General Weighted Averages (GWA), detect fraudulent transcript tampering, and manage university financial grants.
+
+---
+
+### A.2 Student Portal Operations Manual
+
+#### A.2.1 Institutional Authentication & Two-Factor Verification
+Students access the portal via their official CLSU institutional email address (`@clsu.edu.ph`).
+
+```
++-------------------------------------------------------------------------------+
+| Figure A.1: Institutional Login & Two-Factor Authentication (MFA) Interface   |
+| [File: thesis_figures/screenshots/Figure_01_Login_Page.png]                   |
++-------------------------------------------------------------------------------+
+```
+![Figure A.1: Institutional Login & MFA Interface](thesis_figures/screenshots/Figure_01_Login_Page.png)
+
+1. Navigate to `/login` `[1]`.
+2. Enter registered institutional credentials `[2]`.
+3. Click **"Sign In"** `[3]`.
+4. Enter the 6-digit one-time password (OTP) sent to the institutional inbox.
+5. *(Optional)* Select **"Remember this trusted device for 30 days"** to bypass OTP on personal hardware.
+
+#### A.2.2 Profile Completion & Cryptographic Blind Indexing
+1. Enter CLSU Student ID number in standardized `XX-XXXX` format (e.g., `23-1234`). The system calculates a deterministic SHA-256 hash (`clsu_id_hash`) to enforce database uniqueness while encrypting the identifier at rest using AES-256-CBC.
+2. Select Academic College and Degree Program from the cascading curriculum catalog.
+3. Select Permanent Address using the cascading Philippine Standard Geographic Code (PSGC) selector (Province $\rightarrow$ City/Municipality $\rightarrow$ Barangay).
+4. Enter guardian name and 11-digit mobile contact number (`09XXXXXXXXX`).
+
+#### A.2.3 Student Dashboard & Visual Lifecycle Pizza Tracker
+```
++-------------------------------------------------------------------------------+
+| Figure A.2: Student Dashboard & Visual Lifecycle Pizza Tracker                |
+| [File: thesis_figures/screenshots/Figure_13_Student_Dashboard.png]            |
++-------------------------------------------------------------------------------+
+```
+![Figure A.2: Student Dashboard](thesis_figures/screenshots/Figure_13_Student_Dashboard.png)
+
+The student dashboard features a real-time **Pizza Tracker** `[1]` illustrating progress across 5 stages:
+1. **Submitted**: Intake acknowledged by OSA pipeline.
+2. **Under Review**: Assigned to an evaluator for audit.
+3. **Integrity Scanned**: AI ELA/OCR scanning complete.
+4. **Approved**: Officially awarded by the OSA Director.
+5. **Disbursed**: Stipend payroll released.
+
+#### A.2.4 Filing an Application via 3-Step Stepper
+```
++-------------------------------------------------------------------------------+
+| Figure A.3: Student 3-Step Interactive Application Stepper                    |
+| [File: thesis_figures/screenshots/Figure_14_Student_Apply_Form.png]           |
++-------------------------------------------------------------------------------+
+```
+![Figure A.3: Student Application Form](thesis_figures/screenshots/Figure_14_Student_Apply_Form.png)
+
+1. Click **"Apply for Scholarship"**.
+2. **Step 1 (Program Selection)**: Select grant program (e.g., DOST-SEI, University Scholar) `[1]`.
+3. **Step 2 (Academic Declarations)**: Declare previous semester GWA and complete custom eligibility fields `[2]`.
+4. **Step 3 (Document Upload)**: Attach clear digital Certificate of Grades (COG) or official photographic scan `[3]`.
+5. Click **"Submit Application"**. Submissions outside Monday–Friday 8:00 AM – 5:00 PM PHT are tagged as *Queued for Next Business Day*.
+
+---
+
+### A.3 OSA Staff Reviewer Operations Manual
+
+#### A.3.1 Application Queue Triage & Priority Sorting
+```
++-------------------------------------------------------------------------------+
+| Figure A.4: OSA Evaluator Application Queue & Triage Console                  |
+| [File: thesis_figures/screenshots/Figure_07_Admin_Application_Queue.png]      |
++-------------------------------------------------------------------------------+
+```
+![Figure A.4: Evaluator Application Queue](thesis_figures/screenshots/Figure_07_Admin_Application_Queue.png)
+
+1. Access `/admin/dashboard`.
+2. Inspect top metrics: Pending, Under Review, Approved, and Flagged counts `[1]`.
+3. Filter by program, term, status, or assignment (`Assigned to Me` vs `Unassigned`) `[2]`.
+4. Apply priority sort `[3]` to elevate applications with fraud scores $\ge 70.0\%$ to the top of the queue.
+5. Click **"Review Applicant"** `[4]` to launch the Forensic Decision Studio.
+
+#### A.3.2 4-Pillar Forensic Review Studio & Heatmap Interpretation
+```
++-------------------------------------------------------------------------------+
+| Figure A.5: Forensic Review Studio & ELA Heatmap Analysis                     |
+| [File: thesis_figures/screenshots/Figure_09_Application_Review_Detail.png]    |
++-------------------------------------------------------------------------------+
+```
+![Figure A.5: Forensic Review Studio](thesis_figures/screenshots/Figure_09_Application_Review_Detail.png)
+
+The review studio implements an **Explainable Forensic Decision Framework (EFDF)**:
+- **Pillar 1 (Document Syntax Gate)**: Filters invalid/non-document uploads.
+- **Pillar 2 (OCR Grade Consistency — 35% Weight)**: Validates declared GWA against Tesseract-extracted values.
+- **Pillar 3 (Compression & ELA Forensics — 50% Weight)**: Highlights spliced pixel clusters via thermal Grad-CAM heatmaps.
+- **Pillar 4 (Metadata Provenance — 15% Weight)**: Identifies editing software (Photoshop, Photopea) from EXIF tags.
+
+#### A.3.3 Evaluating Decisions & Private Staff Notes
+1. Review applicant details and side-by-side ELA heatmap overlay.
+2. Select a standardized 1-click remark preset or type custom evaluation notes.
+3. Record internal staff audit notes.
+4. Click **"Approve Application"** or **"Reject Application"**. Automated email notification is dispatched to the student.
+
+#### A.3.4 Announcement Board Management
+```
++-------------------------------------------------------------------------------+
+| Figure A.6: Institutional Announcement Management Console                     |
+| [File: thesis_figures/screenshots/Figure_11_Announcements.png]                |
++-------------------------------------------------------------------------------+
+```
+![Figure A.6: Announcements Manager](thesis_figures/screenshots/Figure_11_Announcements.png)
+
+1. Navigate to `/admin/announcements`.
+2. Click **"Post New Announcement"** `[1]`.
+3. Configure title, priority level (*Normal*, *Important*, *Urgent*), content, and audience.
+4. Click **"Publish Announcement"** `[2]` to push live updates to student dashboards.
+
+---
+
+### A.4 OSA Director (SuperAdmin) Operations Manual
+
+#### A.4.1 Scholarship Program & Quota Management
+```
++-------------------------------------------------------------------------------+
+| Figure A.7: Scholarship Program Configuration & Quotas                        |
+| [File: thesis_figures/screenshots/Figure_02_Scholarship_Programs.png]         |
++-------------------------------------------------------------------------------+
+```
+![Figure A.7: Scholarship Programs](thesis_figures/screenshots/Figure_02_Scholarship_Programs.png)
+
+1. Access `/superadmin/scholarships`.
+2. Click **"Create Scholarship Program"** `[1]`.
+3. Configure minimum GWA cutoff, max renewal count, stipend amount, and slot quotas.
+4. Add custom dynamic criteria fields (e.g., *Certificate of Indigency*).
+5. Toggle status to **Active** to publish program for student applications.
+
+#### A.4.2 Executive Analytics & ISO/IEC 25010 Quality Metrics
+```
++-------------------------------------------------------------------------------+
+| Figure A.8: Executive Analytics Dashboard & Quality Radar                     |
+| [File: thesis_figures/screenshots/Figure_03_Analytics_Dashboard.png]          |
++-------------------------------------------------------------------------------+
+```
+![Figure A.8: Analytics Dashboard](thesis_figures/screenshots/Figure_03_Analytics_Dashboard.png)
+
+- **Grade Integrity Index `[1]`**: Mean integrity across all approved applications ($100\% - \text{Avg Fraud Probability}$).
+- **Evaluation Velocity `[2]`**: Average processing turnaround in days.
+- **College Distribution `[3]`**: Beneficiary volume by academic unit.
+- **GWA Distribution Density `[4]`**: Density histogram of applicant grades.
+- **ISO/IEC 25010 Radar `[5]`**: Aggregated evaluator ratings across Functional Suitability, Usability, Reliability, and Security.
+
+#### A.4.3 Staff Delegation & Workload Partitioning
+```
++-------------------------------------------------------------------------------+
+| Figure A.9: Staff Delegation & Role Management Console                        |
+| [File: thesis_figures/screenshots/Figure_06_Staff_Management.png]             |
++-------------------------------------------------------------------------------+
+```
+![Figure A.9: Staff Management](thesis_figures/screenshots/Figure_06_Staff_Management.png)
+
+1. Access `/superadmin/staff`.
+2. Click **"Invite Staff Member"** `[1]` to send activation tokens.
+3. Assign specific scholarship programs to evaluators to partition intake volume `[2]`.
+4. Manage account active states and delegations `[3]`.
+
+#### A.4.4 Dynamic System Configuration & Calibration
+```
++-------------------------------------------------------------------------------+
+| Figure A.10: Dynamic System Settings & Forensics Calibration                  |
+| [File: thesis_figures/screenshots/Figure_04_System_Settings.png]              |
++-------------------------------------------------------------------------------+
+```
+![Figure A.10: System Settings](thesis_figures/screenshots/Figure_04_System_Settings.png)
+
+1. Adjust AI Fraud Detection Threshold (Default: `70.0%`).
+2. Adjust GWA Discrepancy Tolerance (Default: `0.01`).
+3. Set MFA Security Level (*All*, *Students & Staff*, *Optional*).
+4. Perform Emergency Universal Device Revocation if required.
+
+#### A.4.5 7-Tier Compliance Audits & Official Log Exports
+```
++-------------------------------------------------------------------------------+
+| Figure A.11: System Audit Trail & Compliance Log Center                       |
+| [File: thesis_figures/screenshots/Figure_05_Audit_Logs.png]                   |
++-------------------------------------------------------------------------------+
+```
+![Figure A.11: Audit Logs Console](thesis_figures/screenshots/Figure_05_Audit_Logs.png)
+
+- Review real-time logs across 7 security tiers: *Authentication*, *Admin Actions*, *AI Scans*, *Evaluations*, *Config Changes*, *Email Delivery*, and *Export Access*.
+- Export official audit trails to CSV or PDF for statutory university auditing.
+
+---
+
+### A.5 System Administration & DevOps Reference
+
+1. **Multi-Stage Container Architecture**:
+   - Production Docker container combines Node Vite compilation, Composer dependency optimization, and an Alpine PHP 8.4-FPM + Nginx runtime with Supervisord.
+2. **Database Engine & Indexes**:
+   - Production database runs on PostgreSQL (Supabase / Render) with composite performance indexes:
+     - `idx_apps_status_archived (status, is_archived)`
+     - `idx_apps_assigned_status (assigned_to, status)`
+     - `idx_apps_user_term (user_id, academic_term_id)`
+     - `idx_apps_created_at (created_at)`
+3. **Real-Time Monitoring**:
+   - Sentry error monitoring integrated via `\Sentry\Laravel\Integration::handles($exceptions)` in `bootstrap/app.php`.
+   - Continuous keep-warm cron probes prevent container sleep latency.
+
+---
+**END OF APPENDIX A**
+
