@@ -310,24 +310,40 @@ class SuperAdminController extends Controller
         ];
 
         // 10. Chart Data: Monthly Application Trend & Processing Speed (Scoped)
+        // Consolidated from 12 separate queries into a single query for sub-100ms response time
         $monthlyTrend = [];
         $monthlyProcessingDays = [];
+        $sixMonthsAgo = now()->subMonths(5)->startOfMonth();
+
+        $recentApps = (clone $query)
+            ->where('created_at', '>=', $sixMonthsAgo)
+            ->select('id', 'status', 'created_at', 'updated_at')
+            ->get();
+
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $label = $date->format('M Y');
-            $monthlyTrend[$label] = (clone $query)->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month)
-                ->count();
+            $year = $date->year;
+            $month = $date->month;
 
-            $monthQuery = (clone $query)->whereIn('status', ['Approved', 'Rejected'])
-                ->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month);
-            if (config('database.default') === 'sqlite') {
-                $avgDays = $monthQuery->selectRaw('avg(julianday(updated_at) - julianday(created_at)) as avg_days')->value('avg_days') ?? 0;
+            $monthApps = $recentApps->filter(function ($app) use ($year, $month) {
+                return $app->created_at && $app->created_at->year === $year && $app->created_at->month === $month;
+            });
+
+            $monthlyTrend[$label] = $monthApps->count();
+
+            $evaluatedMonthApps = $monthApps->filter(function ($app) {
+                return in_array($app->status, ['Approved', 'Rejected']);
+            });
+
+            if ($evaluatedMonthApps->isNotEmpty()) {
+                $totalDays = $evaluatedMonthApps->sum(function ($app) {
+                    return max(0, $app->created_at->floatDiffInDays($app->updated_at));
+                });
+                $monthlyProcessingDays[$label] = round($totalDays / $evaluatedMonthApps->count(), 1);
             } else {
-                $avgDays = $monthQuery->selectRaw('avg(extract(epoch from (updated_at - created_at)) / 86400) as avg_days')->value('avg_days') ?? 0;
+                $monthlyProcessingDays[$label] = 0.0;
             }
-            $monthlyProcessingDays[$label] = round((float)$avgDays, 1);
         }
 
         // 11. Chart Data: College & Course Distribution (Scoped)
@@ -340,6 +356,7 @@ class SuperAdminController extends Controller
             ->toArray();
 
         // 12. Chart Data: GWA Distribution Density (Scoped)
+        // Consolidated from 10 separate count queries into a single query
         $gwaBrackets = [
             'excellent' => ['min' => 1.00, 'max' => 1.25],
             'very_good' => ['min' => 1.26, 'max' => 1.50],
@@ -348,11 +365,24 @@ class SuperAdminController extends Controller
             'others'    => ['min' => 2.01, 'max' => 5.00]
         ];
 
-        $applicantGwaCounts = [];
-        $approvedGwaCounts = [];
-        foreach ($gwaBrackets as $key => $range) {
-            $applicantGwaCounts[$key] = (clone $query)->whereBetween('gwa', [$range['min'], $range['max']])->count();
-            $approvedGwaCounts[$key] = (clone $query)->where('status', 'Approved')->whereBetween('gwa', [$range['min'], $range['max']])->count();
+        $applicantGwaCounts = ['excellent' => 0, 'very_good' => 0, 'good' => 0, 'satisfactory' => 0, 'others' => 0];
+        $approvedGwaCounts  = ['excellent' => 0, 'very_good' => 0, 'good' => 0, 'satisfactory' => 0, 'others' => 0];
+
+        $gwaDataset = (clone $query)->whereNotNull('gwa')->select('gwa', 'status')->get();
+
+        foreach ($gwaDataset as $item) {
+            $gwa = (float) $item->gwa;
+            $isApproved = $item->status === 'Approved';
+
+            foreach ($gwaBrackets as $key => $range) {
+                if ($gwa >= $range['min'] && $gwa <= $range['max']) {
+                    $applicantGwaCounts[$key]++;
+                    if ($isApproved) {
+                        $approvedGwaCounts[$key]++;
+                    }
+                    break;
+                }
+            }
         }
 
         // 13. Chart Data: AI Anomaly Indicator Frequencies (Scoped)

@@ -25,7 +25,7 @@ class MfaOtpMail extends Mailable
      */
     public function build()
     {
-        return $this->from(config('mail.from.address', 'gadianoriel07@gmail.com'), config('mail.from.name', 'AEGIS CLSU'))
+        return $this->from(config('mail.from.address', 'noreply@clsu-aegis.ph'), config('mail.from.name', 'AEGIS CLSU'))
                     ->subject('[A.E.G.I.S.] Verification Code for Login')
                     ->view('emails.mfa_otp');
     }

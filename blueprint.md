@@ -1735,3 +1735,62 @@ esources/views/emails/application_form_pdf.blade.php)**:
 3. **Automated Verification**:
    - `UserProfileTest` passes 100% (9 tests, 64 assertions) covering address synthesis, encryption, decryption, PDF output, and unique CLSU ID enforcement.
 
+---
+
+## 50. Production Hardening, Zero-Vulnerability Security Audit & Deployment Blueprint (October 2026)
+
+### 1. Executive Summary & Production Readiness Audit Findings
+A comprehensive, line-by-line architectural audit was executed across the Laravel backend, AI microservice integration pipeline, database schemas, frontend asset workflows, and container configurations. The application exhibits strong architectural fundamentals (AES column encryption for student PII, blind indexing for CLSU ID numbers, custom MFA device fingerprinting, and forensic image analysis). However, shifting from prototype/UAT to live institutional production requires addressing critical vulnerabilities and performance bottlenecks:
+
+1. **Security & Authentication (OWASP Top 10)**:
+   - **Critical Production MFA Backdoor**: In [AuthController.php](file:///f:/aegis-capstone/app/Http/Controllers/AuthController.php#L308), `verifyMfa` allows hardcoded demo OTPs (`000000`, `123456`) whenever `$isDummy` is true, without gating by `!app()->environment('production')`. In live production, attackers guessing administrative emails (`admin@clsu.edu.ph`, `director@clsu.edu.ph`, `superadmin@clsu.edu.ph`, `student@clsu.edu.ph`) can bypass MFA completely.
+   - **Hardcoded Secrets & Fallbacks**: [config/mail.php](file:///f:/aegis-capstone/config/mail.php#L120), [MfaOtpMail.php](file:///f:/aegis-capstone/app/Mail/MfaOtpMail.php#L28), and [BrevoTransport.php](file:///f:/aegis-capstone/app/Mail/Transport/BrevoTransport.php#L38) contain hardcoded personal developer email fallbacks (`gadianoriel07@gmail.com`). [routes/console.php](file:///f:/aegis-capstone/routes/console.php#L108) and [User.php](file:///f:/aegis-capstone/app/Models/User.php#L49) default master account ownership to personal mail if unconfigured.
+   - **PostgreSQL Database Portability Defect**: In [AdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/AdminController.php#L102-L103), `orderByRaw('CASE WHEN applications.status = "Under Review" ...')` uses double quotes for string literals. In PostgreSQL (Supabase/Render production), double quotes denote SQL column identifiers, triggering fatal SQL syntax crashes (`column "Under Review" does not exist`).
+   - **Missing Rate Limiting & Unrestricted Upload Endpoints**: Critical write routes lack request throttling: `POST /apply` (multi-MB file uploads), `POST /profile/update`, `POST /uat-feedback`, and document download endpoints are vulnerable to DoS/resource exhaustion.
+   - **Missing Explicit CORS Configuration**: `config/cors.php` is missing; cross-origin policy defaults must be explicitly pinned for production API consumers and microservices.
+
+2. **Error Handling & Resiliency**:
+   - **Sentry Integration Incomplete**: `sentry/sentry-laravel` is installed in `composer.json` and configured in `config/sentry.php`, but `\Sentry\Laravel\Integration::handles($exceptions)` is omitted from [bootstrap/app.php](file:///f:/aegis-capstone/bootstrap/app.php), preventing runtime crash reporting to Sentry in production.
+   - **Silent Subshell Failure in Start Script**: In [start.sh](file:///f:/aegis-capstone/start.sh#L14), `php artisan migrate --force || true` silences migration errors, potentially allowing an outdated or corrupted database state to boot. Furthermore, `php artisan serve` is used as the web server rather than an enterprise-grade process manager.
+   - **Missing Branded HTTP 500 Error Boundary**: Database connection loss is handled, but unhandled internal server exceptions lack a branded, user-friendly 500 Blade template.
+
+3. **Performance & Database Optimization**:
+   - **Missing Production Indexes on `applications`**: Queries frequently filter and sort on `status`, `is_archived`, `assigned_to`, `academic_term_id`, `deleted_at`, and `created_at`. Without composite indexes (`status, is_archived`, `assigned_to, status`), full table scans will degrade response times under load.
+   - **N+1 and Loop Query Multiplying in Analytics**: [SuperAdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/SuperAdminController.php#L311-L356) executes individual queries inside loops for monthly cycle times and GWA brackets (executing 35-45 separate queries per request). These can be consolidated into single conditional aggregate expressions.
+
+4. **Cleanup & Codebase Hygiene**:
+   - **Extensive File Clutter & Orphaned Root Duplicates**: The project root contains legacy duplicates of active controllers (`AdminController.php`, `ApplicationController.php`, `AuthController.php`, `SuperAdminController.php`, `DocumentController.php`), seeders, blade templates (`dashboard.blade.php`, `review.blade.php`, `login.blade.php`), and Windows quirk files (`nul`). These risk accidental developer edits and Docker build bloat.
+   - **Strict Types & Sanitization**: Ensure strict parameter typing and elimination of stray debugging scripts.
+
+5. **Production Deployment Blueprint**:
+   - **Multi-Stage Production Dockerfile**: Replace the development `php artisan serve` loop with an optimized multi-stage build (Node asset compilation stage -> PHP dependency stage -> Production Alpine runtime with Nginx, PHP-FPM, and OPcache).
+   - **Standardized Production Environment Variable Reference**: Complete `.env.production.example` and pre-flight checklist.
+
+---
+
+### 2. Actionable Implementation Steps (Roadmap for Phase 50)
+1. **Security & Auth Hardening**:
+   - Gate universal OTP bypass in `AuthController::verifyMfa` strictly to non-production environments (`!app()->isProduction() && config('app.allow_demo_accounts', false)`).
+   - Replace all hardcoded personal developer email fallbacks with configurable environment variables (`config('mail.from.address')`, `env('MASTER_ACCOUNT_EMAIL')`).
+   - Fix double quotes to single quotes in `AdminController.php` `orderByRaw` for 100% ANSI SQL / PostgreSQL compatibility.
+   - Add strict rate limiting (`throttle:10,1` on `/apply`, `throttle:20,1` on profile updates/feedback).
+   - Create explicit, restrictive `config/cors.php`.
+
+2. **Resilience & Monitoring**:
+   - Register Sentry exception handler in `bootstrap/app.php` using `\Sentry\Laravel\Integration::handles($exceptions)`.
+   - Create user-friendly, branded `resources/views/errors/500.blade.php`.
+   - Remove `|| true` swallow in deployment scripts to fail-fast on migration errors.
+
+3. **Database Optimization**:
+   - Create a dedicated migration adding composite indexes to `applications` (`[status, is_archived]`, `[assigned_to, status]`, `[user_id, academic_term_id]`).
+   - Refactor `SuperAdminController::analytics` to use single-pass conditional aggregation (`FILTER (WHERE ...)` / `SUM(CASE WHEN ...)`), dropping query count from ~40 to <6 and guaranteeing sub-200ms latency.
+
+4. **Codebase Cleanup**:
+   - Archive and remove redundant root-level duplicate files (`*Controller.php`, `*.blade.php`, `nul`) that exist properly inside `app/` and `resources/views/`.
+   - Generate an enterprise-grade `README.md` with complete architecture notes, required env keys, and zero-downtime deployment instructions.
+
+5. **Production Blueprint & Dockerization**:
+   - Author multi-stage `Dockerfile.production` featuring Node Vite compilation, PHP 8.4-FPM, OPcache tuning, Nginx, and Supervisord.
+   - Provide complete `.env.production.example` and pre-deployment manual checklist.
+
+

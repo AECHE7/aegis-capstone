@@ -35,13 +35,13 @@ class BrevoTransport extends AbstractTransport
             $senderEmail = $fromAddress->getAddress();
             $senderName = $fromAddress->getName() ?: null;
         } else {
-            $senderEmail = config('mail.from.address', 'gadianoriel07@gmail.com');
+            $senderEmail = config('mail.from.address', 'noreply@clsu-aegis.ph');
             $senderName = config('mail.from.name', 'AEGIS CLSU');
         }
 
         // Brevo strictly validates verified senders — prevent invalid or placeholder addresses
         if (empty($senderEmail) || str_contains($senderEmail, 'example.com')) {
-            $senderEmail = config('mail.from.address', 'gadianoriel07@gmail.com');
+            $senderEmail = config('mail.from.address', 'noreply@clsu-aegis.ph');
             $senderName = config('mail.from.name', 'AEGIS CLSU');
         }
 

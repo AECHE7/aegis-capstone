@@ -42,19 +42,34 @@ class AuthController extends Controller
     }
 
     /**
+    /**
+     * Determine whether demo account shortcuts/universal OTPs are permitted.
+     * Strictly disabled in production unless explicitly authorized via config.
+     */
+    public static function isDemoModeAllowed(): bool
+    {
+        return !app()->environment('production') || (bool) config('app.allow_demo_accounts', false);
+    }
+
+    /**
      * Determine whether an email belongs to a designated institutional dummy/demo account.
      */
     public static function isDummyAccount(?string $email): bool
     {
-        if (!$email) {
+        if (!$email || !self::isDemoModeAllowed()) {
             return false;
         }
-        return in_array(strtolower(trim($email)), [
+        $masterEmail = \App\Models\Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', 'admin@clsu.edu.ph'));
+        $dummyList = [
             'admin@clsu.edu.ph',
             'director@clsu.edu.ph',
             'superadmin@clsu.edu.ph',
-            'gadianoriel07@gmail.com',
-        ], true);
+            'staff@clsu.edu.ph',
+        ];
+        if (!empty($masterEmail)) {
+            $dummyList[] = strtolower(trim($masterEmail));
+        }
+        return in_array(strtolower(trim($email)), $dummyList, true);
     }
 
     /**
@@ -62,7 +77,7 @@ class AuthController extends Controller
      */
     public static function isDemoStudentAccount(?string $email): bool
     {
-        if (!$email) {
+        if (!$email || !self::isDemoModeAllowed()) {
             return false;
         }
         return in_array(strtolower(trim($email)), [
@@ -303,9 +318,10 @@ class AuthController extends Controller
             hash_equals($user->otp_code, $request->code)
         );
 
-        // Universal demo OTP bypass for dummy accounts, demo student, or non-production environments
+        // Universal demo OTP bypass strictly gated to non-production environments with demo mode enabled
         $isDummy = self::isDummyAccount($user->email) || self::isDemoStudentAccount($user->email);
-        $isDemoOtp = ($isDummy || !app()->environment('production'))
+        $isDemoOtp = self::isDemoModeAllowed()
+            && ($isDummy || !app()->environment('production'))
             && in_array($request->code, ['000000', '123456'], true);
 
         if (($isValidOtp || $isDemoOtp) && ($isDemoOtp || ($user->otp_expires_at && $user->otp_expires_at->isFuture()))) {

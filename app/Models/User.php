@@ -46,7 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isMaster(): bool
     {
-        $masterEmail = Setting::get('master_email', 'gadianoriel07@gmail.com');
+        $masterEmail = Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', 'admin@clsu.edu.ph'));
         return $masterEmail && strtolower($this->email) === strtolower($masterEmail);
     }
 

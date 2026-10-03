@@ -9,12 +9,21 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-echo "▶ Spawning database migrations & queue worker asynchronously..."
+echo "▶ Ensuring storage symlink..."
+php artisan storage:link || true
+
+echo "▶ Running database migrations..."
+php artisan migrate --force
+
+echo "▶ Spawning queue worker in background..."
 (
-    php artisan migrate --force || true
-    php artisan queue:work --verbose --tries=3 --timeout=120
+    while true; do
+        php artisan queue:work --verbose --tries=3 --timeout=120 --sleep=3 --max-time=3600
+        echo "Queue worker stopped, restarting in 3s..."
+        sleep 3
+    done
 ) &
 
-echo "▶ Starting HTTP server on port ${PORT:-10000} immediately..."
+echo "▶ Starting HTTP server on port ${PORT:-10000}..."
 export PHP_CLI_SERVER_WORKERS=10
 exec php artisan serve --host=0.0.0.0 --port=${PORT:-10000} --no-reload

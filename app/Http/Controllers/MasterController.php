@@ -161,7 +161,7 @@ class MasterController extends Controller
         }
 
         if ($request->isMethod('post')) {
-            $oldMasterEmail = Setting::get('master_email', 'gadianoriel07@gmail.com');
+            $oldMasterEmail = Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', 'admin@clsu.edu.ph'));
             
             // Perform transfer atomically
             \DB::transaction(function () use ($transfer, $currentUser, $oldMasterEmail) {

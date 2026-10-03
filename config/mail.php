@@ -117,7 +117,7 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'gadianoriel07@gmail.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'noreply@clsu-aegis.ph'),
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'AEGIS CLSU')),
     ],
 

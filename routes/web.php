@@ -226,10 +226,10 @@ Route::middleware(['auth'])->group(function () {
     // STUDENT PORTAL (Requires Email Verification & Complete Profile)
     Route::middleware(['verified', 'student.profile.complete'])->group(function () {
         Route::get('/apply', [ApplicationController::class, 'create'])->name('student.apply');
-        Route::post('/apply', [ApplicationController::class, 'store'])->name('student.store');
+        Route::post('/apply', [ApplicationController::class, 'store'])->middleware('throttle:10,1')->name('student.store');
         Route::get('/student/dashboard', [ApplicationController::class, 'dashboard'])->name('student.dashboard');
         Route::get('/student/profile', [ApplicationController::class, 'editProfile'])->name('student.profile');
-        Route::post('/student/profile', [ApplicationController::class, 'updateProfile'])->name('student.profile.update');
+        Route::post('/student/profile', [ApplicationController::class, 'updateProfile'])->middleware('throttle:30,1')->name('student.profile.update');
         Route::get('/scholarships/{id}/fields', [ApplicationController::class, 'getScholarshipFields'])->name('scholarships.fields');
         
         // Deletion & Cancellation Workflows (Soft & Hard deletes for Student)
@@ -240,13 +240,13 @@ Route::middleware(['auth'])->group(function () {
         // Onboarding Tour & Forfeiture
         Route::post('/student/complete-tour', [ApplicationController::class, 'completeTour'])->name('student.complete-tour');
         Route::post('/application/{id}/forfeit', [ApplicationController::class, 'forfeit'])->name('student.application.forfeit');
-        Route::post('/application/{id}/reupload', [ApplicationController::class, 'reupload'])->name('student.application.reupload');
+        Route::post('/application/{id}/reupload', [ApplicationController::class, 'reupload'])->middleware('throttle:10,1')->name('student.application.reupload');
 
         // Announcements feed for students
         Route::get('/student/announcements', [\App\Http\Controllers\AnnouncementController::class, 'studentFeed'])->name('student.announcements');
 
         // Direct Download of Official Approved Application Form (PDF)
-        Route::get('/application/{id}/download-form', [ApplicationController::class, 'downloadApprovedForm'])->name('student.application.download-form');
+        Route::get('/application/{id}/download-form', [ApplicationController::class, 'downloadApprovedForm'])->middleware('throttle:30,1')->name('student.application.download-form');
     });
 
     // OSA ADMIN DASHBOARD
@@ -401,7 +401,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/application-field/{id}/file', [DocumentController::class, 'fieldFile'])->name('application-field.file');
 
     // UAT FEEDBACK SUBMISSION
-    Route::post('/uat-feedback', [\App\Http\Controllers\UatFeedbackController::class, 'store'])->name('uat.store');
+    Route::post('/uat-feedback', [\App\Http\Controllers\UatFeedbackController::class, 'store'])->middleware('throttle:15,1')->name('uat.store');
 
     // MASTER ACCOUNT GATEWAY & ROLE SWITCHER
     Route::get('/master/gateway', [\App\Http\Controllers\MasterController::class, 'showGateway'])->name('master.gateway');
