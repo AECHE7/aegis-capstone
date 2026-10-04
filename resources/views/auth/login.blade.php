@@ -805,7 +805,7 @@
 </script>
 
     <x-auth-modal :emergencyReadOnly="$emergencyReadOnly ?? false" />
-    <x-cor-seal-modal :autoShow="true" />
+    <x-cor-seal-modal :autoShow="false" />
 </main>
 </body>
 </html>

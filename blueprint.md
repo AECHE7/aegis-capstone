@@ -79,6 +79,22 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
    - **Chapters I through V**: Expanded literature reviews with mathematical formulations of ELA/Grad-CAM, 10 Agile Sprints with code snippets, calibrated ₱1,500 open-source budget, and ISO 25010 analysis.
    - **Appendices A through H**: 9-figure annotated User Manual, SQL DDL scripts & 7 Data Dictionaries, 25 individual test case specification tables, 25-item ISO questionnaire, Consent, Transmittal letters, Grammarian Certificate, and Researcher CVs.
 
+16. **User & Instructional Operations Manual & Screenshot Integrity Audit**:
+   - **Audit & Root-Cause Diagnosis**:
+     - Detected that 4 of 11 screenshots were either Laravel 404 error pages (`Figure_05_Audit_Logs.png`, `Figure_09_Application_Review_Detail.png` at ~6.3 KB) or login redirects (`Figure_13_Student_Dashboard.png`, `Figure_14_Student_Apply_Form.png` at ~42 KB).
+     - Root cause 1: Absence of demo student accounts caused automated Puppeteer student login to fail, redirecting `/student/dashboard` and `/apply` back to `/login`.
+     - Root cause 2: Empty `scholarship_staff` pivot prevented OSA admin from reviewing applications (aborted with 403), while missing Application #1 caused 404.
+     - Root cause 3: `Figure_05_Audit_Logs.png` was missing from `capture_screenshots.cjs`.
+   - **Engineering Remediation**:
+     - Updated `app/Http/Controllers/AuthController.php` to recognize `student@clsu.edu.ph` and `student_apply@clsu.edu.ph` as permitted demo student accounts in non-production environments (`isDemoModeAllowed()`).
+     - Set `cor-seal-modal` auto-show to false on `login.blade.php` to prevent backdrop blocking automated headless form submissions.
+     - Built and executed `scripts/seed_manual_views.php` to seed authentic student accounts, completed profiles, scholarship staff pivot records, sample Certificate of Grades documents, and structured 4-pillar forensic `deep_analysis_report` records in `a_i_results`.
+     - Upgraded `capture_screenshots.cjs` with robust `loginAs` form submission helper and dedicated capture steps for all 11 system views.
+   - **Deliverables Regenerated**:
+     - Re-captured all 11 high-resolution 1440x900 screenshots (all clean, 46 KB – 177 KB, with 785 to 3,169 unique colors).
+     - Re-compiled `docs/AEGIS_STANDARDIZED_USER_AND_INSTRUCTIONAL_MANUAL.docx` (Word docx) and root `AEGIS_USER_AND_INSTRUCTIONAL_MANUAL.docx`.
+     - Re-compiled master capstone thesis `AEGIS_COMPLETE_CAPSTONE2_THESIS.docx`.
+
 ---
 
 ## 4. Current Work: 13-Point System Integration & Enhancement Roadmap

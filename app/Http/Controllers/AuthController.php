@@ -82,6 +82,7 @@ class AuthController extends Controller
         }
         return in_array(strtolower(trim($email)), [
             'student@clsu.edu.ph',
+            'student_apply@clsu.edu.ph',
         ], true);
     }
 
@@ -122,9 +123,10 @@ class AuthController extends Controller
 
             // Check if device is remembered (bypass MFA) or if user is a designated dummy demo account
             $isDummyAdminAccount = self::isDummyAccount($user->email);
+            $isDemoStudent = self::isDemoStudentAccount($user->email);
 
             // Automatically stamp dummy accounts as verified so they never get trapped in verification
-            if ($isDummyAdminAccount && $user->email_verified_at === null) {
+            if (($isDummyAdminAccount || $isDemoStudent) && $user->email_verified_at === null) {
                 $user->email_verified_at = now();
                 $user->save();
             }
@@ -146,7 +148,7 @@ class AuthController extends Controller
                 }
             }
 
-            if (!$shouldEnforceMfa || $hasValidDevice || $isDummyAdminAccount) {
+            if (!$shouldEnforceMfa || $hasValidDevice || $isDummyAdminAccount || $isDemoStudent) {
                 // Login user immediately
                 Auth::login($user);
                 $request->session()->regenerate();
