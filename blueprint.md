@@ -95,6 +95,16 @@ The system streamlines scholarship applications, automated grade sheet (GWA) int
      - Re-compiled `docs/AEGIS_STANDARDIZED_USER_AND_INSTRUCTIONAL_MANUAL.docx` (Word docx) and root `AEGIS_USER_AND_INSTRUCTIONAL_MANUAL.docx`.
      - Re-compiled master capstone thesis `AEGIS_COMPLETE_CAPSTONE2_THESIS.docx`.
 
+
+17. **Tester & Evaluator Visual Guide & ISO/IEC 25010 Manual**:
+   - **Purpose & Scope**: Created a dedicated operational visual testing guide tailored specifically for User Acceptance Testing (UAT) participants, OSA staff evaluators, student testers, and capstone thesis defense panelists.
+   - **Pre-Configured Test Accounts**: Matrix with 3 distinct test personas (Student Applicant, OSA Staff Evaluator, OSA Director) complete with one-click test credentials and predefined testing objectives.
+   - **Guided Test Tracks**:
+     - *Track 1 (Student Scholarship Portal)*: S-1 Auth & Trusted Devices, S-2 5-Stage Pizza Tracker & Notifications, S-3 3-Step Interactive Application Stepper & Offline Draft Auto-Save.
+     - *Track 2 (OSA Staff Evaluator)*: E-1 Priority Risk Queue & Fast Filters, E-2 4-Pillar Forensic Review Studio & ELA Heatmap Canvas, E-3 Institutional Announcements Management.
+     - *Track 3 (OSA Director / Super Admin)*: D-1 Scholarship Program Quotas & Budget Allocation, D-2 Executive Analytics & ISO 25010 Radar, D-3 Compliance Export Hub & 7-Tier Audit Trail, D-4 Dynamic System Settings, D-5 Staff Delegation.
+   - **Standardized Evaluation Forms**: Embedded ISO/IEC 25010:2023 5-point Likert evaluation rating rubric across 8 quality dimensions (Functional Suitability, Performance Efficiency, Compatibility, Usability, Reliability, Security, Maintainability, Portability) and a standardized Tester Observation & Defect Reporting Matrix.
+   - **Deliverables**: Generated both Markdown (docs/TESTER_AND_EVALUATOR_VISUAL_GUIDE.md) and publication-grade Word .docx documents (docs/AEGIS_TESTER_AND_EVALUATOR_VISUAL_GUIDE.docx and root AEGIS_TESTER_AND_EVALUATOR_VISUAL_GUIDE.docx).
 ---
 
 ## 4. Current Work: 13-Point System Integration & Enhancement Roadmap
