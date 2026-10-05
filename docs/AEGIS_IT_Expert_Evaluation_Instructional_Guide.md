@@ -64,12 +64,26 @@ All designated institutional evaluation accounts are pre-seeded and pre-configur
 
 ## 4. Test Artifacts & Forensic Documents Repository
 
-To evaluate the AI Document Forensics Module (TC-IT-05), download and use these prepared test Certificate of Grades (COG) files:
+Evaluators have multiple convenient ways to obtain the ground truth Certificate of Grades (COG) test fixtures for evaluating the AI Document Forensics Module (TC-IT-05) and testing live student submission (TC-STU-02):
 
-| Artifact Name | Direct Web Access URL | Local Repository Path | Characteristics |
+### 4.1 In-App Review Screen Dropdown (Fastest & Recommended)
+When logged in as an Administrator (`admin@clsu.edu.ph` / `password`), navigate to any application review page (e.g., `/admin/review/{id}`):
+1. Locate the **"Test COG Fixtures"** dropdown button in the top action toolbar (beside `View Form` and `Form PDF`).
+2. Click the dropdown to reveal the **Evaluation Samples** menu:
+   - **Authentic COG (GWA 2.75)** — Click to immediately download or view the authentic baseline sample.
+   - **Tampered COG (Edited GWA 1.00)** — Click to immediately download or view the manipulated/forged sample.
+
+### 4.2 Direct Web Access & Local Paths
+You can also download or inspect the assets directly via browser URLs or local file paths:
+
+| Artifact Name | Direct Web Access URL | Local Repository Path | Characteristics & Expected AI Verdict |
 | :--- | :--- | :--- | :--- |
-| **Authentic CLSU COG** | `https://aegis-capstone.onrender.com/documents/sample_cog_authentic.jpg` | `public/documents/sample_cog_authentic.jpg` | High-fidelity genuine academic record. Consistent JPEG error level compression. |
-| **Tampered CLSU COG** | `https://aegis-capstone.onrender.com/documents/sample_cog_tampered.jpg` | `public/documents/sample_cog_tampered.jpg` | Spliced grade modification (`1.00`) and altered compression boundaries triggering ELA anomaly. |
+| **Authentic CLSU COG** | `https://aegis-capstone.onrender.com/samples/authentic_clsu_cog.jpg` | `public/samples/authentic_clsu_cog.jpg`<br>*(also in `public/documents/`)* | Genuine Central Luzon State University COG with GWA 2.75. Uniform pixel noise floor, consistent Discrete Cosine Transform (DCT) quantization table, unaltered grade text blocks. **Expected Result:** Authentic verdict (< 35% tampering probability), Low Risk. |
+| **Tampered CLSU COG** | `https://aegis-capstone.onrender.com/samples/tampered_clsu_cog.jpg` | `public/samples/tampered_clsu_cog.jpg`<br>*(also in `public/documents/`)* | Spliced/manipulated CLSU COG with forged GWA altered from 2.75 to 1.00 (Latin Honors forgery). High-frequency Error Level Analysis (ELA) residuals and copy-move/splicing boundaries detected. **Expected Result:** High Tampering Risk (> 70% tampering probability), High Risk verdict. |
+
+### 4.3 Evaluation Testing Workflow with Test Fixtures
+- **Test in Live Review:** As `admin@clsu.edu.ph`, inspect existing pre-seeded student applications (e.g. Juan Dela Cruz) to evaluate the dual-pane viewer, ELA diff layer, and Grad-CAM explainability heatmaps.
+- **Test in Fresh Student Submission:** Log in as `student_apply@clsu.edu.ph` / `password` (Demo OTP: `123456`), navigate to `/student/apply`, select any open scholarship, and upload `tampered_clsu_cog.jpg` or `authentic_clsu_cog.jpg`. Then log back into the admin portal to witness automated queue ingestion, asynchronous background processing, and OCR/forensic analysis.
 
 ---
 
@@ -127,11 +141,12 @@ The following procedures guide the execution of all 10 technical test scenarios 
 ### TC-IT-05: AI Forensic ELA-CNN Pipeline & Grad-CAM Explainability
 - **Target Route:** `GET /admin/review/{id}`
 - **Account:** `admin@clsu.edu.ph` / `password`
+- **Fixture Access:** Click the **"Test COG Fixtures"** dropdown button directly in the review toolbar to access or compare `Authentic COG (GWA 2.75)` and `Tampered COG (Edited GWA 1.00)`.
 - **Verification Protocol:**
-  1. Log in as Administrator. Open an application review screen with an attached COG.
+  1. Log in as Administrator (`admin@clsu.edu.ph`). Open an application review screen with an attached COG.
   2. Inspect the **AI Forensic Decision Support Card**:
      - **Fraud Probability Score (FPS):** Quantified percentage (0% to 100%).
-     - **Risk Tier Badge:** Categorized as Low Risk, Moderate Risk, or High Risk.
+     - **Risk Tier Badge:** Categorized as Low Risk (<35%), Moderate Risk (35-70%), or High Risk (>70%).
      - **Error Level Analysis (ELA):** Visual differential map computed at 95% JPEG quality.
      - **Grad-CAM Heatmap Overlay:** Heatmap localizing anomalous pixels or bounding boxes.
   3. Verify human-in-the-loop decision autonomy: The officer can override the AI score with mandatory justification logging.

@@ -314,7 +314,7 @@
                                     <ul class="text-muted small ps-3 mb-0" style="line-height: 1.6;">
                                         <li>High-resolution pan & zoom inspection</li>
                                         <li>Neural tamper probability rating</li>
-                                        <li>Camera EXIF & software signature check</li>
+                                        <li>1-click "Test COG Fixtures" toolbar dropdown</li>
                                     </ul>
                                 </div>
                             </div>
@@ -964,6 +964,7 @@
                     workflow: [
                         "Pan and zoom up to 400% on Certificate of Grades documents",
                         "Toggle ELA noise heatmap overlay to inspect pixel tampering",
+                        "Download sample test COGs via 'Test COG Fixtures' toolbar dropdown",
                         "Review camera metadata: device model, original timestamp, and software",
                         "Check 3-tier risk badge (Low Risk, Review Recommended, High Tampering)"
                     ],

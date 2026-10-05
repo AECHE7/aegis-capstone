@@ -111,12 +111,23 @@ def create_it_guide():
     # Section 4
     doc.add_heading('4. Test Artifacts & Forensic Documents Repository', level=2)
     doc.add_paragraph(
-        'For evaluating the AI Document Forensics module (TC-IT-05) and testing live student submission (TC-STU-02), '
-        'the following sample Certificate of Grades (COG) documents are prepared and directly downloadable:'
+        'Evaluators have multiple convenient ways to obtain the ground truth Certificate of Grades (COG) test fixtures for evaluating '
+        'the AI Document Forensics module (TC-IT-05) and testing live student submission (TC-STU-02):'
     )
+    p_inapp = doc.add_paragraph()
+    p_inapp.add_run('• In-App Review Screen Toolbar Dropdown (Recommended): ').bold = True
+    p_inapp.add_run(
+        'When logged in as Administrator (admin@clsu.edu.ph), open any review screen (/admin/review/{id}). '
+        'In the top header toolbar beside "View Form" and "Form PDF", click the "Test COG Fixtures" dropdown button '
+        'to download either "Authentic COG (GWA 2.75)" or "Tampered COG (Edited GWA 1.00)" in 1 click.'
+    )
+    p_direct = doc.add_paragraph()
+    p_direct.add_run('• Direct Web Access & Local Paths: ').bold = True
+    p_direct.add_run('Evaluators may also download the assets directly from the web or inspect local repository files:')
+
     t_doc = doc.add_table(rows=3, cols=3)
     t_doc.alignment = WD_TABLE_ALIGNMENT.CENTER
-    doc_headers = ['Document Fixture', 'Download URL / Repository Path', 'Forensic Characteristics']
+    doc_headers = ['Document Fixture', 'Download URL & Local Repository Path', 'Forensic Characteristics & Expected AI Verdict']
     for i, h in enumerate(doc_headers):
         cell = t_doc.cell(0, i)
         cell.text = h
@@ -126,8 +137,12 @@ def create_it_guide():
         cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
 
     doc_data = [
-        ('Authentic CLSU COG', 'https://aegis-capstone.onrender.com/documents/sample_cog_authentic.jpg\n(Local: public/documents/sample_cog_authentic.jpg)', 'Authentic academic document. Consistent JPEG compression and authentic registrar seal.'),
-        ('Tampered CLSU COG', 'https://aegis-capstone.onrender.com/documents/sample_cog_tampered.jpg\n(Local: public/documents/sample_cog_tampered.jpg)', 'Digitally spliced grade modification (1.00) creating distinct ELA error levels and anomalous Grad-CAM heatmap.'),
+        ('Authentic CLSU COG (GWA 2.75)',
+         'https://aegis-capstone.onrender.com/samples/authentic_clsu_cog.jpg\n(Local: public/samples/authentic_clsu_cog.jpg)',
+         'Genuine CLSU Certificate of Grades with GWA 2.75. Uniform pixel noise floor, unaltered grade blocks, consistent DCT quantization. Expected: Authentic (< 35% tampering probability), Low Risk.'),
+        ('Tampered CLSU COG (Edited GWA 1.00)',
+         'https://aegis-capstone.onrender.com/samples/tampered_clsu_cog.jpg\n(Local: public/samples/tampered_clsu_cog.jpg)',
+         'Digitally spliced grade modification altered from 2.75 to 1.00 (Latin Honors forgery). High-frequency ELA compression boundaries and copy-move artifacts. Expected: High Tampering Risk (> 70%), High Risk.'),
     ]
     for r_idx, row in enumerate(doc_data, start=1):
         for c_idx, val in enumerate(row):
@@ -161,6 +176,7 @@ def create_it_guide():
         ('TC-IT-05: AI Forensic ELA-CNN Pipeline & Grad-CAM Explainability',
          '• Route: GET /admin/review/{id}\n'
          '• Account: admin@clsu.edu.ph / password\n'
+         '• Fixture Shortcut: Click "Test COG Fixtures" dropdown in the review toolbar to download Authentic (2.75) or Tampered (1.00) test COGs.\n'
          '• Inspection: Open application review screen. Verify Fraud Probability Score (0-100%), risk tier badge (Low, Moderate, High), ELA difference map, and Grad-CAM localized heatmap overlay.\n'
          '• Autonomy: Verify human decision override: Admin can approve or reject with mandatory justification logging.'),
 
@@ -237,8 +253,14 @@ def create_it_guide():
         '3. Affix your physical or digital signature, designation, and date on Page 5 of the evaluation document.'
     )
 
-    doc.save('docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide.docx')
-    print('Successfully generated complete docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide.docx')
+    target_path = 'docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide.docx'
+    alt_path = 'docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide_Updated.docx'
+    try:
+        doc.save(target_path)
+        print(f'Successfully generated complete {target_path}')
+    except PermissionError:
+        doc.save(alt_path)
+        print(f'Note: {target_path} is currently open in Word. Successfully generated updated copy at {alt_path}')
 
 if __name__ == '__main__':
     create_it_guide()

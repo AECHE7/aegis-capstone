@@ -2156,4 +2156,28 @@ Empowering IT Technical Experts, faculty panelists, and cybersecurity auditors t
 6. **Navigation Access**:
    - Prominently integrated into `resources/views/superadmin/settings.blade.php` with direct jump pill anchor `#db-inspector`.
 
+---
+
+## 64. Forensic Evaluation Fixtures & In-App Review Toolbar Dropdown (October 2026)
+
+### Purpose & Scope
+Providing IT Technical Experts, faculty evaluators, and system auditors with instantaneous, seamless access to the ground-truth Certificate of Grades (COG) test assets directly within the live evaluation workflows.
+
+### Key Deliverables & Architecture
+1. **In-App Header Toolbar Dropdown (`/admin/review/{id}`)**:
+   - In `resources/views/admin/review.blade.php`, the top action toolbar prominently includes the **"Test COG Fixtures"** dropdown button (`fa-vial`) beside "View Form" and "Form PDF".
+   - Provides a 1-click download menu for evaluators without navigating away or manually typing file paths:
+     - **Authentic COG (GWA 2.75)**: Points to `public/samples/authentic_clsu_cog.jpg`.
+     - **Tampered COG (Edited GWA 1.00)**: Points to `public/samples/tampered_clsu_cog.jpg`.
+2. **Ground Truth Forensic Asset Characteristics**:
+   - **Authentic CLSU COG (`authentic_clsu_cog.jpg`)**: Baseline genuine academic record from Central Luzon State University. Features uniform DCT quantization, consistent pixel noise floor, and authentic registrar layout. Expected AI verdict: Low Tampering Risk (< 35% tampering probability).
+   - **Tampered CLSU COG (`tampered_clsu_cog.jpg`)**: Manipulated version with general weighted average spliced from 2.75 to 1.00 (Latin Honors forgery). Engineered to test Error Level Analysis (ELA) compression boundary discontinuities, copy-move artifacts, and Grad-CAM explainability heatmaps. Expected AI verdict: High Tampering Risk (> 70% tampering probability).
+3. **Multi-Channel Path Synchronization**:
+   - Synchronized across both `public/samples/` and `public/documents/` paths to guarantee 100% link resolution regardless of evaluator navigation method.
+4. **Interactive Walkthrough Integration**:
+   - Updated `resources/views/components/system-demo-modal.blade.php` to reference the **"Test COG Fixtures"** dropdown in the Step 02 (Forensic Dual-Pane Inspection) staff workflow guide.
+5. **Technical Documentation & Word Export Alignment**:
+   - Fully documented in `docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide.md` and `docs/generate_it_guide_docx.py`.
+
+
 
