@@ -2227,5 +2227,38 @@ In `app/Http/Middleware/SecurityHeaders.php`, the `Content-Security-Policy` head
 2. **Automated Verification**:
    - Ran `php artisan test --filter=SecurityHardeningTest`: 4 tests, 29 assertions passed 100%.
 
+---
+
+## 67. Student Dashboard Cancel Button & Blade Push Stack Normalization (October 2026)
+
+### Issue Identified
+1. The **"Cancel Application"** button on the student dashboard was unresponsive when clicked by applicants with active applications.
+2. Developer Tools console logged an uncaught runtime exception:
+   `Uncaught TypeError: Cannot read properties of null (reading 'getAttribute') at dashboard:7:72`.
+
+### Root Cause Analysis
+1. **Unclosed Blade `@push` Stack Directive**:
+   - In `resources/views/student/dashboard.blade.php`, `@push('scripts')` was initiated at line 849 but lacked a closing `@endpush` directive before line 1081 (`@if(!auth()->user()->has_completed_tour)`).
+   - Because `@push` uses an internal output buffer (`ob_start()`), an unclosed push buffer was prematurely dumped to the HTTP response stream by PHP/Blade before `layouts.app` rendered `<!DOCTYPE html>`.
+   - This caused the inline script to evaluate prior to `<html>`, `<head>`, and `<meta name="csrf-token">`, resulting in `document.querySelector('meta[name="csrf-token"]')` returning `null`. Calling `.getAttribute('content')` on null threw `TypeError: Cannot read properties of null (reading 'getAttribute')`.
+   - The uncaught exception halted the remaining JavaScript execution, preventing event listeners from attaching to `.cancel-app-btn`, `.restore-app-btn`, and `.withdraw-app-btn`.
+2. **Status Permission Parity in ApplicationController**:
+   - In `app/Http/Controllers/ApplicationController.php`, the `cancel()` method only checked `['Pending', 'Under Review']`, rejecting `'Returned'` applications with HTTP 403, despite the student dashboard UI displaying the Cancel button for `'Returned'` applications.
+
+### Remediation & Architectural Resolution
+1. **Blade Stack Normalization ([student/dashboard.blade.php](file:///f:/aegis-capstone/resources/views/student/dashboard.blade.php))**:
+   - Added the missing `@endpush` directive to balance all Blade stacks across the application (verified 5 `@push` / 5 `@endpush`).
+   - Wrapped deletion event handlers within `document.addEventListener('DOMContentLoaded', () => { ... })`.
+   - Hardened CSRF token retrieval with optional chaining and fallback: `document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'`.
+2. **Status Alignment in Controller ([ApplicationController.php](file:///f:/aegis-capstone/app/Http/Controllers/ApplicationController.php))**:
+   - Extended `cancel()` status check to `['Pending', 'Under Review', 'Returned']`, allowing applicants who received returned documents to cancel cleanly if desired.
+3. **Defensive Hardening ([system-demo-modal.blade.php](file:///f:/aegis-capstone/resources/views/components/system-demo-modal.blade.php))**:
+   - Applied optional chaining to `e.target?.getAttribute('data-role')` and `btn?.getAttribute('data-action')`.
+4. **Automated Verification**:
+   - Added `test_student_can_cancel_returned_application` to `tests/Feature/DeletionManagementTest.php`.
+   - Executed `php artisan test --filter=DeletionManagementTest`: 10 tests, 42 assertions passed (100%).
+   - Render verification verified `<!DOCTYPE html>` now emits on line 1 and all script assets inject into `@stack('scripts')` at document end.
+
+
 
 

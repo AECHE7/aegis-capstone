@@ -87,6 +87,26 @@ class DeletionManagementTest extends TestCase
         ]);
     }
 
+    public function test_student_can_cancel_returned_application()
+    {
+        $application = Application::create([
+            'user_id' => $this->student->id,
+            'scholarship_id' => $this->scholarship->id,
+            'academic_term_id' => $this->academicTerm->id,
+            'program_name' => $this->scholarship->name,
+            'gwa' => 1.50,
+            'status' => 'Returned'
+        ]);
+
+        $response = $this->actingAs($this->student)
+            ->postJson(route('student.application.cancel', $application->id));
+
+        $response->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        $this->assertSoftDeleted('applications', ['id' => $application->id]);
+    }
+
     public function test_student_can_restore_cancelled_application()
     {
         $application = Application::create([

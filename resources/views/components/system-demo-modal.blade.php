@@ -1280,7 +1280,7 @@
         const tabs = document.querySelectorAll('#demoRoleTabs button[data-bs-toggle="pill"]');
         tabs.forEach(tab => {
             tab.addEventListener('shown.bs.tab', (e) => {
-                const targetRole = e.target.getAttribute('data-role') || 'student';
+                const targetRole = e.target?.getAttribute('data-role') || 'student';
                 updateDemoPrimaryAction(targetRole);
             });
         });
@@ -1317,8 +1317,8 @@
         const btn = document.getElementById('demoPrimaryActionBtn');
         if (!btn) return;
 
-        const action = btn.getAttribute('data-action') || 'live-tour';
-        const role = btn.getAttribute('data-role') || 'student';
+        const action = btn?.getAttribute('data-action') || 'live-tour';
+        const role = btn?.getAttribute('data-role') || 'student';
 
         if (action === 'live-tour') {
             startCurrentRoleTour();

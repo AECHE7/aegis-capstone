@@ -388,7 +388,7 @@ class ApplicationController extends Controller
         $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
         $application = Application::where('user_id', $userId)->findOrFail($id);
 
-        if (!in_array($application->status, ['Pending', 'Under Review'])) {
+        if (!in_array($application->status, ['Pending', 'Under Review', 'Returned'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Action Denied: You cannot cancel an application that has already been ' . strtolower($application->status) . '.'
