@@ -42,12 +42,12 @@ class SecurityHeaders
         // Note: 'unsafe-inline' retained for Bootstrap/FA compatibility.
         // 'unsafe-eval' retained for SweetAlert2 compatibility.
         $csp = "default-src 'self'; " .
-               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " .
+               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; " .
-               "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; " .
-               "img-src 'self' data: https://*.hf.space https://xyoul-aegis-ai.hf.space https://res.cloudinary.com https://placehold.co; " .
+               "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; " .
+               "img-src 'self' data: blob: https://*.hf.space https://xyoul-aegis-ai.hf.space https://res.cloudinary.com https://placehold.co; " .
                "frame-src 'self' data: https://*.hf.space https://xyoul-aegis-ai.hf.space https://res.cloudinary.com https://placehold.co; " .
-               "connect-src 'self' https://cdn.jsdelivr.net https://*.hf.space https://xyoul-aegis-ai.hf.space; " .
+               "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://*.hf.space https://xyoul-aegis-ai.hf.space https://psgc.gitlab.io https://*.gitlab.io; " .
                "frame-ancestors 'self';";
 
         $response->headers->set('Content-Security-Policy', $csp);

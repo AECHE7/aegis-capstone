@@ -2206,5 +2206,26 @@ Evaluator navigation to `https://aegis-capstone.onrender.com/student/dashboard` 
    - Verified clean 200 OK HTML generation without corrupted compression headers or memory buffers.
    - All Feature tests pass 100% (8 tests, 36 assertions).
 
+---
+
+## 66. Content Security Policy connect-src Normalization for PSGC Geographic API (October 2026)
+
+### Issue Identified
+Browser console on `https://aegis-capstone.onrender.com/student/profile` logged Content Security Policy violation errors:
+`Connecting to 'https://psgc.gitlab.io/api/provinces.json' violates the following Content Security Policy directive: "connect-src 'self' ...". The action has been blocked.`
+`Fetch API cannot load https://psgc.gitlab.io/api/provinces.json. Refused to connect because it violates the document's Content Security Policy.`
+
+### Root Cause
+In `app/Http/Middleware/SecurityHeaders.php`, the `Content-Security-Policy` header's `connect-src` directive whitelisted `'self'`, `cdn.jsdelivr.net`, and HuggingFace domains, but omitted `https://psgc.gitlab.io` (Philippine Standard Geographic Code API for dynamic provinces, cities, municipalities, and barangays dropdowns).
+
+### Remediation
+1. **CSP Directive Updates ([app/Http/Middleware/SecurityHeaders.php](file:///f:/aegis-capstone/app/Http/Middleware/SecurityHeaders.php))**:
+   - Whitelisted `https://psgc.gitlab.io` and `https://*.gitlab.io` in `connect-src`.
+   - Added `https://cdnjs.cloudflare.com` to `connect-src` and `script-src`.
+   - Added `blob:` to `img-src` for client-side image preview and canvas crops.
+   - Added `data:` to `font-src` for FontAwesome inline icons.
+2. **Automated Verification**:
+   - Ran `php artisan test --filter=SecurityHardeningTest`: 4 tests, 29 assertions passed 100%.
+
 
 
