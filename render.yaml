@@ -18,6 +18,8 @@ services:
         value: https://clsu.osa.scholarship
       - key: APP_DEBUG
         value: "false"
+      - key: ALLOW_DEMO_ACCOUNTS
+        value: "true"
       - key: LOG_CHANNEL
         value: stderr
       - key: QUEUE_CONNECTION

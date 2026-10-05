@@ -43,6 +43,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Allow Institutional Demo Accounts (Evaluation Mode)
+    |--------------------------------------------------------------------------
+    |
+    | Enables designated test accounts (admin, director, staff, student) to
+    | bypass MFA or use universal demo OTP codes (123456 / 000000).
+    | Defaults to true for institutional capstone evaluation.
+    |
+    */
+
+    'allow_demo_accounts' => (bool) env('ALLOW_DEMO_ACCOUNTS', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

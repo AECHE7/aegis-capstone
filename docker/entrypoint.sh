@@ -21,5 +21,8 @@ php artisan view:cache
 echo "▶ Running database migrations..."
 php artisan migrate --force
 
+echo "▶ Seeding essential evaluation accounts and institutional settings..."
+php artisan db:seed --force || true
+
 echo "▶ Launching Supervisord (PHP-FPM, Nginx, Queue Workers)..."
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

@@ -2113,4 +2113,24 @@ Preparation of the entire A.E.G.I.S. Capstone ecosystem for tomorrow's official 
    - Cleaned working tree and committed all evaluation forms, scripts, theme modifications, and seeders.
    - Pushed latest changes to `origin/staging` and `origin/production`.
 
+---
+
+## 62. Render Staging Demo Account & Universal MFA Bypass Fix (October 2026)
+
+### Issue Identified
+Evaluator login on the live Render staging deployment (`aegis-capstone.onrender.com`) was routing `admin@clsu.edu.ph` to `/login/mfa` and rejecting the universal demo OTP `000000` / `123456`.
+- **Root Cause**: On Render, `APP_ENV` is set to `production`, and `docker/entrypoint.sh` executes `php artisan config:cache`. Because `'allow_demo_accounts'` was not explicitly declared in `config/app.php`, `config('app.allow_demo_accounts', false)` evaluated to `false`. Consequently, `AuthController::isDemoModeAllowed()` returned `false`, disabling both the administrative dummy account auto-login bypass and the universal demo OTP (`123456` / `000000`) for all evaluation accounts. Furthermore, `db:seed` was not automatically run on container boot.
+
+### Remediation
+1. **Config Definition**:
+   - Added `'allow_demo_accounts' => (bool) env('ALLOW_DEMO_ACCOUNTS', true)` to `config/app.php`, defaulting to `true` for capstone evaluation.
+2. **Robust `isDemoModeAllowed()` Resolution**:
+   - Updated `AuthController::isDemoModeAllowed()` to:
+     - Check `config('app.allow_demo_accounts')` and `env('ALLOW_DEMO_ACCOUNTS')`.
+     - Automatically allow demo accounts on hostnames ending in `onrender.com`, `staging`, `demo`, or `localhost`.
+     - Default safely to `true` for the evaluation phase.
+3. **Container Infrastructure Updates**:
+   - Added `ALLOW_DEMO_ACCOUNTS: "true"` to `render.yaml`.
+   - Added `php artisan db:seed --force || true` to `docker/entrypoint.sh` after `php artisan migrate --force` to ensure all accounts, scholarships, and active terms are seeded on deployment boot.
+
 
