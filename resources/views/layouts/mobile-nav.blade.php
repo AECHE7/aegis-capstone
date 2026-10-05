@@ -1,4 +1,4 @@
-﻿@auth
+@auth
 <div class="mobile-bottom-nav d-md-none" role="navigation" aria-label="Mobile Bottom Navigation">
     @if(auth()->user()->role === 'student')
         <a href="{{ route('student.dashboard') }}" 

@@ -2179,5 +2179,32 @@ Providing IT Technical Experts, faculty evaluators, and system auditors with ins
 5. **Technical Documentation & Word Export Alignment**:
    - Fully documented in `docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide.md` and `docs/generate_it_guide_docx.py`.
 
+---
+
+## 65. Transport Compression Normalization & ERR_CONTENT_DECODING_FAILED Resolution (October 2026)
+
+### Issue Identified
+Evaluator navigation to `https://aegis-capstone.onrender.com/student/dashboard` failed in browser DevTools with:
+`GET https://aegis-capstone.onrender.com/student/dashboard net::ERR_CONTENT_DECODING_FAILED 200 (OK)` on `dashboard:1`.
+
+### Root Cause Analysis
+1. **PHP-Level Dual Compression Hazard**:
+   - In `app/Http/Middleware/GzipResponse.php`, responses exceeding 1KB were manually compressed inside PHP using `gzencode()` and tagged with `Content-Encoding: gzip`.
+   - In production on Render, the backend container runs behind an Nginx reverse proxy (`docker/nginx-prod.conf`) configured with `gzip on;` AND Render's Edge CDN (Cloudflare) which negotiates Gzip and Brotli compression.
+2. **Output Stream Header Desynchronization**:
+   - `resources/views/layouts/mobile-nav.blade.php` contained a leading 3-byte UTF-8 Byte Order Mark (`\xef\xbb\xbf`).
+   - When rendered, the 3 bytes were emitted into the output stream prior to the gzipped payload (`\x1f\x8b`), causing the received response to begin with `0a0a0a 1f8b...`.
+   - Browsers and reverse proxies inspecting `Content-Encoding: gzip` rejected the stream with `incorrect header check` / `ERR_CONTENT_DECODING_FAILED`.
+
+### Remediation & Architectural Resolution
+1. **Compression Delegation to Web Server & CDN**:
+   - Refactored `app/Http/Middleware/GzipResponse.php` to delegate transport compression entirely to Nginx (`gzip on;` in `docker/nginx-prod.conf`) and Cloudflare Edge.
+   - Retained immutable HTTP static asset caching (`Cache-Control: public, max-age=31536000, immutable`) for `build/*`, `logo.*`, `manifest.json`, and sample fixtures.
+2. **UTF-8 BOM Removal**:
+   - Stripped the 3-byte BOM from `resources/views/layouts/mobile-nav.blade.php`.
+3. **Automated Verification**:
+   - Verified clean 200 OK HTML generation without corrupted compression headers or memory buffers.
+   - All Feature tests pass 100% (8 tests, 36 assertions).
+
 
 
