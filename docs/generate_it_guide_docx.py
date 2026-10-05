@@ -29,13 +29,13 @@ def create_it_guide():
 
     p_title = doc.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_t = p_title.add_run('A.E.G.I.S. IT EXPERT TECHNICAL EVALUATION GUIDE\n')
+    r_t = p_title.add_run('A.E.G.I.S. IT EXPERT TECHNICAL EVALUATION & INSTRUCTIONAL MANUAL\n')
     r_t.font.name = 'Arial'
     r_t.font.size = Pt(13)
     r_t.font.bold = True
     r_t.font.color.rgb = RGBColor(15, 61, 35)
 
-    r_sub = p_title.add_run('System Architecture, Security Hardening & ISO/IEC 25010:2023 Assessment Protocol\nDocument Code: CLSU-CEn-DIT-AEGIS-GUIDE-IT-2026')
+    r_sub = p_title.add_run('Comprehensive Technical Reference for Systems Architects, Security Auditors & Faculty Evaluators\nDocument Code: CLSU-CEn-DIT-AEGIS-GUIDE-IT-2026 • ISO/IEC 25010:2023 Standard')
     r_sub.font.name = 'Arial'
     r_sub.font.size = Pt(9)
     r_sub.font.italic = True
@@ -43,76 +43,202 @@ def create_it_guide():
 
     doc.add_paragraph('_________________________________________________________________________________')
 
-    # Content
+    # Section 1
     doc.add_heading('1. Executive Technical Overview', level=2)
     doc.add_paragraph(
-        'A.E.G.I.S. is an enterprise scholarship governance platform featuring dual-pipeline AI document forensics, '
-        'automated email notifications, and tamper-evident audit logging for the Central Luzon State University Office of Student Affairs (OSA).'
+        'A.E.G.I.S. (AI-Enhanced Grant Information System) is an enterprise scholarship governance platform '
+        'engineered for the Central Luzon State University (CLSU) Office of Student Affairs (OSA). It transitions traditional, '
+        'manual paper scholarship intake into an automated, tamper-evident digital ecosystem.'
     )
+    p_spec = doc.add_paragraph()
+    p_spec.add_run('• Web & Backend Tier: ').font.bold = True
+    p_spec.add_run('Laravel 12.x running on PHP 8.2+ with Blade templating, Vanilla CSS, Tailwind CSS, and Bootstrap 5.\n')
+    p_spec.add_run('• Forensic AI Microservice: ').font.bold = True
+    p_spec.add_run('Python 3.11 Flask API running dual-pipeline analysis: Error Level Analysis (ELA 95%), ResNet-50 CNN classification, SIFT keypoint clone-stamp matching, and Grad-CAM localized heatmaps.\n')
+    p_spec.add_run('• Database & Storage Tier: ').font.bold = True
+    p_spec.add_run('SQLite (Dev/Staging) / PostgreSQL & MySQL 8.0 (Prod) with AES-256-CBC column-level encryption and Cloudflare R2 / S3 persistent storage with Base64 DB backup.\n')
+    p_spec.add_run('• Statutory Controls: ').font.bold = True
+    p_spec.add_run('R.A. 10173 (Data Privacy Act of 2012) compliant, SHA-256 zero-knowledge OTP hashing at rest, immutable action logging, role-based authorization gates.')
 
-    doc.add_heading('Technical Architecture & Specifications:', level=3)
-    doc.add_paragraph(
-        '• Web Tier: Laravel 12 (PHP 8.2), Blade Engine, Vanilla CSS & Tailwind CSS, Bootstrap 5.\n'
-        '• Forensic AI Tier: Python Flask microservice integrating Error Level Analysis (ELA 95%), ResNet-50 CNN, SIFT clone detection, and Grad-CAM localized heatmaps.\n'
-        '• Data & Storage Tier: SQLite (Dev) / PostgreSQL & MySQL 8.0 (Prod), Cloudflare R2 / S3 object storage, AES-256 database column encryption.\n'
-        '• Statutory Controls: R.A. 10173 (Data Privacy Act of 2012) compliant, SHA-256 zero-knowledge OTP hashing at rest, immutable action logging.'
-    )
-
-    doc.add_heading('2. Evaluation Accounts Cheat Sheet', level=2)
-    table = doc.add_table(rows=5, cols=4)
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    headers = ['Role', 'Email', 'Password', 'Security & MFA Behavior']
-    for i, h in enumerate(headers):
-        cell = table.cell(0, i)
+    # Section 2
+    doc.add_heading('2. System Access & Endpoints Directory', level=2)
+    t_end = doc.add_table(rows=6, cols=3)
+    t_end.alignment = WD_TABLE_ALIGNMENT.CENTER
+    end_headers = ['Environment / Route', 'Access URL / Endpoint', 'Technical Purpose']
+    for i, h in enumerate(end_headers):
+        cell = t_end.cell(0, i)
         cell.text = h
         cell.paragraphs[0].runs[0].font.bold = True
         shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="0F3D23"/>')
         cell._tc.get_or_add_tcPr().append(shading)
         cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
 
-    data = [
-        ('SuperAdmin / Director', 'director@clsu.edu.ph', 'password', 'Auto-Bypassed (Demo Mode)'),
-        ('Admin / Staff Evaluator', 'admin@clsu.edu.ph', 'password', 'Auto-Bypassed (Demo Mode)'),
-        ('Student (Active History)', 'student@clsu.edu.ph', 'password', 'Demo OTP: 123456 or 000000'),
-        ('Student (Clean /apply)', 'student_apply@clsu.edu.ph', 'password', 'Demo OTP: 123456 or 000000'),
+    end_data = [
+        ('Live Cloud Staging (Render)', 'https://aegis-capstone.onrender.com', 'Primary live evaluation instance with full features active.'),
+        ('Local Development Instance', 'http://localhost:8000', 'Local fallback environment for offline/LAN evaluation.'),
+        ('System Health Check API', 'https://aegis-capstone.onrender.com/api/health-check', 'JSON endpoint reporting DB latency, queue state, and memory.'),
+        ('Public Scholarship Catalog', 'https://aegis-capstone.onrender.com/scholarships', 'Public scholarship discovery without authentication requirement.'),
+        ('Application QR Verification', 'https://aegis-capstone.onrender.com/verify/application/{code}', 'Validates tamper-evident cryptographic QR clearance codes.'),
     ]
-    for r_idx, row in enumerate(data, start=1):
+    for r_idx, row in enumerate(end_data, start=1):
         for c_idx, val in enumerate(row):
-            table.cell(r_idx, c_idx).text = val
+            t_end.cell(r_idx, c_idx).text = val
 
-    doc.add_heading('3. Technical Verification Procedures (TC-IT-01 to TC-IT-10)', level=2)
-    scenarios = [
-        ('TC-IT-01: Authentication Hardening & SQLi Protection', 'Inject SQL syntax on /login (e.g. \' OR 1=1--). Verify Eloquent PDO parameter binding, bcrypt cost=12 hashing, and 5 attempts/min rate limiting returning HTTP 429.'),
-        ('TC-IT-02: MFA & Zero-Knowledge Hashing', 'Trigger 6-digit OTP delivery. Verify database storage as 64-character SHA-256 hash at rest, 10-minute dynamic TTL, and test code 123456 acceptance.'),
-        ('TC-IT-03: AES-256 Column Encryption at Rest', 'Inspect student_profiles table in DB. Confirm clsu_id_number, contact_number, and guardian info are encrypted with AES-256-CBC and decrypted in-memory only.'),
-        ('TC-IT-04: RBAC & Authorization Gates', 'Authenticate as Student and attempt direct URL navigation to /admin/dashboard, /superadmin/scholarships, and /superadmin/settings. Verify HTTP 403 / unauthorized block.'),
-        ('TC-IT-05: AI Forensic ELA-CNN Pipeline', 'Submit or inspect tampered Certificate of Grades. Verify Fraud Probability Score (0-100%), risk badge, ELA difference map, and Grad-CAM explainability heatmap overlay.'),
-        ('TC-IT-06: Tamper-Evident Audit Logging', 'Perform status update or export. Navigate to /superadmin/audit-logs. Verify immutable structured capture of actor identity, IP, user-agent hash, timestamp, and JSON diffs.'),
-        ('TC-IT-07: Transport & Session Security Headers', 'Inspect network headers in DevTools. Confirm HSTS, X-Frame-Options, X-Content-Type-Options, CSP, and cookies marked HttpOnly, Secure, SameSite=Lax.'),
-        ('TC-IT-08: Isolated PDF & Print Engine', 'Trigger evaluation sheet print. Verify exact 1-page letter layout without blank pages, high-res seal, and cryptographic validation QR code leading to verification endpoint.'),
-        ('TC-IT-09: Asynchronous Queuing & Fault Recovery', 'Dispatch batch AI analysis. Verify background queue execution, zero UI freeze, and exponential retry schedules ([15s, 45s, 90s, 180s, 360s]) for container cold starts.'),
-        ('TC-IT-10: Database Portability & Asset Optimization', 'Verify cross-DB migration integrity (SQLite/MySQL/PostgreSQL), eager loading query efficiency (zero N+1 queries), and production Vite Gzip asset compression (>75%).'),
+    # Section 3
+    doc.add_heading('3. Complete Test Accounts & Credentials Directory', level=2)
+    t_acc = doc.add_table(rows=6, cols=4)
+    t_acc.alignment = WD_TABLE_ALIGNMENT.CENTER
+    acc_headers = ['Role / Identity', 'Email Address', 'Password', 'MFA Security & Evaluation Behavior']
+    for i, h in enumerate(acc_headers):
+        cell = t_acc.cell(0, i)
+        cell.text = h
+        cell.paragraphs[0].runs[0].font.bold = True
+        shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="0F3D23"/>')
+        cell._tc.get_or_add_tcPr().append(shading)
+        cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+
+    acc_data = [
+        ('SuperAdmin / OSA Director', 'director@clsu.edu.ph', 'password', 'Auto-Bypassed (Instant login). Full governance, term switch, audit logs.'),
+        ('Master Administrator', 'gadianoriel07@gmail.com', 'password', 'Auto-Bypassed. Master gateway, system maintenance, security controls.'),
+        ('OSA Staff / Administrator', 'admin@clsu.edu.ph', 'password', 'Auto-Bypassed. Intake review queue, AI inspection, decision overrides.'),
+        ('Student 1 (Active History)', 'student@clsu.edu.ph', 'password', 'Demo OTP: 123456 or 000000. Juan Dela Cruz (ID: 22-1234). Status tracker.'),
+        ('Student 2 (Fresh /apply)', 'student_apply@clsu.edu.ph', 'password', 'Demo OTP: 123456 or 000000. Maria Clara Santos (ID: 23-5678). Live submission.'),
     ]
-    for title, desc in scenarios:
-        p = doc.add_paragraph()
-        r = p.add_run(f'• {title}: ')
-        r.font.bold = True
-        p.add_run(desc)
+    for r_idx, row in enumerate(acc_data, start=1):
+        for c_idx, val in enumerate(row):
+            t_acc.cell(r_idx, c_idx).text = val
 
-    doc.add_heading('4. ISO/IEC 25010:2023 Product Quality Rating', level=2)
+    # Section 4
+    doc.add_heading('4. Test Artifacts & Forensic Documents Repository', level=2)
     doc.add_paragraph(
-        'Please rate each of the 24 technical statements in Part 2 of the evaluation form using the 5-point Likert scale:\n'
-        '5 - Strongly Agree (Exceeds expectations)\n'
-        '4 - Agree (Meets all technical standards)\n'
-        '3 - Neither Agree nor Disagree (Acceptable)\n'
-        '2 - Disagree (Technical revision needed)\n'
-        '1 - Strongly Disagree (Critical flaw detected)\n'
-        'N/A - Not Applicable\n\n'
-        'Complete Part 3 by indicating your overall acceptance recommendation and affixing your signature.'
+        'For evaluating the AI Document Forensics module (TC-IT-05) and testing live student submission (TC-STU-02), '
+        'the following sample Certificate of Grades (COG) documents are prepared and directly downloadable:'
+    )
+    t_doc = doc.add_table(rows=3, cols=3)
+    t_doc.alignment = WD_TABLE_ALIGNMENT.CENTER
+    doc_headers = ['Document Fixture', 'Download URL / Repository Path', 'Forensic Characteristics']
+    for i, h in enumerate(doc_headers):
+        cell = t_doc.cell(0, i)
+        cell.text = h
+        cell.paragraphs[0].runs[0].font.bold = True
+        shading = parse_xml(f'<w:shd {nsdecls("w")} w:fill="0F3D23"/>')
+        cell._tc.get_or_add_tcPr().append(shading)
+        cell.paragraphs[0].runs[0].font.color.rgb = RGBColor(255, 255, 255)
+
+    doc_data = [
+        ('Authentic CLSU COG', 'https://aegis-capstone.onrender.com/documents/sample_cog_authentic.jpg\n(Local: public/documents/sample_cog_authentic.jpg)', 'Authentic academic document. Consistent JPEG compression and authentic registrar seal.'),
+        ('Tampered CLSU COG', 'https://aegis-capstone.onrender.com/documents/sample_cog_tampered.jpg\n(Local: public/documents/sample_cog_tampered.jpg)', 'Digitally spliced grade modification (1.00) creating distinct ELA error levels and anomalous Grad-CAM heatmap.'),
+    ]
+    for r_idx, row in enumerate(doc_data, start=1):
+        for c_idx, val in enumerate(row):
+            t_doc.cell(r_idx, c_idx).text = val
+
+    # Section 5
+    doc.add_heading('5. Step-by-Step Technical Verification Procedures (TC-IT-01 to TC-IT-10)', level=2)
+    protocols = [
+        ('TC-IT-01: Authentication Hardening, SQL Injection & Brute Force Throttling',
+         '• Route: POST /login\n'
+         '• Injection Test: Submit email "\' OR 1=1--" with any password. Verify Eloquent PDO binding neutralizes injection without leaking database errors.\n'
+         '• Throttling Test: Submit 6 consecutive wrong passwords within 60 seconds. Verify rate-limiter returns HTTP 429 Too Many Requests.\n'
+         '• Password Hashing: Inspect users table in database; verify Bcrypt cost=12 hashing.'),
+
+        ('TC-IT-02: Multi-Factor Authentication & Zero-Knowledge OTP Storage',
+         '• Route: POST /login -> POST /mfa/verify\n'
+         '• Test: Sign in as student@clsu.edu.ph / password. Observe redirection to /login/mfa.\n'
+         '• Database Inspection: Inspect otp_code column in users table. Verify it is stored strictly as a 64-char SHA-256 hash. Plaintext OTP is NEVER stored at rest.\n'
+         '• Dynamic TTL: Verify 10-minute dynamic countdown (10:00). Input demo code 123456 or 000000 to authenticate.'),
+
+        ('TC-IT-03: AES-256 Column Encryption at Rest',
+         '• Model: App\\Models\\StudentProfile\n'
+         '• Inspection: Query raw database records: SELECT clsu_id_number, contact_number FROM student_profiles.\n'
+         '• Verification: Values are stored as AES-256-CBC ciphertexts starting with base64 JSON payload (eyJpdiI6...). Values are decrypted in-memory only during authenticated sessions.'),
+
+        ('TC-IT-04: Role-Based Access Control (RBAC) & Boundary Isolation',
+         '• Account: student@clsu.edu.ph / password\n'
+         '• Test: As Student, manually navigate to /admin/dashboard, /superadmin/scholarships, /superadmin/users, /superadmin/audit-logs, /superadmin/settings.\n'
+         '• Expected: CheckRole middleware strictly intercepts every request; returns HTTP 403 Forbidden or safe redirection without DOM state leakage.'),
+
+        ('TC-IT-05: AI Forensic ELA-CNN Pipeline & Grad-CAM Explainability',
+         '• Route: GET /admin/review/{id}\n'
+         '• Account: admin@clsu.edu.ph / password\n'
+         '• Inspection: Open application review screen. Verify Fraud Probability Score (0-100%), risk tier badge (Low, Moderate, High), ELA difference map, and Grad-CAM localized heatmap overlay.\n'
+         '• Autonomy: Verify human decision override: Admin can approve or reject with mandatory justification logging.'),
+
+        ('TC-IT-06: Tamper-Evident Audit Logging & Statutory Non-Repudiation',
+         '• Route: GET /superadmin/audit-logs\n'
+         '• Account: director@clsu.edu.ph / password\n'
+         '• Inspection: Trigger an administrative action (e.g. approve an application, modify active semester). Navigate to audit logs.\n'
+         '• Verification: Verify structured log entries containing Actor ID, Email, IP address, User-Agent hash, timestamp, and JSON before/after state diffs.'),
+
+        ('TC-IT-07: Transport Security & Session Hardening',
+         '• Inspection: Open Browser DevTools (F12) > Network tab on any authenticated page.\n'
+         '• Headers: Verify Strict-Transport-Security, X-Frame-Options: SAMEORIGIN, X-Content-Type-Options: nosniff, and CSP directives.\n'
+         '• Cookies: Verify session cookies are flagged HttpOnly, Secure, and SameSite=Lax.'),
+
+        ('TC-IT-08: High-Fidelity 1-Page PDF & Isolated Iframe Print Engine',
+         '• Route: In /admin/review/{id}, click "Generate Evaluation Sheet" or "Print Preview".\n'
+         '• Verification: Verify 1-page letter layout without clipping; includes CLSU seal, verification checklist, and cryptographic QR code.\n'
+         '• QR Verification: Scan or open /verify/application/{code}; verify official verification clearance page.'),
+
+        ('TC-IT-09: Asynchronous Queuing & Fault Recovery',
+         '• Verification: Document uploads and heavy forensic inference are dispatched to database queue workers (php artisan queue:work).\n'
+         '• Fault Tolerance: Exponential retry backoffs ([15s, 45s, 90s, 180s, 360s]) absorb AI microservice cold-start connection timeouts.'),
+
+        ('TC-IT-10: Database Portability & Asset Optimization',
+         '• Verification: Database migrations execute identically on SQLite and PostgreSQL.\n'
+         '• Eager Loading: Zero N+1 query overhead via Eloquent with(...) eager loading.\n'
+         '• Bundling: Production Vite compiled bundles in /public/build/assets/ achieve >75% size reduction under Gzip compression.')
+    ]
+    for title, body in protocols:
+        p = doc.add_paragraph()
+        r = p.add_run(f'{title}\n')
+        r.font.bold = True
+        r.font.size = Pt(10.5)
+        p.add_run(body)
+
+    # Section 6
+    doc.add_heading('6. Database Inspection SQL Reference', level=2)
+    p_sql = doc.add_paragraph()
+    p_sql.add_run('Evaluators inspecting the backend database directly may use the following SQL queries:\n\n')
+    p_sql.add_run(
+        '-- 1. Inspect AES-256 Column Encryption (Raw Ciphertext)\n'
+        'SELECT id, user_id, clsu_id_number, contact_number, emergency_contact_number FROM student_profiles LIMIT 2;\n\n'
+        '-- 2. Inspect SHA-256 Zero-Knowledge OTP Storage (64-char Hash)\n'
+        'SELECT id, name, email, otp_code, otp_expires_at FROM users WHERE role = \'student\';\n\n'
+        '-- 3. Inspect Audit Logs (Actor, IP, User-Agent, JSON Diff)\n'
+        'SELECT id, user_id, action, ip_address, user_agent, created_at FROM admin_action_logs ORDER BY id DESC LIMIT 5;\n\n'
+        '-- 4. Inspect Academic Term State (Active Term Governance)\n'
+        'SELECT id, semester, academic_year, is_active FROM academic_terms ORDER BY is_active DESC;'
+    )
+    p_sql.runs[1].font.name = 'Consolas'
+    p_sql.runs[1].font.size = Pt(8.5)
+
+    # Section 7
+    doc.add_heading('7. ISO/IEC 25010:2023 Product Quality Rating Guide', level=2)
+    doc.add_paragraph(
+        'Please score the 24 technical statements in Part 2 of the evaluation form across all eight (8) standard ISO/IEC 25010 quality characteristics:\n'
+        '• 1. Functional Suitability (Completeness, Calculation Correctness, Technical Appropriateness)\n'
+        '• 2. Performance Efficiency (Time Behavior <1.5s, Resource Utilization, Concurrent Queue Capacity)\n'
+        '• 3. Compatibility (Multi-Container Co-existence, Brevo SMTP API, Cloudflare R2 Interoperability)\n'
+        '• 4. Usability (Interface Consistency, Input Validation, Accessibility, Guided Tour)\n'
+        '• 5. Reliability (Fault Tolerance, Recoverability, Regression Stability)\n'
+        '• 6. Security (AES-256 Encryption at Rest, SHA-256 OTP Hashing, RBAC Isolation, Non-Repudiation)\n'
+        '• 7. Maintainability (Modularity, Service Layer Abstraction, Automated Test Coverage with 36 Assertions)\n'
+        '• 8. Portability (Cross-Browser Adaptability across Chrome, Edge, Safari, Firefox, and Cloud Containerization)\n\n'
+        'Rating Scale: 5 = Strongly Agree, 4 = Agree, 3 = Neither Agree nor Disagree, 2 = Disagree, 1 = Strongly Disagree, N/A = Not Applicable.'
+    )
+
+    # Section 8
+    doc.add_heading('8. Acceptance Endorsement & Sign-Off Instructions', level=2)
+    doc.add_paragraph(
+        'Upon completing the technical test scenarios and rating the ISO 25010 questionnaire:\n'
+        '1. Mark your overall system acceptance decision in Part 3 of the form (Accepted, Accepted with Minor Revisions, or For Revision).\n'
+        '2. Record any technical commendations, observations, or engineering recommendations.\n'
+        '3. Affix your physical or digital signature, designation, and date on Page 5 of the evaluation document.'
     )
 
     doc.save('docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide.docx')
-    print('Successfully generated docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide.docx')
+    print('Successfully generated complete docs/AEGIS_IT_Expert_Evaluation_Instructional_Guide.docx')
 
 if __name__ == '__main__':
     create_it_guide()
