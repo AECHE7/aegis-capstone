@@ -1555,10 +1555,13 @@
                 ]
             });
         } else if (sidebarEl && sidebarEl.offsetParent !== null) {
+            const isAdmin = role === 'admin' || role === 'superadmin';
             tour.addStep({
                 id: 'tour-sidebar',
                 title: '📌 Portal Navigation Menu',
-                text: 'Navigate your personalized portal: view your active applications, browse live university scholarship catalogs, and adjust security settings.',
+                text: isAdmin
+                    ? 'Navigate administrative workspaces: review applications, oversee grant programs, broadcast communications, and configure settings.'
+                    : 'Navigate your personalized portal: view active scholarship grants, browse application catalogs, and manage account security.',
                 attachTo: { element: sidebarEl, on: 'right' },
                 buttons: [
                     { text: 'Skip', action: tour.complete, classes: 'btn btn-sm btn-light' },
@@ -1573,12 +1576,22 @@
         const mainContentEl = profileCard || appStatusCard || document.querySelector('.main-content') || document.querySelector('main');
 
         if (mainContentEl) {
+            const isAdmin = role === 'admin' || role === 'superadmin';
+            let stepText = '';
+            if (profileCard) {
+                stepText = isAdmin
+                    ? 'Manage your institutional administrator profile, security credentials, active 2FA trusted devices, and governance privileges.'
+                    : 'Maintain your verified student identity: CLSU ID Number, enrolled degree program, parent emergency contacts, and active 2FA trusted devices.';
+            } else {
+                stepText = isAdmin
+                    ? 'Review incoming scholarship applications, inspect AI tampering traces, and execute evaluative decisions.'
+                    : 'Track your live scholarship review status, turnaround times, and download approved application forms here.';
+            }
+
             tour.addStep({
                 id: 'tour-main',
                 title: '⚡ Active Workspace & Actions',
-                text: profileCard
-                    ? 'Maintain your verified student identity: Student ID, enrolled degree program, parent emergency contacts, and 2FA trusted devices.'
-                    : 'Track your live scholarship review status, turn-around times, and download approved application forms here.',
+                text: stepText,
                 attachTo: { element: mainContentEl, on: isMobile ? 'bottom' : 'top' },
                 buttons: [
                     { text: '← Back', action: tour.back, classes: 'btn btn-sm btn-light' },
@@ -1590,10 +1603,13 @@
         // Step 3: Top Navigation Controls
         const topNavEl = document.querySelector('.topbar') || document.querySelector('.navbar') || document.querySelector('header');
         if (topNavEl) {
+            const isAdmin = role === 'admin' || role === 'superadmin';
             tour.addStep({
                 id: 'tour-header',
                 title: '🔔 Live Clock & Notifications',
-                text: 'View official Philippine Standard Time (PST), receive real-time scholarship status alerts, switch light/dark themes, and access your profile menu.',
+                text: isAdmin
+                    ? 'View official Philippine Standard Time (PHT, UTC+8), monitor the active academic term badge, and receive real-time applicant and system notifications.'
+                    : 'View official Philippine Standard Time (PHT, UTC+8), monitor the active academic term badge, and receive real-time scholarship status alerts.',
                 attachTo: { element: topNavEl, on: 'bottom' },
                 buttons: [
                     { text: '← Back', action: tour.back, classes: 'btn btn-sm btn-light' },

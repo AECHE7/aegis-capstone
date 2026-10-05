@@ -213,7 +213,7 @@ class SuperAdminController extends Controller
         $anomaliesDetected = (clone $query)->where('status', 'Rejected')->count();
 
         // 2. The Audit Trail (Scoped)
-        $recentEvaluations = (clone $query)->with(['user'])
+        $recentEvaluations = (clone $query)->with(['user.profile', 'evaluator'])
             ->whereNotNull('evaluated_by')
             ->whereIn('status', ['Approved', 'Rejected'])
             ->latest('updated_at')
@@ -232,27 +232,32 @@ class SuperAdminController extends Controller
         $avgFraudScore = round($avgFraudScore, 1);
 
         // 4. Grade Integrity Index (Scoped)
+        $approvedCount = (clone $query)->where('status', 'Approved')->count();
         $approvedFraudQuery = \App\Models\AIResult::whereHas('document.application', function ($q) use ($termId, $scholarshipId) {
             $q->where('status', 'Approved');
             if ($termId) $q->where('academic_term_id', $termId);
             if ($scholarshipId) $q->where('scholarship_id', $scholarshipId);
         });
-        $avgApprovedFraud = $approvedFraudQuery->avg('fraud_probability') ?? 0;
-        $gradeIntegrityIndex = round(100 - $avgApprovedFraud, 1);
+        $hasApprovedScholars = $approvedCount > 0;
+        $avgApprovedFraud = $hasApprovedScholars ? ($approvedFraudQuery->avg('fraud_probability') ?? 0) : 0;
+        $gradeIntegrityIndex = $hasApprovedScholars ? round(100 - $avgApprovedFraud, 1) : null;
 
         // 5. Average Evaluation Cycle Time in Days (Scoped)
         $cycleTimeQuery = (clone $query)->whereIn('status', ['Approved', 'Rejected']);
+        $evaluatedCount = $cycleTimeQuery->count();
         $averageCycleDays = 0;
-        if (config('database.default') === 'sqlite') {
-            $averageCycleDays = $cycleTimeQuery->selectRaw('avg(julianday(updated_at) - julianday(created_at)) as avg_days')->value('avg_days') ?? 0;
-        } else {
-            $averageCycleDays = $cycleTimeQuery->selectRaw('avg(extract(epoch from (updated_at - created_at)) / 86400) as avg_days')->value('avg_days') ?? 0;
+        if ($evaluatedCount > 0) {
+            if (config('database.default') === 'sqlite') {
+                $averageCycleDays = $cycleTimeQuery->selectRaw('avg(julianday(updated_at) - julianday(created_at)) as avg_days')->value('avg_days') ?? 0;
+            } else {
+                $averageCycleDays = $cycleTimeQuery->selectRaw('avg(extract(epoch from (updated_at - created_at)) / 86400) as avg_days')->value('avg_days') ?? 0;
+            }
         }
         $averageCycleDays = round((float)$averageCycleDays, 1);
 
         // 6. GWA Compliance Rate (Scoped)
-        $totalEvaluated = (clone $query)->whereIn('status', ['Approved', 'Rejected'])->count();
-        $compliantCount = (clone $query)->where('status', 'Approved')->count();
+        $totalEvaluated = $evaluatedCount;
+        $compliantCount = $approvedCount;
         $complianceRate = $totalEvaluated > 0 ? round(($compliantCount / $totalEvaluated) * 100, 1) : 0;
 
         // 7. Aggregate UAT Evaluator Feedbacks (ISO/IEC 25010)
@@ -284,7 +289,7 @@ class SuperAdminController extends Controller
         $statusCounts = [
             'Pending'      => (clone $query)->where('status', 'Pending')->count(),
             'Under Review' => (clone $query)->where('status', 'Under Review')->count(),
-            'Approved'     => (clone $query)->where('status', 'Approved')->count(),
+            'Approved'     => $approvedCount,
             'Rejected'     => (clone $query)->where('status', 'Rejected')->count(),
         ];
 
@@ -310,7 +315,6 @@ class SuperAdminController extends Controller
         ];
 
         // 10. Chart Data: Monthly Application Trend & Processing Speed (Scoped)
-        // Consolidated from 12 separate queries into a single query for sub-100ms response time
         $monthlyTrend = [];
         $monthlyProcessingDays = [];
         $sixMonthsAgo = now()->subMonths(5)->startOfMonth();
@@ -356,34 +360,39 @@ class SuperAdminController extends Controller
             ->toArray();
 
         // 12. Chart Data: GWA Distribution Density (Scoped)
-        // Consolidated from 10 separate count queries into a single query
         $gwaBrackets = [
-            'excellent' => ['min' => 1.00, 'max' => 1.25],
-            'very_good' => ['min' => 1.26, 'max' => 1.50],
-            'good'      => ['min' => 1.51, 'max' => 1.75],
-            'satisfactory'=>['min' => 1.76, 'max' => 2.00],
-            'others'    => ['min' => 2.01, 'max' => 5.00]
+            '1.00 - 1.25' => ['min' => 1.00, 'max' => 1.25],
+            '1.26 - 1.50' => ['min' => 1.26, 'max' => 1.50],
+            '1.51 - 1.75' => ['min' => 1.51, 'max' => 1.75],
+            '1.76 - 2.00' => ['min' => 1.76, 'max' => 2.00],
+            '> 2.00'      => ['min' => 2.01, 'max' => 5.00]
         ];
 
-        $applicantGwaCounts = ['excellent' => 0, 'very_good' => 0, 'good' => 0, 'satisfactory' => 0, 'others' => 0];
-        $approvedGwaCounts  = ['excellent' => 0, 'very_good' => 0, 'good' => 0, 'satisfactory' => 0, 'others' => 0];
+        $applicantGwaCounts = ['1.00 - 1.25' => 0, '1.26 - 1.50' => 0, '1.51 - 1.75' => 0, '1.76 - 2.00' => 0, '> 2.00' => 0];
+        $approvedGwaCounts  = ['1.00 - 1.25' => 0, '1.26 - 1.50' => 0, '1.51 - 1.75' => 0, '1.76 - 2.00' => 0, '> 2.00' => 0];
 
         $gwaDataset = (clone $query)->whereNotNull('gwa')->select('gwa', 'status')->get();
 
         foreach ($gwaDataset as $item) {
             $gwa = (float) $item->gwa;
+            if ($gwa <= 0) continue;
             $isApproved = $item->status === 'Approved';
 
-            foreach ($gwaBrackets as $key => $range) {
+            foreach ($gwaBrackets as $label => $range) {
                 if ($gwa >= $range['min'] && $gwa <= $range['max']) {
-                    $applicantGwaCounts[$key]++;
+                    $applicantGwaCounts[$label]++;
                     if ($isApproved) {
-                        $approvedGwaCounts[$key]++;
+                        $approvedGwaCounts[$label]++;
                     }
                     break;
                 }
             }
         }
+
+        $allGwas = $gwaDataset->pluck('gwa')->filter(fn($g) => (float)$g > 0)->map(fn($g) => (float)$g);
+        $avgApplicantGwa = $allGwas->isNotEmpty() ? round($allGwas->avg(), 2) : null;
+        $approvedGwas = $gwaDataset->where('status', 'Approved')->pluck('gwa')->filter(fn($g) => (float)$g > 0)->map(fn($g) => (float)$g);
+        $avgApprovedGwa = $approvedGwas->isNotEmpty() ? round($approvedGwas->avg(), 2) : null;
 
         // 13. Chart Data: AI Anomaly Indicator Frequencies (Scoped)
         $anomalyResults = \App\Models\AIResult::whereHas('document.application', function ($q) use ($termId, $scholarshipId) {
@@ -393,12 +402,27 @@ class SuperAdminController extends Controller
             ->whereNotNull('anomaly_indicators')
             ->pluck('anomaly_indicators');
 
+        $indicatorLabels = [
+            'digital_whiteout_box_detected' => 'Digital Whiteout / Erasure Box',
+            'cutout_dpi_compression_anomaly' => 'DPI Compression / Artifact Mismatch',
+            'deep_analysis_multiple_high_penalty_regions' => 'Multiple High-Risk Tampered Regions',
+            'deep_analysis_multi_detector_agreement' => 'Multi-Detector Consensus Alert',
+            'tamper_scissor_trim_anomaly' => 'Scissor Cut / Irregular Boundary',
+            'font_inconsistency' => 'Font & Glyph Inconsistency',
+            'metadata_software_alteration' => 'Editing Software Signature',
+            'pixel_level_splice' => 'Pixel Splice Anomaly',
+            'gwa_discrepancy' => 'Declared vs Document GWA Discrepancy',
+            'barcode_qr_mismatch' => 'Document QR/Barcode Desynchronization',
+            'suspicious_lighting_contrast' => 'Inconsistent Lighting Gradient',
+        ];
+
         $anomalyCounts = [];
         foreach ($anomalyResults as $indicators) {
             $array = is_string($indicators) ? json_decode($indicators, true) : $indicators;
             if (is_array($array)) {
                 foreach ($array as $indicator) {
-                    $anomalyCounts[$indicator] = ($anomalyCounts[$indicator] ?? 0) + 1;
+                    $label = $indicatorLabels[$indicator] ?? ucwords(str_replace('_', ' ', (string)$indicator));
+                    $anomalyCounts[$label] = ($anomalyCounts[$label] ?? 0) + 1;
                 }
             }
         }
@@ -406,7 +430,6 @@ class SuperAdminController extends Controller
         $anomalyCounts = array_slice($anomalyCounts, 0, 5, true);
 
         // 14. Top Performing Programs — sorted by highest avg approved GWA (Scoped)
-        // Cast gwa to numeric explicitly — PostgreSQL cannot avg() a varchar column.
         $gwaCastExpr = config('database.default') === 'pgsql'
             ? 'scholarship_id, program_name, count(*) as total_apps, avg(gwa::numeric) as avg_gwa'
             : 'scholarship_id, program_name, count(*) as total_apps, avg(CAST(gwa AS REAL)) as avg_gwa';
@@ -425,12 +448,17 @@ class SuperAdminController extends Controller
             'total' => (clone $query)->count(),
             'pending' => (clone $query)->where('status', 'Pending')->count(),
             'under_review' => (clone $query)->where('status', 'Under Review')->count(),
-            'approved' => (clone $query)->where('status', 'Approved')->count(),
+            'approved' => $approvedCount,
             'rejected' => (clone $query)->where('status', 'Rejected')->count(),
         ];
 
-        // 14. Per-Scholarship Program Breakdown Stats (Scoped)
-        $scholarshipsBreakdown = \App\Models\Scholarship::with(['applications.documents.aiResult'])->get()->map(function($scholarship) {
+        // 16. Per-Scholarship Program Breakdown Stats (Scoped to Term if selected)
+        $scholarshipsBreakdown = \App\Models\Scholarship::with(['applications' => function($q) use ($termId) {
+            if ($termId) {
+                $q->where('academic_term_id', $termId);
+            }
+            $q->with('documents.aiResult');
+        }])->get()->map(function($scholarship) {
             $apps = $scholarship->applications;
             
             $approvedApps = $apps->where('status', 'Approved');
@@ -460,6 +488,23 @@ class SuperAdminController extends Controller
                 'avg_fraud' => round($avgFraud, 1)
             ];
         });
+
+        // 17. Quota Allocation & Capacity Utilization
+        $cappedPrograms = $scholarshipsBreakdown->filter(fn($s) => !empty($s['quota']) && (int)$s['quota'] > 0);
+        $totalCappedQuota = (int) $cappedPrograms->sum('quota');
+        $totalCappedApproved = (int) $cappedPrograms->sum('approved_count');
+        $unlimitedProgramsCount = $scholarshipsBreakdown->filter(fn($s) => empty($s['quota']))->count();
+        $unlimitedApprovedCount = (int) $scholarshipsBreakdown->filter(fn($s) => empty($s['quota']))->sum('approved_count');
+        $quotaBurnPct = $totalCappedQuota > 0 ? round(($totalCappedApproved / $totalCappedQuota) * 100, 1) : 0;
+        $quotaBurnPct = min($quotaBurnPct, 100);
+
+        $quotaStats = [
+            'total_capped_quota' => $totalCappedQuota,
+            'total_capped_approved' => $totalCappedApproved,
+            'unlimited_programs_count' => $unlimitedProgramsCount,
+            'unlimited_approved_count' => $unlimitedApprovedCount,
+            'burn_pct' => $quotaBurnPct,
+        ];
 
         // Fetch active scholars system-wide for monitoring
         $activeScholarsQuery = \App\Models\Application::with(['user.profile', 'scholarship', 'academicTerm'])
@@ -492,8 +537,11 @@ class SuperAdminController extends Controller
                 'collegeStats',
                 'applicantGwaCounts',
                 'approvedGwaCounts',
+                'avgApplicantGwa',
+                'avgApprovedGwa',
                 'anomalyCounts',
                 'scholarshipsBreakdown',
+                'quotaStats',
                 'activeScholars'
             );
         });
@@ -503,6 +551,7 @@ class SuperAdminController extends Controller
         // Dropdowns for Filter Panel
         $allTerms = \App\Models\AcademicTerm::orderBy('academic_year', 'desc')->orderBy('semester', 'desc')->get();
         $allScholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
+        $currentActiveTerm = \App\Models\AcademicTerm::where('is_active', true)->first();
 
         // Pass the variables to dashboard
         return view('superadmin.analytics', compact(
@@ -525,11 +574,15 @@ class SuperAdminController extends Controller
             'collegeStats',
             'applicantGwaCounts',
             'approvedGwaCounts',
+            'avgApplicantGwa',
+            'avgApprovedGwa',
             'anomalyCounts',
             'scholarshipsBreakdown',
+            'quotaStats',
             'activeScholars',
             'allTerms',
             'allScholarships',
+            'currentActiveTerm',
             'termId',
             'scholarshipId'
         ));
@@ -543,7 +596,7 @@ class SuperAdminController extends Controller
             ->latest()
             ->get();
 
-        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
+        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 300, function () {
             return \App\Models\Scholarship::where('status', 'Active')->get();
         });
 
@@ -747,11 +800,15 @@ class SuperAdminController extends Controller
             }, 'mfaDevices']);
 
         if ($search) {
-            $studentQuery->where(function ($q) use ($search) {
+            $normalizedSearch = strtoupper(preg_replace('/\s+/', '', (string) $search));
+            $searchHash = hash('sha256', $normalizedSearch);
+
+            $studentQuery->where(function ($q) use ($search, $searchHash) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhereHas('profile', function ($pq) use ($search) {
-                      $pq->where('clsu_id_number', 'like', "%{$search}%")
+                  ->orWhereHas('profile', function ($pq) use ($search, $searchHash) {
+                      $pq->where('clsu_id_hash', $searchHash)
+                         ->orWhere('clsu_id_number', 'like', "%{$search}%")
                          ->orWhere('course', 'like', "%{$search}%");
                   });
             });
@@ -796,7 +853,7 @@ class SuperAdminController extends Controller
 
         $staffList = $staffQuery->latest()->get();
 
-        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
+        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 300, function () {
             return \App\Models\Scholarship::where('status', 'Active')->get();
         });
 
@@ -1156,7 +1213,14 @@ class SuperAdminController extends Controller
             'auto_approval_min_confidence' => \App\Models\Setting::get('auto_approval_min_confidence', '95.0'),
             'auto_approval_max_anomalies' => \App\Models\Setting::get('auto_approval_max_anomalies', '0'),
         ];
-        return view('superadmin.settings', compact('settings'));
+
+        $academicTerms = \App\Models\AcademicTerm::withCount('applications')
+            ->orderBy('academic_year', 'desc')
+            ->orderBy('semester', 'desc')
+            ->get();
+        $activeTerm = $academicTerms->firstWhere('is_active', true);
+
+        return view('superadmin.settings', compact('settings', 'academicTerms', 'activeTerm'));
     }
 
     public function updateSettings(UpdateSettingsRequest $request)
@@ -1258,31 +1322,145 @@ class SuperAdminController extends Controller
         return back()->with('success', 'All trusted devices system-wide have been successfully revoked.');
     }
 
+    /**
+     * Store a new academic term (and optionally activate it).
+     */
+    public function storeAcademicTerm(Request $request)
+    {
+        $request->validate([
+            'semester' => 'required|string|max:50',
+            'academic_year' => ['required', 'string', 'regex:/^\d{4}-\d{4}$/'],
+            'set_active' => 'nullable|boolean',
+        ], [
+            'academic_year.regex' => 'Academic Year must follow the YYYY-YYYY format (e.g. 2026-2027).',
+        ]);
 
+        $semester = trim($request->input('semester'));
+        $academicYear = trim($request->input('academic_year'));
+        $setActive = $request->boolean('set_active');
+
+        // Check if term already exists
+        $existing = \App\Models\AcademicTerm::where('semester', $semester)
+            ->where('academic_year', $academicYear)
+            ->first();
+
+        if ($existing) {
+            return back()->with('error', "An academic term for {$semester} (A.Y. {$academicYear}) already exists.");
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($semester, $academicYear, $setActive, $request) {
+            if ($setActive) {
+                \App\Models\AcademicTerm::query()->update(['is_active' => false]);
+            }
+
+            $term = \App\Models\AcademicTerm::create([
+                'semester' => $semester,
+                'academic_year' => $academicYear,
+                'is_active' => $setActive,
+            ]);
+
+            \Illuminate\Support\Facades\Cache::forget('active_academic_term');
+
+            \App\Services\AuditLoggerService::logAdminAction(
+                auth()->id(),
+                'create_academic_term',
+                'AcademicTerm',
+                $term->id,
+                "Created new academic term: {$term->full_term_label}" . ($setActive ? ' (Activated as current semester)' : ''),
+                $request->ip()
+            );
+
+            if ($setActive) {
+                \App\Services\AuditLoggerService::logConfigChange(
+                    auth()->id(),
+                    'active_academic_term',
+                    'Previous Active',
+                    $term->full_term_label,
+                    $request->ip()
+                );
+            }
+        });
+
+        return back()->with('success', "Academic term {$semester}, A.Y. {$academicYear} created successfully." . ($setActive ? ' Activated as the current semester.' : ''));
+    }
+
+    /**
+     * Set an existing academic term as the current active semester.
+     */
+    public function activateAcademicTerm(Request $request, $id)
+    {
+        $term = \App\Models\AcademicTerm::findOrFail($id);
+
+        if ($term->is_active) {
+            return back()->with('info', "{$term->full_term_label} is already the current active semester.");
+        }
+
+        $oldActive = \App\Models\AcademicTerm::where('is_active', true)->first();
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($term, $oldActive, $request) {
+            \App\Models\AcademicTerm::where('id', '!=', $term->id)->update(['is_active' => false]);
+            $term->update(['is_active' => true]);
+
+            \Illuminate\Support\Facades\Cache::forget('active_academic_term');
+
+            \App\Services\AuditLoggerService::logConfigChange(
+                auth()->id(),
+                'active_academic_term',
+                $oldActive ? $oldActive->full_term_label : 'None',
+                $term->full_term_label,
+                $request->ip()
+            );
+
+            \App\Services\AuditLoggerService::logAdminAction(
+                auth()->id(),
+                'activate_academic_term',
+                'AcademicTerm',
+                $term->id,
+                "Switched current active semester from [" . ($oldActive ? $oldActive->full_term_label : 'None') . "] to [{$term->full_term_label}]",
+                $request->ip()
+            );
+        });
+
+        return back()->with('success', "Current active semester switched to {$term->full_term_label}. All incoming applications and renewal requests will now link to this term.");
+    }
+
+    /**
+     * Delete an academic term (only if not active and has zero linked applications).
+     */
+    public function destroyAcademicTerm(Request $request, $id)
+    {
+        $term = \App\Models\AcademicTerm::withCount('applications')->findOrFail($id);
+
+        if ($term->is_active) {
+            return back()->with('error', "Cannot delete the current active academic term ({$term->full_term_label}). Please set another term as active first.");
+        }
+
+        if ($term->applications_count > 0) {
+            return back()->with('error', "Cannot delete {$term->full_term_label} because it has {$term->applications_count} linked scholarship applications.");
+        }
+
+        $label = $term->full_term_label;
+        $term->delete();
+        \Illuminate\Support\Facades\Cache::forget('active_academic_term');
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id(),
+            'delete_academic_term',
+            'AcademicTerm',
+            $id,
+            "Deleted unused academic term: {$label}",
+            $request->ip()
+        );
+
+        return back()->with('success', "Academic term {$label} deleted successfully.");
+    }
 
     public function showBroadcast(Request $request)
     {
-        $scholarships = \App\Models\Scholarship::latest()->get();
-
-        $query = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%');
-
-        if ($request->filled('search')) {
-            $search = trim($request->input('search'));
-            $query->where(function ($q) use ($search) {
-                $q->where('recipient', 'like', "%{$search}%")
-                  ->orWhere('subject', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
-            });
-        }
-
-        $totalBroadcasts = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')->count();
-        $uniqueRecipients = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')
-            ->distinct('recipient')
-            ->count('recipient');
-
-        $broadcasts = $query->latest()->paginate(10)->withQueryString();
-
-        return view('superadmin.broadcast', compact('scholarships', 'broadcasts', 'totalBroadcasts', 'uniqueRecipients'));
+        $request->merge([
+            'tab' => $request->query('tab', 'history')
+        ]);
+        return app(\App\Http\Controllers\AnnouncementController::class)->index($request);
     }
 
     public function destroyBroadcast($id)
@@ -1303,7 +1481,7 @@ class SuperAdminController extends Controller
             request()->ip()
         );
 
-        return back()->with('success', 'Broadcast log entry successfully deleted.');
+        return redirect()->route('admin.announcements.index', ['tab' => 'history'])->with('success', 'Broadcast log entry successfully deleted.');
     }
 
     public function bulkDestroyBroadcast(Request $request)
@@ -1326,7 +1504,7 @@ class SuperAdminController extends Controller
             $request->ip()
         );
 
-        return back()->with('success', "Successfully deleted {$deletedCount} broadcast records.");
+        return redirect()->route('admin.announcements.index', ['tab' => 'history'])->with('success', "Successfully deleted {$deletedCount} broadcast records.");
     }
 
     public function clearAllBroadcasts(Request $request)
@@ -1342,7 +1520,7 @@ class SuperAdminController extends Controller
             $request->ip()
         );
 
-        return back()->with('success', "All broadcast history ({$count} logs) has been purged.");
+        return redirect()->route('admin.announcements.index', ['tab' => 'history'])->with('success', "All broadcast history ({$count} logs) has been purged.");
     }
 
     public function sendBroadcast(Request $request)
@@ -1389,10 +1567,10 @@ class SuperAdminController extends Controller
                 $request->ip()
             );
 
-            return back()->with('success', "Broadcast successfully sent! {$recipients->count()} users have received in-app notifications and email delivery has been queued.");
+            return redirect()->route('admin.announcements.index', ['tab' => 'history'])->with('success', "Broadcast successfully sent! {$recipients->count()} users have received in-app notifications and email delivery has been queued.");
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('Broadcast error: ' . $e->getMessage());
-            return back()->with('error', 'Failed to dispatch broadcast: ' . $e->getMessage());
+            return redirect()->route('admin.announcements.index', ['tab' => 'broadcast'])->with('error', 'Failed to dispatch broadcast: ' . $e->getMessage());
         }
     }
 

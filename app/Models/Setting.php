@@ -49,6 +49,14 @@ class Setting extends Model
     }
 
     /**
+     * Clear all static runtime caches for settings.
+     */
+    public static function clearRuntimeCache(): void
+    {
+        self::$runtimeCache = [];
+    }
+
+    /**
      * Get system logo URL (uploaded system logo if available and exists, or default CLSU logo asset).
      */
     public static function getLogoUrl(): string

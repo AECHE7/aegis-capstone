@@ -36,14 +36,18 @@ class ReportController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            $search = trim($request->search);
+            $normalizedSearch = strtoupper(preg_replace('/\s+/', '', $search));
+            $searchHash = hash('sha256', $normalizedSearch);
+
+            $query->where(function ($q) use ($search, $searchHash) {
                 $q->where('program_name', 'like', "%{$search}%")
                   ->orWhere('id', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($uq) use ($search) {
+                  ->orWhereHas('user', function ($uq) use ($search, $searchHash) {
                       $uq->where('name', 'like', "%{$search}%")
-                        ->orWhereHas('profile', function ($pq) use ($search) {
-                            $pq->where('clsu_id_number', 'like', "%{$search}%");
+                        ->orWhereHas('profile', function ($pq) use ($search, $searchHash) {
+                            $pq->where('clsu_id_hash', $searchHash)
+                              ->orWhere('clsu_id_number', 'like', "%{$search}%");
                         });
                   });
             });
@@ -104,7 +108,14 @@ class ReportController extends Controller
                         $app->created_at->format('Y-m-d'),
                         'CHED/DOST Compliant'
                     ];
-                    fputcsv($file, $row);
+                    // SEC-03: Neutralize formula injection
+                    $sanitizedRow = array_map(function ($val) {
+                        if (is_string($val) && in_array(substr($val, 0, 1), ['=', '+', '-', '@', "\t", "\r"], true)) {
+                            return "'" . $val;
+                        }
+                        return $val;
+                    }, $row);
+                    fputcsv($file, $sanitizedRow);
                 }
             });
 
@@ -118,7 +129,16 @@ class ReportController extends Controller
     public function exportPdf(Request $request)
     {
         $this->logExportAccess($request, 'applications_list', 'pdf');
-        $applications = $this->buildReportQuery($request)->get();
+        $query = $this->buildReportQuery($request);
+
+        // RES-02: Memory safety limit for DomPDF rendering
+        $maxPdfRecords = 1000;
+        $totalMatching = (clone $query)->count();
+        if ($totalMatching > $maxPdfRecords) {
+            return back()->with('warning', "PDF export is limited to {$maxPdfRecords} records to prevent server memory exhaustion. Please narrow your filters or export via CSV.");
+        }
+
+        $applications = $query->get();
 
         // Calculate statistics for the summary block
         $totalCount    = $applications->count();

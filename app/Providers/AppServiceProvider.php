@@ -45,5 +45,16 @@ class AppServiceProvider extends ServiceProvider
                 \Illuminate\Cache\RateLimiting\Limit::perMinute(5)->by(strtolower($email) . '|' . $request->ip()),
             ];
         });
+
+        \Illuminate\Support\Facades\View::composer(['layouts.app', 'layouts.sidebar'], function ($view) {
+            try {
+                $globalActiveTerm = \Illuminate\Support\Facades\Cache::remember('active_academic_term', 300, function () {
+                    return \App\Models\AcademicTerm::where('is_active', true)->first();
+                });
+                $view->with('globalActiveTerm', $globalActiveTerm);
+            } catch (\Throwable $e) {
+                $view->with('globalActiveTerm', null);
+            }
+        });
     }
 }

@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{-- Anti-flash theme script --}}
+    {{-- Enforce official CLSU institutional light theme --}}
     <script>
-        (function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
+        document.documentElement.setAttribute('data-theme', 'light');
+        try { localStorage.removeItem('theme'); } catch(e) {}
     </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
@@ -85,7 +83,8 @@
         [data-theme="dark"] {
             --clsu-bg: #0b0f19;
             --card-bg: #111827;
-            --text-main: #94a3b8;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
             --text-title: #f1f5f9;
             --border-color: rgba(255,255,255,0.07);
             --clsu-green-muted: rgba(20, 83, 45, 0.15);
@@ -1744,13 +1743,13 @@
         <!-- Top bar -->
         <div class="topbar">
             <div class="d-flex align-items-center overflow-hidden me-2" style="min-width: 0;">
-                <!-- Mobile Hamburger Toggle (Disabled on mobile view as dedicated mobile bottom navbar provides complete navigation) -->
-                <button class="btn btn-link topbar-icon-btn p-0 me-2 me-sm-3 d-none flex-shrink-0" id="mobileSidebarToggle"
+                <!-- Mobile Hamburger Toggle -->
+                <button class="btn btn-link topbar-icon-btn p-0 me-2 me-sm-3 d-flex d-lg-none flex-shrink-0 align-items-center justify-content-center" id="mobileSidebarToggle"
                         aria-label="Toggle Navigation"
                         aria-controls="mainSidebar"
                         aria-expanded="false"
-                        style="box-shadow: none;">
-                    <i class="fa-solid fa-bars fs-5 fs-sm-4"></i>
+                        style="box-shadow: none; width: 38px; height: 38px; border-radius: 50%; background: rgba(0, 0, 0, 0.04); color: var(--clsu-green, #0c4e2d);">
+                    <i class="fa-solid fa-bars fs-5"></i>
                 </button>
                 <div class="overflow-hidden" style="min-width: 0;">
                     <p class="topbar-title text-truncate">@yield('page-title', 'Dashboard')</p>
@@ -1758,6 +1757,14 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-1.5 gap-sm-2 flex-shrink-0 ms-auto">
+                <!-- Current Active Academic Semester Badge -->
+                @if(isset($globalActiveTerm) && $globalActiveTerm)
+                    <div class="d-none d-lg-flex align-items-center gap-1.5 px-3 py-1 rounded-pill bg-success-subtle border border-success-subtle text-success shadow-xs text-nowrap" 
+                         title="Current Active Academic Semester: {{ $globalActiveTerm->full_term_label }}" style="font-size: 0.76rem;">
+                        <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                        <span class="fw-semibold">{{ $globalActiveTerm->short_semester }} A.Y. {{ $globalActiveTerm->academic_year }}</span>
+                    </div>
+                @endif
                 <!-- Official Philippine Standard Time (PST / PHT) Live Institutional Clock -->
                 <div class="d-none d-md-flex align-items-center gap-1.5 px-3 py-1 rounded-pill bg-light border text-muted shadow-xs text-nowrap" 
                      title="Official Philippine Standard Time (UTC+8) - CLSU Institutional Clock" style="font-size: 0.76rem;">
@@ -1784,8 +1791,12 @@
                         {{-- Prominent High-Contrast Red Notification Badge / Dot --}}
                         <span class="position-absolute badge rounded-pill bg-danger border border-2 border-white {{ $initialUnread > 0 ? '' : 'd-none' }}" 
                               id="notifBadge" 
+                              aria-hidden="true"
                               style="top: -2px; right: -4px; font-size: 0.62rem; min-width: 18px; height: 18px; padding: 0 4px; display: {{ $initialUnread > 0 ? 'inline-flex' : 'none' }}; align-items: center; justify-content: center; font-weight: 700; line-height: 1; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.5); z-index: 1050; pointer-events: none;">
                             {{ $initialUnread > 99 ? '99+' : $initialUnread }}
+                        </span>
+                        <span id="notif-live-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true">
+                            {{ $initialUnread }} unread notifications
                         </span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0 text-start overflow-hidden" 
@@ -2441,6 +2452,11 @@
                     dropdownBadge.textContent = `${count} unread`;
                 }
 
+                const liveAnnouncer = document.getElementById('notif-live-announcer');
+                if (liveAnnouncer) {
+                    liveAnnouncer.textContent = `${count} unread notifications`;
+                }
+
                 renderActiveNotificationLists();
             })
             .catch(() => {});
@@ -2594,11 +2610,7 @@
         });
     }
 
-    function setSystemTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        announceToScreenReader("Theme updated to " + theme.replace('-', ' ') + " mode.");
-    }
+
 
     function announceToScreenReader(message) {
         const announcer = document.getElementById('aegis-a11y-announcer');

@@ -105,7 +105,7 @@ Artisan::command('mail:test-broadcast', function () {
     $this->info('Starting mailer connection test broadcast...');
 
     $emails = \App\Models\User::pluck('email')->toArray();
-    $masterEmail = \App\Models\Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', 'admin@clsu.edu.ph'));
+    $masterEmail = \App\Models\Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', null));
     if ($masterEmail) {
         $emails[] = $masterEmail;
     }

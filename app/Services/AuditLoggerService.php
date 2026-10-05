@@ -96,11 +96,23 @@ class AuditLoggerService
     ): ConfigChangeLog {
         $userId = $user instanceof User ? $user->id : $user;
 
+        $sensitiveKeywords = ['key', 'secret', 'password', 'token', 'smtp', 'credential', 'api_key'];
+        $isSensitive = false;
+        foreach ($sensitiveKeywords as $kw) {
+            if (str_contains(strtolower($settingKey), $kw)) {
+                $isSensitive = true;
+                break;
+            }
+        }
+
+        $maskedOld = $isSensitive && !empty($oldValue) ? '********' : $oldValue;
+        $maskedNew = $isSensitive && !empty($newValue) ? '********' : $newValue;
+
         return ConfigChangeLog::create([
             'user_id' => $userId,
             'setting_key' => $settingKey,
-            'old_value' => $oldValue,
-            'new_value' => $newValue,
+            'old_value' => $maskedOld,
+            'new_value' => $maskedNew,
             'ip_address' => $ipAddress,
         ]);
     }

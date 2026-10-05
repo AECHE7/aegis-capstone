@@ -15,6 +15,10 @@ class AcademicTerm extends Model
         'is_active',
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
     /**
      * Relationship: An academic term has many applications.
      */

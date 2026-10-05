@@ -121,7 +121,8 @@
             --bg-main: #0b0f19;
             --bg-section: #0f172a;
             --card-bg: #111827;
-            --text-main: #94a3b8;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
             --text-title: #f1f5f9;
             --border-color: rgba(255,255,255,0.07);
             --clsu-green-muted: rgba(20, 83, 45, 0.15);

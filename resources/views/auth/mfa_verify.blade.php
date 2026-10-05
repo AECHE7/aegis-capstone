@@ -132,6 +132,18 @@
         <div class="logo-container">
             <img src="{{ \App\Models\Setting::getLogoUrl() }}" alt="CLSU Logo" style="height: 64px; object-fit: contain;" onerror="this.onerror=null; this.src='{{ asset('images/clsu-seal.png') }}';">
         </div>
+
+        <!-- Step Indicator -->
+        <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+            <span class="badge rounded-pill bg-light text-muted border px-2.5 py-1" style="font-size:0.7rem;">
+                <i class="fa-solid fa-check text-success me-1"></i> Step 1: Credentials
+            </span>
+            <i class="fa-solid fa-chevron-right text-muted" style="font-size:0.6rem;"></i>
+            <span class="badge rounded-pill bg-success text-white px-2.5 py-1" style="font-size:0.7rem;">
+                Step 2: Security Verification
+            </span>
+        </div>
+
         <h1 class="mfa-title">Security Verification</h1>
         <p class="mfa-desc">Enter the 6-digit verification code sent to <strong style="color: #0C4E2D;">{{ !empty($user->email) ? \Illuminate\Support\Str::mask($user->email, '*', 2, -4) : 'your registered email' }}</strong> to complete signing in.</p>
 

@@ -11,6 +11,10 @@ class Document extends Model
 
     protected $guarded = [];
 
+    protected $hidden = [
+        'file_data',
+    ];
+
     // A Document has one AI Result
     public function aiResult()
     {

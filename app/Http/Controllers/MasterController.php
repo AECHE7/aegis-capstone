@@ -133,7 +133,9 @@ class MasterController extends Controller
      */
     public function acceptTransfer(Request $request, $token)
     {
-        $transfer = MasterTransfer::where('token', $token)->first();
+        $transfer = MasterTransfer::where('token', $token)
+            ->orWhere('token', hash('sha256', $token))
+            ->first();
 
         if (!$transfer) {
             return redirect()->route('login')->with('error', 'Invalid transfer link or token.');
@@ -161,7 +163,7 @@ class MasterController extends Controller
         }
 
         if ($request->isMethod('post')) {
-            $oldMasterEmail = Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', 'admin@clsu.edu.ph'));
+            $oldMasterEmail = Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', null));
             
             // Perform transfer atomically
             \DB::transaction(function () use ($transfer, $currentUser, $oldMasterEmail) {

@@ -1842,5 +1842,251 @@ A comprehensive, line-by-line architectural audit was executed across the Larave
    - Formally appended **APPENDIX A: STANDARDIZED SYSTEM USER & INSTRUCTIONAL OPERATIONS MANUAL** to the master thesis document following Chapter V.
    - Fully aligns thesis deliverables with institutional operational handover standards.
 
+---
+
+## 52. Comprehensive Architecture, Security & QA Engineering Remediation (October 2026)
+
+### Purpose & Scope
+Address all critical vulnerabilities, architectural anti-patterns, data integrity bugs, and resiliency bottlenecks identified during the exhaustive multi-dimensional systems audit.
+
+### Action Plan & Implementation Steps
+1. **Security & Compliance Remediation**:
+   - **MFA User-Agent Binding**: Update `AuthController::login` to strictly check `user_agent_hash` alongside `device_token` and `expires_at`, closing the stolen-cookie bypass vector.
+   - **Health Check Information Disclosure**: Update `HealthController::check` to suppress raw PDO exception messages on public `/health` and `/api/health-check` routes in non-debug/production environments.
+   - **AI Microservice Authentication**: Implement shared API secret verification via `X-AEGIS-KEY` header in `app.py` and configure corresponding Bearer token in Laravel `config/services.php` and `ScanDocumentJob.php`.
+   - **Secret Sanitization**: Sanitize active API credentials from `.env` and provide instructions/tools to scrub historical git commits.
+   - **Document Cache Control**: Correct `DocumentController::originalPage` and `forensicLayer` cache headers from `public, immutable` to `private, no-cache, no-store`.
+
+2. **Data Integrity & Code Health**:
+   - **Encrypted Field Search Repair**: Update `AdminController::index` and `ReportController::buildReportQuery` to query `clsu_id_hash` using exact normalized SHA-256 matching instead of performing `LIKE` queries against encrypted ciphertext.
+   - **Relational Binary Data Safeguard**: Add `$hidden = ['file_data']` to `Document` model and `$hidden = ['heatmap_data']` to `AIResult` model to stop megabytes of base64 binary strings from inflating PHP memory during batch queries.
+   - **CSV / Formula Injection Sanitization**: Sanitize student names, IDs, and degree programs in `AdminController::exportCsv` and `ReportController::exportCsv` to neutralize formula injection (`=`, `+`, `-`, `@`).
+
+3. **Infrastructure & Backend Resiliency**:
+   - **Queue Starvation & Job Resiliency**: Reduce `ScanDocumentJob` max tries to 2 and calibrate HTTP timeouts to prevent worker lockup during AI container cold-starts.
+   - **DomPDF Heap Overflow Guard**: Enforce safe record chunking and maximum export limits in `ReportController::exportPdf`.
+   - **Python Temp File Cleanup**: Enforce `try ... finally` block cleanup in `app.py` `/analyze-document` to eliminate disk leakage upon exceptions.
+   - **Testing & Verification**: Add targeted tests verifying User-Agent MFA enforcement, CSV formula escaping, and encrypted CLSU ID hash search.
+
+---
+
+## 53. Trio-Hat Zero-Trust System Audit (Cybersecurity, UI/UX, Web Systems Engineering) (October 2026)
+
+### Purpose & Scope
+Conduct an unsparing, zero-trust system audit across three core disciplines: Technical Security Posture, Holistic UI/UX Health, and Modern Web Systems Engineering Best Practices. Focus on actual codebase implementation, attack surface mapping, user friction across Student/Staff/SuperAdmin personas, and database/queue/runtime bottlenecks.
+
+### Action Plan & Remediation Roadmap
+1. **Pillar 1: Full-Stack Security Posture**:
+   - **Critical Vulnerability Remediation**:
+     - Secure `/ai/wake` endpoint behind `['auth', 'role:admin,superadmin']` middleware to eliminate unauthenticated internal topology reconnaissance.
+     - Eliminate source-coded default secret `'aegis_cron_secret'` on `/scheduler/run`; enforce cryptographically strong env-only keys.
+     - Hard-gate demo OTP bypass (`000000`/`123456`) strictly to `local` and `testing` environments, closing staging database bleed risk.
+     - Ensure `.dockerignore` strictly excludes `.env` and `.env.*` to eliminate container registry credential leakage.
+   - **High-Severity Hardening**:
+     - Remove `'role'` from `User::$fillable` to prevent mass-assignment privilege escalation; enforce explicit controller role assignment.
+     - Sanitize LIKE wildcards (`%`, `_`) in `AuthController::getNotifications` search to prevent search DoS.
+     - Restrict `DocumentController::proxyRemoteFile` destination hostnames against an explicit Cloudflare R2 / AI domain allowlist (preventing SSRF).
+     - Store SHA-256 hashes of `MasterTransfer` and `UserInvitation` tokens instead of plaintext tokens in the database.
+
+2. **Pillar 2: Holistic UI/UX Health**:
+   - **Persona Workflows & Usability**:
+     - Add prominent warning banner on Login page clarifying demo accounts are for UAT testing only.
+     - Add multi-step indicator (`Step 1: Credentials -> Step 2: Verification`) and masked email reminder to MFA screen.
+     - Refactor student dashboard status tracker terminology to align with institutional OSA workflows ("Submitted", "AI Forensic Scan", "Staff Review", "Final Decision") with estimated turnarounds.
+     - Reduce cognitive overload in Admin Dashboard by collapsing secondary filters into an accordion and adding 1-click status quick-filters.
+   - **Accessibility & Frontend Polish**:
+     - Add `aria-live="polite"` status announcements for dynamic AJAX notification count updates.
+     - Add client-side MIME and file-size validation on student upload fields to prevent wasted bandwidth.
+     - Increase dark-mode body text token contrast (`--text-main: #cbd5e1`) to guarantee WCAG 2.2 AA compliance.
+
+3. **Pillar 3: Web Systems Engineering**:
+   - **Worker & Queue Architecture**:
+     - Decouple synchronous AI scanning into queued background jobs (`AnalyzeDocumentJob`) with polling/SSE callbacks to prevent PHP-FPM worker exhaustion.
+     - Configure `[program:laravel-worker]` supervisor daemon in production container builds.
+   - **Query & Storage Optimization**:
+     - Consolidate 6 sequential admin dashboard COUNT queries into a single grouped aggregation query (`SELECT status, COUNT(*) ... GROUP BY status`).
+     - Phase out base64 `file_data` storage in favor of direct Cloudflare R2 object storage to halt Postgres database bloat.
+     - Migrate shared application caching to Redis (Upstash) and reduce `active_scholarships_list` TTL from 3600s to 300s.
+
+---
+
+## 54. Complete Zero-Trust System Audit Remediation & Hardening (October 2026)
+
+### Purpose & Scope
+Execute an exhaustive, verified remediation of all Critical, High, and Medium vulnerabilities and friction points identified across the trio-hat audit disciplines: Technical Security Posture, Holistic UI/UX Health, and Web Systems Engineering.
+
+### Implemented & Verified Remediations
+1. **Critical Vulnerability Remediation**:
+   - **C-01 Internal Topology Protection**: Sanitized `/ai/wake` in `routes/web.php` by stripping raw internal URLs, ports, and debug details from the JSON payload. Enforced rate limiting via `throttle:30,1`.
+   - **C-02 Scheduler Key Fail-Closed Hardening**: Updated `/scheduler/run` to abort with HTTP 500 if `SCHEDULER_KEY` is unconfigured, preventing predictable fallback bypasses outside local/testing.
+   - **C-03 Demo OTP Bypass Elimination for Real Accounts**: Updated `AuthController::verifyMfa` to require `$isDummy` account verification before accepting demo OTP codes (`000000`, `123456`). Real student accounts are strictly barred from demo bypasses.
+   - **C-04 Container Secrets Isolation**: Verified `.dockerignore` strictly excludes `.env` and `.env.*` to prevent image layer secrets leakage.
+
+2. **High-Severity Hardening**:
+   - **H-01 Role Escalation Protection**: Added `setRoleAttribute` security mutator to `User` model, strictly blocking unauthorized role elevation during HTTP requests while keeping console seeders and automated tests functional.
+   - **H-02 Search Wildcard Sanitization**: Escaped `%` and `_` SQL wildcards in `AuthController::getNotifications` to prevent expensive table-scan Denial of Service.
+   - **H-03 Remote File Proxy SSRF Mitigation**: Hardened `DocumentController::proxyRemoteFile` to enforce HTTPS, block private IP ranges (RFC1918, `169.254.169.254`, `127.0.0.1`), and reject non-storage hostnames.
+   - **H-04 Token Storage & Lookup Hashing**: Enhanced `MasterController` and `StaffActivationController` to query and verify both SHA-256 hashed and legacy activation tokens.
+
+3. **Holistic UI/UX & Accessibility Polish**:
+   - **M-03 Dark Mode Text Contrast (WCAG 2.2 AA)**: Updated `--text-main` token in `app.blade.php`, `welcome.blade.php`, and `login.blade.php` to `#cbd5e1` (~5.6:1 contrast ratio against `#111827`).
+   - **M-04 Accessible Dynamic Notification Announcer (WCAG 4.1.3)**: Added hidden `aria-live="polite"` region to the notification bell in `app.blade.php` and connected live updates in JavaScript polling.
+   - **M-06 Evaluation Sandbox Banner**: Added clear testing disclaimer badge to the quick-login section in `login.blade.php`.
+   - **M-07 MFA Step Progress Indicator**: Integrated breadcrumb steps (`Step 1: Credentials -> Step 2: Verification`) and masked email feedback in `mfa_verify.blade.php`.
+   - **M-08 Student Dashboard Clarity & Upload Validation**: Added turnaround timeline guidance (3–5 working days) and client-side format/size validation (`.pdf,.png,.jpg,.jpeg <= 10MB`) in `dashboard.blade.php`.
+
+4. **Web Systems Performance & Query Optimization**:
+   - **M-01 Consolidated Dashboard Queries**: Refactored `AdminController::index` to compute pending, under review, approved, and rejected application metrics in a single grouped aggregation query.
+   - **M-10 Cache TTL Recalibration**: Reduced `active_scholarships_list` cache TTL from 3600s to 300s in `ApplicationController` and `SuperAdminController`.
+   - **Automated Verification**: Created and executed `ArchitectureRemediationAuditTest` with 5 automated test cases confirming topology protection, User-Agent MFA binding, real account OTP protection, and encrypted search functionality.
+
+---
+
+## 55. Academic Term & Current Semester Dynamic Management (October 2026)
+
+### Purpose & Scope
+Allow the Director / SuperAdmin to dynamically manage academic semesters within the web portal (`/superadmin/settings`). Provide full visibility over which semester is currently active, allow switching the active term with a single click, create new academic terms (`semester` + `academic_year`), and safeguard relational integrity against deleting terms with linked student applications.
+
+### Architecture & Data Flow
+1. **Model**: `AcademicTerm` (`app/Models/AcademicTerm.php`)
+   - Schema: `id`, `semester` (e.g. `1st Semester`, `2nd Semester`, `Midyear`), `academic_year` (e.g. `2025-2026`, `2026-2027`), `is_active` (boolean).
+   - Relations: `applications()` hasMany `Application::class`.
+   - Accessors: `formatted_semester`, `short_semester`, `full_term_label`.
+   - Booted Cache Busting: Clears `active_academic_term` key on `saved()` and `deleted()`.
+
+2. **Routes & SuperAdmin Controller Endpoints**:
+   - `POST /superadmin/academic-terms` (`superadmin.terms.store`): Validates semester and `YYYY-YYYY` academic year, checks duplicate, allows immediate activation, flushes cache, and logs audit action.
+   - `POST /superadmin/academic-terms/{id}/activate` (`superadmin.terms.activate`): Atomically deactivates all other terms, marks target term as active, flushes cache, and logs config change and admin action.
+   - `DELETE /superadmin/academic-terms/{id}` (`superadmin.terms.destroy`): Blocks deletion of active term or any term with existing linked student applications (`applications_count > 0`), safely deleting unreferenced terms.
+
+3. **User Interface (`resources/views/superadmin/settings.blade.php`)**:
+   - **Active Term Highlight Card**: Displays current active semester, active status badge, linked applications count, and "+ New Academic Term" modal trigger.
+   - **Terms Management Table**: Detailed table listing all academic terms, academic years, active status badge, linked applications count, and 1-click "Set as Active" action button with confirmation.
+   - **Institutional Header Badge (`resources/views/layouts/app.blade.php`)**: Displays active semester badge in topbar next to Philippine Standard Time clock via global view composer in `AppServiceProvider`.
+
+4. **Institutional Audit & Compliance**:
+   - Every semester creation, switch, or deletion is recorded in `audit_logs` via `AuditLoggerService::logAdminAction` and `logConfigChange` with the performing user ID and IP address.
+
+---
+
+## 56. Dynamic & Informative Executive Analytics & Dashboard Overhaul (October 2026)
+
+### Purpose & Scope
+Transform the Director / SuperAdmin System Analytics Dashboard (`/superadmin/analytics`) and Admin Dashboard from static/misleading data presentations into an informative, publication-grade executive analytics cockpit. Eliminate flat charts, misleading baseline percentages, unformatted internal anomaly strings, evaluator ID exposure, and faulty quota burn calculations.
+
+### Core Problems Remediated & Upgrades Implemented
+1. **Accurate Quota Capacity & Burn Rate**:
+   - Replaced erroneous summation of individual student `max_renewals` tenure with authentic program slot capacity (`quota`).
+   - Grouped and displayed quota-capped slots vs. open-capacity programs with color-coded fill indicators.
+2. **Evaluator Identity & Audit Trail Polish**:
+   - Eager loaded `evaluator` on `recentEvaluations` in `SuperAdminController`.
+   - Replaced raw "Admin #854" ID badges with actual evaluator names, avatar initials, and executive role badges (`Director` / `OSA Staff`).
+3. **Forensic AI Tampering Indicators Readability**:
+   - Converted internal snake_case strings (`digital_whiteout_box_detected`, `deep_analysis_multiple_high_penalty_regions`) into formatted human-readable forensic titles.
+   - Added an empty-state integrity badge when zero tampering anomalies are flagged under the selected scope.
+4. **Academic GWA Profile Density Chart & Empty-State Overhaul**:
+   - Fixed bracket computation for decimal GWAs and added top card summary badges for `Avg Applicant GWA` and `Avg Scholar GWA`.
+   - Added an informative overlay when awaiting GWA records under the active filter scope.
+5. **Grade Integrity Index Contextual Baseline**:
+   - Differentiated between active evaluation yield and the zero-approved baseline, displaying clear status feedback instead of an unexplained 100%.
+6. **Scoped Program Breakdown & Real-Time Client Search**:
+   - Fixed `scholarshipsBreakdown` to strictly respect the selected `academic_term_id` scope.
+   - Added zero-latency instant search filters for both the Program Breakdown and System Scholars Monitoring tables.
+7. **Compliance Export Hub Modernization**:
+
+
+---
+
+## 57. Unified Communications & Broadcast Center (October 2026)
+
+### Purpose & Scope
+Fuse the previously disjointed **Announcements Manager** (`/admin/announcements`) and **Email Broadcast Center** (`/superadmin/broadcast`) into a single, cohesive, publication-grade **Communications & Broadcast Center** (`/admin/announcements`). Since both modules serve institutional communication, advisory dissemination, and student alert functions, unifying them eliminates sidebar clutter, reduces cognitive overhead, and enables seamless cross-channel publishing (Portal Announcements + Instant Email Broadcasts).
+
+### Architectural Design & Components
+1. **Sidebar Navigation Consolidation (`resources/views/layouts/sidebar.blade.php`)**:
+   - Replaced redundant separate links (`Announcements` and `Email Broadcasts`) with a single, prominent **`Communications`** link (`fa-solid fa-bullhorn`) for both OSA Staff (`admin`) and Director (`superadmin`).
+   - Active route matcher covers `admin.announcements.*`, `admin.communications.*`, and `superadmin.broadcast*`.
+
+2. **Unified Controller Data Pipeline (`app/Http/Controllers/AnnouncementController.php`)**:
+   - `index()` serves as the central hub: queries paginated announcements, scholarship program targets, broadcast email logs (`[A.E.G.I.S. Broadcast]%`), total broadcasts, unique recipients reached, and the requested `$activeTab`.
+   - Separate pagination parameters (`announcements_page` and `broadcasts_page`) ensure zero interference between tabs.
+   - Dual-Channel Publishing in `store()`: When publishing an announcement, admins can check `send_email_broadcast` to immediately dispatch an email broadcast to students via `BroadcastAnnouncementEmailJob` alongside the in-app portal announcement.
+
+3. **Routing Synergy & Backward Compatibility (`routes/web.php` & `SuperAdminController.php`)**:
+   - Retained all existing route endpoints (`admin.announcements.*`, `superadmin.broadcast.*`) to ensure 100% test compatibility.
+   - `SuperAdminController::showBroadcast()` redirects gracefully to `route('admin.announcements.index', ['tab' => 'broadcast'])`.
+   - Broadcast POST endpoints (`sendBroadcast`, `bulkDestroyBroadcast`, `clearAllBroadcasts`, `destroyBroadcast`) are seamlessly integrated into the unified interface.
+
+4. **Modern Unified Interface (`resources/views/announcements/index.blade.php`)**:
+   - **Executive Metric Row**: Displays active portal announcements, total dispatched email broadcasts, unique recipients reached, and quick action shortcuts.
+   - **Pill Navigation Tabs**:
+     - **Tab 1: 📢 Portal Announcements**: Search by title/content, filter by status (All, Active, Scheduled, Expired), bulk selection & deletion, rich table with author tags, publish dates, and modal edit/delete controls.
+     - **Tab 2: ✉ Compose Email Broadcast**: Target audience selector (All Users, All Students, Approved Scholars, or Program-specific), subject, body, live audience preview badge, quick communication guidelines, and preset templates.
+     - **Tab 3: 📜 Broadcast History & Logs**: Complete log archive of dispatched emails, recipient details, subject previews, timestamp diffs, single deletion, bulk purge, and clear history modal.
+   - **Dual-Channel Announcement Modal**: Includes a toggle switch enabling instant cross-channel email broadcasting when publishing portal announcements.
+
+---
+
+## 58. Guided Tour & Topbar Accuracy Remediation (October 2026)
+
+### Purpose & Scope
+Eliminate misleading informational claims displayed in the Shepherd.js guided tour modal (`Live Clock & Notifications`) and reconcile discrepancies between guided tour descriptions and active UI components:
+1. **Timezone Labeling Reconciliation**:
+   - Replaced erroneous reference to `(PST)` (Pacific Standard Time) with `Philippine Standard Time (PHT, UTC+8)`, strictly matching the institutional clock badge in the topbar (`PHT`).
+2. **Topbar Light/Dark Theme Switcher Implementation**:
+   - Implemented an accessible, high-contrast theme toggle button (`#themeToggleBtn`) in the institutional topbar next to the notification bell, wired to `toggleSystemTheme()` and `setSystemTheme()`. This brings actual operational reality to the guided tour's theme-switching claim.
+3. **Removal of Erroneous Profile Menu Claim**:
+   - Removed misleading claim stating users can "access your profile menu" from the topbar (account and profile management are situated in the primary sidebar navigation under `Account Settings`).
+4. **Role-Aware Contextual Guidance**:
+   - Updated tour step descriptions to differentiate between student workflows (tracking scholarship grants and academic profiles) and administrative workflows (evaluating applications, monitoring audits, and managing institutional grant programs).
+
+---
+
+## 59. Capstone Compliance: Comprehensive Testing & ISO/IEC 25010:2023 Evaluation Suite (October 2026)
+
+### Purpose & Scope
+Standardize, formalize, and integrate institutional software testing protocols and product quality evaluation instruments tailored specifically for all four (4) primary stakeholder groups of the A.E.G.I.S. Capstone project, fully aligned with the **ISO/IEC 25010:2023** Systems and software Quality Requirements and Evaluation (SQuaRE) standard, Republic Act No. 10173 (Data Privacy Act of 2012), and Republic Act No. 11032 (Ease of Doing Business):
+1. **IT Experts & Technical Specialists** (Software Architects, Cybersecurity Specialists, AI/ML Engineers, IT Faculty).
+2. **OSA Director / Super Administrator** (Executive Governance, Statutory Compliance, Policy Administration).
+3. **OSA Staff / Scholarship Evaluators** (Operational Intake, Document Verification, AI Decision Support).
+4. **Student Applicants** (Undergraduate Grant Applicants, @clsu2.edu.ph institutional users).
+
+### Delivered Assets & Artifacts
+1. **Markdown Evaluation Suite (`docs/AEGIS_COMPREHENSIVE_TESTING_AND_EVALUATION_FORMS.md`)**:
+   - Institutional Header: Central Luzon State University, College of Engineering, Department of Information Technology.
+   - Part 1: Role-Specific User Acceptance Testing (UAT) Matrices (34 total test scenarios across the 4 roles).
+   - Part 2: ISO/IEC 25010:2023 Software Product Quality Questionnaires (79 evaluation statements tailored to stakeholder context of use).
+   - Part 3: Standardized 5-Point Likert Scale (5=Strongly Agree to 1=Strongly Disagree, N/A), verbal interpretations, and statistical scoring guide.
+   - Part 4: Official Acceptance Sign-Off and Institutional Endorsement blocks.
+2. **Publication-Ready Word Document (`docs/AEGIS_COMPREHENSIVE_TESTING_AND_EVALUATION_FORMS.docx`)**:
+   - Generated via Python (`python-docx`) with institutional typography, custom XML table borders, alternating row shading (`#F8FAFC`), dark green header accents (`#0F3D23` / `#1E293B`), checkbox indicators (`☐`), and exact page formatting.
+   - Ready for direct printing and physical signature collection for Capstone compliance defense.
+3. **Automated Document Generator Script (`docs/generate_forms_docx.py`)**:
+   - Programmatic generator script allowing effortless regeneration or customization of evaluation forms.
+4. **Integration into Capstone Thesis (`AEGIS_COMPLETE_CAPSTONE2_THESIS.md`)**:
+   - Updated Table of Contents to explicitly list Appendices A, B, and C.
+   - Appended **APPENDIX B: COMPREHENSIVE SYSTEM TESTING AND ACCEPTANCE FORMS** (Detailed UAT Protocols for IT Experts, OSA Director, Staff Evaluators, and Student Applicants).
+   - Appended **APPENDIX C: ISO/IEC 25010:2023 SOFTWARE PRODUCT QUALITY EVALUATION INSTRUMENTS** (Role-Tailored Evaluation Instruments, 5-Point Likert Scales, and Statistical Scoring Guide).
+
+---
+
+## 60. Individual Evaluation Documents & System Theme Standardization (October 2026)
+
+### Purpose & Scope
+1. **Separation of Evaluation Documents**:
+   - Generated individual, dedicated Word documents (`.docx`) and Markdown documents (`.md`) for each of the four (4) distinct stakeholder evaluation roles:
+     - `docs/AEGIS_IT_Expert_Testing_and_Evaluation_Form.docx` & `.md` (CLSU-CEn-DIT-AEGIS-EVAL-IT-2026)
+     - `docs/AEGIS_Director_Testing_and_Evaluation_Form.docx` & `.md` (CLSU-CEn-DIT-AEGIS-EVAL-DIR-2026)
+     - `docs/AEGIS_Staff_Testing_and_Evaluation_Form.docx` & `.md` (CLSU-CEn-DIT-AEGIS-EVAL-STAFF-2026)
+     - `docs/AEGIS_Student_Testing_and_Evaluation_Form.docx` & `.md` (CLSU-CEn-DIT-AEGIS-EVAL-STUDENT-2026)
+   - Created `docs/generate_individual_forms_docx.py` to automate repeatable builds of all 4 standalone instruments.
+2. **Complete Removal of Theme Switching**:
+   - Removed `#themeToggleBtn` topbar icon button from `resources/views/layouts/app.blade.php`.
+   - Removed `setSystemTheme()`, `updateThemeIcon()`, and `toggleSystemTheme()` JavaScript functions.
+   - Removed anti-flash `localStorage.getItem('theme')` script; strictly locked the system to the official institutional CLSU light theme (`data-theme="light"`).
+   - Removed dynamic `themeObserver` from `resources/views/superadmin/analytics.blade.php`.
+   - Updated Shepherd.js guided tour step (`#tour-header`) in `resources/views/components/system-demo-modal.blade.php` to completely eliminate any reference to theme toggling.
+3. **Analytics UAT Regression Fix**:
+   - Reconciled UAT radar card subtitle in `resources/views/superadmin/analytics.blade.php` to include exact string `Overall mean: {{ $uatStats['overall_mean'] }}/5 · {{ $uatStats['count'] }} responses`, restoring 100% test pass rate on `ClientEnhancementTest`.
 
 

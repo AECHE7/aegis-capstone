@@ -46,8 +46,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isMaster(): bool
     {
-        $masterEmail = Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', 'admin@clsu.edu.ph'));
-        return $masterEmail && strtolower($this->email) === strtolower($masterEmail);
+        $masterEmail = Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', null));
+        return !empty($masterEmail) && strtolower($this->email) === strtolower($masterEmail);
     }
 
     /**
@@ -59,6 +59,35 @@ class User extends Authenticatable implements MustVerifyEmail
             return session('active_role');
         }
         return $value;
+    }
+
+    /**
+     * Prevent unauthorized role escalation during HTTP requests while permitting console/seeds/tests.
+     */
+    public function setRoleAttribute($value): void
+    {
+        if (app()->runningInConsole()) {
+            $this->attributes['role'] = $value;
+            return;
+        }
+
+        if (!isset($this->attributes['role']) && $value === 'student') {
+            $this->attributes['role'] = 'student';
+            return;
+        }
+
+        $auth = auth()->user();
+        if ($auth && ($auth->role === 'superadmin' || $auth->isMaster())) {
+            $this->attributes['role'] = $value;
+            return;
+        }
+
+        if (!empty($this->attributes['role']) && $this->attributes['role'] !== $value) {
+            \Illuminate\Support\Facades\Log::warning("Blocked unauthorized role modification attempt for user {$this->id} to '{$value}'.");
+            return;
+        }
+
+        $this->attributes['role'] = $value;
     }
 
     /**

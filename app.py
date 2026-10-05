@@ -79,8 +79,17 @@ def health_check():
         "allow_simulation": ALLOW_SIMULATION
     }), 200
 
+from werkzeug.utils import secure_filename
+
 @app.route('/analyze-document', methods=['POST'])
 def analyze_document():
+    # SEC-02: Shared secret key verification
+    expected_key = os.environ.get('AI_SECRET_KEY') or os.environ.get('AEGIS_AI_KEY')
+    if expected_key:
+        client_key = request.headers.get('X-AEGIS-KEY') or request.headers.get('Authorization', '').replace('Bearer ', '')
+        if not client_key or client_key != expected_key:
+            return jsonify({"error": "Unauthorized: Invalid or missing AI microservice secret key"}), 401
+
     if 'file' not in request.files:
         return jsonify({"error": "No file part in request"}), 400
         
@@ -134,10 +143,6 @@ def analyze_document():
             except Exception as he:
                 print(f"[ANALYZE] Heatmap base64 encoding warning: {he}")
 
-        # Clean up uploaded raw file to free disk space
-        if os.path.exists(original_path):
-            os.remove(original_path)
-
         return jsonify(result), 200
 
     except RuntimeError as re:
@@ -149,11 +154,19 @@ def analyze_document():
     except Exception as e:
         print(f"[ANALYZE_ERROR] Internal Exception: {e}")
         return jsonify({"error": str(e)}), 500
+    finally:
+        # RES-01: Guaranteed cleanup of uploaded raw file to prevent disk exhaustion
+        if os.path.exists(original_path):
+            try:
+                os.remove(original_path)
+            except Exception as clean_ex:
+                print(f"[CLEANUP] Failed to remove temp upload {original_path}: {clean_ex}")
 
 @app.route('/heatmap/<filename>', methods=['GET'])
 def serve_heatmap(filename):
-    """Serve local heatmap images."""
-    return send_from_directory(os.path.abspath(HEATMAP_FOLDER), filename)
+    """Serve local heatmap images safely."""
+    safe_name = secure_filename(filename)
+    return send_from_directory(os.path.abspath(HEATMAP_FOLDER), safe_name)
 
 if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'

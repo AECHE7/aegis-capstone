@@ -60,7 +60,7 @@ class ApplicationController extends Controller
                 ->findOrFail(request('renew_from'));
         }
 
-        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 3600, function () {
+        $scholarships = \Illuminate\Support\Facades\Cache::remember('active_scholarships_list', 300, function () {
             return \App\Models\Scholarship::where('status', 'Active')->get();
         });
 

@@ -29,6 +29,8 @@ class StoreAnnouncementRequest extends FormRequest
             'content' => 'required|string',
             'scheduled_publish_at' => 'nullable|date',
             'scheduled_delete_at' => 'nullable|date|after_or_equal:scheduled_publish_at',
+            'send_email_broadcast' => 'nullable|boolean',
+            'broadcast_target' => 'nullable|string',
         ];
     }
 }

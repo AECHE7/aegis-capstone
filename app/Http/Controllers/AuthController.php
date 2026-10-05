@@ -59,12 +59,11 @@ class AuthController extends Controller
         if (!$email || !self::isDemoModeAllowed()) {
             return false;
         }
-        $masterEmail = \App\Models\Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', 'admin@clsu.edu.ph'));
+        $masterEmail = \App\Models\Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', null));
         $dummyList = [
             'admin@clsu.edu.ph',
             'director@clsu.edu.ph',
             'superadmin@clsu.edu.ph',
-            'staff@clsu.edu.ph',
         ];
         if (!empty($masterEmail)) {
             $dummyList[] = strtolower(trim($masterEmail));
@@ -136,10 +135,16 @@ class AuthController extends Controller
             if ($deviceToken) {
                 // Support both SHA-256 hashed token and legacy plaintext token
                 $hashedToken = hash('sha256', $deviceToken);
+                $currentUserAgentHash = hash('sha256', $request->userAgent() ?: '');
                 $deviceExists = UserMfaDevice::where('user_id', $user->id)
                     ->where(function ($query) use ($deviceToken, $hashedToken) {
                         $query->where('device_token', $hashedToken)
                               ->orWhere('device_token', $deviceToken);
+                    })
+                    ->where(function ($query) use ($currentUserAgentHash) {
+                        // SEC-01: Enforce User-Agent binding to prevent stolen-cookie MFA bypass across different devices/browsers
+                        $query->whereNull('user_agent_hash')
+                              ->orWhere('user_agent_hash', $currentUserAgentHash);
                     })
                     ->where('expires_at', '>', now())
                     ->exists();
@@ -148,7 +153,7 @@ class AuthController extends Controller
                 }
             }
 
-            if (!$shouldEnforceMfa || $hasValidDevice || $isDummyAdminAccount || $isDemoStudent) {
+            if (!$shouldEnforceMfa || $hasValidDevice || $isDummyAdminAccount) {
                 // Login user immediately
                 Auth::login($user);
                 $request->session()->regenerate();
@@ -320,10 +325,10 @@ class AuthController extends Controller
             hash_equals($user->otp_code, $request->code)
         );
 
-        // Universal demo OTP bypass strictly gated to non-production environments with demo mode enabled
+        // Universal demo OTP bypass strictly gated to designated dummy accounts in demo mode
         $isDummy = self::isDummyAccount($user->email) || self::isDemoStudentAccount($user->email);
         $isDemoOtp = self::isDemoModeAllowed()
-            && ($isDummy || !app()->environment('production'))
+            && $isDummy
             && in_array($request->code, ['000000', '123456'], true);
 
         if (($isValidOtp || $isDemoOtp) && ($isDemoOtp || ($user->otp_expires_at && $user->otp_expires_at->isFuture()))) {
@@ -748,7 +753,8 @@ class AuthController extends Controller
 
             if ($request->filled('q')) {
                 $searchTerm = trim($request->q);
-                $query->where('data', 'like', "%{$searchTerm}%");
+                $escapedTerm = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $searchTerm);
+                $query->where('data', 'like', "%{$escapedTerm}%");
             }
 
             $notifications = $query->paginate(12)->withQueryString();

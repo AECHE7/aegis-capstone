@@ -54,11 +54,11 @@
             </a>
 
             <a href="{{ route('admin.announcements.index') }}"
-               class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
-               {{ request()->routeIs('admin.announcements.index') ? 'aria-current="page"' : '' }}
-               data-tooltip="Announcements">
+               class="sidebar-link {{ request()->routeIs('admin.announcements.*') || request()->routeIs('admin.communications.*') || request()->routeIs('superadmin.broadcast*') ? 'active' : '' }}"
+               {{ request()->routeIs('admin.announcements.*') || request()->routeIs('admin.communications.*') || request()->routeIs('superadmin.broadcast*') ? 'aria-current="page"' : '' }}
+               data-tooltip="Communications">
                 <span class="sidebar-icon"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span>
-                <span class="sidebar-text">Announcements</span>
+                <span class="sidebar-text">Communications</span>
             </a>
 
             <div class="sidebar-label mt-2">Reports</div>
@@ -117,18 +117,11 @@
                 <span class="sidebar-text">User Management</span>
             </a>
             <a href="{{ route('admin.announcements.index') }}"
-               class="sidebar-link {{ request()->routeIs('admin.announcements.index') ? 'active' : '' }}"
-               {{ request()->routeIs('admin.announcements.index') ? 'aria-current="page"' : '' }}
-               data-tooltip="Announcements">
+               class="sidebar-link {{ request()->routeIs('admin.announcements.*') || request()->routeIs('admin.communications.*') || request()->routeIs('superadmin.broadcast*') ? 'active' : '' }}"
+               {{ request()->routeIs('admin.announcements.*') || request()->routeIs('admin.communications.*') || request()->routeIs('superadmin.broadcast*') ? 'aria-current="page"' : '' }}
+               data-tooltip="Communications">
                 <span class="sidebar-icon"><i class="fa-solid fa-bullhorn" aria-hidden="true"></i></span>
-                <span class="sidebar-text">Announcements</span>
-            </a>
-            <a href="{{ route('superadmin.broadcast') }}"
-               class="sidebar-link {{ request()->routeIs('superadmin.broadcast') ? 'active' : '' }}"
-               {{ request()->routeIs('superadmin.broadcast') ? 'aria-current="page"' : '' }}
-               data-tooltip="Broadcasts">
-                <span class="sidebar-icon"><i class="fa-solid fa-envelope" aria-hidden="true"></i></span>
-                <span class="sidebar-text">Email Broadcasts</span>
+                <span class="sidebar-text">Communications</span>
             </a>
             <a href="{{ route('superadmin.trash') }}"
                class="sidebar-link {{ request()->routeIs('superadmin.trash') ? 'active' : '' }}"

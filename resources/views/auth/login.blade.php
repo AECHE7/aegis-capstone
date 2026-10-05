@@ -69,7 +69,8 @@
         [data-theme="dark"] {
             --clsu-bg: #0b0f19;
             --card-bg: #111827;
-            --text-main: #94a3b8;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
             --border-color: rgba(255,255,255,0.07);
         }
 
@@ -695,6 +696,15 @@
                         || !in_array(request()->getHost(), ['localhost', '127.0.0.1', '::1']);
                 @endphp
                 @if(!$isLiveEnvironment && ($demoStudent || $demoAdmin || $demoSuperAdmin))
+                <div class="alert alert-warning border border-warning border-opacity-50 py-2 px-3 rounded-3 mt-4 mb-2 text-start" style="background:#fffbeb; color:#92400e; font-size:0.75rem;">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="fa-solid fa-flask text-warning fs-6"></i>
+                        <strong style="color:#b45309;">Evaluation Sandbox Testing Mode</strong>
+                    </div>
+                    <div class="text-muted" style="font-size:0.71rem; line-height:1.4;">
+                        Pre-seeded demonstration accounts for capstone thesis evaluation. Select a persona below to auto-fill credentials:
+                    </div>
+                </div>
                 <div class="or-divider">QUICK DEMO ACCESS</div>
                 <div class="row g-2 mb-2">
                     @if($demoStudent)

@@ -97,12 +97,17 @@ class ScanDocumentJob implements ShouldQueue
 
             try {
                 $aiUrl = rtrim(config('services.ai.url', 'http://127.0.0.1:5000'), '/');
+                $aiKey = config('services.ai.key');
                 $response = null;
                 $maxAttempts = 3;
 
                 for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
                     try {
-                        $response = Http::timeout(120)->attach(
+                        $req = Http::timeout(45);
+                        if (!empty($aiKey)) {
+                            $req = $req->withHeaders(['X-AEGIS-KEY' => $aiKey]);
+                        }
+                        $response = $req->attach(
                             'file', $fileContents, $document->original_name
                         )->post($aiUrl . '/analyze-document?mode=' . urlencode($this->mode));
 

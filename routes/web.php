@@ -34,7 +34,14 @@ Route::get('/scholarships', [\App\Http\Controllers\ScholarshipController::class,
 Route::get('/health', [\App\Http\Controllers\HealthController::class, 'check'])->name('health');
 Route::get('/api/health-check', [\App\Http\Controllers\HealthController::class, 'check'])->name('api.health-check');
 Route::get('/scheduler/run', function (\Illuminate\Http\Request $request) {
-    $expectedKey = config('services.scheduler.key', 'aegis_cron_secret');
+    $expectedKey = config('services.scheduler.key');
+    if (empty($expectedKey)) {
+        if (app()->environment(['local', 'testing'])) {
+            $expectedKey = 'aegis_cron_secret';
+        } else {
+            abort(500, 'Scheduler key not configured.');
+        }
+    }
     // hash_equals prevents timing-based attacks on the secret key (MED-06)
     if (!hash_equals((string) $expectedKey, (string) $request->query('key', ''))) {
         abort(403, 'Unauthorized');
@@ -75,20 +82,17 @@ Route::get('/ai/wake', function () {
             'success' => $res->successful(),
             'status' => $res->status(),
             'latency_ms' => $latency,
-            'url' => $aiUrl,
-            'data' => $res->json(),
             'message' => $res->successful() ? 'AI microservice is active and responsive.' : 'AI returned HTTP ' . $res->status()
         ], 200);
     } catch (\Throwable $e) {
         return response()->json([
             'success' => false,
-            'url' => $aiUrl,
             'status' => 504,
             'warming_up' => true,
-            'message' => 'AI wake-up probe timed out or container is initializing: ' . $e->getMessage()
+            'message' => 'AI wake-up probe timed out or container is initializing.'
         ], 200);
     }
-})->name('ai.wake');
+})->middleware('throttle:30,1')->name('ai.wake');
 
 Route::get('/favicon.ico', function () {
     $path = public_path('logo.png');
@@ -189,14 +193,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tour/reset', [ApplicationController::class, 'resetTour'])->name('tour.reset');
 
     // Dynamic Notifications & Notification Center Management
-    Route::get('/notifications', [AuthController::class, 'getNotifications'])->name('notifications.index');
-    Route::post('/notifications/{id}/read', [AuthController::class, 'markNotificationAsRead'])->name('notifications.read');
-    Route::post('/notifications/{id}/unread', [AuthController::class, 'markNotificationAsUnread'])->name('notifications.unread');
-    Route::delete('/notifications/{id}', [AuthController::class, 'deleteNotification'])->name('notifications.delete');
-    Route::post('/notifications/bulk', [AuthController::class, 'bulkNotifications'])->name('notifications.bulk');
-    Route::post('/notifications/clear', [AuthController::class, 'clearNotifications'])->name('notifications.clear');
-    Route::post('/notifications/preferences', [AuthController::class, 'updateNotificationPreferences'])->name('notifications.preferences');
-    Route::post('/notifications/test', [AuthController::class, 'sendTestNotification'])->name('notifications.test');
+    Route::get('/notifications', [AuthController::class, 'getNotifications'])->middleware('throttle:60,1')->name('notifications.index');
+    Route::post('/notifications/{id}/read', [AuthController::class, 'markNotificationAsRead'])->middleware('throttle:60,1')->name('notifications.read');
+    Route::post('/notifications/{id}/unread', [AuthController::class, 'markNotificationAsUnread'])->middleware('throttle:60,1')->name('notifications.unread');
+    Route::delete('/notifications/{id}', [AuthController::class, 'deleteNotification'])->middleware('throttle:60,1')->name('notifications.delete');
+    Route::post('/notifications/bulk', [AuthController::class, 'bulkNotifications'])->middleware('throttle:30,1')->name('notifications.bulk');
+    Route::post('/notifications/clear', [AuthController::class, 'clearNotifications'])->middleware('throttle:30,1')->name('notifications.clear');
+    Route::post('/notifications/preferences', [AuthController::class, 'updateNotificationPreferences'])->middleware('throttle:30,1')->name('notifications.preferences');
+    Route::post('/notifications/test', [AuthController::class, 'sendTestNotification'])->middleware('throttle:10,1')->name('notifications.test');
 
     // Email Verification Routes
     Route::get('/email/verify', [\App\Http\Controllers\Auth\EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
@@ -276,12 +280,14 @@ Route::middleware(['auth'])->group(function () {
         Route::match(['post', 'patch'], '/applications/{id}/notes', [AdminController::class, 'saveNotes'])->name('admin.saveNotes');
         Route::match(['post', 'patch'], '/applications/{id}/save-notes', [AdminController::class, 'saveNotes'])->name('admin.applications.save-notes');
         
-        // Announcement Board Management
+        // Unified Communications & Broadcast Center
         Route::get('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('admin.announcements.index');
+        Route::get('/communications', [\App\Http\Controllers\AnnouncementController::class, 'index'])->name('admin.communications.index');
         Route::post('/announcements', [\App\Http\Controllers\AnnouncementController::class, 'store'])->name('admin.announcements.store');
         Route::post('/announcements/bulk-delete', [\App\Http\Controllers\AnnouncementController::class, 'bulkDestroy'])->name('admin.announcements.bulk-destroy');
         Route::match(['post', 'patch'], '/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'update'])->name('admin.announcements.update')->whereNumber('id');
         Route::delete('/announcements/{id}', [\App\Http\Controllers\AnnouncementController::class, 'destroy'])->name('admin.announcements.destroy')->whereNumber('id');
+        Route::post('/broadcast/send', [\App\Http\Controllers\SuperAdminController::class, 'sendBroadcast'])->name('admin.broadcast.send');
     });
 
     // SUPER ADMIN (Scholarship Management)
@@ -352,6 +358,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/settings/security-reset', [SuperAdminController::class, 'revokeAllDevices'])->name('superadmin.settings.security-reset');
         Route::get('/settings/ai-status', [SuperAdminController::class, 'aiStatus'])->name('superadmin.settings.ai-status');
         Route::post('/settings/wake-ai', [SuperAdminController::class, 'wakeAi'])->name('superadmin.settings.wake-ai');
+
+        // Academic Term & Semester Management
+        Route::post('/academic-terms', [SuperAdminController::class, 'storeAcademicTerm'])->name('superadmin.terms.store');
+        Route::post('/academic-terms/{id}/activate', [SuperAdminController::class, 'activateAcademicTerm'])->name('superadmin.terms.activate');
+        Route::delete('/academic-terms/{id}', [SuperAdminController::class, 'destroyAcademicTerm'])->name('superadmin.terms.destroy');
 
         // Email Broadcast Center
         Route::get('/broadcast', [SuperAdminController::class, 'showBroadcast'])->name('superadmin.broadcast');

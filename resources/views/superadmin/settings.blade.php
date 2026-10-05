@@ -13,6 +13,167 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 12px;" role="alert">
+                <i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        @if(session('info'))
+            <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm mb-4" style="border-radius: 12px;" role="alert">
+                <i class="fa-solid fa-circle-info me-2"></i> {{ session('info') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <!-- Academic Terms & Current Semester Manager Card -->
+        <div class="card mb-4" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.02); border: 1px solid var(--border-color, #e2e8f0);">
+            <div class="card-header bg-transparent py-3.5 px-4 border-bottom border-light d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <h5 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap text-success"></i> Academic Terms & Current Semester
+                    </h5>
+                    <p class="text-muted small mb-0">Control which academic semester is actively accepting applications, renewals, and evaluations.</p>
+                </div>
+                <button type="button" class="btn btn-success btn-sm fw-bold px-3 py-2 rounded-pill shadow-xs d-inline-flex align-items-center gap-2"
+                        data-bs-toggle="modal" data-bs-target="#newAcademicTermModal">
+                    <i class="fa-solid fa-plus"></i> Add Academic Term
+                </button>
+            </div>
+            <div class="card-body p-4">
+                <!-- Current Active Term Hero Callout -->
+                <div class="p-3.5 rounded-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3"
+                     style="background: linear-gradient(135deg, rgba(12, 78, 45, 0.08) 0%, rgba(242, 169, 0, 0.08) 100%); border: 1px solid rgba(12, 78, 45, 0.15);">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                             style="width: 48px; height: 48px; background: var(--clsu-green, #0c4e2d); color: #ffffff;">
+                            <i class="fa-solid fa-calendar-check fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                <span class="badge bg-success px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.72rem; letter-spacing: 0.03em;">
+                                    <i class="fa-solid fa-circle-check me-1"></i> CURRENT ACTIVE SEMESTER
+                                </span>
+                                @if(isset($activeTerm) && $activeTerm)
+                                    <span class="text-muted small">Updated {{ $activeTerm->updated_at->diffForHumans() }}</span>
+                                @endif
+                            </div>
+                            <h4 class="mb-0 fw-bold text-dark">
+                                @if(isset($activeTerm) && $activeTerm)
+                                    {{ $activeTerm->formatted_semester }}, Academic Year {{ $activeTerm->academic_year }}
+                                @else
+                                    <span class="text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> No Active Semester Configured</span>
+                                @endif
+                            </h4>
+                            <p class="text-muted small mb-0 mt-1">
+                                @if(isset($activeTerm) && $activeTerm)
+                                    All student scholarship applications and renewal submissions are currently assigned to this active term.
+                                @else
+                                    Please create or activate an academic term so students can apply.
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-end d-none d-md-block">
+                        <div class="small text-muted fw-semibold">Applications Filed</div>
+                        <div class="fs-4 fw-bold text-success">{{ isset($activeTerm) && $activeTerm ? $activeTerm->applications_count : 0 }}</div>
+                    </div>
+                </div>
+
+                <!-- Terms List Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                        <thead class="table-light text-muted small">
+                            <tr>
+                                <th scope="col" class="py-2.5">Academic Term</th>
+                                <th scope="col" class="py-2.5">Academic Year</th>
+                                <th scope="col" class="py-2.5 text-center">Status</th>
+                                <th scope="col" class="py-2.5 text-center">Applications</th>
+                                <th scope="col" class="py-2.5 text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($academicTerms ?? [] as $term)
+                                <tr class="{{ $term->is_active ? 'table-success-subtle fw-semibold' : '' }}">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            @if($term->is_active)
+                                                <i class="fa-solid fa-circle-dot text-success" title="Active Semester"></i>
+                                            @else
+                                                <i class="fa-regular fa-circle text-muted" title="Inactive"></i>
+                                            @endif
+                                            <span class="text-dark">{{ $term->formatted_semester }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="font-monospace text-dark">{{ $term->academic_year }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if($term->is_active)
+                                            <span class="badge bg-success px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">
+                                                <i class="fa-solid fa-check me-1"></i> ACTIVE
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary-subtle text-secondary px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                                Inactive
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border px-2 py-1 rounded-pill">
+                                            {{ $term->applications_count }} {{ Str::plural('application', $term->applications_count) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex align-items-center gap-2">
+                                            @if(!$term->is_active)
+                                                <form action="{{ route('superadmin.terms.activate', $term->id) }}" method="POST" class="d-inline"
+                                                      onsubmit="return confirmSwitchTerm(event, '{{ addslashes($term->full_term_label) }}', this);">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1.5"
+                                                            style="font-size: 0.78rem;">
+                                                        <i class="fa-solid fa-toggle-on"></i> Set Active
+                                                    </button>
+                                                </form>
+
+                                                @if($term->applications_count === 0)
+                                                    <form action="{{ route('superadmin.terms.destroy', $term->id) }}" method="POST" class="d-inline"
+                                                          onsubmit="return confirmDeleteTerm(event, '{{ addslashes($term->full_term_label) }}', this);">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-1.5"
+                                                                title="Delete Unused Term" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">
+                                                            <i class="fa-solid fa-trash-can" style="font-size: 0.75rem;"></i>
+                                                        </button>
+                                                    </form>
+                                                @else
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle p-1.5 disabled" 
+                                                            disabled title="Cannot delete: contains linked student applications"
+                                                            style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; opacity: 0.4;">
+                                                        <i class="fa-solid fa-trash-can" style="font-size: 0.75rem;"></i>
+                                                    </button>
+                                                @endif
+                                            @else
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1.5 rounded-pill" style="font-size: 0.76rem;">
+                                                    <i class="fa-solid fa-lock me-1"></i> Current Active
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="fa-solid fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                                        No academic terms configured yet. Click "Add Academic Term" above to set up the first semester.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
         <form action="{{ route('superadmin.settings.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -303,7 +464,101 @@
             @csrf
         </form>
 
+        <!-- Add Academic Term Modal -->
+        <div class="modal fade" id="newAcademicTermModal" tabindex="-1" aria-labelledby="newAcademicTermModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="border-radius: 18px; overflow: hidden;">
+                    <form action="{{ route('superadmin.terms.store') }}" method="POST">
+                        @csrf
+                        <div class="modal-header py-3 px-4" style="background: linear-gradient(135deg, var(--clsu-green, #0c4e2d), #16703f); color: white;">
+                            <h5 class="modal-title fw-bold" id="newAcademicTermModalLabel">
+                                <i class="fa-solid fa-calendar-plus me-2"></i> Add New Academic Term
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <div class="mb-3">
+                                <label for="term_semester" class="form-label fw-semibold small text-muted">Semester</label>
+                                <select class="form-select py-2" id="term_semester" name="semester" required style="border-radius: 10px;">
+                                    <option value="1st Semester">1st Semester</option>
+                                    <option value="2nd Semester">2nd Semester</option>
+                                    <option value="Midyear">Midyear / Summer</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="term_academic_year" class="form-label fw-semibold small text-muted">Academic Year (Format: YYYY-YYYY)</label>
+                                <input type="text" class="form-control py-2 font-monospace" id="term_academic_year" name="academic_year" 
+                                       placeholder="e.g. 2026-2027" pattern="\d{4}-\d{4}" maxlength="9" required style="border-radius: 10px;"
+                                       value="{{ date('Y') . '-' . (date('Y') + 1) }}">
+                                <div class="form-text small text-muted">
+                                    Example: <code>2025-2026</code> or <code>2026-2027</code>
+                                </div>
+                            </div>
+
+                            <div class="form-check form-switch p-3 rounded-3 bg-light border mt-4">
+                                <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="term_set_active" name="set_active" value="1" checked>
+                                <label class="form-check-label fw-semibold text-dark" for="term_set_active">
+                                    Set as Current Active Semester Immediately
+                                </label>
+                                <div class="form-text small text-muted ms-0 mt-1">
+                                    When checked, this semester immediately becomes active across student application forms and admin analytics.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer py-3 px-4 bg-light border-0 d-flex justify-content-between">
+                            <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-xs">
+                                <i class="fa-solid fa-save me-1"></i> Save Academic Term
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <script>
+            function confirmSwitchTerm(event, termLabel, form) {
+                event.preventDefault();
+                if (typeof AegisAlert !== 'undefined' && AegisAlert.confirm) {
+                    AegisAlert.confirm({
+                        title: 'Switch Active Semester?',
+                        text: `Are you sure you want to set "${termLabel}" as the CURRENT ACTIVE semester? All incoming scholarship applications and renewals will link to this term.`,
+                        icon: 'question',
+                        confirmText: 'Yes, Switch Semester',
+                        cancelText: 'Cancel'
+                    }).then(confirmed => {
+                        if (confirmed) form.submit();
+                    });
+                } else {
+                    if (confirm(`Switch current active semester to "${termLabel}"?`)) {
+                        form.submit();
+                    }
+                }
+                return false;
+            }
+
+            function confirmDeleteTerm(event, termLabel, form) {
+                event.preventDefault();
+                if (typeof AegisAlert !== 'undefined' && AegisAlert.confirm) {
+                    AegisAlert.confirm({
+                        title: 'Delete Academic Term?',
+                        text: `Are you sure you want to permanently delete "${termLabel}"? This action cannot be undone.`,
+                        icon: 'warning',
+                        isDestructive: true,
+                        confirmText: 'Yes, Delete Term',
+                        cancelText: 'Cancel'
+                    }).then(confirmed => {
+                        if (confirmed) form.submit();
+                    });
+                } else {
+                    if (confirm(`Delete academic term "${termLabel}"?`)) {
+                        form.submit();
+                    }
+                }
+                return false;
+            }
+
             function confirmRevokeDevices() {
                 AegisAlert.confirm({
                     title: 'Revoke All Remembered Devices?',

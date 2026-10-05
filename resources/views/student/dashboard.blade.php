@@ -527,9 +527,10 @@
                                             @csrf
                                             <div class="mb-3">
                                                 <label for="cog_file" class="form-label fw-bold small text-muted">Upload Corrected COG Document (PDF, PNG, JPG, JPEG &le; 10MB)</label>
-                                                <input type="file" name="cog_file" id="cog_file" class="form-control form-control-sm" required style="border-radius: 8px;">
+                                                <input type="file" name="cog_file" id="cog_file" class="form-control form-control-sm" required style="border-radius: 8px;" accept=".pdf,.png,.jpg,.jpeg" onchange="validateCogUpload(this)">
+                                                <div id="cogUploadError" class="text-danger small mt-1 d-none" style="font-size:0.75rem;"></div>
                                             </div>
-                                            <button type="submit" class="btn btn-warning text-white fw-bold px-4 py-2 w-100" style="border-radius: 8px; background: #d97706; border: none; box-shadow: 0 4px 12px rgba(217,119,6,0.2);">
+                                            <button type="submit" id="btnSubmitCorrected" class="btn btn-warning text-white fw-bold px-4 py-2 w-100" style="border-radius: 8px; background: #d97706; border: none; box-shadow: 0 4px 12px rgba(217,119,6,0.2);">
                                                 <i class="fa-solid fa-paper-plane me-1"></i> Submit Corrected Document
                                             </button>
                                         </form>
@@ -569,6 +570,9 @@
                                 <span>Submitted</span>
                                 <span style="flex:1;text-align:center;">OSA Review</span>
                                 <span>Decision</span>
+                            </div>
+                            <div class="text-center mt-2" style="font-size:0.72rem; color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.15); border-radius: 6px; padding: 3px 8px;">
+                                <i class="fa-solid fa-clock-rotate-left me-1"></i> Standard evaluation turnaround: <strong>3–5 working days</strong>
                             </div>
                         </div>
                     </div>
@@ -1165,4 +1169,44 @@
     </script>
     @endpush
 @endif
+
+@push('scripts')
+<script>
+function validateCogUpload(input) {
+    const errorEl = document.getElementById('cogUploadError');
+    const submitBtn = document.getElementById('btnSubmitCorrected');
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    const allowedExtensions = ['pdf', 'png', 'jpg', 'jpeg'];
+    const ext = file.name.split('.').pop().toLowerCase();
+    const maxSize = 10 * 1024 * 1024; // 10MB
+
+    if (!allowedExtensions.includes(ext)) {
+        if (errorEl) {
+            errorEl.textContent = 'Invalid format. Only PDF, PNG, JPG, and JPEG documents are permitted.';
+            errorEl.classList.remove('d-none');
+        }
+        input.value = '';
+        if (submitBtn) submitBtn.disabled = true;
+        return;
+    }
+
+    if (file.size > maxSize) {
+        if (errorEl) {
+            errorEl.textContent = `File size is ${(file.size / 1024 / 1024).toFixed(2)}MB. Maximum allowed is 10MB.`;
+            errorEl.classList.remove('d-none');
+        }
+        input.value = '';
+        if (submitBtn) submitBtn.disabled = true;
+        return;
+    }
+
+    if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.classList.add('d-none');
+    }
+    if (submitBtn) submitBtn.disabled = false;
+}
+</script>
 @endpush

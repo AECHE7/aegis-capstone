@@ -37,10 +37,11 @@ return [
 
     'ai' => [
         'url' => env('AEGIS_AI_URL') ?: env('AI_SERVICE_URL', 'http://127.0.0.1:5000'),
+        'key' => env('AEGIS_AI_KEY') ?: env('AI_SECRET_KEY'),
     ],
 
     'scheduler' => [
-        'key' => env('SCHEDULER_KEY', 'aegis_cron_secret'),
+        'key' => env('SCHEDULER_KEY', (isset($_ENV['APP_ENV']) && in_array($_ENV['APP_ENV'], ['local', 'testing'])) ? 'aegis_cron_secret' : null),
     ],
 
 ];

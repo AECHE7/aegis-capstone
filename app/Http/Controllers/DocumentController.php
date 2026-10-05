@@ -161,11 +161,10 @@ class DocumentController extends Controller
 
         if (!empty($originalPageBase64)) {
             $binary = base64_decode($originalPageBase64);
-            return response($binary, 200, [
+            return response($binary, 200, array_merge([
                 'Content-Type'        => 'image/png',
                 'Content-Disposition' => 'inline; filename="original_page_' . $id . '.png"',
-                'Cache-Control'       => 'public, max-age=31536000, immutable'
-            ]);
+            ], $this->sensitiveCacheHeaders()));
         }
 
         // Fall back to showing the original raw file (e.g. if it is an image document)
@@ -195,20 +194,19 @@ class DocumentController extends Controller
 
         if (!empty($layerBase64)) {
             $binary = base64_decode($layerBase64);
-            return response($binary, 200, [
+            return response($binary, 200, array_merge([
                 'Content-Type'        => 'image/png',
                 'Content-Disposition' => 'inline; filename="layer_' . $layer . '_' . $id . '.png"',
-                'Cache-Control'       => 'public, max-age=31536000, immutable'
-            ]);
+            ], $this->sensitiveCacheHeaders()));
         }
 
         // Graceful Fallback: stream standard heatmap or original view instead of returning 404!
         if (!empty($aiResult->heatmap_data)) {
             $binary = base64_decode($aiResult->heatmap_data);
-            return response($binary, 200, [
+            return response($binary, 200, array_merge([
                 'Content-Type'        => 'image/jpeg',
                 'Content-Disposition' => 'inline; filename="heatmap_' . $id . '.jpg"'
-            ]);
+            ], $this->sensitiveCacheHeaders()));
         }
 
         return $this->view($id);
@@ -241,10 +239,40 @@ class DocumentController extends Controller
     }
 
     /**
-     * Proxy a remote (R2/CDN) file through the server response.
+     * Proxy a remote (R2/CDN) file through the server response with SSRF defenses.
      */
     private function proxyRemoteFile(string $url, string $title, string $description)
     {
+        $parsed = parse_url($url);
+        $scheme = strtolower($parsed['scheme'] ?? '');
+        $host   = strtolower($parsed['host'] ?? '');
+
+        // 1. Enforce HTTPS in production/staging; block dangerous schemes
+        if (!in_array($scheme, ['https', 'http'], true)) {
+            return $this->remoteStreamFailedResponse($title, 'Invalid URI scheme.');
+        }
+
+        if ($scheme !== 'https' && !app()->environment(['local', 'testing'])) {
+            return $this->remoteStreamFailedResponse($title, 'Insecure remote connection blocked.');
+        }
+
+        // 2. SSRF Protection: Block internal IP addresses and cloud metadata services (169.254.169.254, 127.0.0.1, RFC1918)
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            if (!filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                if (!app()->environment(['local', 'testing'])) {
+                    Log::warning("SSRF block: Attempt to proxy private/reserved IP: {$host}");
+                    return $this->remoteStreamFailedResponse($title, 'Access to private IP endpoints is restricted.');
+                }
+            }
+        }
+
+        // 3. Block loopback and link-local hostnames in production
+        if (!app()->environment(['local', 'testing'])) {
+            if (in_array($host, ['localhost', '127.0.0.1', '::1', 'metadata.google.internal', '169.254.169.254'], true)) {
+                return $this->remoteStreamFailedResponse($title, 'Access to local or metadata hostnames is forbidden.');
+            }
+        }
+
         try {
             $response = Http::timeout(15)->get($url);
             if ($response->successful()) {

@@ -11,6 +11,10 @@ class AIResult extends Model
 
     protected $guarded = [];
 
+    protected $hidden = [
+        'heatmap_data',
+    ];
+
     protected $casts = [
         'anomaly_indicators' => 'array',
         'deep_analysis_report' => 'array',

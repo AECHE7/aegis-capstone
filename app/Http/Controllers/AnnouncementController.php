@@ -45,8 +45,44 @@ class AnnouncementController extends Controller
             }
         }
 
-        $announcements = $query->latest()->paginate(10)->withQueryString();
-        return view('announcements.index', compact('announcements'));
+        $announcements = $query->latest()->paginate(10, ['*'], 'announcements_page')->withQueryString();
+
+        // Broadcast & Audience Data for Unified Communications
+        $scholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
+
+        $broadcastQuery = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%');
+
+        $bSearch = $request->input('broadcast_search');
+        if (empty($bSearch) && ($request->query('tab') === 'history' || $request->routeIs('superadmin.broadcast'))) {
+            $bSearch = $request->input('search');
+        }
+
+        if (!empty($bSearch)) {
+            $bSearch = trim((string) $bSearch);
+            $broadcastQuery->where(function ($q) use ($bSearch) {
+                $q->where('recipient', 'like', "%{$bSearch}%")
+                  ->orWhere('subject', 'like', "%{$bSearch}%")
+                  ->orWhere('content', 'like', "%{$bSearch}%");
+            });
+        }
+
+        $totalBroadcasts = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')->count();
+        $uniqueRecipients = \App\Models\EmailLog::where('subject', 'like', '[A.E.G.I.S. Broadcast]%')
+            ->distinct('recipient')
+            ->count('recipient');
+
+        $broadcasts = $broadcastQuery->latest()->paginate(10, ['*'], 'broadcasts_page')->withQueryString();
+
+        $activeTab = $request->query('tab', 'announcements');
+
+        return view('announcements.index', compact(
+            'announcements',
+            'scholarships',
+            'broadcasts',
+            'totalBroadcasts',
+            'uniqueRecipients',
+            'activeTab'
+        ));
     }
 
     /**
@@ -88,6 +124,12 @@ class AnnouncementController extends Controller
             try {
                 $recipients = User::where('is_active', true)->get();
                 Notification::send($recipients, new NewAnnouncementNotification($announcement));
+
+                // Dual-Channel Email Broadcast Dispatch (if requested)
+                if ($request->boolean('send_email_broadcast')) {
+                    $target = $request->input('broadcast_target', 'all_students');
+                    \App\Jobs\BroadcastAnnouncementEmailJob::dispatch($announcement->title, $announcement->content, $target);
+                }
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('Failed to dispatch announcement notifications: ' . $e->getMessage());
             }

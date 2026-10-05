@@ -20,9 +20,10 @@ class HealthController extends Controller
 
         try {
             DB::connection()->getPdo();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $dbStatus = 'failed';
-            $dbError = $e->getMessage();
+            \Illuminate\Support\Facades\Log::error('Health check database probe failed: ' . $e->getMessage());
+            $dbError = config('app.debug') ? $e->getMessage() : 'Database connection unavailable.';
         }
 
         $storageStatus = 'ok';
@@ -30,9 +31,10 @@ class HealthController extends Controller
 
         try {
             Storage::disk('local')->exists('health-check-temp');
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $storageStatus = 'failed';
-            $storageError = $e->getMessage();
+            \Illuminate\Support\Facades\Log::error('Health check storage probe failed: ' . $e->getMessage());
+            $storageError = config('app.debug') ? $e->getMessage() : 'Storage disk unavailable.';
         }
 
         $healthy = ($dbStatus === 'ok' && $storageStatus === 'ok');

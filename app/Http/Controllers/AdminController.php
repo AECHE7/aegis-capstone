@@ -78,14 +78,18 @@ class AdminController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
+            $search = trim($request->search);
+            $normalizedSearch = strtoupper(preg_replace('/\s+/', '', $search));
+            $searchHash = hash('sha256', $normalizedSearch);
+
+            $query->where(function ($q) use ($search, $searchHash) {
                 $q->where('program_name', 'like', "%{$search}%")
                   ->orWhere('id', 'like', "%{$search}%")
-                  ->orWhereHas('user', function ($uq) use ($search) {
+                  ->orWhereHas('user', function ($uq) use ($search, $searchHash) {
                       $uq->where('name', 'like', "%{$search}%")
-                        ->orWhereHas('profile', function ($pq) use ($search) {
-                            $pq->where('clsu_id_number', 'like', "%{$search}%");
+                        ->orWhereHas('profile', function ($pq) use ($search, $searchHash) {
+                            $pq->where('clsu_id_hash', $searchHash)
+                              ->orWhere('clsu_id_number', 'like', "%{$search}%");
                         });
                   });
             });
@@ -115,40 +119,31 @@ class AdminController extends Controller
         $applications = $query->paginate(15)
                             ->withQueryString();
 
-        // 2. Calculate the real-time analytics for the top cards (only active applications)
-        $pendingCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Pending');
-        $underReviewCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Under Review');
-        $approvedCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Approved');
-        $rejectedCountQuery = \App\Models\Application::where('is_archived', false)->where('status', 'Rejected');
-        $archivedCountQuery = \App\Models\Application::where('is_archived', true);
-        $cancelledCountQuery = \App\Models\Application::onlyTrashed();
+        // 2. Calculate the real-time analytics for the top cards using consolidated aggregation (M-01)
+        $baseAnalyticsQuery = \App\Models\Application::query();
 
         if (auth()->user()->role === 'admin') {
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            $pendingCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
-            $underReviewCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
-            $approvedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
-            $rejectedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
-            $archivedCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
-            $cancelledCountQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            $baseAnalyticsQuery->whereIn('scholarship_id', $assignedScholarshipIds);
         }
 
-        // If a specific scholarship is filtered, scope the top metric counters to that scholarship
         if ($request->filled('scholarship_id')) {
-            $pendingCountQuery->where('scholarship_id', $request->scholarship_id);
-            $underReviewCountQuery->where('scholarship_id', $request->scholarship_id);
-            $approvedCountQuery->where('scholarship_id', $request->scholarship_id);
-            $rejectedCountQuery->where('scholarship_id', $request->scholarship_id);
-            $archivedCountQuery->where('scholarship_id', $request->scholarship_id);
-            $cancelledCountQuery->where('scholarship_id', $request->scholarship_id);
+            $baseAnalyticsQuery->where('scholarship_id', $request->scholarship_id);
         }
 
-        $pendingCount = $pendingCountQuery->count();
-        $underReviewCount = $underReviewCountQuery->count();
-        $approvedCount = $approvedCountQuery->count();
-        $rejectedCount = $rejectedCountQuery->count();
-        $archivedCount = $archivedCountQuery->count();
-        $cancelledCount = $cancelledCountQuery->count();
+        // Single grouped query for all active application status counts
+        $statusCounts = (clone $baseAnalyticsQuery)
+            ->where('is_archived', false)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        $pendingCount     = (int) ($statusCounts['Pending'] ?? 0);
+        $underReviewCount = (int) ($statusCounts['Under Review'] ?? 0);
+        $approvedCount    = (int) ($statusCounts['Approved'] ?? 0);
+        $rejectedCount    = (int) ($statusCounts['Rejected'] ?? 0);
+        $archivedCount    = (clone $baseAnalyticsQuery)->where('is_archived', true)->count();
+        $cancelledCount   = (clone $baseAnalyticsQuery)->onlyTrashed()->count();
         
         // Scope avgFraudScore strictly to assigned / filtered scholarships
         $avgFraudQuery = \App\Models\AIResult::whereHas('document.application', function ($q) use ($request) {
@@ -479,7 +474,14 @@ class AdminController extends Controller
                     $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A',
                     $app->updated_at->format('M d, Y')
                 ];
-                fputcsv($file, $row); // Write data row
+                // SEC-03: Formula injection sanitization
+                $sanitizedRow = array_map(function ($val) {
+                    if (is_string($val) && in_array(substr($val, 0, 1), ['=', '+', '-', '@', "\t", "\r"], true)) {
+                        return "'" . $val;
+                    }
+                    return $val;
+                }, $row);
+                fputcsv($file, $sanitizedRow); // Write data row
             }
             fclose($file);
         };
@@ -882,16 +884,19 @@ class AdminController extends Controller
         if ($request->filled('q')) {
             $searchTerm = trim($request->q);
             $numericId = (int) preg_replace('/[^0-9]/', '', $searchTerm);
+            $normalizedSearch = strtoupper(preg_replace('/\s+/', '', $searchTerm));
+            $searchHash = hash('sha256', $normalizedSearch);
 
-            $query->where(function ($q) use ($searchTerm, $numericId) {
+            $query->where(function ($q) use ($searchTerm, $numericId, $searchHash) {
                 if ($numericId > 0) {
                     $q->orWhere('id', $numericId);
                 }
-                $q->orWhereHas('user', function ($uq) use ($searchTerm) {
+                $q->orWhereHas('user', function ($uq) use ($searchTerm, $searchHash) {
                     $uq->where('name', 'like', "%{$searchTerm}%")
                        ->orWhere('email', 'like', "%{$searchTerm}%")
-                       ->orWhereHas('profile', function ($pq) use ($searchTerm) {
-                           $pq->where('clsu_id_number', 'like', "%{$searchTerm}%")
+                       ->orWhereHas('profile', function ($pq) use ($searchTerm, $searchHash) {
+                           $pq->where('clsu_id_hash', $searchHash)
+                              ->orWhere('clsu_id_number', 'like', "%{$searchTerm}%")
                               ->orWhere('college', 'like', "%{$searchTerm}%")
                               ->orWhere('course', 'like', "%{$searchTerm}%");
                        });

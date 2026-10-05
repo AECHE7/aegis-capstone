@@ -25,7 +25,9 @@ class StaffActivationController extends Controller
             return redirect()->route('login')->withErrors(['email' => 'Invitation token is missing.']);
         }
 
-        $invitation = UserInvitation::where('token', $token)->first();
+        $invitation = UserInvitation::where('token', $token)
+            ->orWhere('token', hash('sha256', $token))
+            ->first();
 
         if (!$invitation) {
             return redirect()->route('login')->withErrors(['email' => 'Invalid invitation token.']);
@@ -53,7 +55,9 @@ class StaffActivationController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $invitation = UserInvitation::where('token', $request->token)->first();
+        $invitation = UserInvitation::where('token', $request->token)
+            ->orWhere('token', hash('sha256', $request->token))
+            ->first();
 
         if (!$invitation) {
             return redirect()->route('login')->withErrors(['email' => 'Invalid invitation token.']);
