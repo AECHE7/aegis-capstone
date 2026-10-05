@@ -78,6 +78,33 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $applyStudent = \App\Models\User::firstOrCreate(
+            ['email' => 'student_apply@clsu.edu.ph'],
+            [
+                'name' => 'Maria Clara Santos',
+                'password' => Hash::make('password'),
+                'role' => 'student',
+                'email_verified_at' => now(),
+                'dpa_consent_at' => now()
+            ]
+        );
+
+        if (!$applyStudent->profile()->exists()) {
+            \App\Models\StudentProfile::create([
+                'user_id' => $applyStudent->id,
+                'clsu_id_number' => '23-5678',
+                'college' => 'College of Agriculture',
+                'course' => 'BS Agriculture',
+                'year_level' => '2nd Year',
+                'contact_number' => '09179876543',
+                'guardian_name' => 'Pedro Santos',
+                'emergency_contact_number' => '09189876543',
+                'province' => 'Nueva Ecija',
+                'city_municipality' => 'Science City of Muñoz',
+                'barangay' => 'Villa Santos'
+            ]);
+        }
+
         \App\Models\User::firstOrCreate(
             ['email' => 'gadianoriel07@gmail.com'],
             [

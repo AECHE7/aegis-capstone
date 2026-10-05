@@ -2089,4 +2089,28 @@ Standardize, formalize, and integrate institutional software testing protocols a
 3. **Analytics UAT Regression Fix**:
    - Reconciled UAT radar card subtitle in `resources/views/superadmin/analytics.blade.php` to include exact string `Overall mean: {{ $uatStats['overall_mean'] }}/5 · {{ $uatStats['count'] }} responses`, restoring 100% test pass rate on `ClientEnhancementTest`.
 
+---
+
+## 61. Evaluation Readiness, Test Accounts Provisioning & Staging/Production Deployment (October 2026)
+
+### Purpose & Scope
+Preparation of the entire A.E.G.I.S. Capstone ecosystem for tomorrow's official User Acceptance Testing (UAT) and ISO/IEC 25010:2023 Software Product Quality Evaluation across all four (4) stakeholder groups (IT Experts, OSA Director, Staff Evaluators, Student Applicants).
+
+### Key Actions & Configurations
+1. **Evaluation Accounts Provisioning**:
+   - Registered and verified pre-seeded evaluation accounts in `database/seeders/DatabaseSeeder.php` and `app/Http/Controllers/AuthController.php`:
+     - **SuperAdmin / Director**: `director@clsu.edu.ph` / `password` (and `superadmin@clsu.edu.ph` / `password`)
+     - **Admin / Staff Evaluator**: `admin@clsu.edu.ph` / `password` and `staff@clsu.edu.ph` / `password`
+     - **Student Applicant (Active Records)**: `student@clsu.edu.ph` / `password` (Juan Dela Cruz, ID: `22-1234`)
+     - **Student Applicant (Fresh/Ready for /apply)**: `student_apply@clsu.edu.ph` / `password` (Maria Clara Santos, ID: `23-5678`)
+     - **IT Technical Auditor**: Evaluates statutory audit trails, cryptography, role segregation using `director@clsu.edu.ph` and `student@clsu.edu.ph`.
+   - **MFA & Demo OTP Security**:
+     - Designated administrative dummy accounts (`admin@`, `staff@`, `director@`, `superadmin@`) automatically bypass MFA when in demo mode for rapid evaluator workflow execution.
+     - Student accounts (`student@`, `student_apply@`) support the universal demo bypass OTP code (`123456` or `000000`) on the MFA verification screen.
+2. **Production Asset Compilation**:
+   - Ran `npm run build` to generate optimized production CSS/JS bundles with updated `manifest.json`.
+3. **Repository Deployment**:
+   - Cleaned working tree and committed all evaluation forms, scripts, theme modifications, and seeders.
+   - Pushed latest changes to `origin/staging` and `origin/production`.
+
 

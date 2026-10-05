@@ -62,6 +62,7 @@ class AuthController extends Controller
         $masterEmail = \App\Models\Setting::get('master_email', env('MASTER_ACCOUNT_EMAIL', null));
         $dummyList = [
             'admin@clsu.edu.ph',
+            'staff@clsu.edu.ph',
             'director@clsu.edu.ph',
             'superadmin@clsu.edu.ph',
         ];
