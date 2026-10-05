@@ -358,6 +358,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/settings/security-reset', [SuperAdminController::class, 'revokeAllDevices'])->name('superadmin.settings.security-reset');
         Route::get('/settings/ai-status', [SuperAdminController::class, 'aiStatus'])->name('superadmin.settings.ai-status');
         Route::post('/settings/wake-ai', [SuperAdminController::class, 'wakeAi'])->name('superadmin.settings.wake-ai');
+        Route::post('/test-crypto', [SuperAdminController::class, 'testCrypto'])->name('superadmin.test-crypto');
 
         // Academic Term & Semester Management
         Route::post('/academic-terms', [SuperAdminController::class, 'storeAcademicTerm'])->name('superadmin.terms.store');

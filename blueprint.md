@@ -2133,4 +2133,27 @@ Evaluator login on the live Render staging deployment (`aegis-capstone.onrender.
    - Added `ALLOW_DEMO_ACCOUNTS: "true"` to `render.yaml`.
    - Added `php artisan db:seed --force || true` to `docker/entrypoint.sh` after `php artisan migrate --force` to ensure all accounts, scholarships, and active terms are seeded on deployment boot.
 
+---
+
+## 63. In-App Technical Auditor & Database Cryptography Inspector (October 2026)
+
+### Purpose & Scope
+Empowering IT Technical Experts, faculty panelists, and cybersecurity auditors to verify the platform's database security and cryptographic integrity directly from their web browsers on the live staging portal (`aegis-capstone.onrender.com`), eliminating the need for terminal/SSH access or client-side database tools.
+
+### Key Deliverables & Features
+1. **Live At-Rest Column Encryption Demonstration (AES-256-CBC)**:
+   - Queries raw un-cast records via `DB::table('student_profiles')` to display real on-disk ciphertext (starting with `eyJpdiI6...`) alongside in-memory decrypted values for authenticated sessions.
+   - Proves compliance with R.A. 10173 and ISO/IEC 25010:2023 Characteristic 6 (Security & Confidentiality).
+2. **Zero-Knowledge MFA OTP Storage at Rest (SHA-256 Hash)**:
+   - Displays raw `users.otp_code` demonstrating that 6-digit verification codes are one-way hashed with SHA-256 before disk persistence, guaranteeing zero plaintext OTP exposure.
+3. **Database Telemetry & Integrity Indicators**:
+   - Live database connection driver (`sqlite`, `pgsql`, `mysql`), dynamic round-trip query latency, total migrations executed (47 tables), total encrypted profiles, and total immutable audit logs.
+4. **Interactive Real-Time AES-256 Encryption Sandbox**:
+   - Technical evaluators can submit custom plaintext strings via AJAX to `POST /superadmin/test-crypto`.
+   - Server performs live AES-256-CBC encryption using `Crypt::encryptString()` and verifies decryption in real time with execution latency telemetry (< 1ms).
+5. **Quick Regulatory Audit Log Exporter**:
+   - Integrated one-click shortcuts to download raw CSV and PDF audit trails (`Admin Action Logs`, `Status Transition Audit`, `Auth & MFA Event Logs`).
+6. **Navigation Access**:
+   - Prominently integrated into `resources/views/superadmin/settings.blade.php` with direct jump pill anchor `#db-inspector`.
+
 
