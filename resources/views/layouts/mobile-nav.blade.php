@@ -7,6 +7,12 @@
             <span>Home</span>
         </a>
 
+        <a href="{{ route('scholarships.catalog') }}" 
+           class="mobile-nav-item {{ request()->routeIs('scholarships.catalog') || request()->is('scholarships*') ? 'active' : '' }}">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Scholarships</span>
+        </a>
+
         <a href="{{ route('student.apply') }}" 
            class="mobile-nav-item {{ request()->routeIs('student.apply') ? 'active' : '' }}">
             <div class="nav-fab-wrapper">
@@ -22,15 +28,9 @@
         </a>
 
         <a href="{{ route('student.profile') }}" 
-           class="mobile-nav-item {{ request()->routeIs('student.profile') ? 'active' : '' }}">
+           class="mobile-nav-item {{ request()->routeIs('student.profile') || request()->routeIs('profile.security') ? 'active' : '' }}">
             <i class="fa-solid fa-id-card"></i>
             <span>Profile</span>
-        </a>
-
-        <a href="{{ route('profile.security') }}" 
-           class="mobile-nav-item {{ request()->routeIs('profile.security') ? 'active' : '' }}">
-            <i class="fa-solid fa-gear"></i>
-            <span>Settings</span>
         </a>
     @elseif(auth()->user()->role === 'admin')
         <a href="{{ route('admin.dashboard') }}" 
@@ -117,9 +117,20 @@
         font-size: 0.7rem;
         font-weight: 600;
         flex: 1;
+        min-width: 0;
+        padding: 0 2px;
         height: 100%;
         transition: color 0.15s ease, transform 0.15s ease;
         -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-nav-item span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        text-align: center;
+        line-height: 1.1;
     }
 
     [data-theme="dark"] .mobile-nav-item {
@@ -153,7 +164,8 @@
         justify-content: space-evenly;
     }
     .mobile-bottom-nav:has(.mobile-nav-item:nth-child(5)) .mobile-nav-item {
-        font-size: 0.63rem;
+        font-size: 0.62rem;
+        letter-spacing: -0.2px;
     }
     .mobile-bottom-nav:has(.mobile-nav-item:nth-child(5)) .mobile-nav-item i {
         font-size: 1.05rem;

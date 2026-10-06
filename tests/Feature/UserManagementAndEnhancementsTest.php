@@ -55,15 +55,17 @@ class UserManagementAndEnhancementsTest extends TestCase
             'dpa_consent_at' => now(),
         ]);
 
-        StudentProfile::create([
-            'user_id' => $this->student->id,
-            'clsu_id_number' => '23-9999',
-            'college' => 'College of Science',
-            'course' => 'BS Computer Science',
-            'year_level' => '3rd Year',
-            'contact_number' => '09123456789',
-            'emergency_contact_number' => '09998887777',
-        ]);
+        StudentProfile::updateOrCreate(
+            ['user_id' => $this->student->id],
+            [
+                'clsu_id_number' => '23-9999',
+                'college' => 'College of Science',
+                'course' => 'BS Computer Science',
+                'year_level' => '3rd Year',
+                'contact_number' => '09123456789',
+                'emergency_contact_number' => '09998887777',
+            ]
+        );
 
         $this->scholarship = Scholarship::create([
             'name' => 'CLSU University Academic Grant',

@@ -2390,6 +2390,36 @@ On mobile viewports (e.g., iPhone SE 375x667, mobile devices < 992px), new users
 3. **Harmonized Demo Modal Tour ([system-demo-modal.blade.php](file:///f:/aegis-capstone/resources/views/components/system-demo-modal.blade.php))**:
    - Updated mobile breakpoint to `992px`, added `exitOnEsc: true`, and added backdrop click listener.
 
+---
+
+## 72. Mobile Bottom Navigation: Available Scholarships Tab Integration (October 2026)
+
+### Issue Identified
+On mobile devices (< 768px), students lacked a navigation tab on the fixed bottom navigation bar (`.mobile-bottom-nav`) to access the catalog of available scholarships (`route('scholarships.catalog')`). The desktop sidebar provided direct access via "Available Scholarships", and the system onboarding tour specifically informed mobile students they could quickly switch between "Home, Available Scholarships, News, and your Profile", yet the mobile bottom bar only displayed Home, Apply, News, Profile, and Settings.
+
+### Root Cause Analysis
+1. In `resources/views/layouts/mobile-nav.blade.php`, the student navigation bar defined 5 items:
+   - `student.dashboard` (Home)
+   - `student.apply` (Apply FAB)
+   - `student.announcements` (News)
+   - `student.profile` (Profile)
+   - `profile.security` (Settings)
+2. `student.profile` and `profile.security` both render the exact same underlying view (`auth.change_password`) via `ApplicationController::editProfile()` and `AuthController::showSecurity()`, creating a redundant navigation item that crowded out the scholarship catalog.
+3. As a result, students browsing on phones had no dedicated tab to discover and view available grants, eligibility criteria, and deadlines.
+
+### Engineering Remediation
+1. **Added Available Scholarships Tab ([mobile-nav.blade.php](file:///f:/aegis-capstone/resources/views/layouts/mobile-nav.blade.php))**:
+   - Added `<a href="{{ route('scholarships.catalog') }}">` with `<i class="fa-solid fa-graduation-cap"></i>` and label `Scholarships`.
+   - Active state detects `request()->routeIs('scholarships.catalog') || request()->is('scholarships*')`.
+   - Placed directly between Home and Apply, mirroring the desktop sidebar hierarchy.
+2. **Consolidated Profile & Security Destination**:
+   - Replaced redundant "Settings" tab with "Scholarships", unifying Account & Security under the "Profile" tab (`active` state matches `request()->routeIs('student.profile') || request()->routeIs('profile.security')`), with full settings access remaining available via the Topbar user dropdown and in-page Profile tabs.
+3. **Responsive Mobile Typography & Layout Safety**:
+   - Enhanced `.mobile-nav-item` with `min-width: 0; padding: 0 2px;`.
+   - Added text truncation and single-line protection for `.mobile-nav-item span` (`white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;`).
+   - Adjusted 5-item bottom bar font size to `0.62rem` and `letter-spacing: -0.2px` to ensure "Scholarships" displays cleanly without wrapping or overflow on narrow viewports (e.g., iPhone SE 375px).
+
+
 
 
 
