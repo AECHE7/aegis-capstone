@@ -2642,3 +2642,43 @@ This phase integrates five (5) critical academic and administrative enhancements
     6. Scholarship revocation with preset institutional remarks.
     7. Superadmin slot opening notifications to eligible student accounts.
   - Verification: 7/7 tests passed (100%), 0 failures, 0 regressions in existing staff and notification test suites. Frontend assets successfully compiled via `npm run build`.
+
+---
+
+## 18. Comparative Analysis of Capstone Appendices & A.E.G.I.S. Implementation Plan
+
+### Context & Objective
+A rigorous deep-dive analysis was conducted on the reference CLSU Capstone manuscript (`docs/CAPSTONE-2-Final-Version.pdf`, 235 pages total, Appendices spanning Pages 118–235, Appendix A through Appendix U). This section documents all artifact categories, data structures, and exhibits present in the reference paper, and maps out the corresponding publication-grade deliverables for the **A.E.G.I.S.** manuscript.
+
+### Detailed Reference Appendices Catalog (CAPSTONE-2-Final-Version.pdf)
+1. **Appendix A - User Manual (pp. 118–143, Figures 23–52)**:
+   - Step-by-step role-based operational guide with high-resolution screenshots and numbered visual callout badges (`[1]`, `[2]`, `[3]`, etc.).
+   - Covers Super Administrator, Administrator, Drivers, and Employees/Requesters.
+2. **Appendix B - End-User (Driver) ISO 25010 Evaluation Results (pp. 144–152, Figures 53.1–53.14)**:
+   - Itemized graphical charts (bar/pie) for every single survey question in Filipino and English.
+   - Covers Functional Suitability, Performance Efficiency, Usability, Compatibility, Security.
+3. **Appendix C (Part 1) - IT Expert ISO 25010 Evaluation Results (pp. 153–174, Figures 54.1–54.27)**:
+   - 27 itemized graphical charts for all 8 ISO/IEC 25010 software quality dimensions.
+4. **Appendix C (Part 2) - Formal Software Test Cases (pp. 175–191, Tables 24–40)**:
+   - 17 comprehensive test case specification tables with Test ID, Title, Designer, Priority, Tester, Date, Preconditions, Step-by-Step execution table, Expected vs. Actual results, Pass/Fail status, Notes, and Postconditions.
+5. **Appendix D & E - Standardized Evaluation Survey Instruments (pp. 192–196, Figures 55–56)**:
+   - Blank bilingual Likert-scale questionnaires for End-Users and IT Experts.
+6. **Appendix F, G, H - Completed & Signed Evaluation Sheets (pp. 197–222, Figures 57–59)**:
+   - Scanned, hand-scored, and signed questionnaires from IT Experts, Administrators, and End-Users.
+7. **Appendix I, J, K, L, M - Data Privacy Act (R.A. 10173) Compliance Forms (pp. 223–227, Figures 60–64)**:
+   - Blank templates and signed copies of institutional Data Privacy & Informed Consent forms.
+8. **Appendix N, O, P, Q - Photographic Research Documentation (pp. 228–231, Figures 65–68)**:
+   - Field photo documentation of Client Stakeholder Interviews, Developer System Testing, End-User UAT, and IT Acceptance Defense.
+9. **Appendix R, S, T, U - Legacy Manual Workflow Artifacts (pp. 232–235, Figures 69–72)**:
+   - Authentic scans of the manual paper forms replaced by the digital system.
+
+### A.E.G.I.S. Appendices Execution Roadmap
+- **Deliverable 1 (Appendix A - User Operations Manual)**: Numbered callouts for Student Applicant Portal, OSA Staff Review Studio (with 400% zoom and 4-Pillar AI Forensics), and OSA Director Governance Panel.
+- **Deliverable 2 (Appendix B - Database Architecture & Data Dictionary)**: Relational schemas, encryption constraints, and data dictionaries.
+- **Deliverable 3 (Appendix C - Comprehensive Test Cases Matrix)**: 25 formal IEEE-formatted test cases covering Authentication/MFA, Stepper Submissions, AI OCR/ELA Forensics, Review Dossiers, and Governance Exports.
+- **Deliverable 4 (Appendix D & E - ISO/IEC 25010 Evaluation Instruments)**: Standardized 5-point Likert survey forms for Students/Staff (26 items) and IT Experts (24 items across 8 dimensions).
+- **Deliverable 5 (Appendix F - Itemized Evaluation Charts & Statistical Findings)**: 50+ question-level distribution charts.
+- **Deliverable 6 (Appendix G - Data Privacy Act & NPC Registration Artifacts)**: Informed consent templates, signed waivers, and CLSU NPC Seal of Registration.
+- **Deliverable 7 (Appendix H - Photographic Field & Testing Documentation)**: Client interviews at CLSU OSA, developer testing, live student/staff UAT, and IT defense panels.
+- **Deliverable 8 (Appendix I - Legacy CLSU OSA Manual Paper Forms)**: Scans of manual scholarship application sheets, physical grade evaluation slips, paper stipend logbooks, and routing slips.
+
