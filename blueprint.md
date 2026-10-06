@@ -2361,6 +2361,36 @@ Remediation of critical-to-low architectural vulnerabilities identified during t
 - **Test Matrix Executed**: `SingleActiveApplicationTest`, `ApplicationAssignmentTest`, `ApplicationAutoApprovalTest`, `UserProfileTest`, `SystemSettingsTest`, `AnalyticsDashboardTest`, `StudentPurgeAndDemoTest`, `DocumentScanTest`, `BulkActionTest`, `NotificationComplianceTest`, `RealtimeNotificationsTest`.
 - **Result**: 100% PASS across all affected test suites.
 
+---
+
+## 71. Mobile Screen Overlay & Shepherd Tour Remediation (October 2026)
+
+### Issue Identified
+On mobile viewports (e.g., iPhone SE 375x667, mobile devices < 992px), new users visiting `/student/dashboard` experienced a dark blue/gray full-screen overlay container (`path 515x667` SVG backdrop) blocking all interaction and trapping the user on the screen.
+
+### Root Cause Analysis
+1. In `resources/views/student/dashboard.blade.php`, new students (`has_completed_tour == false`) automatically trigger Shepherd.js walkthrough tour after 1200-1500ms.
+2. The initial step was hardcoded to `attachTo: { element: '#mainSidebar', on: 'right' }`.
+3. On mobile screens (`< 992px`), `.sidebar` is styled with `transform: translateX(-100%)` (translated entirely offscreen).
+4. Shepherd.js could not compute visible bounding rect coordinates for the offscreen sidebar, causing the SVG modal mask (`.shepherd-modal-overlay-container`) to cover 100% of the mobile viewport while placing the step dialog off-screen or out of view.
+5. In addition, `step-welcome` was attached `on: 'top'` to `.container-fluid`, pushing tooltips above the screen, with no cancel/dismiss icon (`cancelIcon`) or backdrop tap-to-dismiss handler.
+
+### Engineering Remediation
+1. **Dynamic Viewport & Element Target Resolution ([dashboard.blade.php](file:///f:/aegis-capstone/resources/views/student/dashboard.blade.php))**:
+   - Implemented viewport check (`isMobile = window.innerWidth < 992`).
+   - Verified element visibility (`offsetParent !== null && rect.right > 0`).
+   - On desktop, step 1 safely highlights `#mainSidebar` on `right`.
+   - On mobile, step 1 targets `.mobile-bottom-nav` on `top`.
+   - If no target element is visible, steps gracefully fall back to a centered modal dialog (`attachTo: undefined`), preventing corrupted SVG masks.
+   - Step 2 targets the active dashboard card (`.card-dark-hero`, `.status-hero`, or `.empty-card`) on `bottom` rather than `.container-fluid` on `top`.
+2. **Backdrop Tap-to-Dismiss & Close Icon**:
+   - Enabled `cancelIcon: { enabled: true }` and `exitOnEsc: true`.
+   - Added backdrop click listener to dismiss and mark the tour completed when tapping anywhere on the overlay SVG.
+   - Styled `.shepherd-element` with mobile-friendly max width (`max-width: min(92vw, 420px)`), dark-mode styling, and elevated z-index (`10050`).
+3. **Harmonized Demo Modal Tour ([system-demo-modal.blade.php](file:///f:/aegis-capstone/resources/views/components/system-demo-modal.blade.php))**:
+   - Updated mobile breakpoint to `992px`, added `exitOnEsc: true`, and added backdrop click listener.
+
+
 
 
 

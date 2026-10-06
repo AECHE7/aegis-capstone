@@ -1529,10 +1529,11 @@
     };
 
     function runShepherdTour(role) {
-        const isMobile = window.innerWidth < 768;
+        const isMobile = window.innerWidth < 992;
 
         const tour = new Shepherd.Tour({
             useModalOverlay: true,
+            exitOnEsc: true,
             defaultStepOptions: {
                 classes: 'shadow-lg rounded-4 border-0 p-3 bg-white shepherd-theme-aegis',
                 scrollTo: { behavior: 'smooth', block: 'center' },
@@ -1618,6 +1619,13 @@
                 ]
             });
         }
+
+        // Allow tapping backdrop overlay to dismiss tour cleanly
+        document.addEventListener('click', (e) => {
+            if (e.target && (e.target.classList.contains('shepherd-modal-overlay-container') || (e.target.tagName && e.target.tagName.toLowerCase() === 'path' && e.target.closest('.shepherd-modal-overlay-container')))) {
+                tour.complete();
+            }
+        });
 
         tour.start();
     }

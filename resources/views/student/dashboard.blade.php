@@ -1087,10 +1087,17 @@
     <style>
         .shepherd-element {
             background: white !important;
-            border-radius: 12px !important;
-            border: 0 !important;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+            border-radius: 16px !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
             padding: 1.25rem !important;
+            max-width: min(92vw, 420px) !important;
+            z-index: 10050 !important;
+        }
+        [data-theme="dark"] .shepherd-element {
+            background: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
         }
         .shepherd-button {
             border-radius: 50px !important;
@@ -1101,20 +1108,45 @@
         .shepherd-button-primary {
             background-color: #0C4E2D !important;
             color: white !important;
+            border: none !important;
         }
         .shepherd-button-secondary {
             background-color: #f1f5f9 !important;
             color: #475569 !important;
+            border: none !important;
+        }
+        [data-theme="dark"] .shepherd-button-secondary {
+            background-color: #334155 !important;
+            color: #e2e8f0 !important;
         }
         .shepherd-title {
             font-family: 'Poppins', sans-serif !important;
             font-weight: 700 !important;
             color: #1e293b !important;
         }
+        [data-theme="dark"] .shepherd-title {
+            color: #f8fafc !important;
+        }
         .shepherd-text {
             font-size: 0.85rem !important;
             color: #475569 !important;
             line-height: 1.5 !important;
+        }
+        [data-theme="dark"] .shepherd-text {
+            color: #cbd5e1 !important;
+        }
+        .shepherd-has-cancel-icon .shepherd-cancel-icon {
+            color: #64748b !important;
+            font-size: 1.25rem !important;
+            padding: 0.5rem !important;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+        .shepherd-has-cancel-icon .shepherd-cancel-icon:hover {
+            color: #ef4444 !important;
+        }
+        .shepherd-modal-overlay-container {
+            cursor: pointer;
         }
     </style>
     @endpush
@@ -1123,32 +1155,61 @@
     <script src="https://cdn.jsdelivr.net/npm/shepherd.js@10.0.1/dist/js/shepherd.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const isMobile = window.innerWidth < 992;
+            const sidebarEl = document.getElementById('mainSidebar');
+            const bottomNav = document.querySelector('.mobile-bottom-nav');
+            const welcomeCard = document.querySelector('.card-dark-hero') || document.querySelector('.status-hero') || document.querySelector('.empty-card') || document.querySelector('.page-content');
+
+            // Failsafe: check if sidebar is actually rendered and visible in viewport
+            const isSidebarVisible = !isMobile && sidebarEl && sidebarEl.offsetParent !== null && sidebarEl.getBoundingClientRect().right > 0;
+            const isBottomNavVisible = isMobile && bottomNav && bottomNav.offsetParent !== null && bottomNav.getBoundingClientRect().height > 0;
+
             const tour = new Shepherd.Tour({
                 useModalOverlay: true,
+                exitOnEsc: true,
                 defaultStepOptions: {
                     classes: 'shadow-lg rounded-4 border-0 p-3',
-                    scrollTo: { behavior: 'smooth', block: 'center' }
+                    scrollTo: { behavior: 'smooth', block: 'center' },
+                    cancelIcon: { enabled: true }
                 }
             });
 
+            // Step 1: Navigation
+            let step1Attach = undefined; // defaults to centered modal if no visible anchor
+            let step1Text = 'Navigate through your dashboard, apply for scholarships, check notifications, and manage your student profile here.';
+
+            if (isSidebarVisible) {
+                step1Attach = { element: sidebarEl, on: 'right' };
+            } else if (isBottomNavVisible) {
+                step1Attach = { element: bottomNav, on: 'top' };
+                step1Text = 'Use this bottom navigation bar to switch between Home, Available Scholarships, News, and your Profile.';
+            }
+
             tour.addStep({
                 id: 'step-nav',
-                title: 'Portal Navigation',
-                text: 'Navigate through the dashboard, apply for scholarships, and manage your profile here.',
-                attachTo: { element: '#mainSidebar', on: 'right' },
+                title: isMobile ? '📱 Student Portal Navigation' : '🧭 Portal Navigation',
+                text: step1Text,
+                attachTo: step1Attach,
                 buttons: [
                     { text: 'Skip', action: tour.complete, classes: 'shepherd-button-secondary' },
-                    { text: 'Next', action: tour.next, classes: 'shepherd-button-primary' }
+                    { text: 'Next Step →', action: tour.next, classes: 'shepherd-button-primary' }
                 ]
             });
 
+            // Step 2: Active Workspace & Applications
+            let step2Attach = undefined;
+            if (welcomeCard && welcomeCard.offsetParent !== null && welcomeCard.getBoundingClientRect().height > 0) {
+                step2Attach = { element: welcomeCard, on: isMobile ? 'bottom' : 'bottom' };
+            }
+
             tour.addStep({
                 id: 'step-welcome',
-                title: 'Official Updates',
-                text: 'This feed shows announcements, deadlines, and real-time updates from the OSA team.',
-                attachTo: { element: '.container-fluid', on: 'top' },
+                title: '🎓 Scholarship & Status Hub',
+                text: 'View active scholarship programs, submit your Certificate of Grades (COG), and track your real-time verification and evaluator decisions right here.',
+                attachTo: step2Attach,
                 buttons: [
-                    { text: 'Finish', action: tour.complete, classes: 'shepherd-button-primary' }
+                    { text: '← Back', action: tour.back, classes: 'shepherd-button-secondary' },
+                    { text: 'Got It! 🎉', action: tour.complete, classes: 'shepherd-button-primary' }
                 ]
             });
 
@@ -1166,8 +1227,21 @@
             tour.on('complete', markTourComplete);
             tour.on('cancel', markTourComplete);
 
+            // Allow users to tap/click anywhere on the darkened backdrop to dismiss cleanly
+            document.addEventListener('click', (e) => {
+                if (e.target && (e.target.classList.contains('shepherd-modal-overlay-container') || (e.target.tagName && e.target.tagName.toLowerCase() === 'path' && e.target.closest('.shepherd-modal-overlay-container')))) {
+                    tour.complete();
+                }
+            });
+
             // Start tour after a brief delay
-            setTimeout(() => tour.start(), 1500);
+            setTimeout(() => {
+                try {
+                    tour.start();
+                } catch (err) {
+                    console.warn('Shepherd tour start error ignored:', err);
+                }
+            }, 1200);
         });
     </script>
     @endpush
