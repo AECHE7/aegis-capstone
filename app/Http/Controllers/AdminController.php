@@ -87,9 +87,10 @@ class AdminController extends Controller
                   ->orWhere('id', 'like', "%{$search}%")
                   ->orWhereHas('user', function ($uq) use ($search, $searchHash) {
                       $uq->where('name', 'like', "%{$search}%")
-                        ->orWhereHas('profile', function ($pq) use ($search, $searchHash) {
-                            $pq->where('clsu_id_hash', $searchHash)
-                              ->orWhere('clsu_id_number', 'like', "%{$search}%");
+                        ->orWhereHas('profile', function ($pq) use ($searchHash) {
+                            // MED-8: clsu_id_number is AES-256 encrypted — LIKE never matches ciphertext.
+                            // Use the SHA-256 hash index for exact ID lookups only.
+                            $pq->where('clsu_id_hash', $searchHash);
                         });
                   });
             });
@@ -224,16 +225,24 @@ class AdminController extends Controller
         $application = Application::withTrashed()->with(['documents.aiResult', 'evaluator', 'user.profile', 'customFields'])->findOrFail($id);
         $this->validateAdminAccess($application);
         
-        // Auto-update status to "Under Review" if it is Pending and NOT cancelled
+        // Auto-update status to "Under Review" if it is Pending and NOT cancelled.
+        // MED-6: lockForUpdate() prevents duplicate StatusLog entries when two admins open
+        // the same Pending application simultaneously (TOCTOU race condition).
         if ($application->status === 'Pending' && !$application->trashed()) {
-            $application->update(['status' => 'Under Review']);
+            \Illuminate\Support\Facades\DB::transaction(function () use ($application) {
+                $fresh = Application::lockForUpdate()->find($application->id);
+                if ($fresh && $fresh->status === 'Pending') {
+                    $fresh->update(['status' => 'Under Review']);
+                    $application->status = 'Under Review'; // sync the in-memory model
 
-            \App\Models\StatusLog::create([
-                'application_id' => $application->id,
-                'status' => 'Under Review',
-                'remarks' => 'Application opened for verification review.',
-                'changed_by' => auth()->id() // role middleware guarantees non-null (CRIT-05)
-            ]);
+                    \App\Models\StatusLog::create([
+                        'application_id' => $fresh->id,
+                        'status' => 'Under Review',
+                        'remarks' => 'Application opened for verification review.',
+                        'changed_by' => auth()->id() // role middleware guarantees non-null
+                    ]);
+                }
+            });
         }
 
         // Auto-trigger AI scan for all documents that do not have an AI result yet and NOT cancelled
@@ -412,82 +421,63 @@ class AdminController extends Controller
     {
         $document = \App\Models\Document::findOrFail($id);
         $application = $document->application;
-        
+
         if ($application) {
             $this->validateAdminAccess($application);
         } else {
             abort(404, 'Application not found.');
         }
 
-        // Make sure the file actually exists in storage
+        $docTypeClean = \Illuminate\Support\Str::slug($document->document_type, '_');
+        $downloadName = 'APP-' . ($application->id ?? 'unknown') . '_' . ($docTypeClean ?: 'document') . '.' . pathinfo($document->file_path, PATHINFO_EXTENSION);
+
+        // CRIT-5: When R2/cloud storage is active, file_path is a full HTTPS URL.
+        // Proxy the remote file through the server so access control is preserved.
+        if (str_starts_with($document->file_path, 'http')) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(30)->get($document->file_path);
+                if ($response->successful()) {
+                    $mime = $response->header('Content-Type') ?: 'application/octet-stream';
+                    return response($response->body(), 200, [
+                        'Content-Type'        => $mime,
+                        'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
+                        'Cache-Control'       => 'private, no-cache, no-store, must-revalidate',
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Admin document download (R2) failed for doc #{$id}: " . $e->getMessage());
+            }
+            return back()->with('error', 'Could not retrieve the document from cloud storage. Please try again.');
+        }
+
+        // Local disk path
         if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($document->file_path)) {
+            // Fallback: serve from base64-encoded DB copy if available
+            if (!empty($document->file_data)) {
+                $binary = base64_decode($document->file_data);
+                $ext = strtolower(pathinfo($document->original_name ?? 'file.pdf', PATHINFO_EXTENSION));
+                $mime = match($ext) {
+                    'pdf' => 'application/pdf',
+                    'png' => 'image/png',
+                    'jpg', 'jpeg' => 'image/jpeg',
+                    default => 'application/octet-stream'
+                };
+                return response($binary, 200, [
+                    'Content-Type'        => $mime,
+                    'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
+                    'Cache-Control'       => 'private, no-cache, no-store, must-revalidate',
+                ]);
+            }
             return back()->with('error', 'Document file not found in storage.');
         }
 
         $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($document->file_path);
-        $extension = pathinfo($document->file_path, PATHINFO_EXTENSION);
-
-        // Construct a human-readable download filename using Application ID and document type
-        $docTypeClean = \Illuminate\Support\Str::slug($document->document_type, '_');
-        $downloadName = 'APP-' . ($application->id ?? 'unknown') . '_' . ($docTypeClean ?: 'document') . '.' . $extension;
-
         return response()->download($fullPath, $downloadName);
     }
 
-    // GENERATE EXCEL/CSV REPORT OF APPROVED SCHOLARS
-    public function exportCsv()
-    {
-        // Grab all APPROVED applications with the student's background profile
-        $query = \App\Models\Application::where('status', 'Approved')
-                            ->with('user.profile');
-        if (auth()->user()->role === 'admin') {
-            $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            $query->whereIn('scholarship_id', $assignedScholarshipIds);
-        }
-        $applications = $query->get();
-
-        $filename = "Verified_Scholars_" . date('Y-m-d') . ".csv";
-        
-        $headers = [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$filename",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        ];
-
-        // The columns that will appear in the Excel file
-        $columns = ['Ref ID', 'Student Name', 'CLSU ID', 'Course', 'Year Level', 'Program/Grant', 'GWA', 'Date Approved'];
-
-        $callback = function() use($applications, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns); // Write headers
-
-            foreach ($applications as $app) {
-                $row = [
-                    'APP-' . $app->id,
-                    $app->user->name ?? 'N/A',
-                    $app->user->profile->clsu_id_number ?? 'N/A',
-                    $app->user->profile->course ?? 'N/A',
-                    $app->user->profile->year_level ?? 'N/A',
-                    $app->program_name,
-                    $app->gwa !== null ? number_format($app->gwa, 2) : 'N/A',
-                    $app->updated_at->format('M d, Y')
-                ];
-                // SEC-03: Formula injection sanitization
-                $sanitizedRow = array_map(function ($val) {
-                    if (is_string($val) && in_array(substr($val, 0, 1), ['=', '+', '-', '@', "\t", "\r"], true)) {
-                        return "'" . $val;
-                    }
-                    return $val;
-                }, $row);
-                fputcsv($file, $sanitizedRow); // Write data row
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
+    // MED-2: Removed duplicate exportCsv() method from AdminController.
+    // The authoritative, chunked, audit-logged CSV export lives in ReportController::exportCsv().
+    // Route admin.export already maps to ReportController. This method is no longer needed.
 
     public function updateStatus(\Illuminate\Http\Request $request, $id)
     {
@@ -788,7 +778,8 @@ class AdminController extends Controller
     public function saveNotes(\Illuminate\Http\Request $request, $id)
     {
         $request->validate([
-            'admin_notes' => 'nullable|string'
+            // MED-5: Enforce a maximum length to prevent DB bloat from oversized notes.
+            'admin_notes' => 'nullable|string|max:10000'
         ]);
 
         $application = Application::findOrFail($id);
@@ -895,8 +886,8 @@ class AdminController extends Controller
                     $uq->where('name', 'like', "%{$searchTerm}%")
                        ->orWhere('email', 'like', "%{$searchTerm}%")
                        ->orWhereHas('profile', function ($pq) use ($searchTerm, $searchHash) {
+                           // MED-8: clsu_id_number is AES-256 encrypted — search via deterministic SHA-256 hash
                            $pq->where('clsu_id_hash', $searchHash)
-                              ->orWhere('clsu_id_number', 'like', "%{$searchTerm}%")
                               ->orWhere('college', 'like', "%{$searchTerm}%")
                               ->orWhere('course', 'like', "%{$searchTerm}%");
                        });

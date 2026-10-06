@@ -2305,6 +2305,63 @@ In `resources/views/layouts/app.blade.php`, `window.AegisAlert.base()` received 
 2. **Verification**:
    - Confirmed `isDestructive` is completely withheld from SweetAlert2's config object, eliminating the browser console warning.
 
+---
+
+## 70. Comprehensive Codebase Hardening & Reliability Remediation (October 2026)
+
+### Purpose & Scope
+Remediation of critical-to-low architectural vulnerabilities identified during the deep-dive static analysis, excluding CRIT-1 through CRIT-4 which were intentionally retained for testing personas and UAT accounts.
+
+### Applied Remediations
+
+1. **R2 Cloud Document Proxy & Fallback ([AdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/AdminController.php)) — CRIT-5**:
+   - Upgraded `downloadDocument($id)` to check for HTTP/HTTPS prefixes.
+   - For Cloudflare R2-hosted documents, files are proxied through an authenticated server-side stream (`Http::timeout(30)->get()`), preserving private download headers and access authorization.
+   - Included fallback to local disk and emergency base64 DB decode if physical storage is unavailable.
+
+2. **Student Profile Data Protection ([StudentProfile.php](file:///f:/aegis-capstone/app/Models/StudentProfile.php)) — HIGH-1**:
+   - Removed the dangerous `static::creating` model hook that was hard-deleting existing student profiles for a user ID outside of database transactions.
+   - Profile management relies on safe `updateOrCreate()` workflows and deterministic SHA-256 hash collision checks.
+
+3. **Storage Bloat Elimination & Base64 Cleanup ([ApplicationController.php](file:///f:/aegis-capstone/app/Http/Controllers/ApplicationController.php)) — HIGH-2**:
+   - Optimized document persistence in `store()` and `reupload()`.
+   - Prevented base64 string generation and DB storage when files are successfully stored in Cloudflare R2 (`file_data` set to `null`).
+
+4. **TOCTOU Race Condition Prevention ([ApplicationController.php](file:///f:/aegis-capstone/app/Http/Controllers/ApplicationController.php)) — HIGH-3**:
+   - Encapsulated student application creation and active application check within a database transaction using pessimistic row locking (`User::lockForUpdate()->find($userId)`).
+   - Prevents duplicate applications from concurrent form submissions in the same academic term.
+
+5. **AI Service File Streaming ([AIVerificationService.php](file:///f:/aegis-capstone/app/Services/AIVerificationService.php)) — HIGH-6**:
+   - Replaced `file_get_contents($absolutePath)` memory buffer with resource streaming (`fopen($absolutePath, 'r')`) inside a `try ... finally { fclose($stream); }` block.
+   - Eliminates PHP memory spikes and OOM risks on multi-megabyte student PDF transcripts.
+
+6. **Analytics Performance & Scope Hardening ([SuperAdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/SuperAdminController.php)) — HIGH-7, MED-3**:
+   - Added selective column projections (`select('id', 'scholarship_id', 'status', 'gwa')`) on eager loaded relations in `scholarshipsBreakdown` to drastically reduce hydrated Eloquent memory footprint.
+   - Removed PHP `extract($analyticsData)` variable dumping, passing variables explicitly to the view via `array_merge()` to prevent scope contamination.
+
+7. **Notification Category JSON Querying & Efficient Bulk Clearing ([AuthController.php](file:///f:/aegis-capstone/app/Http/Controllers/AuthController.php)) — MED-1, LOW-2**:
+   - Replaced raw text `LIKE` filtering on notification JSON payloads with structured `whereIn('data->type', [...])` queries with driver fallbacks.
+   - Refactored `clearNotifications()` from hydrating in-memory Eloquent collections to a direct SQL batch query (`unreadNotifications()->update(['read_at' => now()])`).
+
+8. **Settings Cache Expiration ([Setting.php](file:///f:/aegis-capstone/app/Models/Setting.php)) — MED-7**:
+   - Replaced infinite cache lifetime (`Cache::rememberForever`) with a 5-minute (300s) TTL (`Cache::remember`), ensuring cache synchronization across multi-worker and multi-container environments.
+
+9. **Encrypted Column Search Cleanup ([AdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/AdminController.php)) — MED-8**:
+   - Removed ineffective `LIKE` queries against AES-256 encrypted `clsu_id_number` in both `index()` and `applicantFormsIndex()`.
+   - All CLSU ID lookups now strictly use the indexed SHA-256 deterministic hash index (`clsu_id_hash`).
+
+10. **Storage Disk Realignment ([StudentPurgeService.php](file:///f:/aegis-capstone/app/Services/StudentPurgeService.php)) — LOW-1**:
+    - Replaced unconfigured `Storage::disk('public')->delete()` with `CloudStorageService::delete()`, ensuring complete file deletion across both R2 object storage and local disks.
+
+11. **Audit Log Data Normalization ([AuthController.php](file:///f:/aegis-capstone/app/Http/Controllers/AuthController.php), [ApplicationAutoApprovalService.php](file:///f:/aegis-capstone/app/Services/ApplicationAutoApprovalService.php)) — LOW-4, LOW-5**:
+    - Normalized emails (`$normalizedEmail`) recorded in authentication audit logs.
+    - Used standardized sentinel `'0.0.0.0'` for automated background system daemon audit events.
+
+### Verification Status
+- **Test Matrix Executed**: `SingleActiveApplicationTest`, `ApplicationAssignmentTest`, `ApplicationAutoApprovalTest`, `UserProfileTest`, `SystemSettingsTest`, `AnalyticsDashboardTest`, `StudentPurgeAndDemoTest`, `DocumentScanTest`, `BulkActionTest`, `NotificationComplianceTest`, `RealtimeNotificationsTest`.
+- **Result**: 100% PASS across all affected test suites.
+
+
 
 
 

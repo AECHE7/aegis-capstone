@@ -38,8 +38,8 @@ class StudentPurgeService
                 $docs = Document::whereIn('application_id', $appIds)->get();
                 foreach ($docs as $doc) {
                     if (!empty($doc->file_path)) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($doc->file_path);
-                        \Illuminate\Support\Facades\Storage::delete($doc->file_path);
+                        // LOW-1: CloudStorageService correctly deletes both remote R2 URLs and local disk paths
+                        \App\Services\CloudStorageService::delete($doc->file_path);
                     }
                 }
 

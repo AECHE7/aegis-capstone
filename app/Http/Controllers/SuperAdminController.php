@@ -453,11 +453,16 @@ class SuperAdminController extends Controller
         ];
 
         // 16. Per-Scholarship Program Breakdown Stats (Scoped to Term if selected)
+        // HIGH-7: Explicit column projection avoids hydrating unneeded columns and models into PHP memory
         $scholarshipsBreakdown = \App\Models\Scholarship::with(['applications' => function($q) use ($termId) {
             if ($termId) {
                 $q->where('academic_term_id', $termId);
             }
-            $q->with('documents.aiResult');
+            $q->select('id', 'scholarship_id', 'status', 'gwa')->with(['documents' => function ($dq) {
+                $dq->select('id', 'application_id')->with(['aiResult' => function ($aq) {
+                    $aq->select('id', 'document_id', 'fraud_probability', 'classification');
+                }]);
+            }]);
         }])->get()->map(function($scholarship) {
             $apps = $scholarship->applications;
             
@@ -546,46 +551,19 @@ class SuperAdminController extends Controller
             );
         });
 
-        extract($analyticsData);
-
         // Dropdowns for Filter Panel
         $allTerms = \App\Models\AcademicTerm::orderBy('academic_year', 'desc')->orderBy('semester', 'desc')->get();
         $allScholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
         $currentActiveTerm = \App\Models\AcademicTerm::where('is_active', true)->first();
 
-        // Pass the variables to dashboard
-        return view('superadmin.analytics', compact(
-            'totalStudents', 
-            'submissionCount', 
-            'totalScholarships', 
-            'anomaliesDetected', 
-            'recentEvaluations',
-            'avgFraudScore',
-            'gradeIntegrityIndex',
-            'averageCycleDays',
-            'complianceRate',
-            'uatStats',
-            'statusCounts',
-            'riskTiers',
-            'monthlyTrend',
-            'monthlyProcessingDays',
-            'topPrograms',
-            'processTimeline',
-            'collegeStats',
-            'applicantGwaCounts',
-            'approvedGwaCounts',
-            'avgApplicantGwa',
-            'avgApprovedGwa',
-            'anomalyCounts',
-            'scholarshipsBreakdown',
-            'quotaStats',
-            'activeScholars',
+        // MED-3: Merge cached data directly with local dropdown variables to avoid extract() scope pollution
+        return view('superadmin.analytics', array_merge($analyticsData, compact(
             'allTerms',
             'allScholarships',
             'currentActiveTerm',
             'termId',
             'scholarshipId'
-        ));
+        )));
     }
 
     // 6. List all staff (Admin role)

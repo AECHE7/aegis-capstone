@@ -121,85 +121,105 @@ class ApplicationController extends Controller
         $isAfterHours = \App\Services\OfficeHoursService::isOutsideOfficeHours();
         $nextOpening = \App\Services\OfficeHoursService::getNextOpeningTime()->format('l, M j, Y \a\t g:i A');
 
-        $application = \App\Models\Application::create([
-            'user_id' => $userId,
-            'scholarship_id' => $request->scholarship_id,
-            'academic_term_id' => $activeTerm ? $activeTerm->id : null,
-            'program_name' => $scholarship->name, 
-            'gwa' => $request->gwa,
-            'status' => 'Pending',
-            'is_renewal' => $request->boolean('is_renewal') || !empty($request->previous_application_id),
-            'previous_application_id' => $request->previous_application_id ?: null,
-            'dpa_consent_at' => now(),
-            'submitted_after_hours' => $isAfterHours,
-        ]);
-
-        $initialRemarks = $isAfterHours
-            ? "Application received outside regular OSA office hours (Mon-Fri 8:00 AM - 5:00 PM PHT). Safely queued for administrative evaluation on {$nextOpening}."
-            : 'Application submitted and entered the verification pipeline.';
-
-        // Log the initial status transition
-        \App\Models\StatusLog::create([
-            'application_id' => $application->id,
-            'status' => 'Pending',
-            'remarks' => $initialRemarks,
-            'changed_by' => $userId
-        ]);
-
-        if ($request->hasFile('document')) {
-            $file = $request->file('document');
-            $isSynced = true;
-            $filePath = \App\Services\CloudStorageService::upload($file, 'uploads', $isSynced);
-            $fileData = base64_encode(file_get_contents($file->getRealPath()));
-
-            \App\Models\Document::create([
-                'application_id' => $application->id,
-                'file_path' => $filePath,
-                'file_data' => $fileData,
-                'original_name' => $file->getClientOriginalName(),
-                'document_type' => 'COG',
-                'upload_event' => 'initial',
-                'uploaded_by' => $userId,
-                'is_synced' => $isSynced,
-            ]);
-        }
-
-        // Store custom field values
-        if ($request->has('custom_fields')) {
-            foreach ($scholarship->fields as $field) {
-                $val = null;
-                $isSynced = true;
-                if ($field->field_type === 'file') {
-                    if ($request->hasFile('custom_fields.' . $field->field_name)) {
-                        $cfile = $request->file('custom_fields.' . $field->field_name);
-                        $filePath = \App\Services\CloudStorageService::upload($cfile, 'uploads', $isSynced);
-                        $cfileData = base64_encode(file_get_contents($cfile->getRealPath()));
-                        $val = $filePath;
-
-                        // Also register in documents table for AI scanning
-                        \App\Models\Document::create([
-                            'application_id' => $application->id,
-                            'file_path' => $filePath,
-                            'file_data' => $cfileData,
-                            'original_name' => $cfile->getClientOriginalName(),
-                            'document_type' => $field->field_label,
-                            'upload_event' => 'initial',
-                            'uploaded_by' => $userId,
-                            'is_synced' => $isSynced,
-                        ]);
-                    }
-                } else {
-                    $val = $request->input('custom_fields.' . $field->field_name);
+        // HIGH-3: DB Transaction with row lock to eliminate TOCTOU race conditions on concurrent submissions
+        try {
+            $application = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $userId, $scholarship, $activeTerm, $isAfterHours, $nextOpening) {
+                $user = \App\Models\User::lockForUpdate()->find($userId);
+                if ($user && $user->hasActiveApplication()) {
+                    throw new \RuntimeException('Action Denied: You already have an active application or scholarship for this academic term.');
                 }
 
-                if ($val !== null) {
-                    $application->customFields()->create([
-                        'field_name' => $field->field_label,
-                        'field_value' => $val,
-                        'is_synced' => $isSynced
+                $app = \App\Models\Application::create([
+                    'user_id' => $userId,
+                    'scholarship_id' => $request->scholarship_id,
+                    'academic_term_id' => $activeTerm ? $activeTerm->id : null,
+                    'program_name' => $scholarship->name, 
+                    'gwa' => $request->gwa,
+                    'status' => 'Pending',
+                    'is_renewal' => $request->boolean('is_renewal') || !empty($request->previous_application_id),
+                    'previous_application_id' => $request->previous_application_id ?: null,
+                    'dpa_consent_at' => now(),
+                    'submitted_after_hours' => $isAfterHours,
+                ]);
+
+                $initialRemarks = $isAfterHours
+                    ? "Application received outside regular OSA office hours (Mon-Fri 8:00 AM - 5:00 PM PHT). Safely queued for administrative evaluation on {$nextOpening}."
+                    : 'Application submitted and entered the verification pipeline.';
+
+                // Log the initial status transition
+                \App\Models\StatusLog::create([
+                    'application_id' => $app->id,
+                    'status' => 'Pending',
+                    'remarks' => $initialRemarks,
+                    'changed_by' => $userId
+                ]);
+
+                if ($request->hasFile('document')) {
+                    $file = $request->file('document');
+                    $isSynced = true;
+                    $filePath = \App\Services\CloudStorageService::upload($file, 'uploads', $isSynced);
+                    // HIGH-2: Do not bloat DB with base64 if cloud upload was successful
+                    $fileData = ($isSynced && str_starts_with($filePath, 'http')) ? null : base64_encode(file_get_contents($file->getRealPath()));
+
+                    \App\Models\Document::create([
+                        'application_id' => $app->id,
+                        'file_path' => $filePath,
+                        'file_data' => $fileData,
+                        'original_name' => $file->getClientOriginalName(),
+                        'document_type' => 'COG',
+                        'upload_event' => 'initial',
+                        'uploaded_by' => $userId,
+                        'is_synced' => $isSynced,
                     ]);
                 }
+
+                // Store custom field values
+                if ($request->has('custom_fields')) {
+                    foreach ($scholarship->fields as $field) {
+                        $val = null;
+                        $isSynced = true;
+                        if ($field->field_type === 'file') {
+                            if ($request->hasFile('custom_fields.' . $field->field_name)) {
+                                $cfile = $request->file('custom_fields.' . $field->field_name);
+                                $filePath = \App\Services\CloudStorageService::upload($cfile, 'uploads', $isSynced);
+                                // HIGH-2: Do not bloat DB with base64 if cloud upload was successful
+                                $cfileData = ($isSynced && str_starts_with($filePath, 'http')) ? null : base64_encode(file_get_contents($cfile->getRealPath()));
+                                $val = $filePath;
+
+                                // Also register in documents table for AI scanning
+                                \App\Models\Document::create([
+                                    'application_id' => $app->id,
+                                    'file_path' => $filePath,
+                                    'file_data' => $cfileData,
+                                    'original_name' => $cfile->getClientOriginalName(),
+                                    'document_type' => $field->field_label,
+                                    'upload_event' => 'initial',
+                                    'uploaded_by' => $userId,
+                                    'is_synced' => $isSynced,
+                                ]);
+                            }
+                        } else {
+                            $val = $request->input('custom_fields.' . $field->field_name);
+                        }
+
+                        if ($val !== null) {
+                            $app->customFields()->create([
+                                'field_name' => $field->field_label,
+                                'field_value' => $val,
+                                'is_synced' => $isSynced
+                            ]);
+                        }
+                    }
+                }
+
+                return $app;
+            });
+        } catch (\RuntimeException $e) {
+            $msg = $e->getMessage();
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 400);
             }
+            return back()->withErrors(['duplicate' => $msg]);
         }
 
         // Auto-trigger background AI scan immediately upon student submission
@@ -594,7 +614,7 @@ class ApplicationController extends Controller
             
             $isSynced = true;
             $filePath = \App\Services\CloudStorageService::upload($file, 'uploads', $isSynced);
-            $fileData = base64_encode(file_get_contents($file->getRealPath()));
+            $fileData = ($isSynced && str_starts_with($filePath, 'http')) ? null : base64_encode(file_get_contents($file->getRealPath()));
 
             // Find existing COG document or create new
             $document = Document::updateOrCreate(

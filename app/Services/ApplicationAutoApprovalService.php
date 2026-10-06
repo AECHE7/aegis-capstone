@@ -102,13 +102,14 @@ class ApplicationAutoApprovalService
         ]);
 
         // Audit log
+        // LOW-5: Sentinel 0.0.0.0 explicitly marks background system daemon events
         AuditLoggerService::logAdminAction(
             $systemUserId,
             'system_auto_approved',
             'Application',
             $application->id,
             "Application APP-{$application->id} was automatically verified and approved by the system.",
-            '127.0.0.1'
+            '0.0.0.0'
         );
 
         // Notify student via database notification

@@ -21,7 +21,8 @@ class Setting extends Model
         }
 
         try {
-            $val = Cache::rememberForever("setting.{$key}", function () use ($key, $default) {
+            // MED-7: 5-minute TTL allows automatic cache convergence across multi-worker / multi-container dynos
+            $val = Cache::remember("setting.{$key}", 300, function () use ($key, $default) {
                 $setting = self::where('key', $key)->first();
                 return $setting ? $setting->value : $default;
             });

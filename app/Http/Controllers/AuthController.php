@@ -165,7 +165,7 @@ class AuthController extends Controller
             if (isset($user->is_active) && !$user->is_active) {
                 \App\Services\AuditLoggerService::logAuth(
                     $user,
-                    $request->email,
+                    $normalizedEmail,
                     'login_failed',
                     $request->ip(),
                     $request->userAgent() ?? '',
@@ -227,7 +227,7 @@ class AuthController extends Controller
 
                 \App\Services\AuditLoggerService::logAuth(
                     $user,
-                    $request->email,
+                    $normalizedEmail,
                     'login_success',
                     $request->ip(),
                     $request->userAgent() ?? '',
@@ -293,7 +293,7 @@ class AuthController extends Controller
 
         \App\Services\AuditLoggerService::logAuth(
             $user,
-            $request->email,
+            $normalizedEmail,
             'login_failed',
             $request->ip(),
             $request->userAgent() ?? '',
@@ -801,13 +801,17 @@ class AuthController extends Controller
                 $cat = $request->category;
                 $query->where(function($q) use ($cat) {
                     if ($cat === 'application') {
-                        $q->where('data', 'like', '%"type":"new_application"%')
+                        // MED-1: Use JSON path operator with LIKE fallback for universal driver support
+                        $q->whereIn('data->type', ['new_application', 'submission_confirmation', 'status_update'])
+                          ->orWhere('data', 'like', '%"type":"new_application"%')
                           ->orWhere('data', 'like', '%"type":"submission_confirmation"%')
                           ->orWhere('data', 'like', '%"type":"status_update"%');
                     } elseif ($cat === 'announcement') {
-                        $q->where('data', 'like', '%"type":"announcement"%');
+                        $q->where('data->type', 'announcement')
+                          ->orWhere('data', 'like', '%"type":"announcement"%');
                     } elseif ($cat === 'broadcast') {
-                        $q->where('data', 'like', '%"type":"broadcast"%');
+                        $q->where('data->type', 'broadcast')
+                          ->orWhere('data', 'like', '%"type":"broadcast"%');
                     }
                 });
             }
@@ -911,7 +915,8 @@ class AuthController extends Controller
     // 6. Clear all notifications
     public function clearNotifications()
     {
-        auth()->user()->unreadNotifications->markAsRead();
+        // LOW-2: Direct database query eliminates iterating through hydrated Eloquent models in memory
+        auth()->user()->unreadNotifications()->update(['read_at' => now()]);
 
         if (request()->expectsJson() || request()->ajax() || request()->wantsJson() || request()->isJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json(['success' => true, 'count' => 0, 'unread_count' => 0, 'message' => 'All notifications marked as read.']);

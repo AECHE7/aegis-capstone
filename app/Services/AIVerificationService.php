@@ -27,9 +27,12 @@ class AIVerificationService
         $maxAttempts = 3;
 
         for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $stream = fopen($absolutePath, 'r');
             try {
+                // HIGH-6: Stream file directly from disk rather than buffering entire binary string in memory
+                $fileName = basename($absolutePath) ?: 'cog.jpg';
                 $response = Http::timeout(120)->attach(
-                    'file', file_get_contents($absolutePath), 'cog.jpg'
+                    'file', $stream, $fileName
                 )->post($aiUrl . '/analyze-document');
 
                 if ($response->successful()) {
@@ -51,6 +54,10 @@ class AIVerificationService
                     continue;
                 }
                 throw new \Exception("Connection Error: Could not reach Python API at " . $aiUrl . ". Details: " . $e->getMessage());
+            } finally {
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
             }
         }
 

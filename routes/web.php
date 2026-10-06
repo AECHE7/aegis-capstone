@@ -276,7 +276,7 @@ Route::middleware(['auth'])->group(function () {
         // Restore soft-deleted application (Admin Action)
         Route::post('/review/{id}/restore', [AdminController::class, 'restoreApplication'])->name('admin.restore');
         Route::post('/applications/bulk-action', [AdminController::class, 'bulkAction'])->name('admin.applications.bulk-action');
-        // Staff Private Notes
+        // Staff Private Notes: dual route names for Blade review UI (admin.saveNotes) and RESTful API client compatibility (admin.applications.save-notes)
         Route::match(['post', 'patch'], '/applications/{id}/notes', [AdminController::class, 'saveNotes'])->name('admin.saveNotes');
         Route::match(['post', 'patch'], '/applications/{id}/save-notes', [AdminController::class, 'saveNotes'])->name('admin.applications.save-notes');
         

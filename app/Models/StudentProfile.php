@@ -14,12 +14,6 @@ class StudentProfile extends Model
      */
     protected static function booted(): void
     {
-        static::creating(function (StudentProfile $profile) {
-            if ($profile->user_id) {
-                static::where('user_id', $profile->user_id)->delete();
-            }
-        });
-
         static::saving(function (StudentProfile $profile) {
             if (!empty($profile->clsu_id_number)) {
                 $normalized = strtoupper(preg_replace('/\s+/', '', (string) $profile->clsu_id_number));
