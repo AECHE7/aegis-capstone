@@ -16,7 +16,7 @@ class ApplicationController extends Controller
     public function dashboard()
     {
         $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
-        $application = Application::with(['scholarship', 'document.aiResult', 'customFields', 'academicTerm', 'statusLogs' => function($q) {
+        $application = Application::with(['scholarship', 'document.aiResult', 'documents.aiResult', 'customFields', 'academicTerm', 'statusLogs' => function($q) {
             $q->orderBy('created_at', 'asc');
         }])
             ->where('user_id', $userId)
@@ -129,22 +129,46 @@ class ApplicationController extends Controller
                     throw new \RuntimeException('Action Denied: You already have an active application or scholarship for this academic term.');
                 }
 
-                $app = \App\Models\Application::create([
-                    'user_id' => $userId,
-                    'scholarship_id' => $request->scholarship_id,
-                    'academic_term_id' => $activeTerm ? $activeTerm->id : null,
-                    'program_name' => $scholarship->name, 
-                    'gwa' => $request->gwa,
-                    'status' => 'Pending',
-                    'is_renewal' => $request->boolean('is_renewal') || !empty($request->previous_application_id),
-                    'previous_application_id' => $request->previous_application_id ?: null,
-                    'dpa_consent_at' => now(),
-                    'submitted_after_hours' => $isAfterHours,
-                ]);
+                // Check if user has an existing application in Returned or Rejected status for this scholarship/term.
+                // If so, update that application record so the application number (APP-{$app->id}) remains the same!
+                $existingApp = \App\Models\Application::where('user_id', $userId)
+                    ->where('scholarship_id', $request->scholarship_id)
+                    ->where(function ($q) use ($activeTerm) {
+                        if ($activeTerm) {
+                            $q->where('academic_term_id', $activeTerm->id);
+                        }
+                    })
+                    ->whereIn('status', ['Returned', 'Rejected'])
+                    ->latest()
+                    ->first();
+
+                if ($existingApp) {
+                    $app = $existingApp;
+                    $app->update([
+                        'program_name' => $scholarship->name,
+                        'gwa' => $request->gwa ?? $app->gwa,
+                        'status' => 'Pending',
+                        'is_archived' => false,
+                        'submitted_after_hours' => $isAfterHours,
+                    ]);
+                } else {
+                    $app = \App\Models\Application::create([
+                        'user_id' => $userId,
+                        'scholarship_id' => $request->scholarship_id,
+                        'academic_term_id' => $activeTerm ? $activeTerm->id : null,
+                        'program_name' => $scholarship->name, 
+                        'gwa' => $request->gwa,
+                        'status' => 'Pending',
+                        'is_renewal' => $request->boolean('is_renewal') || !empty($request->previous_application_id),
+                        'previous_application_id' => $request->previous_application_id ?: null,
+                        'dpa_consent_at' => now(),
+                        'submitted_after_hours' => $isAfterHours,
+                    ]);
+                }
 
                 $initialRemarks = $isAfterHours
                     ? "Application received outside regular OSA office hours (Mon-Fri 8:00 AM - 5:00 PM PHT). Safely queued for administrative evaluation on {$nextOpening}."
-                    : 'Application submitted and entered the verification pipeline.';
+                    : ($existingApp ? 'Application resubmitted with updated files and re-entered the verification pipeline.' : 'Application submitted and entered the verification pipeline.');
 
                 // Log the initial status transition
                 \App\Models\StatusLog::create([
@@ -161,20 +185,28 @@ class ApplicationController extends Controller
                     // HIGH-2: Do not bloat DB with base64 if cloud upload was successful
                     $fileData = ($isSynced && str_starts_with($filePath, 'http')) ? null : base64_encode(file_get_contents($file->getRealPath()));
 
-                    \App\Models\Document::create([
-                        'application_id' => $app->id,
-                        'file_path' => $filePath,
-                        'file_data' => $fileData,
-                        'original_name' => $file->getClientOriginalName(),
-                        'document_type' => 'COG',
-                        'upload_event' => 'initial',
-                        'uploaded_by' => $userId,
-                        'is_synced' => $isSynced,
-                    ]);
+                    $cogDoc = \App\Models\Document::updateOrCreate(
+                        [
+                            'application_id' => $app->id,
+                            'document_type' => 'COG',
+                        ],
+                        [
+                            'file_path' => $filePath,
+                            'file_data' => $fileData,
+                            'original_name' => $file->getClientOriginalName(),
+                            'upload_event' => $existingApp ? 'replaced' : 'initial',
+                            'uploaded_by' => $userId,
+                            'is_synced' => $isSynced,
+                        ]
+                    );
+
+                    if ($existingApp && $cogDoc->aiResult) {
+                        $cogDoc->aiResult->delete();
+                    }
                 }
 
                 // Store custom field values
-                if ($request->has('custom_fields')) {
+                if ($scholarship->fields && $scholarship->fields->count() > 0) {
                     foreach ($scholarship->fields as $field) {
                         $val = null;
                         $isSynced = true;
@@ -186,28 +218,35 @@ class ApplicationController extends Controller
                                 $cfileData = ($isSynced && str_starts_with($filePath, 'http')) ? null : base64_encode(file_get_contents($cfile->getRealPath()));
                                 $val = $filePath;
 
-                                // Also register in documents table for AI scanning
-                                \App\Models\Document::create([
-                                    'application_id' => $app->id,
-                                    'file_path' => $filePath,
-                                    'file_data' => $cfileData,
-                                    'original_name' => $cfile->getClientOriginalName(),
-                                    'document_type' => $field->field_label,
-                                    'upload_event' => 'initial',
-                                    'uploaded_by' => $userId,
-                                    'is_synced' => $isSynced,
-                                ]);
+                                // Register or update in documents table for AI scanning
+                                $customDoc = \App\Models\Document::updateOrCreate(
+                                    [
+                                        'application_id' => $app->id,
+                                        'document_type' => $field->field_label,
+                                    ],
+                                    [
+                                        'file_path' => $filePath,
+                                        'file_data' => $cfileData,
+                                        'original_name' => $cfile->getClientOriginalName(),
+                                        'upload_event' => $existingApp ? 'replaced' : 'initial',
+                                        'uploaded_by' => $userId,
+                                        'is_synced' => $isSynced,
+                                    ]
+                                );
+
+                                if ($existingApp && $customDoc->aiResult) {
+                                    $customDoc->aiResult->delete();
+                                }
                             }
                         } else {
                             $val = $request->input('custom_fields.' . $field->field_name);
                         }
 
                         if ($val !== null) {
-                            $app->customFields()->create([
-                                'field_name' => $field->field_label,
-                                'field_value' => $val,
-                                'is_synced' => $isSynced
-                            ]);
+                            $app->customFields()->updateOrCreate(
+                                ['field_name' => $field->field_label],
+                                ['field_value' => $val, 'is_synced' => $isSynced]
+                            );
                         }
                     }
                 }
@@ -602,81 +641,97 @@ class ApplicationController extends Controller
     {
         $userId = auth()->id(); // auth middleware guarantees non-null (CRIT-05)
         $application = Application::where('user_id', $userId)
-            ->where('status', 'Returned')
+            ->whereIn('status', ['Returned', 'Rejected'])
             ->findOrFail($id);
 
         $request->validate([
-            'cog_file' => 'required|file|mimes:pdf,png,jpg,jpeg|max:10240',
+            'document_type' => 'nullable|string|max:255',
+            'file' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:10240',
+            'cog_file' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:10240',
+            'corrected_file' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:10240',
         ]);
 
-        if ($request->hasFile('cog_file')) {
-            $file = $request->file('cog_file');
-            
-            $isSynced = true;
-            $filePath = \App\Services\CloudStorageService::upload($file, 'uploads', $isSynced);
-            $fileData = ($isSynced && str_starts_with($filePath, 'http')) ? null : base64_encode(file_get_contents($file->getRealPath()));
-
-            // Find existing COG document or create new
-            $document = Document::updateOrCreate(
-                [
-                    'application_id' => $application->id,
-                    'document_type' => 'COG',
-                ],
-                [
-                    'original_name' => $file->getClientOriginalName(),
-                    'file_path' => $filePath,
-                    'file_data' => $fileData,
-                    'upload_event' => 'replaced',
-                    'uploaded_by' => $userId,
-                    'is_synced' => $isSynced,
-                ]
-            );
-
-            // Clear old AI Result if any, so we scan clean
-            if ($document->aiResult) {
-                $document->aiResult->delete();
-            }
-
-            // Update Application status back to Pending
-            $application->update([
-                'status' => 'Pending',
-                'remarks' => 'Corrected documents submitted by student.',
-            ]);
-
-            // Log status change in StatusLog
-            \App\Models\StatusLog::create([
-                'application_id' => $application->id,
-                'status' => 'Pending',
-                'remarks' => 'Resubmitted corrected COG document.',
-                'changed_by' => $userId
-            ]);
-
-            // Auto-trigger background AI scan immediately for the reuploaded document
-            \App\Models\AIResult::create([
-                'document_id' => $document->id,
-                'fraud_probability' => 0.00,
-                'classification' => 'scanning'
-            ]);
-            \App\Jobs\ScanDocumentJob::dispatch($application->id);
-
-            // Clean active_scholarships cache to be sure
-            \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
-
+        $file = $request->file('file') ?? $request->file('cog_file') ?? $request->file('corrected_file');
+        if (!$file) {
+            $msg = 'Please choose a file to upload.';
             if ($request->expectsJson() || $request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Corrected document successfully submitted.'
-                ]);
+                return response()->json(['success' => false, 'message' => $msg], 422);
             }
-
-            return redirect()->route('student.dashboard')->with('success', 'Corrected document successfully submitted.');
+            return back()->withErrors(['file' => $msg]);
         }
+
+        $documentType = $request->input('document_type');
+        if (empty($documentType)) {
+            // Default to COG or the first existing document
+            $documentType = $application->documents()->value('document_type') ?: 'COG';
+        }
+
+        $isSynced = true;
+        $filePath = \App\Services\CloudStorageService::upload($file, 'uploads', $isSynced);
+        $fileData = ($isSynced && str_starts_with($filePath, 'http')) ? null : base64_encode(file_get_contents($file->getRealPath()));
+
+        // Update ONLY the targeted document, keeping all other documents untouched
+        $document = Document::updateOrCreate(
+            [
+                'application_id' => $application->id,
+                'document_type' => $documentType,
+            ],
+            [
+                'original_name' => $file->getClientOriginalName(),
+                'file_path' => $filePath,
+                'file_data' => $fileData,
+                'upload_event' => 'replaced',
+                'uploaded_by' => $userId,
+                'is_synced' => $isSynced,
+            ]
+        );
+
+        // Also update matching custom field if this document corresponds to one
+        $customField = $application->customFields()->where('field_name', $documentType)->first();
+        if ($customField) {
+            $customField->update(['field_value' => $filePath]);
+        }
+
+        // Clear old AI Result if any, so we scan clean
+        if ($document->aiResult) {
+            $document->aiResult->delete();
+        }
+
+        // Update Application status back to Pending, unarchive if archived, keeping same APP ID!
+        $application->update([
+            'status' => 'Pending',
+            'is_archived' => false,
+            'remarks' => "Corrected document [{$documentType}] submitted by student.",
+        ]);
+
+        // Log status change in StatusLog
+        \App\Models\StatusLog::create([
+            'application_id' => $application->id,
+            'status' => 'Pending',
+            'remarks' => "Resubmitted corrected {$documentType} document ({$file->getClientOriginalName()}).",
+            'changed_by' => $userId
+        ]);
+
+        // Auto-trigger background AI scan immediately for the reuploaded document
+        \App\Models\AIResult::create([
+            'document_id' => $document->id,
+            'fraud_probability' => 0.00,
+            'classification' => 'scanning'
+        ]);
+        \App\Jobs\ScanDocumentJob::dispatch($application->id);
+
+        // Clean active_scholarships cache to be sure
+        \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
 
         if ($request->expectsJson() || $request->ajax()) {
-            return response()->json(['success' => false, 'message' => 'Please upload a valid document.'], 400);
+            return response()->json([
+                'success' => true,
+                'message' => "Corrected document [{$documentType}] successfully submitted for APP-{$application->id}."
+            ]);
         }
 
-        return back()->with('error', 'Please upload a valid document.');
+        return redirect()->route('student.dashboard')
+            ->with('success', "Corrected document [{$documentType}] successfully submitted for APP-{$application->id}. Your application has been queued for evaluation.");
     }
 
     /**

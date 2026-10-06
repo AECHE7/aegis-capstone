@@ -508,30 +508,67 @@
                         </div>
                         @endif
 
-                        @if($application->status === 'Returned')
-                            <div class="card border-0 shadow-sm mb-4 p-4 mt-3" style="border-radius: 16px; border-left: 5px solid #d97706 !important; background-color: #fffbeb;">
+                        @if(in_array($application->status, ['Returned', 'Rejected']))
+                            @php
+                                $isReturned = $application->status === 'Returned';
+                                $borderCol = $isReturned ? '#d97706' : '#ef4444';
+                                $bgCol = $isReturned ? '#fffbeb' : '#fef2f2';
+                                $titleCol = $isReturned ? '#b45309' : '#b91c1c';
+                                $btnBg = $isReturned ? '#d97706' : '#dc2626';
+                                
+                                $appDocs = $application->documents ?? collect();
+                                $docTypes = $appDocs->pluck('document_type')->filter()->unique();
+                                if ($docTypes->isEmpty()) {
+                                    $docTypes = collect(['COG']);
+                                }
+                            @endphp
+                            <div class="card border-0 shadow-sm mb-4 p-4 mt-3" style="border-radius: 16px; border-left: 5px solid {{ $borderCol }} !important; background-color: {{ $bgCol }};">
                                 <div class="d-flex gap-3 align-items-start">
-                                    <div class="p-3 rounded-3" style="background: rgba(217, 119, 6, 0.1); color: #d97706;">
+                                    <div class="p-3 rounded-3" style="background: rgba({{ $isReturned ? '217, 119, 6' : '239, 68, 68' }}, 0.1); color: {{ $titleCol }};">
                                         <i class="fa-solid fa-triangle-exclamation fs-4"></i>
                                     </div>
                                     <div class="w-100">
-                                        <h6 class="fw-bold mb-1" style="color: #b45309; font-size: 1.05rem;"><i class="fa-solid fa-reply me-1"></i> Document Correction Required</h6>
+                                        <h6 class="fw-bold mb-1" style="color: {{ $titleCol }}; font-size: 1.05rem;">
+                                            <i class="fa-solid fa-reply me-1"></i> {{ $isReturned ? 'Document Correction Required' : 'Resubmit Corrected Document' }}
+                                        </h6>
                                         <p class="text-muted small mb-3">
-                                            The evaluator has requested correction of your uploaded documents. Please review the evaluator remarks below, make the necessary corrections, and upload the updated document.
+                                            {{ $isReturned 
+                                                ? 'The evaluator has requested correction of your uploaded documents. Please review the remarks below, select which requested file to replace, and submit the corrected file. Your application number (APP-' . $application->id . ') will remain the same.' 
+                                                : 'If you were requested to provide updated or clearer documents, you can re-upload the requested file below. Your existing application number (APP-' . $application->id . ') will be maintained.' }}
                                         </p>
-                                        <div class="p-3 mb-3 rounded-3 bg-white border border-warning border-opacity-50 small">
-                                            <div class="fw-bold text-dark mb-1"><i class="fa-solid fa-comment-dots me-1 text-warning"></i> Evaluator Remarks:</div>
+                                        @if($application->remarks)
+                                        <div class="p-3 mb-3 rounded-3 bg-white border border-{{ $isReturned ? 'warning' : 'danger' }} border-opacity-50 small">
+                                            <div class="fw-bold text-dark mb-1"><i class="fa-solid fa-comment-dots me-1 text-{{ $isReturned ? 'warning' : 'danger' }}"></i> Evaluator Remarks:</div>
                                             <div class="text-danger fw-semibold">"{{ $application->remarks }}"</div>
                                         </div>
+                                        @endif
                                         <form action="{{ route('student.application.reupload', $application->id) }}" method="POST" enctype="multipart/form-data" class="bg-white p-3 rounded-3 border">
                                             @csrf
+                                            @if($docTypes->count() > 1)
+                                                <div class="mb-3">
+                                                    <label for="select_document_type" class="form-label fw-bold small text-muted">Select Which Document to Replace:</label>
+                                                    <select name="document_type" id="select_document_type" class="form-select form-select-sm" style="border-radius: 8px;">
+                                                        @foreach($docTypes as $dtype)
+                                                            <option value="{{ $dtype }}">{{ $dtype }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <small class="text-muted d-block mt-1" style="font-size:0.72rem;">
+                                                        <i class="fa-solid fa-circle-info me-1 text-primary"></i> Only the chosen document will be updated. All your other submitted documents remain safe and intact.
+                                                    </small>
+                                                </div>
+                                            @else
+                                                <input type="hidden" name="document_type" value="{{ $docTypes->first() }}">
+                                                <div class="mb-2 small text-muted">
+                                                    Target document to update: <strong class="text-dark">{{ $docTypes->first() }}</strong> (Control No: <strong class="monospace-data">APP-{{ $application->id }}</strong>)
+                                                </div>
+                                            @endif
                                             <div class="mb-3">
-                                                <label for="cog_file" class="form-label fw-bold small text-muted">Upload Corrected COG Document (PDF, PNG, JPG, JPEG &le; 10MB)</label>
-                                                <input type="file" name="cog_file" id="cog_file" class="form-control form-control-sm" required style="border-radius: 8px;" accept=".pdf,.png,.jpg,.jpeg" onchange="validateCogUpload(this)">
+                                                <label for="cog_file" class="form-label fw-bold small text-muted">Upload Replacement File (PDF, PNG, JPG, JPEG &le; 10MB)</label>
+                                                <input type="file" name="file" id="cog_file" class="form-control form-control-sm" required style="border-radius: 8px;" accept=".pdf,.png,.jpg,.jpeg" onchange="validateCogUpload(this)">
                                                 <div id="cogUploadError" class="text-danger small mt-1 d-none" style="font-size:0.75rem;"></div>
                                             </div>
-                                            <button type="submit" id="btnSubmitCorrected" class="btn btn-warning text-white fw-bold px-4 py-2 w-100" style="border-radius: 8px; background: #d97706; border: none; box-shadow: 0 4px 12px rgba(217,119,6,0.2);">
-                                                <i class="fa-solid fa-paper-plane me-1"></i> Submit Corrected Document
+                                            <button type="submit" id="btnSubmitCorrected" class="btn text-white fw-bold px-4 py-2 w-100" style="border-radius: 8px; background: {{ $btnBg }}; border: none; box-shadow: 0 4px 12px rgba(217,119,6,0.2);">
+                                                <i class="fa-solid fa-paper-plane me-1"></i> Submit Corrected File
                                             </button>
                                         </form>
                                     </div>

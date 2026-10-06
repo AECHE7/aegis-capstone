@@ -272,6 +272,28 @@ class AdminController extends Controller
             });
         }
 
+        // Bridge any custom field files into documents table if missing so they reflect on reviewer canvas
+        foreach ($application->customFields as $cfield) {
+            $isFieldFile = \Illuminate\Support\Str::startsWith($cfield->field_value, 'uploads/') || 
+                          (\Illuminate\Support\Str::startsWith($cfield->field_value, 'http') && 
+                           collect(['.pdf', '.png', '.jpg', '.jpeg', '.docx', '.webp'])->contains(fn($ext) => \Illuminate\Support\Str::endsWith(strtolower($cfield->field_value), $ext)));
+            if ($isFieldFile) {
+                $exists = $application->documents->first(fn($d) => $d->file_path === $cfield->field_value || $d->document_type === $cfield->field_name);
+                if (!$exists) {
+                    \App\Models\Document::create([
+                        'application_id' => $application->id,
+                        'file_path' => $cfield->field_value,
+                        'original_name' => basename($cfield->field_value),
+                        'document_type' => $cfield->field_name,
+                        'upload_event' => 'initial',
+                        'uploaded_by' => $application->user_id,
+                        'is_synced' => true,
+                    ]);
+                }
+            }
+        }
+        $application->load('documents.aiResult');
+
         // Auto-trigger AI scan for all documents that do not have an AI result yet and NOT cancelled
         if (!$application->trashed()) {
             $triggerScan = false;

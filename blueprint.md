@@ -2472,6 +2472,54 @@ On mobile devices (< 768px), students lacked a navigation tab on the fixed botto
      - Bulk rejection automatically sets `is_archived = true` on all selected applications.
      - `DatabaseSeeder` does not create duplicate scholarships when run on existing databases.
 
+---
+
+## 74. Submitted Document Visibility on Staff Review & Targeted Resubmission with Persistent Application Number (October 2026)
+
+### Issues Identified
+1. **Submitted Student Files Not Reflecting on Staff Review Screen**: When staff members or evaluators opened `/admin/review/{id}`, document embeds, iframe PDF previews, and image canvas views either threw 403 Forbidden errors or failed to reflect custom-uploaded files.
+2. **Application Number Mutation & Loss of Data on Resubmission**: When students attempted to correct or resubmit documents requested by evaluators, either:
+   - The application ID changed (generating a new `APP-{$id}`) if submitted through the general application form or if the application was rejected.
+   - Re-upload was hardcoded to only replace the COG file (`cog_file`), preventing students from replacing specific custom documents (e.g., Certificate of Indigency, Enrollment Assessment) requested by the evaluator.
+
+### Root Cause Analysis
+1. **Document Authorization & Scope Blocking**:
+   - `DocumentController::authorizeDocumentAccess()` checked `$assignedIds = $user->scholarships()->pluck('scholarships.id')->toArray()`. If a staff member had unconstrained access (i.e. `$assignedIds` was empty, standard for evaluators assigned to evaluate across incoming pools) or if the application was explicitly assigned to them via `assigned_to`, `!in_array($scholarshipId, $assignedIds)` evaluated to `true`, throwing an immediate `403 Unauthorized access` on `/document/{id}/image`, `/document/{id}/original-page`, `/document/{id}/heatmap`, and `/application-field/{id}/file`.
+   - In `DocumentController::fieldFile()`, if local disk files were missing on ephemeral cloud instances, it did not check for base64 backups stored in the `documents` table, immediately returning 404.
+   - In `ApplicationController::store()`, custom fields were only looped if `$request->has('custom_fields')`, which in Laravel only checks POST input and ignored requests containing only files.
+2. **Resubmission Flow Limitations**:
+   - In `ApplicationController::reupload()`, the method was restricted strictly to `status = 'Returned'`, failed on `Rejected` resubmission requests, and hardcoded `document_type = 'COG'`.
+   - On the student dashboard (`student/dashboard.blade.php`), the Document Correction card only had an input for `cog_file` and gave students no ability to specify or target custom file fields requested in the evaluator's remarks.
+
+### Engineering Remediation
+1. **Document Access Controller Refactoring ([DocumentController.php](file:///f:/aegis-capstone/app/Http/Controllers/DocumentController.php))**:
+   - Refactored `authorizeDocumentAccess(?int $applicationUserId, ?int $scholarshipId, ?int $assignedTo = null)`:
+     - Permits students accessing their own applications.
+     - Permits superadmins and master administrators universally.
+     - For staff (`role = 'admin'`), permits access if `$assignedTo === $user->id` or if the user has unconstrained scholarship access (empty `$assignedIds`). If restricted, strictly enforces matching assigned scholarships.
+   - Passed `$assignedTo` across `view()`, `heatmap()`, `originalPage()`, `forensicLayer()`, and `fieldFile()`.
+   - In `fieldFile()`, added base64 database fallback (`Document::where('file_path', ...)->whereNotNull('file_data')`) to restore file streams if ephemeral local disk cache is wiped.
+2. **Review Canvas File Synchronization ([AdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/AdminController.php))**:
+   - In `AdminController::review()`, added automatic synchronization bridging any custom field uploads in `ApplicationField` into the `documents` table, ensuring all student submissions (both standard COG and custom scholarship uploads) appear dynamically in the Forensics Studio selector, viewer canvas, and AI scanner.
+3. **Persistent Application Number & Targeted Document Resubmission ([ApplicationController.php](file:///f:/aegis-capstone/app/Http/Controllers/ApplicationController.php))**:
+   - In `ApplicationController::reupload()`, expanded eligibility to both `Returned` and `Rejected` statuses.
+   - Added support for targeted document updates (`document_type`):
+     - Updates **ONLY** the requested document record in `documents` (and matching `ApplicationField`), leaving all other submitted documents and application data intact.
+     - Automatically clears previous AI results for that document and re-dispatches `ScanDocumentJob`.
+     - Automatically resets status to `'Pending'` and unarchives the application (`is_archived = false`).
+     - Logs audit transition in `StatusLog` with the exact file name.
+     - Guarantees the application number (`APP-{$id}`) remains identical.
+   - In `ApplicationController::store()`, if a student with an existing `Returned` or `Rejected` application submits an application for the same scholarship/term, the system updates the existing application rather than creating a duplicate record, preserving the application number.
+4. **Interactive Resubmission UI ([dashboard.blade.php](file:///f:/aegis-capstone/resources/views/student/dashboard.blade.php))**:
+   - Upgraded the Document Correction card to display for both `Returned` and `Rejected` states with contextual evaluator remarks.
+   - For multi-document applications, provides a dropdown allowing the student to explicitly choose which requested document to replace (with notice that all other files remain safe and intact).
+   - Shows the permanent control number (`APP-{$application->id}`) directly on the form.
+5. **Feature Test Verification ([DocumentAccessAndResubmissionTest.php](file:///f:/aegis-capstone/tests/Feature/DocumentAccessAndResubmissionTest.php))**:
+   - Verified staff evaluator views student documents without 403.
+   - Verified custom field files stream without 403.
+   - Verified resubmitting a Returned application preserves the application ID and modifies only the targeted file.
+   - Verified resubmitting a Rejected application unarchives it and preserves the application ID.
+
 
 
 

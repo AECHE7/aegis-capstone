@@ -25,20 +25,41 @@ class DocumentController extends Controller
      *
      * @param  int|null  $applicationUserId  The user_id on the Application record
      * @param  int|null  $scholarshipId      The scholarship_id on the Application record
+     * @param  int|null  $assignedTo         The assigned_to staff ID on the Application record
      */
-    private function authorizeDocumentAccess(?int $applicationUserId, ?int $scholarshipId): void
+    private function authorizeDocumentAccess(?int $applicationUserId, ?int $scholarshipId, ?int $assignedTo = null): void
     {
         $user = auth()->user();
 
-        if ($user->role === 'student' && $applicationUserId !== auth()->id()) {
-            abort(403, 'Unauthorized access.');
+        if (!$user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        if ($user->role === 'student') {
+            if ($applicationUserId !== $user->id) {
+                abort(403, 'Unauthorized access.');
+            }
+            return;
+        }
+
+        if ($user->role === 'superadmin' || (method_exists($user, 'isMaster') && $user->isMaster())) {
+            return;
         }
 
         if ($user->role === 'admin') {
+            // If the application is explicitly assigned to this staff member, always permit access
+            if ($assignedTo !== null && $assignedTo === $user->id) {
+                return;
+            }
+
+            // If the staff member has restricted scholarship scopes, enforce matching scholarship
             $assignedIds = $user->scholarships()->pluck('scholarships.id')->toArray();
-            if (!in_array($scholarshipId, $assignedIds)) {
+            if (!empty($assignedIds) && !in_array($scholarshipId, $assignedIds)) {
                 abort(403, 'Unauthorized access.');
             }
+
+            // Unconstrained staff evaluators can review all incoming/active scholarship documents
+            return;
         }
     }
 
@@ -52,7 +73,8 @@ class DocumentController extends Controller
 
         $this->authorizeDocumentAccess(
             $document->application->user_id ?? null,
-            $document->application->scholarship_id ?? null
+            $document->application->scholarship_id ?? null,
+            $document->application->assigned_to ?? null
         );
 
         $path = $document->file_path;
@@ -92,7 +114,8 @@ class DocumentController extends Controller
 
         $this->authorizeDocumentAccess(
             $aiResult->document->application->user_id ?? null,
-            $aiResult->document->application->scholarship_id ?? null
+            $aiResult->document->application->scholarship_id ?? null,
+            $aiResult->document->application->assigned_to ?? null
         );
 
         // 1. Database Persistence Check: Stream base64 heatmap directly from PostgreSQL if present
@@ -150,7 +173,8 @@ class DocumentController extends Controller
 
         $this->authorizeDocumentAccess(
             $aiResult->document->application->user_id ?? null,
-            $aiResult->document->application->scholarship_id ?? null
+            $aiResult->document->application->scholarship_id ?? null,
+            $aiResult->document->application->assigned_to ?? null
         );
 
         $deepReport = $aiResult->deep_analysis_report;
@@ -181,7 +205,8 @@ class DocumentController extends Controller
 
         $this->authorizeDocumentAccess(
             $aiResult->document->application->user_id ?? null,
-            $aiResult->document->application->scholarship_id ?? null
+            $aiResult->document->application->scholarship_id ?? null,
+            $aiResult->document->application->assigned_to ?? null
         );
 
         $deepReport = $aiResult->deep_analysis_report;
@@ -222,7 +247,8 @@ class DocumentController extends Controller
 
         $this->authorizeDocumentAccess(
             $field->application->user_id ?? null,
-            $field->application->scholarship_id ?? null
+            $field->application->scholarship_id ?? null,
+            $field->application->assigned_to ?? null
         );
 
         $path = $field->field_value;
@@ -232,6 +258,29 @@ class DocumentController extends Controller
         }
 
         if (!Storage::disk('local')->exists($path)) {
+            // Check if document table retains base64 database backup for this upload
+            $doc = \App\Models\Document::where('file_path', $path)
+                ->orWhere(function ($q) use ($field) {
+                    $q->where('application_id', $field->application_id)
+                      ->where('document_type', $field->field_name);
+                })
+                ->first();
+
+            if ($doc && !empty($doc->file_data)) {
+                $binary = base64_decode($doc->file_data);
+                $ext = strtolower(pathinfo($doc->original_name ?? $path, PATHINFO_EXTENSION)) ?: 'pdf';
+                $mime = match($ext) {
+                    'pdf' => 'application/pdf',
+                    'png' => 'image/png',
+                    'jpg', 'jpeg' => 'image/jpeg',
+                    default => 'application/octet-stream'
+                };
+                return response($binary, 200, array_merge([
+                    'Content-Type'        => $mime,
+                    'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+                ], $this->sensitiveCacheHeaders()));
+            }
+
             return $this->localFileMissingResponse('This local file was wiped from server memory during redeployment. Please configure Cloudflare R2 bucket settings.');
         }
 
