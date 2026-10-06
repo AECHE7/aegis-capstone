@@ -205,6 +205,25 @@ class ScanDocumentJob implements ShouldQueue
                 // would destroy the GWA discrepancy indicators we just appended above.
                 $aiAnomalyIndicators = $result['anomaly_indicators'] ?? [];
                 $anomalyIndicators = array_values(array_unique(array_merge($aiAnomalyIndicators, $anomalyIndicators)));
+
+                // Check for Incomplete / Dropped subjects in OCR text or non-regular standing
+                $ocrText = $result['extracted_text'] ?? $result['raw_text'] ?? $result['ocr_text'] ?? '';
+                if (empty($ocrText) && isset($deepReport['ocr_text'])) {
+                    $ocrText = (string) $deepReport['ocr_text'];
+                }
+                $hasIncompleteOrDropped = false;
+                if (!empty($ocrText) && preg_match('/\b(INC|INCOMPLETE|DRP|DROPPED|4\.0|CONDITIONAL)\b/i', $ocrText)) {
+                    $hasIncompleteOrDropped = true;
+                }
+                $appAcademicStatus = strtolower((string) ($application->academic_status ?? $application->user?->profile?->academic_status ?? 'regular'));
+                if ($appAcademicStatus === 'irregular' || $appAcademicStatus === 'dropped' || $hasIncompleteOrDropped) {
+                    $anomalyIndicators[] = "manual_check_required:incomplete_or_dropped_grades";
+                    if (strtolower($classification) === 'authentic') {
+                        $classification = 'Review Needed (Incomplete/Dropped Grades)';
+                    }
+                    Log::info("ScanDocumentJob: Flagged Application ID {$application->id} for manual checking due to academic status ({$appAcademicStatus}) or incomplete/dropped subjects.");
+                }
+
                 $detectedSoftware = $result['detected_software'] ?? null;
 
                 // Run native EXIF metadata inspection for image uploads

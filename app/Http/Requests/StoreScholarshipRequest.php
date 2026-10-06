@@ -30,6 +30,7 @@ class StoreScholarshipRequest extends FormRequest
             'deadline' => 'nullable|date',
             'max_renewals' => 'nullable|integer|min:1|max:12',
             'quota' => 'nullable|integer|min:1|max:100000',
+            'attachment_file' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,zip|max:10240',
             'fields' => 'nullable|array',
             'fields.*.label' => 'required|string|max:255',
             'fields.*.type' => 'required|in:text,number,textarea,select,file,date,email',

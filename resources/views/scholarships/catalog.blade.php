@@ -202,23 +202,33 @@
                 <span class="small" style="font-size: 0.75rem; color: #64748b;">
                     <i class="fa-solid fa-shield-halved text-success me-1"></i> Verified by CLSU OSA
                 </span>
-                @if(auth()->check())
-                    @if(auth()->user()->role === 'student')
-                        <a href="{{ route('student.apply', ['program' => $scholarship->id]) }}" 
-                           class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm" 
-                           style="font-size: 0.85rem; background: var(--clsu-green); border-color: var(--clsu-green);">
-                            Apply Now <i class="fa-solid fa-arrow-right ms-1"></i>
+                <div class="d-flex align-items-center gap-2">
+                    @if($scholarship->attachment_path)
+                        <a href="{{ route('scholarships.download-attachment', $scholarship->id) }}" 
+                           class="btn btn-outline-success fw-semibold px-3 py-1.5 rounded-pill" 
+                           style="font-size: 0.8rem;" 
+                           title="Download Attached Application Guidelines & Form">
+                            <i class="fa-solid fa-file-arrow-down me-1"></i> Form
                         </a>
-                    @else
-                        <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill small">
-                            Evaluation View
-                        </span>
                     @endif
-                @else
-                    <a href="{{ route('login') }}" class="btn btn-outline-success fw-bold px-4 py-2 rounded-pill" style="font-size: 0.85rem;">
-                        Sign in to Apply <i class="fa-solid fa-arrow-right ms-1"></i>
-                    </a>
-                @endif
+                    @if(auth()->check())
+                        @if(auth()->user()->role === 'student')
+                            <a href="{{ route('student.apply', ['program' => $scholarship->id]) }}" 
+                               class="btn btn-success fw-bold px-4 py-2 rounded-pill shadow-sm" 
+                               style="font-size: 0.85rem; background: var(--clsu-green); border-color: var(--clsu-green);">
+                                Apply Now <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </a>
+                        @else
+                            <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill small">
+                                Evaluation View
+                            </span>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-outline-success fw-bold px-4 py-2 rounded-pill" style="font-size: 0.85rem;">
+                            Sign in to Apply <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

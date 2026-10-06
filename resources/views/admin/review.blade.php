@@ -213,11 +213,34 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h5 class="fw-bold mb-1 text-dark">{{ $application->program_name }}</h5>
+                @php
+                    $acadStatus = $application->academic_status ?? $application->user->profile?->academic_status ?? 'Regular';
+                    $hasIncompleteAnomaly = false;
+                    foreach($application->documents as $d) {
+                        if ($d->aiResult && is_array($d->aiResult->anomaly_indicators)) {
+                            foreach($d->aiResult->anomaly_indicators as $anom) {
+                                if (str_contains($anom, 'incomplete_or_dropped_grades')) {
+                                    $hasIncompleteAnomaly = true;
+                                    break 2;
+                                }
+                            }
+                        }
+                    }
+                    $requiresManualCheck = in_array(strtolower($acadStatus), ['irregular', 'dropped']) || $hasIncompleteAnomaly;
+                @endphp
                 <div class="d-flex flex-wrap gap-2 pt-1">
                     <span class="badge bg-light text-dark border px-2.5 py-1 fw-medium"><i class="fa-solid fa-user text-success me-1"></i> {{ $application->user->name ?? 'Unknown' }}</span>
                     <span class="badge bg-light text-dark border px-2.5 py-1 fw-medium monospace-data"><i class="fa-solid fa-id-card text-success me-1"></i> {{ $application->user->profile?->clsu_id_number ?? 'N/A' }}</span>
                     <span class="badge bg-light text-dark border px-2.5 py-1 fw-medium"><i class="fa-solid fa-graduation-cap text-success me-1"></i> {{ $application->user->profile?->course ?? 'N/A' }} — {{ $application->user->profile?->year_level ?? 'N/A' }}</span>
                     <span class="badge bg-light text-dark border px-2.5 py-1 fw-medium"><i class="fa-solid fa-star text-warning me-1"></i> GWA: <strong class="monospace-data">{{ $application->gwa !== null ? number_format($application->gwa, 2) : 'N/A' }}</strong></span>
+                    <span class="badge {{ $acadStatus === 'Regular' ? 'bg-light text-dark border' : 'bg-warning-subtle text-dark border border-warning' }} px-2.5 py-1 fw-medium">
+                        <i class="fa-solid fa-user-graduate {{ $acadStatus === 'Regular' ? 'text-success' : 'text-warning' }} me-1"></i> Standing: <strong>{{ $acadStatus }}</strong>
+                    </span>
+                    @if($requiresManualCheck)
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 fw-bold">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i> Manual Check Required ({{ $hasIncompleteAnomaly ? 'Incomplete/Dropped Grades' : 'Irregular Standing' }})
+                        </span>
+                    @endif
                 </div>
             </div>
             @if($application->documents->count() > 1)
@@ -650,8 +673,25 @@
                                 <strong>Warning:</strong> You are about to revoke the <strong>{{ $application->program_name }}</strong> grant for <strong>{{ $application->user->name ?? 'Applicant' }}</strong>.
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-bold small text-muted">Reason for Revocation</label>
-                                <textarea name="reason" class="form-control" rows="4" required placeholder="Specify administrative or academic cause (e.g. Failure to maintain minimum GWA, unauthorized dual scholarship, academic disciplinary sanction)..." style="font-size: 0.85rem; border-radius: 10px; resize: none;"></textarea>
+                                <label class="form-label fw-bold small text-dark d-flex align-items-center justify-content-between mb-1">
+                                    <span><i class="fa-solid fa-list-check text-danger me-1"></i> Pre-made Remarks</span>
+                                    <span class="badge bg-light text-muted border" style="font-size: 0.68rem;">Quick Select</span>
+                                </label>
+                                <select class="form-select form-select-sm" id="premadeRevocationDropdown" onchange="applyPremadeRevocationRemark(this.value)" style="border-radius: 8px;">
+                                    <option value="">-- Select standard revocation reason --</option>
+                                    <option value="Failure to maintain minimum required GWA requirement for this scholarship program.">Failure to maintain minimum required GWA</option>
+                                    <option value="Found to have Incomplete (INC) or Dropped (DRP) academic units during evaluation.">Incomplete (INC) or Dropped (DRP) units detected</option>
+                                    <option value="Disqualified due to holding an unauthorized dual scholarship or concurrent government grant.">Unauthorized dual scholarship / concurrent grant</option>
+                                    <option value="Submission of altered or falsified academic credentials / subject to institutional disciplinary sanction.">Falsified academic records / disciplinary sanction</option>
+                                    <option value="Official student withdrawal or approved academic Leave of Absence (LOA).">Voluntary student withdrawal / Leave of Absence (LOA)</option>
+                                    <option value="Non-compliance: Failure to submit required periodic documentation and grade verification.">Non-compliance with required periodic documentation</option>
+                                    <option value="Administrative revocation per Office of Student Affairs evaluation review.">General administrative cause per OSA review</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted">Official Reason for Revocation <span class="text-danger">*</span></label>
+                                <textarea name="reason" id="revocationReasonTextarea" class="form-control" rows="4" required placeholder="Select a preset above or type specific administrative or academic cause..." style="font-size: 0.85rem; border-radius: 10px; resize: none;"></textarea>
+                                <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">You may customize or add additional notes to the selected remark above before submitting.</small>
                             </div>
                         </div>
                         <div class="modal-footer border-0 p-4 pt-0">
@@ -951,6 +991,14 @@
     function setRemarks(text) {
         const textarea = document.getElementById('evaluatorRemarks');
         if (textarea) {
+            textarea.value = text;
+            textarea.focus();
+        }
+    }
+
+    function applyPremadeRevocationRemark(text) {
+        const textarea = document.getElementById('revocationReasonTextarea');
+        if (textarea && text) {
             textarea.value = text;
             textarea.focus();
         }

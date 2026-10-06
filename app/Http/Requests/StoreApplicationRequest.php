@@ -26,6 +26,7 @@ class StoreApplicationRequest extends FormRequest
         $rules = [
             'scholarship_id' => 'required|exists:scholarships,id',
             'gwa' => 'nullable|numeric|min:1.00|max:5.00',
+            'academic_status' => 'nullable|string|in:Regular,Irregular,Dropped',
             'document' => 'nullable|file|mimes:jpeg,png,pdf|max:5120',
             'dpa_consent' => 'nullable',
         ];

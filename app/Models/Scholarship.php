@@ -18,6 +18,8 @@ class Scholarship extends Model
         'status',
         'max_renewals',
         'quota',
+        'attachment_path',
+        'attachment_name',
     ];
 
     protected $casts = [

@@ -23,6 +23,14 @@ class SuperAdminController extends Controller
     {
         // Validation is handled by StoreScholarshipRequest
 
+        $attachmentPath = null;
+        $attachmentName = null;
+        if ($request->hasFile('attachment_file')) {
+            $file = $request->file('attachment_file');
+            $attachmentName = $file->getClientOriginalName();
+            $attachmentPath = $file->store('scholarship_attachments', 'public');
+        }
+
         $scholarship = Scholarship::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -30,7 +38,9 @@ class SuperAdminController extends Controller
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
             'quota' => $request->quota,
-            'status' => 'Active'
+            'status' => 'Active',
+            'attachment_path' => $attachmentPath,
+            'attachment_name' => $attachmentName,
         ]);
 
         if ($request->has('staff_ids')) {
@@ -95,14 +105,31 @@ class SuperAdminController extends Controller
         // Validation is handled by UpdateScholarshipRequest
 
         $scholarship = Scholarship::findOrFail($id);
-        $scholarship->update([
+        $updateData = [
             'name' => $request->name,
             'description' => $request->description,
             'min_gwa_required' => $request->min_gwa_required,
             'deadline' => $request->deadline,
             'max_renewals' => $request->max_renewals ?? 4,
             'quota' => $request->quota,
-        ]);
+        ];
+
+        if ($request->hasFile('attachment_file')) {
+            if ($scholarship->attachment_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($scholarship->attachment_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($scholarship->attachment_path);
+            }
+            $file = $request->file('attachment_file');
+            $updateData['attachment_name'] = $file->getClientOriginalName();
+            $updateData['attachment_path'] = $file->store('scholarship_attachments', 'public');
+        } elseif ($request->boolean('remove_attachment')) {
+            if ($scholarship->attachment_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($scholarship->attachment_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($scholarship->attachment_path);
+            }
+            $updateData['attachment_path'] = null;
+            $updateData['attachment_name'] = null;
+        }
+
+        $scholarship->update($updateData);
 
         if ($request->has('staff_ids')) {
             $scholarship->staff()->sync($request->staff_ids);
@@ -167,6 +194,10 @@ class SuperAdminController extends Controller
         $scholarship->status = $scholarship->status === 'Active' ? 'Closed' : 'Active';
         $scholarship->save();
 
+        if ($scholarship->status === 'Active') {
+            $this->dispatchSlotsNotification($scholarship);
+        }
+
         if (request()->expectsJson() || request()->ajax()) {
             return response()->json([
                 'success' => true,
@@ -176,6 +207,63 @@ class SuperAdminController extends Controller
         }
 
         return back()->with('success', $scholarship->name . ' is now ' . $scholarship->status . '.');
+    }
+
+    // Download Scholarship Guidelines & Application Form Attachment
+    public function downloadAttachment($id)
+    {
+        $scholarship = Scholarship::findOrFail($id);
+        if (!$scholarship->attachment_path || !\Illuminate\Support\Facades\Storage::disk('public')->exists($scholarship->attachment_path)) {
+            abort(404, 'The requested scholarship document or template file was not found.');
+        }
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->download(
+            $scholarship->attachment_path,
+            $scholarship->attachment_name ?: basename($scholarship->attachment_path)
+        );
+    }
+
+    // Broadcast Slot Opening Notification to Students
+    public function broadcastSlotsNotification(\Illuminate\Http\Request $request, $id)
+    {
+        $scholarship = Scholarship::findOrFail($id);
+        $count = $this->dispatchSlotsNotification($scholarship);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Slot opening notification successfully broadcast to {$count} student(s) for {$scholarship->name}."
+            ]);
+        }
+
+        return back()->with('success', "Slot opening notification successfully broadcast to {$count} student(s) for {$scholarship->name}.");
+    }
+
+    private function dispatchSlotsNotification(Scholarship $scholarship): int
+    {
+        $students = \App\Models\User::where('role', 'student')->where('is_active', true)->get();
+        $notif = new \App\Notifications\ScholarshipSlotsOpenedNotification($scholarship);
+
+        $dispatched = 0;
+        foreach ($students as $student) {
+            try {
+                $student->notify($notif);
+                $dispatched++;
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Failed to notify student {$student->id} of scholarship slots: " . $e->getMessage());
+            }
+        }
+
+        \App\Services\AuditLoggerService::logAdminAction(
+            auth()->id() ?? 1,
+            'scholarship_slots_broadcast',
+            'Scholarship',
+            $scholarship->id,
+            "Broadcast slot opening notification for {$scholarship->name} to {$dispatched} student(s).",
+            request()->ip()
+        );
+
+        return $dispatched;
     }
 
     // ==========================================

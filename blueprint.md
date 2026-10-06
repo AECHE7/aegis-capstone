@@ -2590,12 +2590,55 @@ On mobile devices (< 768px), students lacked a navigation tab on the fixed botto
    - Recompiled Vite bundle (`npm run build`).
    - Ran complete feature test suite verifying 100% pass across all notification and communication tests.
 
+---
 
+## 77. Academic Status Integrity, Comprehensive CSV Export, Scholarship Attachments, Revocation Presets & Slot Notifications
 
+### Overview & Motivation
+This phase integrates five (5) critical academic and administrative enhancements into the A.E.G.I.S. production pipeline:
+1. **Academic Status (Regular / Irregular / Dropped) & Incomplete Grade Manual Verification**:
+   - Adding `academic_status` dropdown to student profile and application form.
+   - AI OCR Document Scanning scans transcripts for `INC`, `INCOMPLETE`, `DRP`, `DROPPED`, `4.0`, `CONDITIONAL` grades.
+   - Any irregular/dropped standing or incomplete subject bypasses auto-approval and forces manual staff review with prominent badges.
+2. **Approved Students CSV Export with Dynamic Application Form Responses**:
+   - Generates standardized CSV containing: `id` (CLSU ID), `name`, `course`, `year level`, `contact number`, `academic status`, `gwa`, `date approved`.
+   - Dynamically appends columns for each custom question answered on the application form (`application_fields`), decrypted from AES-256 with formula-injection sanitization and UTF-8 BOM encoding for Microsoft Excel.
+3. **Downloadable Files & Templates for Specific Scholarships**:
+   - Admin upload capability for program guidelines and application forms (`attachment_path`, `attachment_name`).
+   - One-click download button for students in application stepper and student catalog.
+4. **Scholarship Revocation with Premade Institutional Remarks**:
+   - Revocation modal features a dropdown of standardized CLSU OSA reasons (GWA deficiency, INC/DRP units, concurrent grants, falsification, LOA, non-compliance) that automatically populates the editable reason textarea.
+5. **Scholarship Slot Opening Notifications**:
+   - Real-time in-app bell notification (`ScholarshipSlotsOpenedNotification`) triggered on slot increase, status change to Active, or on-demand admin broadcast.
+   - Direct target URL redirecting students straight to apply.
 
-
-
-
-
-
-
+### Action Plan & Implementation Steps
+- **Step 1: Database Migrations**:
+  - Add `academic_status` to `student_profiles` and `applications`.
+  - Add `attachment_path` and `attachment_name` to `scholarships`.
+- **Step 2: Model & Auto-Approval Upgrades**:
+  - Update `StudentProfile`, `Application`, and `Scholarship` models with fillable and cast properties.
+  - Update `ScanDocumentJob` to detect INC/DRP transcript text.
+  - Update `ApplicationAutoApprovalService` to reject auto-approval if status is irregular/dropped or incomplete grades exist.
+- **Step 3: CSV Export Engine**:
+  - Implement `exportApprovedStudentsCsv()` in `ReportController` with decrypted custom field responses and security headers.
+  - Add export route and admin dashboard button.
+- **Step 4: Scholarship Downloadable Files**:
+  - Update `SuperAdminController` to handle file upload/storage in `scholarships`.
+  - Add download controller action and routes.
+  - Add upload input in admin scholarship management and download button in student application.
+- **Step 5: Revocation Modal Presets**:
+  - Add select dropdown with JS listener in `review.blade.php`.
+- **Step 6: Slot Opening Notifications**:
+  - Create `ScholarshipSlotsOpenedNotification`.
+  - Add slot broadcast action in `SuperAdminController` and trigger button in `superadmin/scholarships.blade.php`.
+- **Step 7: Automated Feature Tests & Verification**:
+  - Wrote comprehensive PHPUnit test suite in `tests/Feature/AcademicStatusAndScholarshipEnhancementsTest.php` covering all 5 capabilities:
+    1. Student submission with academic status.
+    2. Auto-approval bypass on irregular or dropped status.
+    3. Auto-approval bypass on detected incomplete or dropped transcript grades.
+    4. CSV export verification with decrypted custom questionnaire responses and sanitized formula characters.
+    5. Scholarship attachment upload and student download workflow.
+    6. Scholarship revocation with preset institutional remarks.
+    7. Superadmin slot opening notifications to eligible student accounts.
+  - Verification: 7/7 tests passed (100%), 0 failures, 0 regressions in existing staff and notification test suites. Frontend assets successfully compiled via `npm run build`.

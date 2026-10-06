@@ -29,6 +29,7 @@ class StudentProfile extends Model
         'college',
         'course',
         'year_level',
+        'academic_status',
         'contact_number',
         'guardian_name',
         'emergency_contact_number',

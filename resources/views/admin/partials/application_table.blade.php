@@ -26,6 +26,9 @@
         </div>
     </div>
     <div class="d-flex gap-2 w-100 w-md-auto justify-content-start justify-content-md-end flex-wrap">
+        <a id="exportApprovedCsvBtn" href="{{ route('admin.export-approved', request()->query()) }}" class="btn-export" style="background: #0f766e; color: #fff; border: 1px solid #0d9488;" title="Export Approved Scholars List with Application Form Responses">
+            <i class="fa-solid fa-file-excel"></i> Approved Scholars CSV
+        </a>
         <a id="exportCsvBtn" href="{{ route('admin.export', request()->query()) }}" class="btn-export btn-export-csv" title="Export CHED/DOST Portal Standard CSV Format">
             <i class="fa-solid fa-file-csv"></i> Export CSV (CHED/DOST)
         </a>

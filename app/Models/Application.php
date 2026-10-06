@@ -16,6 +16,7 @@ class Application extends Model
         'academic_term_id',
         'program_name', 
         'gwa', 
+        'academic_status',
         'status',
         'remarks',
         'admin_notes',

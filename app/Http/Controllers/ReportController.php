@@ -127,6 +127,104 @@ class ReportController extends Controller
         return Response::stream($callback, 200, $headers);
     }
 
+    // Generate and Download Approved Students CSV Report with Application Form Responses
+    public function exportApprovedStudentsCsv(Request $request)
+    {
+        $this->logExportAccess($request, 'approved_students_list', 'csv');
+        $query = $this->buildReportQuery($request)->where('status', 'Approved')->with(['user.profile', 'scholarship.fields', 'customFields']);
+        $filename = "approved_scholars_responses_" . date('Y-m-d') . ".csv";
+
+        $headers = [
+            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        // Determine custom form field column headers
+        if ($request->filled('scholarship_id')) {
+            $customHeaders = \App\Models\ScholarshipField::where('scholarship_id', $request->scholarship_id)
+                ->orderBy('id')
+                ->pluck('field_label')
+                ->unique()
+                ->values()
+                ->toArray();
+        } else {
+            // Collect distinct question labels across active applications
+            $customHeaders = \App\Models\ApplicationField::whereHas('application', function ($q) {
+                $q->where('status', 'Approved');
+            })->distinct()->pluck('field_name')->values()->toArray();
+        }
+
+        // Requested base columns + academic details + dynamic application questionnaire responses
+        $columns = array_merge([
+            'id',
+            'name',
+            'course',
+            'year level',
+            'contact number',
+            'academic status',
+            'gwa',
+            'scholarship program'
+        ], $customHeaders);
+
+        $callback = function() use($query, $columns, $customHeaders) {
+            $file = fopen('php://output', 'w');
+            
+            // UTF-8 BOM for Microsoft Excel compatibility
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($file, $columns);
+
+            $query->chunk(500, function ($applications) use ($file, $customHeaders) {
+                foreach ($applications as $app) {
+                    $idNumber = $app->user?->profile?->clsu_id_number ?? ('APP-' . $app->id);
+                    $contactNumber = $app->user?->profile?->contact_number ?? 'N/A';
+                    $academicStatus = $app->academic_status ?? $app->user?->profile?->academic_status ?? 'Regular';
+
+                    $row = [
+                        $idNumber,
+                        $app->user?->name ?? 'Unknown',
+                        $app->user?->profile?->course ?? 'N/A',
+                        $app->user?->profile?->year_level ?? 'N/A',
+                        $contactNumber,
+                        $academicStatus,
+                        $app->gwa !== null ? number_format((float)$app->gwa, 2) : 'N/A',
+                        $app->program_name
+                    ];
+
+                    // Append applicant answers on the application form
+                    foreach ($customHeaders as $header) {
+                        $fieldMatch = $app->customFields->first(function ($cf) use ($header) {
+                            return strcasecmp(trim($cf->field_name), trim($header)) === 0;
+                        });
+
+                        $answer = $fieldMatch ? (string) $fieldMatch->field_value : '';
+                        if (str_starts_with($answer, 'documents/') || str_starts_with($answer, 'public/')) {
+                            $answer = basename($answer);
+                        }
+                        $row[] = $answer !== '' ? $answer : 'N/A';
+                    }
+
+                    // Neutralize CSV formula injection
+                    $sanitizedRow = array_map(function ($val) {
+                        if (is_string($val) && in_array(substr($val, 0, 1), ['=', '+', '-', '@', "\t", "\r"], true)) {
+                            return "'" . $val;
+                        }
+                        return $val;
+                    }, $row);
+
+                    fputcsv($file, $sanitizedRow);
+                }
+            });
+
+            fclose($file);
+        };
+
+        return Response::stream($callback, 200, $headers);
+    }
+
     // Generate and Download PDF Report
     public function exportPdf(Request $request)
     {

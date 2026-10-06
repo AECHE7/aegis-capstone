@@ -103,6 +103,26 @@
                     </td>
                     <td class="pe-4 text-end text-nowrap">
                         <div class="d-flex justify-content-end align-items-center gap-2 flex-nowrap">
+                            @if($scholarship->attachment_path)
+                                <a href="{{ route('scholarships.download-attachment', $scholarship->id) }}" 
+                                   class="btn btn-sm btn-outline-secondary fw-semibold rounded-pill px-2.5 text-nowrap" 
+                                   style="font-size:0.78rem;" 
+                                   title="Download Attached Template / Guidelines: {{ $scholarship->attachment_name }}">
+                                    <i class="fa-solid fa-paperclip text-success me-1"></i> File
+                                </a>
+                            @endif
+
+                            @if($scholarship->status == 'Active')
+                                <form action="{{ route('superadmin.scholarships.notify-slots', $scholarship->id) }}" method="POST" class="d-inline notify-slots-form">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-success fw-semibold rounded-pill px-2.5 text-nowrap" 
+                                            style="font-size:0.78rem;" 
+                                            title="Broadcast slot opening notification to active students">
+                                        <i class="fa-solid fa-bell me-1"></i> Notify Slots
+                                    </button>
+                                </form>
+                            @endif
+
                             <form action="{{ route('superadmin.scholarships.toggle', $scholarship->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @if($scholarship->status == 'Active')
@@ -164,7 +184,7 @@
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{{ route('superadmin.scholarships.store') }}" method="POST">
+            <form action="{{ route('superadmin.scholarships.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="row g-4">
@@ -190,6 +210,12 @@
                                 <textarea name="description" id="programDesc" class="form-control" rows="2" required
                                           placeholder="Brief overview of grant requirements and benefits..."
                                           style="resize:none;"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-muted" for="programAttachment">Downloadable Template / Guidelines File</label>
+                                <input type="file" name="attachment_file" id="programAttachment" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.xls,.xlsx,.zip">
+                                <small class="text-muted" style="font-size: 0.72rem;">Optional: Upload application form template or guideline document for students to download.</small>
                             </div>
 
                             <div class="mb-3">
@@ -267,7 +293,7 @@
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form id="editProgramForm" method="POST">
+            <form id="editProgramForm" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="modal-body p-4">
@@ -294,6 +320,23 @@
                                 <textarea name="description" id="editProgramDesc" class="form-control" rows="2" required
                                           placeholder="Brief overview of grant requirements and benefits..."
                                           style="resize:none;"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-muted" for="editProgramAttachment">Downloadable Template / Guidelines File</label>
+                                <div id="editCurrentAttachmentContainer" class="mb-2" style="display: none;">
+                                    <div class="alert alert-light border d-flex align-items-center justify-content-between p-2 mb-1" style="border-radius: 8px;">
+                                        <div class="small text-truncate me-2">
+                                            <i class="fa-solid fa-file-lines text-success me-1"></i> Current File: <strong id="editCurrentAttachmentName"></strong>
+                                        </div>
+                                        <div class="form-check form-check-inline mb-0">
+                                            <input class="form-check-input" type="checkbox" name="remove_attachment" id="removeAttachmentCheckbox" value="1">
+                                            <label class="form-check-label text-danger small fw-semibold" for="removeAttachmentCheckbox">Remove file</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" name="attachment_file" id="editProgramAttachment" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.xls,.xlsx,.zip">
+                                <small class="text-muted" style="font-size: 0.72rem;">Upload a new file to replace the current template, or check "Remove file" to delete.</small>
                             </div>
 
                             <div class="mb-3">
@@ -930,6 +973,21 @@
                     document.getElementById('editProgramQuota').value = s.quota || '';
                     document.getElementById('editProgramDesc').value = s.description;
 
+                    // Populate attachment info
+                    const attachCont = document.getElementById('editCurrentAttachmentContainer');
+                    const attachName = document.getElementById('editCurrentAttachmentName');
+                    const remAttach = document.getElementById('removeAttachmentCheckbox');
+                    const fileInput = document.getElementById('editProgramAttachment');
+                    if (fileInput) fileInput.value = '';
+                    if (remAttach) remAttach.checked = false;
+
+                    if (s.attachment_path) {
+                        if (attachCont) attachCont.style.display = 'block';
+                        if (attachName) attachName.textContent = s.attachment_name || 'Attached File';
+                    } else {
+                        if (attachCont) attachCont.style.display = 'none';
+                    }
+
                     // Set form update URL action
                     editForm.action = `/superadmin/scholarships/${s.id}`;
 
@@ -1074,6 +1132,54 @@
                 } catch (error) {
                     console.error('Delete Scholarship Error:', error);
                     AegisAlert.error({ title: 'Error', text: 'An unexpected connection error occurred.' });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalHtml;
+                }
+            }
+        }
+    });
+
+    // ── Notify Slots to Students ────────────────────
+    document.addEventListener('submit', async (e) => {
+        const form = e.target.closest('.notify-slots-form');
+        if (form) {
+            e.preventDefault();
+            const confirmed = await AegisAlert.confirm({
+                title: 'Broadcast Open Slots Notification?',
+                text: 'This will dispatch an in-app notification to all active students alerting them that slots are open for this scholarship.',
+                confirmText: 'Yes, Notify Students',
+                icon: 'info'
+            });
+
+            if (confirmed) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalHtml = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Broadcasting...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        AegisAlert.toast({
+                            icon: 'success',
+                            title: data.message || 'Notification broadcast successfully.'
+                        });
+                    } else {
+                        AegisAlert.error({ title: 'Error', text: data.message });
+                    }
+                } catch (error) {
+                    console.error('Notify Slots Error:', error);
+                    AegisAlert.error({ title: 'Error', text: 'An unexpected connection error occurred.' });
+                } finally {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalHtml;
                 }

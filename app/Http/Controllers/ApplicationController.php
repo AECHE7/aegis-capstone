@@ -142,11 +142,16 @@ class ApplicationController extends Controller
                     ->latest()
                     ->first();
 
+                $academicStatus = $request->input('academic_status') 
+                    ?? auth()->user()->profile?->academic_status 
+                    ?? 'Regular';
+
                 if ($existingApp) {
                     $app = $existingApp;
                     $app->update([
                         'program_name' => $scholarship->name,
                         'gwa' => $request->gwa ?? $app->gwa,
+                        'academic_status' => $academicStatus,
                         'status' => 'Pending',
                         'is_archived' => false,
                         'submitted_after_hours' => $isAfterHours,
@@ -158,6 +163,7 @@ class ApplicationController extends Controller
                         'academic_term_id' => $activeTerm ? $activeTerm->id : null,
                         'program_name' => $scholarship->name, 
                         'gwa' => $request->gwa,
+                        'academic_status' => $academicStatus,
                         'status' => 'Pending',
                         'is_renewal' => $request->boolean('is_renewal') || !empty($request->previous_application_id),
                         'previous_application_id' => $request->previous_application_id ?: null,
@@ -383,6 +389,7 @@ class ApplicationController extends Controller
             'college' => 'required|string|max:255',
             'course' => 'required|string|max:255',
             'year_level' => 'required|string|max:50',
+            'academic_status' => 'nullable|string|in:Regular,Irregular,Dropped',
             'contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
             'guardian_name' => 'required|string|max:255',
             'emergency_contact_number' => ['required', 'string', 'regex:/^09\d{9}$/'],
@@ -420,6 +427,7 @@ class ApplicationController extends Controller
                 'college' => $request->college,
                 'course' => $request->course,
                 'year_level' => $request->year_level,
+                'academic_status' => $request->academic_status ?? 'Regular',
                 'contact_number' => $request->contact_number,
                 'guardian_name' => $request->guardian_name,
                 'emergency_contact_number' => $request->emergency_contact_number,

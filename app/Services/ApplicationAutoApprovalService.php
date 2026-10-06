@@ -37,6 +37,13 @@ class ApplicationAutoApprovalService
             return false;
         }
 
+        // 3b. Skip if student academic status is Irregular or Dropped (manual verification required)
+        $academicStatus = $application->academic_status ?? $application->user?->profile?->academic_status ?? 'Regular';
+        if (in_array(strtolower($academicStatus), ['irregular', 'dropped'], true)) {
+            Log::info("Auto-approval skipped for Application ID {$application->id}: Academic status is {$academicStatus} (manual checking required).");
+            return false;
+        }
+
         // 4. Skip if the application has no documents uploaded
         if ($application->documents->isEmpty()) {
             return false;
@@ -80,6 +87,13 @@ class ApplicationAutoApprovalService
             $anomalies = $aiResult->anomaly_indicators ?? [];
             if (count($anomalies) > $maxAnomalies) {
                 return false;
+            }
+
+            foreach ($anomalies as $ind) {
+                if (str_contains($ind, 'incomplete_or_dropped_grades') || str_contains($ind, 'manual_check_required')) {
+                    Log::info("Auto-approval skipped for Application ID {$application->id}: Incomplete or dropped grades flag detected ({$ind}).");
+                    return false;
+                }
             }
         }
 

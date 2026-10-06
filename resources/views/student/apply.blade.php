@@ -242,9 +242,18 @@
                          data-id="{{ $scholarship->id }}"
                          data-name="{{ $scholarship->name }}"
                          data-gwa="{{ $scholarship->min_gwa_required ?? '' }}"
+                         data-attachment-url="{{ $scholarship->attachment_path ? route('scholarships.download-attachment', $scholarship->id) : '' }}"
+                         data-attachment-name="{{ $scholarship->attachment_name ?? '' }}"
                          onclick="selectScholarship(this)">
                         <div class="pe-4">
-                            <div class="fw-bold text-dark" style="font-size:0.85rem; line-height:1.35;">{{ $scholarship->name }}</div>
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                <span class="fw-bold text-dark" style="font-size:0.85rem; line-height:1.35;">{{ $scholarship->name }}</span>
+                                @if($scholarship->attachment_path)
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle" style="font-size:0.62rem;">
+                                        <i class="fa-solid fa-paperclip me-1"></i> Form Attached
+                                    </span>
+                                @endif
+                            </div>
                             @if($scholarship->description)
                                 <div class="text-muted small mt-1" style="font-size:0.72rem; line-height:1.3;">{{ Str::limit($scholarship->description, 60) }}</div>
                             @endif
@@ -266,6 +275,46 @@
                     <span class="badge rounded-pill" style="background:var(--clsu-green);color:white;font-size:0.7rem;padding:4px 8px;">2</span>
                     {{ __('portal.configure_parameters') }}
                 </div>
+
+                {{-- Downloadable Scholarship Guidelines & Template File Banner --}}
+                <div id="scholarshipAttachmentNotice" class="mb-3" style="display: none;">
+                    <div class="alert alert-success border shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 mb-0" style="background: #f0fdf4; border-color: #bbf7d0 !important; border-radius: 12px;">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <div style="width: 38px; height: 38px; border-radius: 10px; background: #dcfce7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <i class="fa-solid fa-file-arrow-down text-success fs-5"></i>
+                            </div>
+                            <div>
+                                <strong class="text-dark d-block" style="font-size: 0.85rem;">Official Scholarship Application Form / Guidelines</strong>
+                                <span class="text-muted" style="font-size: 0.74rem;" id="scholarshipAttachmentNameText">Please download and review the official form before submitting your application.</span>
+                            </div>
+                        </div>
+                        <a href="#" id="scholarshipAttachmentLink" class="btn btn-sm btn-success px-3.5 py-1.5 fw-bold rounded-pill text-white shadow-sm" target="_blank" download>
+                            <i class="fa-solid fa-download me-1"></i> Download File
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Academic / Enrollment Standing Dropdown --}}
+                <div class="p-3 bg-white border rounded-3 mb-3 shadow-sm">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <label class="form-label fw-bold small text-dark mb-1 d-flex align-items-center gap-1.5" for="academicStatusSelect">
+                                <i class="fa-solid fa-user-graduate text-success"></i> Academic / Enrollment Status <span class="text-danger">*</span>
+                            </label>
+                            <p class="text-muted mb-md-0" style="font-size: 0.73rem; line-height: 1.4;">
+                                Indicate your current university academic standing for this term. Dropped or incomplete courses require manual verification by OSA staff.
+                            </p>
+                        </div>
+                        <div class="col-md-5">
+                            <select name="academic_status" id="academicStatusSelect" class="form-select form-select-sm shadow-sm" required style="border-radius: 8px; font-weight: 500;">
+                                <option value="Regular" {{ (auth()->user()->profile?->academic_status ?? 'Regular') === 'Regular' ? 'selected' : '' }}>Regular Student</option>
+                                <option value="Irregular" {{ (auth()->user()->profile?->academic_status ?? '') === 'Irregular' ? 'selected' : '' }}>Irregular Student (Irreg)</option>
+                                <option value="Dropped" {{ (auth()->user()->profile?->academic_status ?? '') === 'Dropped' ? 'selected' : '' }}>Dropped / Incomplete Units</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="p-3.5 bg-light-subtle border rounded-3 row g-3 mx-0" id="dynamicFieldsBody">
                     <!-- Dynamic inputs appended via JS -->
                 </div>
@@ -324,16 +373,34 @@
         // Run GWA check
         checkGwaEligibility();
 
+        // Show container for Step 2
+        const container = document.getElementById('dynamicFieldsContainer');
+        if (container) { container.style.display = 'block'; }
+
+        // Handle Downloadable Attachment Notice
+        const attachNotice = document.getElementById('scholarshipAttachmentNotice');
+        const attachLink = document.getElementById('scholarshipAttachmentLink');
+        const attachNameText = document.getElementById('scholarshipAttachmentNameText');
+        if (attachNotice) {
+            if (el.dataset.attachmentUrl) {
+                attachNotice.style.display = 'block';
+                if (attachLink) {
+                    attachLink.href = el.dataset.attachmentUrl;
+                }
+                if (attachNameText && el.dataset.attachmentName) {
+                    attachNameText.textContent = `Attachment: ${el.dataset.attachmentName} — Please download and review before applying.`;
+                }
+            } else {
+                attachNotice.style.display = 'none';
+            }
+        }
+
         // Fetch custom fields dynamically
         fetch(`/scholarships/${el.dataset.id}/fields`)
             .then(response => response.json())
             .then(fields => {
-                const container = document.getElementById('dynamicFieldsContainer');
                 const body = document.getElementById('dynamicFieldsBody');
                 body.innerHTML = '';
-                
-                if (fields.length > 0) {
-                    container.style.display = 'block';
                     fields.forEach(field => {
                         const formGroup = document.createElement('div');
                         const isFullWidth = (field.field_type === 'textarea' || field.field_type === 'file' || (field.field_label && field.field_label.length > 35));

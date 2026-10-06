@@ -235,6 +235,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/student/profile', [ApplicationController::class, 'editProfile'])->name('student.profile');
         Route::post('/student/profile', [ApplicationController::class, 'updateProfile'])->middleware('throttle:30,1')->name('student.profile.update');
         Route::get('/scholarships/{id}/fields', [ApplicationController::class, 'getScholarshipFields'])->name('scholarships.fields');
+        Route::get('/scholarships/{id}/download-attachment', [SuperAdminController::class, 'downloadAttachment'])->name('scholarships.download-attachment');
         
         // Deletion & Cancellation Workflows (Soft & Hard deletes for Student)
         Route::post('/application/{id}/cancel', [ApplicationController::class, 'cancel'])->name('student.application.cancel');
@@ -266,6 +267,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/review/{id}/unarchive', [AdminController::class, 'unarchive'])->name('admin.unarchive');
         Route::get('/document/{id}/download', [AdminController::class, 'downloadDocument'])->name('admin.document.download');
         Route::get('/export-csv', [\App\Http\Controllers\ReportController::class, 'exportCsv'])->name('admin.export');
+        Route::get('/export-approved-csv', [\App\Http\Controllers\ReportController::class, 'exportApprovedStudentsCsv'])->name('admin.export-approved');
         Route::get('/export-pdf', [\App\Http\Controllers\ReportController::class, 'exportPdf'])->name('admin.exportPdf');
         Route::get('/review/{id}/forensic-pdf/{docId?}', [\App\Http\Controllers\ReportController::class, 'exportForensicReport'])->name('admin.forensicPdf');
         Route::get('/review/{id}/download-form', [AdminController::class, 'downloadApprovedForm'])->name('admin.application.download-form');
@@ -295,6 +297,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/scholarships', [SuperAdminController::class, 'index'])->name('superadmin.scholarships');
         Route::post('/scholarships', [SuperAdminController::class, 'store'])->name('superadmin.scholarships.store');
         Route::post('/scholarships/{id}/toggle', [SuperAdminController::class, 'toggleStatus'])->name('superadmin.scholarships.toggle');
+        Route::post('/scholarships/{id}/notify-slots', [SuperAdminController::class, 'broadcastSlotsNotification'])->name('superadmin.scholarships.notify-slots');
         Route::get('/scholarships/{id}', [SuperAdminController::class, 'show'])->name('superadmin.scholarships.show');
         Route::put('/scholarships/{id}', [SuperAdminController::class, 'update'])->name('superadmin.scholarships.update');
         Route::get('/analytics', [SuperAdminController::class, 'analytics'])->name('superadmin.analytics');
