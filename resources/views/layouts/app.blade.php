@@ -2100,16 +2100,17 @@
     // ══════════════════════════════════════════
     window.AegisAlert = {
         base: function(options = {}) {
+            const { isDestructive, ...swalOptions } = options;
             return Swal.mixin({
                 customClass: {
                     popup: 'aegis-swal-popup',
-                    confirmButton: options.isDestructive ? 'swal2-confirm aegis-btn-danger' : 'swal2-confirm',
+                    confirmButton: isDestructive ? 'swal2-confirm aegis-btn-danger' : 'swal2-confirm',
                     cancelButton: 'swal2-cancel'
                 },
                 buttonsStyling: true,
                 focusConfirm: false,
                 returnFocus: false,
-                ...options
+                ...swalOptions
             });
         },
 

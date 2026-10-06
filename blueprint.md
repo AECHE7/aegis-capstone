@@ -2287,6 +2287,25 @@ In `app/Http/Middleware/SecurityHeaders.php`, the `Content-Security-Policy` head
    - Added `test_dummy_student_can_login_with_standard_password` and `test_student_demo_alias_auto_provisions_and_accepts_evaluation_password` to `tests/Feature/DummyAccountBypassTest.php`.
    - Executed `php artisan test --filter=DummyAccountBypassTest`: **10 passed (46 assertions, 100%)**.
 
+---
+
+## 69. SweetAlert2 Unknown Parameter `isDestructive` Warning Elimination (October 2026)
+
+### Issue Identified
+Browser DevTools console logged an alert configuration warning:
+`SweetAlert2: Unknown parameter "isDestructive"` at `sweetalert2@11:5` when triggering confirmation dialogs (such as the Cancel Application modal).
+
+### Root Cause Analysis
+In `resources/views/layouts/app.blade.php`, `window.AegisAlert.base()` received an `options` dictionary containing custom wrapper properties like `isDestructive: true`. It spread `...options` directly into `Swal.mixin(options)` without stripping non-standard properties, causing SweetAlert2's internal configuration validator to issue a console warning.
+
+### Remediation & Architectural Resolution
+1. **Option Destructuring ([app.blade.php](file:///f:/aegis-capstone/resources/views/layouts/app.blade.php#L2103))**:
+   - Refactored `AegisAlert.base()` to destructure `{ isDestructive, ...swalOptions } = options;`.
+   - `isDestructive` is retained to apply the appropriate danger button CSS class (`swal2-confirm aegis-btn-danger`), while `swalOptions` passed to `Swal.mixin()` contains only native, validated SweetAlert2 properties.
+2. **Verification**:
+   - Confirmed `isDestructive` is completely withheld from SweetAlert2's config object, eliminating the browser console warning.
+
+
 
 
 
