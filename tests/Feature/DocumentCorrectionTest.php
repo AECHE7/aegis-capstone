@@ -145,7 +145,7 @@ class DocumentCorrectionTest extends TestCase
         $this->assertDatabaseHas('status_logs', [
             'application_id' => $application->id,
             'status' => 'Pending',
-            'remarks' => 'Resubmitted corrected COG document.',
+            'remarks' => 'Resubmitted corrected COG document (corrected_cog.jpg).',
             'changed_by' => $this->student->id,
         ]);
 

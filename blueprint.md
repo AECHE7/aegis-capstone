@@ -2520,6 +2520,44 @@ On mobile devices (< 768px), students lacked a navigation tab on the fixed botto
    - Verified resubmitting a Returned application preserves the application ID and modifies only the targeted file.
    - Verified resubmitting a Rejected application unarchives it and preserves the application ID.
 
+---
+
+## 75. Notification System Comprehensive Audit, Dual-Channel Delivery & Verification
+
+### Problem Statement & Scope
+1. **User Inquiry**:
+   - Clarify what notifications are received when staff uses the system (for both staff evaluators and student applicants).
+   - Verify if all notification channels (in-app database notifications, topbar alerts, full Notification Center, and automated emails) are operational and actively firing.
+2. **Key Notification Delivery Workflows**:
+   - **Staff Evaluates Application (`Approved`, `Rejected`, `Returned`)**: Student applicant receives immediate in-app database notification (`ApplicationStatusNotification`) and automated email (`ApplicationStatusMail` or `ScholarshipRenewalMail`).
+   - **Staff Revokes Scholarship (`Revoked`)**: Student scholar receives in-app database notification (`ApplicationStatusNotification`) and formal revocation email notice (`ScholarshipRevocationMail`).
+   - **Staff or Director Posts Announcement**: All active users receive in-app announcement notification (`NewAnnouncementNotification`) and optional dual-channel email broadcast (`BroadcastAnnouncementEmailJob` -> `AnnouncementMail`).
+   - **Student Submits New Application**: Assigned staff evaluator (or active admins) receives in-app notification (`NewApplicationNotification`) with direct link to Review Studio (`/admin/review/{id}`). Student receives submission confirmation (`ApplicationSubmissionConfirmationNotification`).
+   - **Student Resubmits Corrected File**: Assigned staff evaluator receives in-app notification (`NewApplicationNotification`) alerting that the student has fulfilled the requested document correction.
+   - **Administrative Broadcast Alert**: System sends in-app broadcast banner (`BroadcastNotification`) and email log to target audiences.
+   - **Staff Account Invitation**: Newly onboarded staff member receives secure activation token (`StaffInvitationNotification`).
+
+### Architectural Changes & Hardening
+1. **Revocation In-App Database Notification ([AdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/AdminController.php))**:
+   - In `revokeScholarship()`, added database notification dispatch:
+     ```php
+     if ($application->user) {
+         $application->user->notify(new \App\Notifications\ApplicationStatusNotification($application));
+     }
+     ```
+   - Wrapped inside a fail-safe try-catch block alongside `ScholarshipRevocationMail` and `EmailLog` creation.
+2. **Staff Resubmission Alert ([ApplicationController.php](file:///f:/aegis-capstone/app/Http/Controllers/ApplicationController.php))**:
+   - In `updateDocument()` / `reupload()`, added targeted notification to `$application->assignedTo` (falling back to program staff or active admins) using `NewApplicationNotification`, ensuring evaluators are immediately alerted to review updated documents.
+3. **Comprehensive End-to-End Notification Testing ([StaffActionNotificationsTest.php](file:///f:/aegis-capstone/tests/Feature/StaffActionNotificationsTest.php))**:
+   - Created 6 dedicated test cases:
+     - `test_staff_approving_application_sends_database_notification_and_logs_email`
+     - `test_staff_returning_application_sends_database_notification_and_logs_email`
+     - `test_staff_revoking_scholarship_sends_database_notification_and_logs_revocation_email`
+     - `test_staff_creating_announcement_sends_notification_to_all_active_users`
+     - `test_student_resubmission_sends_notification_to_assigned_staff`
+     - `test_staff_notification_center_and_read_unread_lifecycle`
+   - Verified 100% pass rate across 27 combined feature tests and 194 assertions (`StaffActionNotificationsTest`, `NotificationComplianceTest`, `BroadcastNotificationTest`, `DocumentCorrectionTest`, `StaffIncomingAndRejectedArchiveTest`).
+
 
 
 

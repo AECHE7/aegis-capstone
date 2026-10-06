@@ -720,6 +720,22 @@ class ApplicationController extends Controller
         ]);
         \App\Jobs\ScanDocumentJob::dispatch($application->id);
 
+        // Notify assigned staff evaluator or active admin of resubmission
+        try {
+            $staffRecipient = $application->assignedTo;
+            if (!$staffRecipient) {
+                $staffRecipient = $application->scholarship?->staff()->first();
+            }
+            if (!$staffRecipient) {
+                $staffRecipient = \App\Models\User::where('role', 'admin')->where('is_active', true)->first();
+            }
+            if ($staffRecipient) {
+                $staffRecipient->notify(new \App\Notifications\NewApplicationNotification($application));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to notify staff of resubmitted document: ' . $e->getMessage());
+        }
+
         // Clean active_scholarships cache to be sure
         \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
 

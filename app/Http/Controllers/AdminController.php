@@ -678,6 +678,15 @@ class AdminController extends Controller
             $request->ip()
         );
 
+        // Dispatch database notification
+        try {
+            if ($application->user) {
+                $application->user->notify(new \App\Notifications\ApplicationStatusNotification($application));
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send application status database notification on revoke: ' . $e->getMessage());
+        }
+
         // Send Revocation Email Notification
         if ($application->user && $application->user->email) {
             $mailSubject = "[A.E.G.I.S.] Official Notice: Scholarship Grant Revocation ({$application->program_name})";
