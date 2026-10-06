@@ -73,7 +73,14 @@ class AnnouncementController extends Controller
 
         $broadcasts = $broadcastQuery->latest()->paginate(10, ['*'], 'broadcasts_page')->withQueryString();
 
-        $activeTab = $request->query('tab', 'announcements');
+        $activeTab = $request->query('tab');
+        if (empty($activeTab)) {
+            if ($request->has('broadcasts_page') || $request->has('broadcast_search')) {
+                $activeTab = 'history';
+            } else {
+                $activeTab = 'announcements';
+            }
+        }
 
         return view('announcements.index', compact(
             'announcements',

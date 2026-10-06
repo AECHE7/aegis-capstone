@@ -385,8 +385,8 @@
             </div>
 
             @if($students->hasPages())
-                <div class="p-3 border-top d-flex justify-content-end">
-                    {{ $students->links() }}
+                <div class="p-3 border-top">
+                    {{ $students->links('pagination::bootstrap-5') }}
                 </div>
             @endif
 

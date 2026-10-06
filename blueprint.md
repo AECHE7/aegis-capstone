@@ -2558,6 +2558,38 @@ On mobile devices (< 768px), students lacked a navigation tab on the fixed botto
      - `test_staff_notification_center_and_read_unread_lifecycle`
    - Verified 100% pass rate across 27 combined feature tests and 194 assertions (`StaffActionNotificationsTest`, `NotificationComplianceTest`, `BroadcastNotificationTest`, `DocumentCorrectionTest`, `StaffIncomingAndRejectedArchiveTest`).
 
+---
+
+## 76. Pagination Standardization & Broadcast History Layout Fix
+
+### Problem Statement & Scope
+1. **Broken Pagination Layout in Broadcast History Tab (`/admin/announcements?tab=history`)**:
+   - The user identified an issue in the Broadcast History tab where the pagination area rendered stacked, oversized empty white boxes with borders around the previous and next controls, along with redundant/overlapping "Previous / Next" text and page numbers.
+2. **Root Cause Analysis**:
+   - In Laravel 11, the paginator defaults to Tailwind (`pagination::tailwind`). Because A.E.G.I.S. is built with Bootstrap 5 and scoped CSS tokens:
+     - The uncompiled Tailwind SVG utility classes (`w-5 h-5`) allowed the previous/next SVGs to render without constrained dimensions, resulting in giant boxes.
+     - The missing `inline-flex` and flex container utilities caused the controls to stack vertically as separate bordered blocks instead of a unified horizontal pagination toolbar.
+     - The mobile pagination elements (`sm:hidden`) and desktop pagination elements were both visible simultaneously.
+   - When users clicked between pages in the history log, the active tab state could revert to `announcements` if the query parameter `tab=history` was not explicitly carried through by the pagination links.
+
+### Architectural Enhancements & Implementation
+1. **Global Bootstrap 5 Paginator Registration ([AppServiceProvider.php](file:///f:/aegis-capstone/app/Providers/AppServiceProvider.php))**:
+   - Registered `\Illuminate\Pagination\Paginator::useBootstrapFive();` within `boot()`.
+   - Globally forces all Eloquent/Query Builder pagination links (`$paginator->links()`) to use semantic, Bootstrap 5-compliant markup (`<ul class="pagination"><li class="page-item"><a class="page-link">`).
+2. **Explicit Template Binding in Admin & Student Views**:
+   - Updated `announcements/index.blade.php` (both Announcements and Broadcast History tables) to call `{{ $paginator->links('pagination::bootstrap-5') }}` in full-width containers (`<div class="p-3 border-top">`), removing restrictive right-alignment so the "Showing X to Y results" is on the left and the page buttons are cleanly aligned on the right.
+   - Synchronized all other paginated views: `superadmin/broadcast.blade.php`, `superadmin/users.blade.php`, `student/announcements.blade.php`, and `admin/applicant_forms.blade.php`.
+3. **Global Pagination Design Tokens ([components.css](file:///f:/aegis-capstone/resources/css/components.css))**:
+   - Added global scoped CSS for `.pagination` and `.pagination .page-link`:
+     - Constrains any nested SVGs to `14px !important` with `vertical-align: middle`.
+     - Styled `.page-link` with `border-radius: 8px`, institutional CLSU green active state (`#0c4e2d`), soft borders, and hover micro-interactions.
+     - Guaranteed zero vertical stacking across all screen sizes.
+4. **History Tab Parameter State Fallback ([AnnouncementController.php](file:///f:/aegis-capstone/app/Http/Controllers/AnnouncementController.php))**:
+   - In `index()`, added fallback logic: if `tab` is empty but `broadcasts_page` or `broadcast_search` is present in the request query, automatically set `$activeTab = 'history'`, ensuring the user remains on the History tab when navigating between pages or filtering logs.
+5. **Compilation & Test Verification**:
+   - Recompiled Vite bundle (`npm run build`).
+   - Ran complete feature test suite verifying 100% pass across all notification and communication tests.
+
 
 
 

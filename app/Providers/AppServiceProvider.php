@@ -24,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
+        \Illuminate\Pagination\Paginator::useBootstrapFive();
+
         Model::shouldBeStrict(! $this->app->isProduction());
 
         \Illuminate\Support\Facades\Mail::extend('brevo_api', function (array $config) {

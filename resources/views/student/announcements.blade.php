@@ -80,7 +80,7 @@
         {{-- Pagination --}}
         @if($announcements->hasPages())
             <div class="d-flex justify-content-center mt-3">
-                {{ $announcements->links() }}
+                {{ $announcements->links('pagination::bootstrap-5') }}
             </div>
         @endif
     </div>

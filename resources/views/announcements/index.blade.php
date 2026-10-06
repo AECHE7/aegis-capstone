@@ -354,8 +354,8 @@
             </div>
 
             @if($announcements->hasPages())
-                <div class="p-3 border-top d-flex justify-content-end">
-                    {{ $announcements->links() }}
+                <div class="p-3 border-top">
+                    {{ $announcements->links('pagination::bootstrap-5') }}
                 </div>
             @endif
         </div>
@@ -621,8 +621,8 @@
             </form>
 
             @if($broadcasts->hasPages())
-                <div class="p-3 border-top d-flex justify-content-end">
-                    {{ $broadcasts->links() }}
+                <div class="p-3 border-top">
+                    {{ $broadcasts->links('pagination::bootstrap-5') }}
                 </div>
             @endif
         </div>

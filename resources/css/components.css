@@ -177,3 +177,56 @@
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   Global Clean Pagination Styling (Bootstrap 5 System)
+   ════════════════════════════════════════════════════════════════ */
+.pagination {
+    margin-bottom: 0;
+    gap: 4px;
+    align-items: center;
+}
+
+.pagination svg {
+    width: 14px !important;
+    height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+.pagination .page-link {
+    color: var(--clsu-green, #0c4e2d);
+    border-radius: 8px !important;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background-color: var(--card-bg, #ffffff);
+    transition: all 0.15s ease;
+    box-shadow: none;
+}
+
+.pagination .page-link:hover {
+    background-color: rgba(12, 78, 45, 0.08);
+    color: var(--clsu-green, #0c4e2d);
+    border-color: var(--clsu-green, #0c4e2d);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--clsu-green, #0c4e2d) !important;
+    border-color: var(--clsu-green, #0c4e2d) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #94a3b8;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+}
+
