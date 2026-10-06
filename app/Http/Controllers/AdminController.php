@@ -13,8 +13,13 @@ class AdminController extends Controller
     private function validateAdminAccess(Application $application)
     {
         if (auth()->user()->role === 'admin') {
+            // If the application is explicitly assigned to this staff member, always permit access
+            if ($application->assigned_to === auth()->id()) {
+                return;
+            }
+
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            if (!in_array($application->scholarship_id, $assignedScholarshipIds)) {
+            if (!empty($assignedScholarshipIds) && !in_array($application->scholarship_id, $assignedScholarshipIds)) {
                 abort(403, 'Unauthorized access.');
             }
         }
@@ -33,9 +38,14 @@ class AdminController extends Controller
 
         if (auth()->user()->role === 'admin') {
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            $query->whereIn('scholarship_id', $assignedScholarshipIds);
+            if (!empty($assignedScholarshipIds)) {
+                $query->where(function ($sq) use ($assignedScholarshipIds) {
+                    $sq->whereIn('scholarship_id', $assignedScholarshipIds)
+                       ->orWhere('assigned_to', auth()->id());
+                });
+            }
 
-            $assignmentFilter = $request->query('assignment', 'mine');
+            $assignmentFilter = $request->query('assignment', 'all');
             if ($assignmentFilter === 'mine') {
                 $query->where('assigned_to', auth()->id());
             } elseif ($assignmentFilter === 'unassigned') {
@@ -50,6 +60,9 @@ class AdminController extends Controller
         }
 
         if ($request->query('archived') == '1') {
+            $query->where('is_archived', true);
+        } elseif ($request->query('status') === 'Rejected') {
+            // Rejected applications are automatically archived, so show archived when specifically filtering by Rejected
             $query->where('is_archived', true);
         } else {
             $query->where('is_archived', false);
@@ -125,7 +138,12 @@ class AdminController extends Controller
 
         if (auth()->user()->role === 'admin') {
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            $baseAnalyticsQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            if (!empty($assignedScholarshipIds)) {
+                $baseAnalyticsQuery->where(function ($sq) use ($assignedScholarshipIds) {
+                    $sq->whereIn('scholarship_id', $assignedScholarshipIds)
+                       ->orWhere('assigned_to', auth()->id());
+                });
+            }
         }
 
         if ($request->filled('scholarship_id')) {
@@ -142,7 +160,7 @@ class AdminController extends Controller
         $pendingCount     = (int) ($statusCounts['Pending'] ?? 0);
         $underReviewCount = (int) ($statusCounts['Under Review'] ?? 0);
         $approvedCount    = (int) ($statusCounts['Approved'] ?? 0);
-        $rejectedCount    = (int) ($statusCounts['Rejected'] ?? 0);
+        $rejectedCount    = (clone $baseAnalyticsQuery)->where('status', 'Rejected')->count();
         $archivedCount    = (clone $baseAnalyticsQuery)->where('is_archived', true)->count();
         $cancelledCount   = (clone $baseAnalyticsQuery)->onlyTrashed()->count();
         
@@ -150,7 +168,12 @@ class AdminController extends Controller
         $avgFraudQuery = \App\Models\AIResult::whereHas('document.application', function ($q) use ($request) {
             if (auth()->user()->role === 'admin') {
                 $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-                $q->whereIn('scholarship_id', $assignedScholarshipIds);
+                if (!empty($assignedScholarshipIds)) {
+                    $q->where(function ($sq) use ($assignedScholarshipIds) {
+                        $sq->whereIn('scholarship_id', $assignedScholarshipIds)
+                           ->orWhere('assigned_to', auth()->id());
+                    });
+                }
             }
             if ($request->filled('scholarship_id')) {
                 $q->where('scholarship_id', $request->scholarship_id);
@@ -161,7 +184,8 @@ class AdminController extends Controller
 
         // Fetch all scholarships, academic terms, and years for filters
         if (auth()->user()->role === 'admin') {
-            $scholarships = auth()->user()->scholarships()->orderBy('name', 'asc')->get();
+            $userScholarships = auth()->user()->scholarships()->orderBy('name', 'asc')->get();
+            $scholarships = $userScholarships->isNotEmpty() ? $userScholarships : \App\Models\Scholarship::orderBy('name', 'asc')->get();
         } else {
             $scholarships = \App\Models\Scholarship::orderBy('name', 'asc')->get();
         }
@@ -196,7 +220,10 @@ class AdminController extends Controller
         $activeScholarsQuery = \App\Models\Application::with(['user.profile', 'scholarship', 'academicTerm'])
             ->where('status', 'Approved');
         if (auth()->user()->role === 'admin') {
-            $activeScholarsQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
+            if (!empty($assignedScholarshipIds)) {
+                $activeScholarsQuery->whereIn('scholarship_id', $assignedScholarshipIds);
+            }
         }
         $activeScholars = $activeScholarsQuery->latest('updated_at')->take(10)->get();
 
@@ -494,11 +521,16 @@ class AdminController extends Controller
         $evaluatorId = auth()->id(); // role middleware guarantees non-null (CRIT-05)
 
         // 3. Update the status and attach the Audit Trail data!
-        $application->update([
+        $updatePayload = [
             'status' => $request->status,
             'remarks' => $request->remarks,
             'evaluated_by' => $evaluatorId
-        ]);
+        ];
+        if ($request->status === 'Rejected') {
+            $updatePayload['is_archived'] = true;
+        }
+
+        $application->update($updatePayload);
 
         // Log to StatusLog
         \App\Models\StatusLog::create([
@@ -727,11 +759,16 @@ class AdminController extends Controller
                 continue; // Skip unauthorized
             }
 
-            $application->update([
+            $bulkUpdatePayload = [
                 'status' => $status,
                 'remarks' => $remarks,
                 'evaluated_by' => $evaluatorId
-            ]);
+            ];
+            if ($status === 'Rejected') {
+                $bulkUpdatePayload['is_archived'] = true;
+            }
+
+            $application->update($bulkUpdatePayload);
 
             \App\Models\StatusLog::create([
                 'application_id' => $application->id,
@@ -868,7 +905,9 @@ class AdminController extends Controller
         $assignedScholarshipIds = [];
         if ($user->role === 'admin') {
             $assignedScholarshipIds = $user->scholarships()->pluck('scholarships.id')->toArray();
-            $query->whereIn('scholarship_id', $assignedScholarshipIds);
+            if (!empty($assignedScholarshipIds)) {
+                $query->whereIn('scholarship_id', $assignedScholarshipIds);
+            }
         }
 
         // Search Filter (Student Name, Email, CLSU ID, or Application ID)
@@ -912,7 +951,7 @@ class AdminController extends Controller
 
         // Quick Statistics
         $statsBase = Application::query()->where('is_archived', false);
-        if ($user->role === 'admin') {
+        if ($user->role === 'admin' && !empty($assignedScholarshipIds)) {
             $statsBase->whereIn('scholarship_id', $assignedScholarshipIds);
         }
 

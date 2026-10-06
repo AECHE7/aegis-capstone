@@ -139,7 +139,7 @@
 
         {{-- Quick Status Filter Pills (1-Click Toggling) --}}
         <div class="d-flex align-items-center gap-1.5 flex-wrap" id="statusPillsGroup">
-            <button type="button" class="filter-status-pill {{ !request('status') ? 'active' : '' }}" data-status="">
+            <button type="button" class="filter-status-pill {{ !request('status') && request('archived') != '1' ? 'active' : '' }}" data-status="">
                 <i class="fa-solid fa-layer-group" aria-hidden="true"></i> All
             </button>
             <button type="button" class="filter-status-pill {{ request('status') === 'Pending' ? 'active' : '' }}" data-status="Pending">
@@ -158,6 +158,10 @@
                 <i class="fa-solid fa-shield-virus text-danger" aria-hidden="true"></i> Rejected
                 <span class="pill-count count-up" data-target="{{ $rejectedCount }}">{{ $rejectedCount }}</span>
             </button>
+            <button type="button" class="filter-status-pill {{ request('archived') == '1' ? 'active' : '' }}" data-status="" data-archived="1" id="archivedPillBtn">
+                <i class="fa-solid fa-box-archive text-secondary" aria-hidden="true"></i> Archived
+                <span class="pill-count count-up" data-target="{{ $archivedCount }}">{{ $archivedCount }}</span>
+            </button>
         </div>
 
         {{-- More Filters & Sort Dropdown Popover --}}
@@ -168,6 +172,7 @@
                 if(request('type')) $activeSecondaryCount++;
                 if(request('academic_term_id')) $activeSecondaryCount++;
                 if(request('sort')) $activeSecondaryCount++;
+                if(request('assignment') && request('assignment') !== 'all') $activeSecondaryCount++;
             @endphp
             <button class="btn btn-sm btn-clsu-secondary rounded-pill px-3 py-1.5 text-nowrap d-inline-flex align-items-center gap-1.5" 
                     type="button" id="moreFiltersDropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
@@ -192,6 +197,16 @@
                     <option value="Rejected" {{ request('status') === 'Rejected' ? 'selected' : '' }}>Rejected</option>
                     <option value="Cancelled" {{ request('status') === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
                 </select>
+
+                {{-- Queue Assignment Filter for Staff --}}
+                <div class="mb-2">
+                    <label class="form-label fw-semibold small text-muted mb-1" for="assignmentSelect">Queue Scope</label>
+                    <select name="assignment" id="assignmentSelect" class="form-select form-select-sm" style="border-radius: 8px;">
+                        <option value="all" {{ request('assignment', 'all') === 'all' ? 'selected' : '' }}>All Applications (Incoming & Assigned)</option>
+                        <option value="mine" {{ request('assignment') === 'mine' ? 'selected' : '' }}>Assigned to Me</option>
+                        <option value="unassigned" {{ request('assignment') === 'unassigned' ? 'selected' : '' }}>Unassigned Queue Only</option>
+                    </select>
+                </div>
 
                 <div class="mb-2">
                     <label class="form-label fw-semibold small text-muted mb-1" for="scholarshipSelect">Scholarship Program</label>
@@ -417,6 +432,7 @@
     const academicPeriodSelect = document.getElementById('academicPeriodSelect');
     const typeSelect = document.getElementById('typeSelect');
     const sortSelect = document.getElementById('sortSelect');
+    const assignmentSelect = document.getElementById('assignmentSelect');
     
     let debounceTimer;
     let currentArchivedState = "{{ request('archived') == '1' ? '1' : '0' }}";
@@ -429,6 +445,7 @@
         if (academicPeriodSelect && academicPeriodSelect.value) params.set('academic_term_id', academicPeriodSelect.value);
         if (typeSelect && typeSelect.value) params.set('type', typeSelect.value);
         if (sortSelect && sortSelect.value) params.set('sort', sortSelect.value);
+        if (assignmentSelect && assignmentSelect.value && assignmentSelect.value !== 'all') params.set('assignment', assignmentSelect.value);
         if (currentArchivedState === '1') params.set('archived', '1');
         params.set('page', page);
         return params.toString();
@@ -477,12 +494,18 @@
                 if (approvedPill) approvedPill.textContent = data.counts.approved || 0;
                 const rejectedPill = document.querySelector('.filter-status-pill[data-status="Rejected"] .pill-count');
                 if (rejectedPill) rejectedPill.textContent = data.counts.rejected || 0;
+                const archivedPill = document.querySelector('.filter-status-pill[data-archived="1"] .pill-count');
+                if (archivedPill) archivedPill.textContent = data.counts.archived || 0;
             }
 
             // Sync active pill selection
             const currentStatusVal = statusSelect ? statusSelect.value : '';
             document.querySelectorAll('.filter-status-pill').forEach(pill => {
-                pill.classList.toggle('active', pill.dataset.status === currentStatusVal);
+                if (currentArchivedState === '1') {
+                    pill.classList.toggle('active', pill.dataset.archived === '1');
+                } else {
+                    pill.classList.toggle('active', pill.dataset.status === currentStatusVal && pill.dataset.archived !== '1');
+                }
             });
 
             // Sync address bar
@@ -504,10 +527,14 @@
             e.preventDefault();
             document.querySelectorAll('.filter-status-pill').forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
-            if (statusSelect) {
-                statusSelect.value = pill.dataset.status;
-                reloadQueue();
+            if (pill.dataset.archived === '1') {
+                currentArchivedState = '1';
+                if (statusSelect) statusSelect.value = '';
+            } else {
+                currentArchivedState = '0';
+                if (statusSelect) statusSelect.value = pill.dataset.status;
             }
+            reloadQueue();
         });
     });
 
@@ -526,7 +553,7 @@
         });
     }
 
-    [scholarshipSelect, statusSelect, academicPeriodSelect, typeSelect, sortSelect].forEach(select => {
+    [scholarshipSelect, statusSelect, academicPeriodSelect, typeSelect, sortSelect, assignmentSelect].forEach(select => {
         if (select) {
             select.addEventListener('change', () => reloadQueue());
         }

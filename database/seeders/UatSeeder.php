@@ -78,12 +78,13 @@ class UatSeeder extends Seeder
         );
 
         // 4. Ensure Scholarships exist (re-seed if missing)
-        if (Scholarship::count() === 0) {
+        if (Scholarship::withTrashed()->count() === 0) {
             Scholarship::create(['name' => 'DOST-SEI Merit Scholarship', 'min_gwa_required' => 1.50, 'status' => 'Active']);
             Scholarship::create(['name' => 'University Scholar (Institutional)', 'min_gwa_required' => 1.45, 'status' => 'Active']);
             Scholarship::create(['name' => 'College Scholar (Institutional)', 'min_gwa_required' => 1.75, 'status' => 'Active']);
             Scholarship::create(['name' => 'CHED Tulong Dunong Program', 'min_gwa_required' => 2.50, 'status' => 'Active']);
         }
+        \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
 
         // 5. Ensure Academic Terms exist (re-seed if missing)
         if (AcademicTerm::count() === 0) {

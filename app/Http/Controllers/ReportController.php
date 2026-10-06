@@ -18,7 +18,9 @@ class ReportController extends Controller
 
         if (auth()->user()->role === 'admin') {
             $assignedScholarshipIds = auth()->user()->scholarships()->pluck('scholarships.id')->toArray();
-            $query->whereIn('scholarship_id', $assignedScholarshipIds);
+            if (!empty($assignedScholarshipIds)) {
+                $query->whereIn('scholarship_id', $assignedScholarshipIds);
+            }
         }
 
         if ($request->filled('scholarship_id')) {

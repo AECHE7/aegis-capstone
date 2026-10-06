@@ -122,6 +122,13 @@ class Application extends Model
      */
     protected static function booted()
     {
+        static::saving(function (Application $app) {
+            // Automatically put rejected applications to the archive unless explicitly specified otherwise
+            if ($app->status === 'Rejected' && !$app->isDirty('is_archived')) {
+                $app->is_archived = true;
+            }
+        });
+
         $invalidateCache = function () {
             try {
                 $version = \Illuminate\Support\Facades\Cache::get('analytics_cache_version', 1);

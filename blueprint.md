@@ -2417,7 +2417,61 @@ On mobile devices (< 768px), students lacked a navigation tab on the fixed botto
 3. **Responsive Mobile Typography & Layout Safety**:
    - Enhanced `.mobile-nav-item` with `min-width: 0; padding: 0 2px;`.
    - Added text truncation and single-line protection for `.mobile-nav-item span` (`white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;`).
-   - Adjusted 5-item bottom bar font size to `0.62rem` and `letter-spacing: -0.2px` to ensure "Scholarships" displays cleanly without wrapping or overflow on narrow viewports (e.g., iPhone SE 375px).
+## 73. Staff Incoming Applications Visibility, Auto-Archive on Rejection, & Deployment Seeder Idempotency (October 2026)
+
+### Issues Identified
+1. **Staff Incoming Applications Not Visible**: Staff members were unable to see newly submitted/incoming applications in their dashboard queue (`/admin/dashboard`). Incoming applications initially have no assigned evaluator (`assigned_to = null`).
+2. **Rejected Applications Not Automatically Archived**: Applications rejected by staff or administrators remained in the active queue unless manually archived through an additional step, cluttering the evaluation workflow.
+3. **Seeder Overwriting/Duplicating Active Scholarships on Redeployment**: During production/staging deployment container boot, `docker/entrypoint.sh` executes `php artisan db:seed --force`, which caused seeders (`DatabaseSeeder`, `UatSeeder`) to repopulate and duplicate the list of active scholarships.
+
+### Root Cause Analysis
+1. **Queue Scoping & Assignment Filter**:
+   - In `AdminController::index()`, when a staff user had no explicit scholarship assignments in `user_scholarships`, `$assignedScholarshipIds` was empty. The query executed `$query->whereIn('scholarship_id', [])`, an impossible SQL clause that completely emptied the queue.
+   - The default assignment filter was hardcoded to `'mine'`, which strictly queried `where('assigned_to', auth()->id())`. Because student-submitted applications start in the unassigned pool (`assigned_to = null`), staff members never saw incoming applications upon loading the dashboard.
+   - Similar queries in `AdminController::applicantFormsIndex()` and `ReportController::index()` broke when `$assignedScholarshipIds` was empty.
+2. **Application Lifecycle for Rejections**:
+   - There was no model-level event hook to guarantee that rejected applications (`status = 'Rejected'`) are automatically marked as archived (`is_archived = true`). While the dashboard supported an `is_archived` column and filter, rejection actions required manual follow-up.
+3. **Database Seeder Idempotency**:
+   - `DatabaseSeeder.php` and `UatSeeder.php` seeded default scholarship grants without checking `Scholarship::withTrashed()->count()`, leading to duplicate entries upon every redeployment.
+
+### Engineering Remediation
+1. **Staff Dashboard & Incoming Visibility ([AdminController.php](file:///f:/aegis-capstone/app/Http/Controllers/AdminController.php))**:
+   - Updated default `$assignmentFilter` from `'mine'` to `'all'` so staff members immediately see the incoming unassigned application pool alongside assigned items.
+   - Added conditional logic for `$assignedScholarshipIds`: if the staff evaluator has no specific scholarship restrictions assigned, they have unconstrained visibility across the institution's scholarships instead of executing an empty `whereIn`.
+   - Updated `validateAdminAccess()` to grant evaluation access if `$application->assigned_to === auth()->id()`, if the application's scholarship is assigned to them, or if their assignment list is unconstrained.
+   - Protected `applicantFormsIndex()` and `ReportController.php` with safe `!empty($assignedScholarshipIds)` guards.
+2. **Automatic Archival of Rejected Applications**:
+   - Added Eloquent `static::saving(...)` lifecycle hook in [Application.php](file:///f:/aegis-capstone/app/Models/Application.php) inside `booted()`:
+     ```php
+     static::saving(function (Application $app) {
+         if ($app->status === 'Rejected' && !$app->isDirty('is_archived')) {
+             $app->is_archived = true;
+         }
+     });
+     ```
+   - Updated `updateStatus()` and `bulkAction()` in `AdminController.php` to explicitly set `is_archived => true` whenever status is set to `'Rejected'`.
+   - Updated `AdminController::index()` query logic: when filtering by `status = 'Rejected'`, the query checks `where('is_archived', true)` so rejected applications appear seamlessly in the Rejected view without polluting the active pending/review queue.
+   - Updated rejected count badge to query across all applications regardless of archived state.
+3. **Staff Dashboard UI Controls ([dashboard.blade.php](file:///f:/aegis-capstone/resources/views/admin/dashboard.blade.php))**:
+   - Added dedicated **Archived** pill (`#archivedPillBtn`) with live count badge alongside All, Pending, Under Review, Approved, and Rejected pills.
+   - Added a **Queue Scope** filter dropdown (`#assignmentSelect`) in the Secondary Filters popover with options: "All Incoming & Assigned", "Assigned to Me", and "Unassigned Queue".
+   - Wired AJAX queue reload handlers for the Archived pill and Queue Scope select.
+4. **Idempotent Database Seeders on Redeployment**:
+   - In `DatabaseSeeder.php` and `UatSeeder.php`, wrapped scholarship creation in:
+     ```php
+     if (\App\Models\Scholarship::withTrashed()->count() === 0) {
+         // Create default scholarships
+     }
+     ```
+   - Ensured staff and admin test accounts are synced with available scholarships if their pivots are empty.
+   - Added `Cache::forget('active_scholarships_list');` to prevent stale scholarship catalog cache on redeployment.
+5. **Feature Test Verification ([StaffIncomingAndRejectedArchiveTest.php](file:///f:/aegis-capstone/tests/Feature/StaffIncomingAndRejectedArchiveTest.php))**:
+   - Added tests verifying:
+     - Staff members with unconstrained assignments can view incoming unassigned applications.
+     - Single application rejection automatically sets `is_archived = true` and removes it from the default active queue while keeping it visible in the Rejected and Archived filters.
+     - Bulk rejection automatically sets `is_archived = true` on all selected applications.
+     - `DatabaseSeeder` does not create duplicate scholarships when run on existing databases.
+
 
 
 

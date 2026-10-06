@@ -153,23 +153,59 @@ class DatabaseSeeder extends Seeder
         \App\Models\Setting::firstOrCreate(['key' => 'app_logo'], ['value' => null]);
         \App\Models\Setting::firstOrCreate(['key' => 'master_email'], ['value' => 'gadianoriel07@gmail.com']);
 
-        // 2. Ensure Official Institutional Scholarships exist
-        \App\Models\Scholarship::firstOrCreate(
-            ['name' => 'DOST-SEI Merit Scholarship'],
-            ['min_gwa_required' => 1.50, 'status' => 'Active', 'max_renewals' => 4]
-        );
-        \App\Models\Scholarship::firstOrCreate(
-            ['name' => 'University Scholar (Institutional)'],
-            ['min_gwa_required' => 1.45, 'status' => 'Active', 'max_renewals' => 4]
-        );
-        \App\Models\Scholarship::firstOrCreate(
-            ['name' => 'College Scholar (Institutional)'],
-            ['min_gwa_required' => 1.75, 'status' => 'Active', 'max_renewals' => 4]
-        );
-        \App\Models\Scholarship::firstOrCreate(
-            ['name' => 'CHED Tulong Dunong Program'],
-            ['min_gwa_required' => 2.50, 'status' => 'Active', 'max_renewals' => 4]
-        );
+        // 2. Ensure Official Institutional Scholarships exist ONLY on fresh installations if empty
+        if (\App\Models\Scholarship::withTrashed()->count() === 0) {
+            $defaultScholarships = [
+                [
+                    'name' => 'DOST-SEI Merit Scholarship',
+                    'description' => 'Science and Technology scholarship program funded by the Department of Science and Technology.',
+                    'min_gwa_required' => 1.50,
+                    'status' => 'Active',
+                    'max_renewals' => 4,
+                ],
+                [
+                    'name' => 'University Scholar (Institutional)',
+                    'description' => 'Institutional academic honor grant for students maintaining superior semester GWA.',
+                    'min_gwa_required' => 1.45,
+                    'status' => 'Active',
+                    'max_renewals' => 4,
+                ],
+                [
+                    'name' => 'College Scholar (Institutional)',
+                    'description' => 'College-level academic achievement scholarship for high-performing undergraduates.',
+                    'min_gwa_required' => 1.75,
+                    'status' => 'Active',
+                    'max_renewals' => 4,
+                ],
+                [
+                    'name' => 'CHED Tulong Dunong Program',
+                    'description' => 'Financial assistance program for deserving Filipino students administered through CHED.',
+                    'min_gwa_required' => 2.50,
+                    'status' => 'Active',
+                    'max_renewals' => 4,
+                ],
+            ];
+
+            foreach ($defaultScholarships as $sData) {
+                \App\Models\Scholarship::create($sData);
+            }
+        }
+
+        // Ensure staff have access to active scholarships so their queue is populated
+        $activeScholarshipIds = \App\Models\Scholarship::where('status', 'Active')->pluck('id')->toArray();
+        if (!empty($activeScholarshipIds)) {
+            $adminUser = \App\Models\User::where('email', 'admin@clsu.edu.ph')->first();
+            $staffUser = \App\Models\User::where('email', 'staff@clsu.edu.ph')->first();
+            if ($adminUser && $adminUser->scholarships()->count() === 0) {
+                $adminUser->scholarships()->syncWithoutDetaching($activeScholarshipIds);
+            }
+            if ($staffUser && $staffUser->scholarships()->count() === 0) {
+                $staffUser->scholarships()->syncWithoutDetaching($activeScholarshipIds);
+            }
+        }
+
+        // Bust active scholarships cache so fresh database state is immediately visible on deployment
+        \Illuminate\Support\Facades\Cache::forget('active_scholarships_list');
 
         // 3. Ensure Academic Terms exist
         \App\Models\AcademicTerm::firstOrCreate(
