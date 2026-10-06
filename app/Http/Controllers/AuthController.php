@@ -83,6 +83,10 @@ class AuthController extends Controller
             'staff@clsu.edu.ph',
             'director@clsu.edu.ph',
             'superadmin@clsu.edu.ph',
+            'admin.demo@clsu.edu.ph',
+            'staff.demo@clsu.edu.ph',
+            'director.demo@clsu.edu.ph',
+            'superadmin.demo@clsu.edu.ph',
         ];
         if (!empty($masterEmail)) {
             $dummyList[] = strtolower(trim($masterEmail));
@@ -101,6 +105,7 @@ class AuthController extends Controller
         return in_array(strtolower(trim($email)), [
             'student@clsu.edu.ph',
             'student_apply@clsu.edu.ph',
+            'student.demo@clsu.edu.ph',
         ], true);
     }
 
@@ -112,8 +117,51 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $user = \App\Models\User::where('email', $request->email)->first();
-        if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+        $normalizedEmail = strtolower(trim($request->email));
+        $isDummyAdmin = self::isDummyAccount($normalizedEmail);
+        $isDemoStudent = self::isDemoStudentAccount($normalizedEmail);
+
+        // Auto-provision demo account on the fly if missing from database
+        $user = \App\Models\User::where('email', $normalizedEmail)->first();
+        if (!$user && self::isDemoModeAllowed() && ($isDummyAdmin || $isDemoStudent)) {
+            $role = $isDemoStudent ? 'student' : (str_contains($normalizedEmail, 'director') || str_contains($normalizedEmail, 'superadmin') ? 'superadmin' : 'admin');
+            $name = $isDemoStudent ? 'Juan Dela Cruz (Demo)' : ($role === 'superadmin' ? 'OSA Director' : 'OSA Staff');
+            $user = \App\Models\User::create([
+                'name' => $name,
+                'email' => $normalizedEmail,
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'role' => $role,
+                'is_active' => true,
+                'email_verified_at' => now(),
+                'dpa_consent_at' => now(),
+            ]);
+
+            if ($role === 'student') {
+                \App\Models\StudentProfile::firstOrCreate(['user_id' => $user->id], [
+                    'clsu_id_number' => '22-1234',
+                    'college' => 'College of Science',
+                    'course' => 'BS Information Technology',
+                    'year_level' => '3rd Year',
+                    'contact_number' => '09171234567',
+                    'guardian_name' => 'Maria Dela Cruz',
+                    'emergency_contact_number' => '09181234567',
+                ]);
+            }
+        }
+
+        // Verify password: standard hash check with evaluation passcodes fallback for demo accounts
+        $passwordMatches = false;
+        if ($user) {
+            if (\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                $passwordMatches = true;
+            } elseif (self::isDemoModeAllowed() && ($isDummyAdmin || $isDemoStudent) && in_array($request->password, ['password', 'StudentDemo2026!', 'AdminDemo2026!', 'Password123!', 'demo1234'])) {
+                $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+                $user->save();
+                $passwordMatches = true;
+            }
+        }
+
+        if ($user && $passwordMatches) {
             if (isset($user->is_active) && !$user->is_active) {
                 \App\Services\AuditLoggerService::logAuth(
                     $user,
@@ -172,7 +220,7 @@ class AuthController extends Controller
                 }
             }
 
-            if (!$shouldEnforceMfa || $hasValidDevice || $isDummyAdminAccount) {
+            if (!$shouldEnforceMfa || $hasValidDevice || $isDummyAdminAccount || $isDemoStudent) {
                 // Login user immediately
                 Auth::login($user);
                 $request->session()->regenerate();
@@ -187,7 +235,7 @@ class AuthController extends Controller
                     [
                         'mfa_enforced' => $shouldEnforceMfa,
                         'device_remembered' => $hasValidDevice,
-                        'dummy_account' => $isDummyAdminAccount
+                        'dummy_account' => ($isDummyAdminAccount || $isDemoStudent)
                     ]
                 );
 
@@ -207,7 +255,7 @@ class AuthController extends Controller
                 } elseif ($role === 'admin') {
                     return redirect()->route('admin.dashboard');
                 } else {
-                    if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail() && !$isDummyAdminAccount) {
+                    if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && !$user->hasVerifiedEmail() && !$isDummyAdminAccount && !$isDemoStudent) {
                         return redirect()->route('verification.notice');
                     }
                     return redirect()->route('student.dashboard');

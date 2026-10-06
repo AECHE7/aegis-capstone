@@ -13,53 +13,58 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Ensure essential admin users exist (idempotent, safe to run on boot)
-        \App\Models\User::firstOrCreate(
+        // 1. Ensure essential admin users exist (guaranteed credentials, safe to run on boot)
+        \App\Models\User::updateOrCreate(
             ['email' => 'admin@clsu.edu.ph'],
             [
                 'name' => 'OSA Admin',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
+                'is_active' => true,
                 'email_verified_at' => now()
             ]
         );
 
-        \App\Models\User::firstOrCreate(
+        \App\Models\User::updateOrCreate(
             ['email' => 'staff@clsu.edu.ph'],
             [
                 'name' => 'OSA Staff',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
+                'is_active' => true,
                 'email_verified_at' => now()
             ]
         );
 
-        \App\Models\User::firstOrCreate(
+        \App\Models\User::updateOrCreate(
             ['email' => 'director@clsu.edu.ph'],
             [
                 'name' => 'OSA Director',
                 'password' => Hash::make('password'),
                 'role' => 'superadmin',
+                'is_active' => true,
                 'email_verified_at' => now()
             ]
         );
 
-        \App\Models\User::firstOrCreate(
+        \App\Models\User::updateOrCreate(
             ['email' => 'superadmin@clsu.edu.ph'],
             [
                 'name' => 'CLSU Super Admin',
                 'password' => Hash::make('password'),
                 'role' => 'superadmin',
+                'is_active' => true,
                 'email_verified_at' => now()
             ]
         );
 
-        $demoStudent = \App\Models\User::firstOrCreate(
+        $demoStudent = \App\Models\User::updateOrCreate(
             ['email' => 'student@clsu.edu.ph'],
             [
                 'name' => 'Juan Dela Cruz',
                 'password' => Hash::make('password'),
                 'role' => 'student',
+                'is_active' => true,
                 'email_verified_at' => now(),
                 'dpa_consent_at' => now()
             ]
@@ -68,6 +73,31 @@ class DatabaseSeeder extends Seeder
         if (!$demoStudent->profile()->exists()) {
             \App\Models\StudentProfile::create([
                 'user_id' => $demoStudent->id,
+                'clsu_id_number' => '22-1234',
+                'college' => 'College of Science',
+                'course' => 'BS Information Technology',
+                'year_level' => '3rd Year',
+                'contact_number' => '09171234567',
+                'guardian_name' => 'Maria Dela Cruz',
+                'emergency_contact_number' => '09181234567',
+            ]);
+        }
+
+        $demoStudentAlias = \App\Models\User::updateOrCreate(
+            ['email' => 'student.demo@clsu.edu.ph'],
+            [
+                'name' => 'Juan Dela Cruz (Demo)',
+                'password' => Hash::make('password'),
+                'role' => 'student',
+                'is_active' => true,
+                'email_verified_at' => now(),
+                'dpa_consent_at' => now()
+            ]
+        );
+
+        if (!$demoStudentAlias->profile()->exists()) {
+            \App\Models\StudentProfile::create([
+                'user_id' => $demoStudentAlias->id,
                 'clsu_id_number' => '22-1234',
                 'college' => 'College of Science',
                 'course' => 'BS Information Technology',

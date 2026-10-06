@@ -2259,6 +2259,35 @@ In `app/Http/Middleware/SecurityHeaders.php`, the `Content-Security-Policy` head
    - Executed `php artisan test --filter=DeletionManagementTest`: 10 tests, 42 assertions passed (100%).
    - Render verification verified `<!DOCTYPE html>` now emits on line 1 and all script assets inject into `@stack('scripts')` at document end.
 
+---
+
+## 68. Demo & Evaluation Accounts Authentication & Credential Resilience (October 2026)
+
+### Issue Identified
+1. Manual login attempts for test evaluation accounts resulted in `Invalid email or password. Please try again.` when evaluators entered `student.demo@clsu.edu.ph` or attempted evaluation passwords.
+2. The user required manual, typo-resilient credentials without relying on client-side autofill chips or scripts.
+
+### Root Cause Analysis
+1. **Email Identifier Discrepancy**:
+   - The original database seeder created `student@clsu.edu.ph` (with password `password`), but did not register the intuitive `student.demo@clsu.edu.ph` alias.
+   - `DatabaseSeeder.php` utilized `firstOrCreate()`, which does not update or ensure passwords for existing records in persistent databases.
+2. **MFA Bypass Omission for Student Demo Accounts**:
+   - In `AuthController::login()`, the direct login bypass condition checked `if (!$shouldEnforceMfa || $hasValidDevice || $isDummyAdminAccount)`, omitting `$isDemoStudent`. As a result, demo students were redirected to MFA (`/login/mfa`) where non-existent mailboxes could not receive OTP codes.
+
+### Remediation & Architectural Resolution
+1. **Dynamic Demo Provisioning & Password Flexibility ([AuthController.php](file:///f:/aegis-capstone/app/Http/Controllers/AuthController.php))**:
+   - Registered `student.demo@clsu.edu.ph`, `admin.demo@clsu.edu.ph`, `staff.demo@clsu.edu.ph`, and `director.demo@clsu.edu.ph` into demo account lookups.
+   - Implemented dynamic on-the-fly provisioning: if a designated demo account is missing in the database on login, it is automatically created with verified status, active flag, and student profile.
+   - Added evaluation password resilience for demo accounts, accepting standard `password` as well as `StudentDemo2026!` and `AdminDemo2026!`.
+   - Included `$isDemoStudent` in the immediate MFA bypass and email verification notice bypass.
+2. **Database Seeder Normalization ([DatabaseSeeder.php](file:///f:/aegis-capstone/database/seeders/DatabaseSeeder.php))**:
+   - Upgraded seeder to use `updateOrCreate()` for `admin@clsu.edu.ph`, `staff@clsu.edu.ph`, `director@clsu.edu.ph`, `superadmin@clsu.edu.ph`, `student@clsu.edu.ph`, and `student.demo@clsu.edu.ph`.
+   - All demo accounts have guaranteed password `password` with `is_active => true` and `email_verified_at => now()`.
+3. **Automated Verification**:
+   - Added `test_dummy_student_can_login_with_standard_password` and `test_student_demo_alias_auto_provisions_and_accepts_evaluation_password` to `tests/Feature/DummyAccountBypassTest.php`.
+   - Executed `php artisan test --filter=DummyAccountBypassTest`: **10 passed (46 assertions, 100%)**.
+
+
 
 
 

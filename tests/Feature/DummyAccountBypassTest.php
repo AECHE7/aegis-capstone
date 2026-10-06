@@ -180,4 +180,36 @@ class DummyAccountBypassTest extends TestCase
         $response->assertRedirect(route('login.mfa'));
         $this->assertFalse(auth()->check());
     }
+
+    public function test_dummy_student_can_login_with_standard_password(): void
+    {
+        $student = User::create([
+            'name' => 'Juan Dela Cruz',
+            'email' => 'student@clsu.edu.ph',
+            'password' => Hash::make('password'),
+            'role' => 'student',
+            'email_verified_at' => now(),
+        ]);
+
+        $response = $this->post(route('login.submit'), [
+            'email' => 'student@clsu.edu.ph',
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect(route('student.dashboard'));
+        $this->assertAuthenticatedAs($student);
+    }
+
+    public function test_student_demo_alias_auto_provisions_and_accepts_evaluation_password(): void
+    {
+        $response = $this->post(route('login.submit'), [
+            'email' => 'student.demo@clsu.edu.ph',
+            'password' => 'StudentDemo2026!',
+        ]);
+
+        $response->assertRedirect(route('student.dashboard'));
+        $this->assertTrue(auth()->check());
+        $this->assertEquals('student.demo@clsu.edu.ph', auth()->user()->email);
+        $this->assertEquals('student', auth()->user()->role);
+    }
 }
