@@ -177,6 +177,11 @@ Route::post('/director/accept/{token}', [\App\Http\Controllers\DirectorTransferC
 
 
 
+// Email Verification Link Click (Public — signed URL verifies and logs user in)
+Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Auth\VerifyEmailController::class, '__invoke'])
+    ->middleware(['signed', 'throttle:10,1'])
+    ->name('verification.verify');
+
 // ==========================================
 // 🔒 SECURED ROUTES (Must be Logged In!)
 // ==========================================
@@ -204,7 +209,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Email Verification Routes
     Route::get('/email/verify', [\App\Http\Controllers\Auth\EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
-    Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Auth\VerifyEmailController::class, '__invoke'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
     Route::post('/email/verification-notification', [\App\Http\Controllers\Auth\EmailVerificationNotificationController::class, 'store'])->middleware(['throttle:6,1'])->name('verification.send');
     Route::get('/email/verification-status', function () {
         $user = auth()->user();

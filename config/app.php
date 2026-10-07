@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://clsu.osa.scholarship'),
+    'url' => env('APP_URL', env('RENDER_EXTERNAL_URL', 'https://aegis-capstone.onrender.com')),
 
     /*
     |--------------------------------------------------------------------------

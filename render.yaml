@@ -15,7 +15,7 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_URL
-        value: https://clsu.osa.scholarship
+        value: https://aegis-capstone.onrender.com
       - key: APP_DEBUG
         value: "false"
       - key: ALLOW_DEMO_ACCOUNTS
@@ -23,9 +23,9 @@ services:
       - key: LOG_CHANNEL
         value: stderr
       - key: QUEUE_CONNECTION
-        value: database
+        value: sync
       - key: SESSION_DRIVER
-        value: database
+        value: file
       - key: CACHE_STORE
         value: file
       - key: FILESYSTEM_DISK

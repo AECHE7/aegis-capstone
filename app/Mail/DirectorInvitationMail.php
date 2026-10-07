@@ -23,19 +23,34 @@ class DirectorInvitationMail extends Mailable
      */
     protected function getAppDomain(): string
     {
-        $domain = config('app.url');
-        if (!$domain || str_contains($domain, 'localhost')) {
+        // 1. If an active web request exists, prioritize the incoming client host (e.g., aegis-capstone.onrender.com)
+        if (app()->bound('request') && request()) {
             if (request()->hasHeader('X-Forwarded-Host')) {
-                $proto  = request()->header('X-Forwarded-Proto', 'https');
-                $host   = request()->header('X-Forwarded-Host');
-                $domain = "{$proto}://{$host}";
-            } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
-                $domain = request()->schemeAndHttpHost();
-            } else {
-                $domain = 'https://clsu.osa.scholarship';
+                $proto = request()->header('X-Forwarded-Proto', 'https');
+                $host  = request()->header('X-Forwarded-Host');
+                if ($host && !in_array($host, ['localhost', '127.0.0.1'], true) && !str_contains($host, 'clsu.osa.scholarship')) {
+                    return rtrim("{$proto}://{$host}", '/');
+                }
+            }
+            $host = request()->getHost();
+            if ($host && !in_array($host, ['localhost', '127.0.0.1'], true) && !str_contains($host, 'clsu.osa.scholarship')) {
+                return rtrim(request()->schemeAndHttpHost(), '/');
             }
         }
-        return rtrim($domain, '/');
+
+        // 2. Render cloud deployment environment URL
+        if (env('RENDER_EXTERNAL_URL')) {
+            return rtrim(env('RENDER_EXTERNAL_URL'), '/');
+        }
+
+        // 3. Configured app.url (ignoring mock or localhost domains)
+        $domain = config('app.url');
+        if ($domain && !str_contains($domain, 'localhost') && !str_contains($domain, 'clsu.osa.scholarship')) {
+            return rtrim($domain, '/');
+        }
+
+        // 4. Fallback to production Render URL
+        return 'https://aegis-capstone.onrender.com';
     }
 
     public function __construct(string $senderEmail, string $recipientEmail, string $recipientName, string $token)

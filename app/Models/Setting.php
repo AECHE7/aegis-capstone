@@ -86,16 +86,20 @@ class Setting extends Model
             return asset('logo.webp');
         }
 
-        $domain = config('app.url', 'https://clsu.osa.scholarship');
-        if (!$domain || str_contains($domain, 'localhost')) {
+        $domain = env('RENDER_EXTERNAL_URL');
+        if (!$domain && app()->bound('request') && request()) {
             if (request()->hasHeader('X-Forwarded-Host')) {
                 $proto = request()->header('X-Forwarded-Proto', 'https');
                 $host = request()->header('X-Forwarded-Host');
                 $domain = "{$proto}://{$host}";
             } elseif (request()->getHost() && !str_contains(request()->getHost(), 'localhost')) {
                 $domain = request()->schemeAndHttpHost();
-            } else {
-                $domain = 'https://clsu.osa.scholarship';
+            }
+        }
+        if (!$domain || str_contains($domain, 'localhost') || str_contains($domain, 'clsu.osa.scholarship')) {
+            $domain = config('app.url');
+            if (!$domain || str_contains($domain, 'localhost') || str_contains($domain, 'clsu.osa.scholarship')) {
+                $domain = 'https://aegis-capstone.onrender.com';
             }
         }
         return rtrim(str_replace('http://', 'https://', $domain), '/') . '/images/clsu-seal.png';
